@@ -1,0 +1,38 @@
+services:
+  # Backend
+  - type: web
+    name: swiss-cv-backend
+    env: node
+    buildCommand: npm ci && npx prisma generate
+    startCommand: npx tsx server/index.ts
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: swiss-cv-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: REFRESH_TOKEN_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: https://swiss-cv-frontend.onrender.com # Update after deployment
+
+  # Frontend
+  - type: web
+    name: swiss-cv-frontend
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: swiss-cv-backend
+          property: url
+
+databases:
+  - name: swiss-cv-db
+    databaseName: swiss_cv
+    user: swiss_user

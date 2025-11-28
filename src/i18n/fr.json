@@ -1,0 +1,68 @@
+{
+    "personal": {
+        "title": "Informations Personnelles",
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "role": "Titre du poste",
+        "email": "Email",
+        "phone": "Téléphone",
+        "address": "Adresse",
+        "birthDate": "Date de naissance",
+        "nationality": "Nationalité",
+        "permit": "Permis de travail",
+        "mobility": "Mobilité"
+    },
+    "sections": {
+        "summary": "Résumé Professionnel",
+        "experience": "Expérience",
+        "education": "Formation",
+        "skills": "Compétences",
+        "languages": "Langues"
+    },
+    "actions": {
+        "save": "Sauvegarder",
+        "download": "Télécharger PDF",
+        "add": "Ajouter",
+        "delete": "Supprimer"
+    },
+    "settings": {
+        "title": "Paramètres",
+        "account": "Compte",
+        "storage": "Stockage",
+        "billing": "Abonnement",
+        "free": "Gratuit",
+        "pro": "Pro",
+        "displayMode": "Mode d'affichage",
+        "mobileMode": "Mobile",
+        "desktopMode": "Bureau",
+        "mobileDesc": "Prévisualisez votre CV sur mobile.",
+        "demoContent": "Contenu de démo",
+        "loadDemo": "Charger la démo au démarrage",
+        "generateDemo": "Générer un profil de démo"
+    },
+    "tabs": {
+        "personal": "Infos",
+        "experience": "Expérience",
+        "education": "Formation",
+        "skills": "Compétences",
+        "letter": "Lettre",
+        "ai": "IA",
+        "review": "Revue",
+        "settings": "Réglages"
+    },
+    "critic": {
+        "jobDescription": "Description du poste",
+        "pasteJob": "Collez la description du poste ici...",
+        "ready": "Prêt à analyser",
+        "intro": "Obtenez une analyse détaillée de votre CV et des suggestions d'amélioration.",
+        "analyzeBtn": "Analyser mon CV",
+        "analyzing": "Analyse en cours...",
+        "quality": "Qualité du CV",
+        "relevance": "Pertinence",
+        "addJobDesc": "Ajoutez une description de poste pour voir la pertinence",
+        "smartKeywords": "Mots-clés Intelligents",
+        "smartInsights": "Insights",
+        "impact": "Impact",
+        "suggestions": "Suggestions"
+    }
+}

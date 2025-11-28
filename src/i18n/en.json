@@ -1,0 +1,68 @@
+{
+    "personal": {
+        "title": "Personal Details",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "role": "Job Title",
+        "email": "Email",
+        "phone": "Phone",
+        "address": "Address",
+        "birthDate": "Date of Birth",
+        "nationality": "Nationality",
+        "permit": "Work Permit",
+        "mobility": "Mobility"
+    },
+    "sections": {
+        "summary": "Professional Summary",
+        "experience": "Experience",
+        "education": "Education",
+        "skills": "Skills",
+        "languages": "Languages"
+    },
+    "actions": {
+        "save": "Save",
+        "download": "Download PDF",
+        "add": "Add",
+        "delete": "Delete"
+    },
+    "settings": {
+        "title": "Settings",
+        "account": "Account",
+        "storage": "Storage",
+        "billing": "Billing",
+        "free": "Free",
+        "pro": "Pro",
+        "displayMode": "Display Mode",
+        "mobileMode": "Mobile",
+        "desktopMode": "Desktop",
+        "mobileDesc": "Preview how your CV looks on mobile devices.",
+        "demoContent": "Demo Content",
+        "loadDemo": "Load demo on startup",
+        "generateDemo": "Generate Demo Profile"
+    },
+    "tabs": {
+        "personal": "Personal",
+        "experience": "Experience",
+        "education": "Education",
+        "skills": "Skills",
+        "letter": "Letter",
+        "ai": "AI",
+        "review": "Review",
+        "settings": "Settings"
+    },
+    "critic": {
+        "jobDescription": "Job Description",
+        "pasteJob": "Paste job description here...",
+        "ready": "Ready to Analyze",
+        "intro": "Get a detailed analysis of your CV with improvement suggestions.",
+        "analyzeBtn": "Analyze CV",
+        "analyzing": "Analyzing...",
+        "quality": "CV Quality",
+        "relevance": "Relevance",
+        "addJobDesc": "Add job description to see relevance",
+        "smartKeywords": "Smart Keywords",
+        "smartInsights": "Insights",
+        "impact": "Impact",
+        "suggestions": "Suggestions"
+    }
+}
