@@ -13,17 +13,28 @@ export const useSmartDensity = () => {
             return;
         }
 
-        // Simple heuristic for now (NanoBrain can enhance this later)
-        const experienceCount = profile.experiences.length;
-        const totalTextLength = profile.summary.length +
-            profile.experiences.reduce((acc, exp) => acc + exp.tasks.join('').length, 0);
+        const analyze = async () => {
+            const text = [
+                profile.summary,
+                ...profile.experiences.map(e => `${e.role} ${e.tasks.join(' ')}`),
+                profile.skills.join(' ')
+            ].join(' ');
 
-        if (experienceCount > 5 || totalTextLength > 3000) {
-            setDensity('compact');
-        } else if (experienceCount < 2) {
-            setDensity('spacious');
-        } else {
-            setDensity('comfortable');
-        }
+            if (text.length < 50) {
+                setDensity('comfortable');
+                return;
+            }
+
+            try {
+                const { level } = await import('../../domain/services/ai/nano-brain').then(m => m.nanoBrain.analyzeComplexity(text));
+                // Map the level directly as it matches the Density type
+                setDensity(level as any);
+            } catch (e) {
+                console.warn('NanoBrain complexity analysis failed', e);
+            }
+        };
+
+        const timer = setTimeout(analyze, 1000); // Debounce 1s
+        return () => clearTimeout(timer);
     }, [profile, deviceType, setDensity]);
 };

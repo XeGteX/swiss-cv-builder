@@ -50,6 +50,10 @@ export class NanoBrainService {
         return this.request('suggest_keywords', { text });
     }
 
+    async analyzeComplexity(text: string): Promise<{ score: number, level: 'compact' | 'comfortable' | 'spacious' }> {
+        return this.request('analyze_complexity', { text });
+    }
+
     terminate() {
         this.worker?.terminate();
         this.worker = null;

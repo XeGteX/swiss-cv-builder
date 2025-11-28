@@ -21,11 +21,13 @@ describe('CV Store', () => {
                 skills: [],
                 languages: [],
                 summary: '',
+                lastUpdated: Date.now(),
+                strengths: [],
                 metadata: {
                     templateId: 'modern',
                     accentColor: '#000000',
                     fontFamily: 'sans',
-                    layout: 'classic'
+                    density: 'comfortable'
                 }
             }
         });

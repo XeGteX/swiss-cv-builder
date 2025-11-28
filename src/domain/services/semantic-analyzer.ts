@@ -1,6 +1,6 @@
 import type { CVProfile } from '../entities/cv';
-import { ContentCompletenessRule, ActionVerbsRule, MetricsRule } from '@/domain/services/scoring/rules';
-import type { ScoringContext, RuleResult, Suggestion } from '@/domain/services/scoring/scoring-types';
+import { ContentCompletenessRule, ActionVerbsRule, MetricsRule } from './scoring/rules';
+import type { ScoringContext, Suggestion } from './scoring/scoring-types';
 
 export interface AnalysisResult {
     score: number; // 0-100

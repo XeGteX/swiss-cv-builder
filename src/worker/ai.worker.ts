@@ -69,6 +69,41 @@ self.onmessage = (e: MessageEvent) => {
                 });
                 break;
 
+            case 'analyze_complexity':
+                const text = payload.text as string;
+                if (!text) {
+                    self.postMessage({ type: 'complexity_result', id, payload: { score: 0, level: 'compact' } });
+                    return;
+                }
+
+                // 1. Sentence Length (Words per sentence)
+                const sentences = text.split(/[.!?]+/).filter((s: string) => s.trim().length > 0);
+                const words = text.split(/\s+/).filter((w: string) => w.length > 0);
+                const avgSentenceLength = sentences.length > 0 ? words.length / sentences.length : 0;
+
+                // 2. Average Word Length
+                const totalChars = words.reduce((acc: number, w: string) => acc + w.length, 0);
+                const avgWordLength = words.length > 0 ? totalChars / words.length : 0;
+
+                // 3. Heuristic Score (0-100 approx)
+                // Simple: 4 words/sent -> score ~20. 20 words/sent -> score ~80.
+                // Long words also boost score.
+                let score = (avgSentenceLength * 3) + (avgWordLength * 5);
+
+                // Cap at 100
+                score = Math.min(Math.max(score, 0), 100);
+
+                let level = 'comfortable';
+                if (score < 30) level = 'compact';
+                else if (score > 60) level = 'spacious';
+
+                self.postMessage({
+                    type: 'complexity_result',
+                    id,
+                    payload: { score: Math.round(score), level }
+                });
+                break;
+
             default:
                 self.postMessage({ type: 'error', id, payload: 'Unknown command' });
         }

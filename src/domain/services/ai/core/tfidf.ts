@@ -33,8 +33,9 @@ export class TfIdfVectoriser {
      */
     calculateIdf() {
         this.idf.forEach((count, token) => {
-            // IDF = log(TotalDocs / (DocFreq + 1))
-            const idfVal = Math.log(this.docCount / (count + 1));
+            // IDF = log(TotalDocs / DocFreq)
+            // Standard formula. If word is in all docs, log(1) = 0.
+            const idfVal = Math.log(this.docCount / count);
             this.idf.set(token, idfVal);
         });
     }

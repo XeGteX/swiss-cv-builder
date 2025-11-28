@@ -30,8 +30,8 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
 
         setGeneratingPDF(true);
         try {
-            const filename = `CV_${profile.personal.lastName}_${profile.personal.firstName}.pdf`;
-            await PDFService.generate(cvRef.current, filename);
+            // const filename = `CV_${profile.personal.lastName}_${profile.personal.firstName}.pdf`;
+            await PDFService.generate(profile, 'visual'); // Default to visual for now
             addToast('PDF downloaded successfully!', 'success');
         } catch (error) {
             console.error('PDF Generation failed', error);
