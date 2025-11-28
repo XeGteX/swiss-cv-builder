@@ -44,7 +44,7 @@ const ModernTemplate: React.FC<ExtendedTemplateProps> = ({ data, densityStyles, 
     return (
         <div
             id="cv-template"
-            className={`bg-white shadow-2xl text-slate-800 font-${fontFamily} ${styles.textBase} print:shadow-none print:m-0 print:h-full print:w-full overflow-hidden relative mx-auto box-border`}
+            className={`bg-white shadow-2xl text-slate-800 font-${fontFamily} ${styles.textBase} print:shadow-none print:m-0 print:h-full print:w-full overflow-hidden relative mx-auto box-border break-words overflow-wrap-anywhere`}
             style={{
                 width: '210mm',
                 minHeight: '297mm',
@@ -55,7 +55,7 @@ const ModernTemplate: React.FC<ExtendedTemplateProps> = ({ data, densityStyles, 
             {/* HEADER */}
             <div className={`text-white ${styles.headerPad} grid grid-cols-12 gap-8 relative px-10 py-10 print:py-10`} style={headerStyle}>
                 <div className="col-span-3 flex items-center justify-center">
-                    <div className="w-36 h-36 bg-white rounded-full overflow-hidden border-4 border-white/30 shadow-lg relative z-10 shrink-0">
+                    <div className="w-36 h-36 bg-white rounded-full overflow-hidden border-4 border-white/30 shadow-lg relative z-10 shrink-0 aspect-square">
                         {data.personal.photoUrl ? (
                             <img
                                 src={data.personal.photoUrl}
@@ -233,11 +233,11 @@ const ModernTemplate: React.FC<ExtendedTemplateProps> = ({ data, densityStyles, 
                             <div className="space-y-5">
                                 {data.languages.map((lang, i) => (
                                     <div key={i}>
-                                        <div className="flex justify-between text-xs mb-2 items-end">
-                                            <span className="font-bold text-slate-700 break-words leading-none">{lang.name}</span>
-                                            <span className="text-slate-500 break-words text-[10px] font-medium uppercase tracking-wide leading-none">{lang.level}</span>
+                                        <div className="flex flex-col mb-1.5">
+                                            <span className="font-bold text-slate-700 break-words leading-tight">{lang.name}</span>
+                                            <span className="text-slate-500 break-words text-[10px] font-medium uppercase tracking-wide leading-none mt-0.5">{lang.level}</span>
                                         </div>
-                                        <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                                        <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
                                             <div className="h-full transition-all duration-500 rounded-full" style={{ width: i === 0 ? '100%' : '65%', backgroundColor: effectiveConfig.colors.primary }} />
                                         </div>
                                     </div>

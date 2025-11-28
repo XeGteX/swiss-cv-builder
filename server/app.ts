@@ -27,6 +27,15 @@ const authLimiter = rateLimit({
     legacyHeaders: false,
 });
 
+// Rate Limiter for AI
+const aiLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 10, // Limit each IP to 10 requests per windowMs
+    message: 'Too many AI requests from this IP, please try again after 1 minute',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 // Middleware
 app.use(helmet());
 app.use(cors({
@@ -48,7 +57,7 @@ app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/letters', letterRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
-app.use('/api/ai', aiRoutes);
+app.use('/api/ai', aiLimiter, aiRoutes);
 
 import { MonitorService } from './services/monitor-service';
 
@@ -69,6 +78,24 @@ app.get('/api/health', (req, res) => {
     });
 });
 app.get('/api/health/deep', HealthController.deepCheck);
+
+// Serve static files in production
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+if (env.NODE_ENV === 'production') {
+    // Serve static files from the React app
+    app.use(express.static(path.join(__dirname, '../../dist')));
+
+    // The "catchall" handler: for any request that doesn't
+    // match one above, send back React's index.html file.
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, '../../dist/index.html'));
+    });
+}
 
 // Global Error Handler
 app.use(errorHandler);

@@ -7,12 +7,10 @@ export class ProfileService {
             where: { userId },
             select: {
                 id: true,
-                name: true,
+                title: true, // Was name
                 updatedAt: true,
                 isDemo: true,
-                firstName: true,
-                lastName: true,
-                jobTitle: true,
+                data: true, // Need data to get name/title if not in top level
             },
             orderBy: { updatedAt: 'desc' }
         });
@@ -24,32 +22,24 @@ export class ProfileService {
         });
     }
 
-    static async createProfile(userId: string, data: any, name: string = 'My CV') {
+    static async createProfile(userId: string, data: any, title: string = 'My CV') {
         const profileData = JSON.stringify(data);
         return prisma.profile.create({
             data: {
                 userId,
-                name,
+                title, // Was name
                 data: profileData,
-                firstName: data.personal?.firstName,
-                lastName: data.personal?.lastName,
-                jobTitle: data.personal?.title, // Map CV title to jobTitle
-                summary: data.summary,
             }
         });
     }
 
-    static async updateProfile(userId: string, profileId: string, data: any, name?: string) {
+    static async updateProfile(userId: string, profileId: string, data: any, title?: string) {
         const profileData = JSON.stringify(data);
         return prisma.profile.updateMany({
             where: { id: profileId, userId },
             data: {
                 data: profileData,
-                firstName: data.personal?.firstName,
-                lastName: data.personal?.lastName,
-                jobTitle: data.personal?.title,
-                summary: data.summary,
-                ...(name && { name }),
+                ...(title && { title }),
             }
         });
     }

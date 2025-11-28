@@ -61,6 +61,8 @@ export const CoverLetterTab: React.FC = () => {
         deleted: t('letterGen.deleted') || 'Deleted',
         generated: t('letterGen.generated') || 'Generated',
         errorGen: t('letterGen.errorGen') || 'Generation failed',
+        startNew: t('letterGen.startNew') || 'Start a New Letter',
+        placeholder: t('letterGen.placeholder') || 'Start typing your letter here...',
     };
     const commonTxt = {
         tabs: { letter: t('tabs.letter') },
@@ -89,29 +91,40 @@ export const CoverLetterTab: React.FC = () => {
             setEditorContent(letter.content);
         } else {
             setActiveLetter(null);
-            setJobTitle('');
+            setJobTitle(profile.personal.title || '');
             setCompany('');
             setEditorContent('');
         }
         setView('editor');
     };
 
-    const handleSave = () => {
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleSave = async (silent = false) => {
         if (!jobTitle) {
-            addToast(txt.errorJob, 'error');
+            if (!silent) addToast(txt.errorJob, 'error');
             return;
         }
+
+        setIsSaving(true);
+        if (!silent) await new Promise(resolve => setTimeout(resolve, 500));
+
         const letter: Letter = {
             id: activeLetter?.id || uuidv4(),
-            title: `${jobTitle} @ ${company || 'Company'}`,
+            title: `${jobTitle} @ ${company || 'Unknown'}`,
             content: editorContent,
             lastUpdated: Date.now(),
             targetJob: jobTitle,
             targetCompany: company
         };
+
         saveLetter(letter);
-        addToast(txt.saved, 'success');
-        setView('list');
+        setActiveLetter(letter);
+        setIsSaving(false);
+        if (!silent) {
+            addToast(txt.saved, 'success');
+            setView('list');
+        }
     };
 
     const handleDelete = (id: string) => {
@@ -120,6 +133,17 @@ export const CoverLetterTab: React.FC = () => {
             addToast(txt.deleted, 'success');
         }
     };
+
+    // Auto-save effect
+    React.useEffect(() => {
+        if (!editorContent || !jobTitle) return;
+
+        const timer = setTimeout(() => {
+            handleSave(true);
+        }, 2000);
+
+        return () => clearTimeout(timer);
+    }, [editorContent, jobTitle, company]);
 
     const handleDownload = (letter: Letter) => {
         const element = document.createElement("a");
@@ -143,7 +167,6 @@ export const CoverLetterTab: React.FC = () => {
             addToast(commonTxt.aiSection.errorApiKey, 'error');
             return;
         }
-        setIsOnlineLoading(true);
         setIsOnlineLoading(true);
         try {
             let client;
@@ -198,11 +221,19 @@ export const CoverLetterTab: React.FC = () => {
                         {txt.newLetter}
                     </Button>
                 </div>
-                <div className="p-4 space-y-3 overflow-y-auto flex-1">
+                <div className="p-4 space-y-3 overflow-y-auto flex-1 pb-20">
                     {!profile.letters || profile.letters.length === 0 ? (
-                        <div className="text-center py-10 text-slate-500">
-                            <Lucide.FileText size={48} className="mx-auto mb-3 text-slate-300" />
-                            <p>{txt.emptyState}</p>
+                        <div className="text-center py-12 px-4 text-slate-500 flex flex-col items-center justify-center h-full">
+                            <div className="bg-indigo-50 p-4 rounded-full mb-4">
+                                <Lucide.PenTool size={32} className="text-indigo-600" />
+                            </div>
+                            <h4 className="text-lg font-bold text-slate-800 mb-2">{txt.emptyState}</h4>
+                            <p className="text-sm text-slate-500 mb-6 max-w-xs mx-auto">
+                                Create a tailored cover letter for your next job application in seconds.
+                            </p>
+                            <Button onClick={() => openEditor()} leftIcon={<Lucide.Plus size={16} />}>
+                                {txt.startNew}
+                            </Button>
                         </div>
                     ) : (
                         profile.letters.map(letter => (
@@ -265,7 +296,9 @@ export const CoverLetterTab: React.FC = () => {
                         <Lucide.Wifi size={12} /> {txt.online}
                     </button>
                 </div>
-                <Button size="sm" onClick={handleSave}>{txt.save}</Button>
+                <Button size="sm" onClick={() => handleSave(false)} disabled={isSaving}>
+                    {isSaving ? 'Saving...' : txt.save}
+                </Button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -372,7 +405,7 @@ export const CoverLetterTab: React.FC = () => {
                         className="w-full h-96 p-4 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none leading-relaxed font-serif text-slate-700 resize-none"
                         value={editorContent}
                         onChange={(e) => setEditorContent(e.target.value)}
-                        placeholder="Letter content..."
+                        placeholder={txt.placeholder}
                     />
                 </div>
             </div>

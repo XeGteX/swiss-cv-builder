@@ -77,17 +77,23 @@ export class LayoutEngine {
         const marginTop = this.config.page.marginTop;
         const marginBottom = this.config.page.marginBottom;
         // Header/Footer logic
+        // Header/Footer logic
+        // Header/Footer logic
         // Page 1: Modern Header is tall (~220px with padding)
         // Page 2+: Standard Header is small (~40px)
-        const headerHeight = this.currentPage.index === 0 ? 220 : 40;
-        const footerHeight = 30; // Reduced from 50 to match actual footer size
+        // OPTIMIZATION: Reduced header height estimate to fill Page 1 more
+        const headerHeight = this.currentPage.index === 0 ? 180 : 30; // Further reduced
+        const footerHeight = 10; // Minimal footer buffer
 
         const totalUsable = pageHeight - marginTop - marginBottom - headerHeight - footerHeight;
-        return totalUsable - this.currentContentHeight;
+
+        // Allow a slight overflow tolerance (e.g., 20px) to prevent premature breaks
+        return totalUsable - this.currentContentHeight + 20;
     }
 
     private processSection(section: SectionBlock) {
-        const sectionHeight = section.estimatedHeight || 100; // Fallback
+        // OPTIMIZATION: Reduced fallback height
+        const sectionHeight = section.estimatedHeight || 80;
 
         // Case 1: Fits entirely
         if (sectionHeight <= this.availableHeightOnPage) {
@@ -120,10 +126,10 @@ export class LayoutEngine {
         // Estimate item height (naive: total / count)
         // In a real DOM scenario, we'd measure each item.
         // Here we assume estimatedHeight is accurate for the whole block.
-        const itemHeight = section.estimatedHeight ? section.estimatedHeight / section.items.length : 50;
+        const itemHeight = section.estimatedHeight ? section.estimatedHeight / section.items.length : 40;
 
         // Header of the section (title) takes some space
-        const titleHeight = 40;
+        const titleHeight = 30;
         let isFirstPart = true;
 
         while (remainingItems.length > 0) {

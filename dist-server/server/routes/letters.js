@@ -1,0 +1,10 @@
+import express from 'express';
+import { authenticateToken } from '../middleware/auth';
+import { LetterController } from '../controllers/letter-controller';
+const router = express.Router();
+router.get('/', authenticateToken, LetterController.list);
+router.get('/:id', authenticateToken, LetterController.get);
+router.post('/', authenticateToken, LetterController.create);
+router.put('/:id', authenticateToken, LetterController.update);
+router.delete('/:id', authenticateToken, LetterController.delete);
+export default router;

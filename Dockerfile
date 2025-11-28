@@ -7,23 +7,28 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
+# Build both client (dist) and server (dist-server)
 RUN npm run build
 
-# Stage 2: Serve
-FROM nginx:alpine
+# Stage 2: Production Runner
+FROM node:20-alpine
 
-COPY --from=builder /app/dist /usr/share/nginx/html
+WORKDIR /app
 
-# Add nginx config for SPA
-RUN echo 'server { \
-    listen 80; \
-    location / { \
-    root /usr/share/nginx/html; \
-    index index.html index.htm; \
-    try_files $uri $uri/ /index.html; \
-    } \
-    }' > /etc/nginx/conf.d/default.conf
+COPY package*.json ./
+# Install only production dependencies
+RUN npm ci --only=production
 
-EXPOSE 80
+# Copy built assets from builder
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/dist-server ./dist-server
 
-CMD ["nginx", "-g", "daemon off;"]
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Set environment to production
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Start the server
+CMD ["node", "dist-server/server/index.js"]

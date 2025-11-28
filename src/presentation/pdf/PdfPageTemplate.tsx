@@ -6,9 +6,11 @@ import { MapPin, Phone, Mail, Globe, Camera, Briefcase, Award, GraduationCap } f
 interface PdfPageTemplateProps {
     page: PageDefinition;
     scale?: number;
+    fontFamily?: string;
+    sidebarData?: SectionBlock[];
 }
 
-export const PdfPageTemplate: React.FC<PdfPageTemplateProps> = ({ page, scale = 1 }) => {
+export const PdfPageTemplate: React.FC<PdfPageTemplateProps> = ({ page, scale = 1, fontFamily, sidebarData }) => {
     const config = PDF_CONFIG[page.header.variant];
     const { width, height } = config.page;
     const isFirstPage = page.index === 0;
@@ -16,15 +18,16 @@ export const PdfPageTemplate: React.FC<PdfPageTemplateProps> = ({ page, scale = 
 
     const style: React.CSSProperties = {
         width: `${width}px`,
-        height: `${height}px`,
+        minHeight: `${height}px`, // Allow growth if calculation is slightly off
+        height: 'auto',
         backgroundColor: 'white',
         position: 'relative',
-        overflow: 'hidden',
+        // overflow: 'hidden', // Removed to prevent cutting off content
         transform: `scale(${scale})`,
         transformOrigin: 'top left',
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
         marginBottom: '20px',
-        fontFamily: config.typography.fontFamily,
+        fontFamily: fontFamily || config.typography.fontFamily,
         fontSize: `${config.typography.fontSize.base}px`,
         lineHeight: config.typography.lineHeight,
         color: config.colors.text,
@@ -54,18 +57,35 @@ export const PdfPageTemplate: React.FC<PdfPageTemplateProps> = ({ page, scale = 
             )}
 
             {/* Content Area */}
+            {/* Content Area with Grid */}
             <div style={{
                 paddingLeft: config.page.marginLeft,
                 paddingRight: config.page.marginRight,
-                // Adjust height calculation if header is present
-                height: 'auto', // Let content flow, overflow is handled by pagination logic (mostly)
-                paddingTop: (isVisual && isFirstPage) ? 20 : 0
+                height: 'auto',
+                paddingTop: (isVisual && isFirstPage) ? 20 : 0,
+                display: 'grid',
+                gridTemplateColumns: '65% 35%',
+                gap: '2rem',
             }}>
-                {page.sections.map(section => {
-                    // Skip profile section in body if it's already rendered in header
-                    if (isVisual && isFirstPage && section.type === 'profile') return null;
-                    return <SectionRenderer key={section.id} section={section} config={config} accentColor={page.accentColor} />;
-                })}
+                {/* Left Column (Main Content) */}
+                <div className="main-content">
+                    {page.sections.map(section => {
+                        if (isVisual && isFirstPage && section.type === 'profile') return null;
+                        return <SectionRenderer key={section.id} section={section} config={config} accentColor={page.accentColor} />;
+                    })}
+                </div>
+
+                {/* Right Column (Sidebar) */}
+                <div className="sidebar">
+                    {/* Render Sidebar Data if present (usually Page 1) */}
+                    {sidebarData && (
+                        <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '8px', height: '100%' }}>
+                            {sidebarData.map(section => (
+                                <SectionRenderer key={section.id} section={section} config={config} accentColor={page.accentColor} />
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Footer */}
@@ -83,7 +103,6 @@ export const PdfPageTemplate: React.FC<PdfPageTemplateProps> = ({ page, scale = 
             }}>
                 <span>{page.header.pageNumber}</span>
             </div>
-            <Camera size={40} />
         </div>
     );
 };
@@ -93,8 +112,14 @@ export const PdfPageTemplate: React.FC<PdfPageTemplateProps> = ({ page, scale = 
 const ModernHeader: React.FC<{ personal: any, config: any, accentColor?: string }> = ({ personal, config, accentColor }) => {
     const primaryColor = accentColor || config.colors.primary;
 
+    const adjustColor = (color: string, amount: number) => {
+        return '#' + color.replace(/^#/, '').replace(/../g, c =>
+            ('0' + Math.min(255, Math.max(0, parseInt(c, 16) + amount)).toString(16)).slice(-2)
+        );
+    };
+
     return (
-        <div className="text-white grid grid-cols-12 gap-6 px-10 py-10" style={{ background: `linear-gradient(135deg, ${primaryColor}, #1e293b)` }}>
+        <div className="text-white grid grid-cols-12 gap-6 px-10 py-10" style={{ background: `linear-gradient(135deg, ${primaryColor}, ${adjustColor(primaryColor, -60)})` }}>
             <div className="col-span-3 flex items-center justify-center">
                 <div className="w-32 h-32 bg-white rounded-full overflow-hidden border-4 border-white/30 shadow-lg relative z-10 shrink-0">
                     {personal.photoUrl ? (
@@ -168,8 +193,8 @@ const SectionRenderer: React.FC<{ section: SectionBlock, config: any, accentColo
                         )}
 
                         <div className="flex justify-between items-baseline mb-1">
-                            {(item.role || item.degree) && (
-                                <div className="font-bold text-slate-800">{item.role || item.degree}</div>
+                            {(item.role || item.degree || item.title) && (
+                                <div className="font-bold text-slate-800">{item.role || item.degree || item.title}</div>
                             )}
                             {(item.date || item.dates || item.year) && (
                                 <span className="text-xs font-bold text-slate-500 bg-slate-50 px-2 py-0.5 rounded">

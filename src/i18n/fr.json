@@ -64,5 +64,52 @@
         "smartInsights": "Insights",
         "impact": "Impact",
         "suggestions": "Suggestions"
+    },
+    "letterGen": {
+        "newLetter": "Nouvelle Lettre",
+        "emptyState": "Aucune lettre pour le moment",
+        "edit": "Éditer",
+        "delete": "Supprimer",
+        "optimize": "Optimiser",
+        "back": "Retour",
+        "offline": "Hors ligne",
+        "online": "En ligne",
+        "jobTitle": "Intitulé du poste",
+        "company": "Entreprise",
+        "targetLang": "Langue cible",
+        "generate": "Générer",
+        "errorJob": "Titre du poste requis",
+        "saved": "Sauvegardé",
+        "deleted": "Supprimé",
+        "generated": "Généré avec succès",
+        "errorGen": "Échec de la génération",
+        "startNew": "Commencer une nouvelle lettre",
+        "placeholder": "Commencez à rédiger votre lettre ici, ou utilisez le générateur ci-dessus...",
+        "startTyping": "Commencez à écrire..."
+    },
+    "wizard": {
+        "title": "Assistant CV Suisse",
+        "steps": {
+            "identity": "Identité",
+            "experience": "Expérience",
+            "template": "Modèle",
+            "download": "Télécharger"
+        },
+        "headers": {
+            "identity": "Qui êtes-vous ?",
+            "experience": "Votre Expérience",
+            "template": "Choisissez un style"
+        },
+        "actions": {
+            "exit": "Quitter l'assistant",
+            "back": "Retour",
+            "next": "Étape Suivante",
+            "finish": "Terminer"
+        },
+        "templates": {
+            "modern": "Suisse Moderne",
+            "modernDesc": "Propre, professionnel et conforme aux normes.",
+            "classic": "Classique (Bientôt)"
+        }
     }
 }

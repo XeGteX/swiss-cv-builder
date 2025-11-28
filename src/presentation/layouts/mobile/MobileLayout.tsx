@@ -11,9 +11,21 @@ type MobileTab = 'editor' | 'preview' | 'ai';
 
 export const MobileLayout: React.FC = () => {
     const [activeTab, setActiveTab] = useState<MobileTab>('editor');
+    const [viewportHeight, setViewportHeight] = useState('100%');
+
+    React.useEffect(() => {
+        const handleResize = () => {
+            if (window.visualViewport) {
+                setViewportHeight(`${window.visualViewport.height}px`);
+            }
+        };
+
+        window.visualViewport?.addEventListener('resize', handleResize);
+        return () => window.visualViewport?.removeEventListener('resize', handleResize);
+    }, []);
 
     return (
-        <div className="h-full w-full flex flex-col bg-slate-50 overflow-hidden relative">
+        <div className="w-full flex flex-col bg-slate-50 overflow-hidden relative" style={{ height: viewportHeight }}>
             {/* Header - Fixed Top */}
             <div className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0 z-20 pt-safe-top">
                 <h1 className="font-bold text-slate-800 text-lg">Swiss CV</h1>
@@ -34,7 +46,7 @@ export const MobileLayout: React.FC = () => {
                     {activeTab === 'preview' && (
                         <LiquidTab id="preview" className="absolute inset-0 overflow-hidden bg-slate-200 pb-24">
                             <div className="h-full w-full overflow-y-auto custom-scrollbar flex flex-col items-center py-8">
-                                <div className="w-[90%] max-w-[210mm] shadow-2xl bg-white origin-top" style={{ zoom: '0.5' }}>
+                                <div className="w-[90%] max-w-[210mm] shadow-2xl bg-white origin-top" style={{ transform: 'scale(0.65)', transformOrigin: 'top center', width: '153%' }}>
                                     <PreviewPane hideToolbar />
                                 </div>
                                 {/* Spacer for FAB */}

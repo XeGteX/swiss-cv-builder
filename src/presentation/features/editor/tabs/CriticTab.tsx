@@ -14,6 +14,7 @@ export const CriticTab: React.FC = () => {
     const { t, language } = useTranslation();
 
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [loadingStep, setLoadingStep] = useState('');
     const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
     const [localSuggestions, setLocalSuggestions] = useState<any[]>([]);
     const [jobDescription, setJobDescription] = useState('');
@@ -22,14 +23,18 @@ export const CriticTab: React.FC = () => {
 
     const runAnalysis = async () => {
         setIsAnalyzing(true);
-        // Simulate AI delay
-        await new Promise(resolve => setTimeout(resolve, 800));
+        setLoadingStep('Reading CV...');
 
+        // Small yield for UI update
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        setLoadingStep('Analyzing Structure...');
         const result = SemanticAnalyzer.analyze(profile, language);
         setAnalysis(result);
 
         // Run Local Knowledge Engine
         if (profile.summary) {
+            setLoadingStep('Checking Knowledge Base...');
             const summarySuggestions = knowledgeEngine.suggest(profile.summary);
             if (profile.summary.length > 50) {
                 knowledgeEngine.learn(profile.summary, 80);
@@ -39,6 +44,7 @@ export const CriticTab: React.FC = () => {
 
         // Run NanoBrain Analysis
         if (jobDescription) {
+            setLoadingStep('Matching Job Description...');
             const cvText = [
                 profile.summary,
                 ...profile.experiences.map(e => `${e.role} ${e.company} ${e.tasks.join(' ')}`),
@@ -49,11 +55,13 @@ export const CriticTab: React.FC = () => {
             const { similarity } = await nanoBrain.analyzeRelevance(cvText, jobDescription);
             setRelevanceScore(similarity);
 
+            setLoadingStep('Extracting Keywords...');
             const { keywords } = await nanoBrain.suggestKeywords(jobDescription);
             setSmartKeywords(keywords.slice(0, 5));
         }
 
         setIsAnalyzing(false);
+        setLoadingStep('');
     };
 
     // Helper for safe access
@@ -63,7 +71,7 @@ export const CriticTab: React.FC = () => {
         ready: t('critic.ready') || 'Ready to Analyze',
         intro: t('critic.intro') || 'Get detailed analysis',
         analyzeBtn: t('critic.analyzeBtn') || 'Analyze CV',
-        analyzing: t('critic.analyzing') || 'Analyzing...',
+        analyzing: loadingStep || t('critic.analyzing') || 'Analyzing...',
         quality: t('critic.quality') || 'CV Quality',
         relevance: t('critic.relevance') || 'Relevance',
         addJobDesc: t('critic.addJobDesc') || 'Add job description',

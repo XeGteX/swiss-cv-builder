@@ -35,7 +35,7 @@ export class SubscriptionService {
             });
         }
 
-        return subscription.stripeCustomerId;
+        return subscription.stripeCustomerId!;
     }
 
     static async createCheckoutSession(userId: string, email: string, plan: string) {

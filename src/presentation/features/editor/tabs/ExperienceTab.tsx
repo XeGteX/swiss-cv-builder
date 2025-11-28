@@ -50,12 +50,16 @@ export const ExperienceTab: React.FC = () => {
                             value={exp.role}
                             onChange={(e) => updateExperience(exp.id, { role: e.target.value })}
                             className="font-semibold"
+                            maxLength={100}
+                            debounceTime={300}
                         />
                         <div className="grid grid-cols-2 gap-3">
                             <Input
                                 label="Entreprise"
                                 value={exp.company}
                                 onChange={(e) => updateExperience(exp.id, { company: e.target.value })}
+                                maxLength={100}
+                                debounceTime={300}
                             />
                             <Input
                                 label="Dates"
@@ -78,6 +82,8 @@ export const ExperienceTab: React.FC = () => {
                                             value={task}
                                             onChange={(e) => handleTaskChange(exp.id, i, e.target.value)}
                                             className="flex-1"
+                                            maxLength={300}
+                                            debounceTime={300}
                                         />
                                         <button
                                             onClick={() => removeTask(exp.id, i)}

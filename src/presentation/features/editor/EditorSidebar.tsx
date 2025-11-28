@@ -1,7 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useUIStore } from '../../../application/store/ui-store';
 import { cn } from '../../design-system/atoms/Button';
-import { User, Briefcase, GraduationCap, Wrench, FileText, Sparkles, TrendingUp, Settings } from 'lucide-react';
+import { User, Briefcase, GraduationCap, Wrench, FileText, Sparkles, TrendingUp, Settings, Wand2 } from 'lucide-react';
 import { PersonalTab } from './tabs/PersonalTab';
 import { ExperienceTab } from './tabs/ExperienceTab';
 import { EducationTab } from './tabs/EducationTab';
@@ -16,6 +17,7 @@ import { useSettingsStore } from '../../../application/store/settings-store';
 import { useTranslation } from '../../hooks/useTranslation';
 
 export const EditorSidebar: React.FC = () => {
+    const navigate = useNavigate();
     const { activeTab, setActiveTab } = useUIStore();
     const { isMobileMode } = useSettingsStore();
     const { t } = useTranslation();
@@ -39,6 +41,16 @@ export const EditorSidebar: React.FC = () => {
                 "flex overflow-x-auto border-b border-slate-100 no-scrollbar bg-white sticky top-0 z-10",
                 isMobileMode ? "py-2" : ""
             )}>
+                <button
+                    onClick={() => navigate('/wizard')}
+                    className="flex-1 min-w-[70px] flex flex-col items-center gap-1 text-[10px] font-medium transition-colors shrink-0 py-3 text-indigo-600 hover:bg-indigo-50 border-b-2 border-transparent"
+                    title="Wizard Mode"
+                >
+                    <div className="p-1.5 rounded-md bg-indigo-100 text-indigo-600">
+                        <Wand2 size={18} />
+                    </div>
+                    <span>Wizard</span>
+                </button>
                 {TABS.map((tab) => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.id;

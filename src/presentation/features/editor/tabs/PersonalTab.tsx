@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCVStore } from '../../../../application/store/cv-store';
 import { Input } from '../../../design-system/atoms/Input';
+import { TextArea } from '../../../design-system/atoms/TextArea';
 import { SectionHeader } from '../../../design-system/molecules/SectionHeader';
 import { User, Palette } from 'lucide-react';
 import { Card } from '../../../design-system/atoms/Card';
@@ -69,11 +70,15 @@ export const PersonalTab: React.FC = () => {
                         label={t('personal.firstName')}
                         value={personal.firstName}
                         onChange={(e) => updatePersonal({ firstName: e.target.value })}
+                        maxLength={50}
+                        debounceTime={300}
                     />
                     <Input
                         label={t('personal.lastName')}
                         value={personal.lastName}
                         onChange={(e) => updatePersonal({ lastName: e.target.value })}
+                        maxLength={50}
+                        debounceTime={300}
                     />
                 </div>
                 <Input
@@ -81,6 +86,8 @@ export const PersonalTab: React.FC = () => {
                     value={personal.title}
                     onChange={(e) => updatePersonal({ title: e.target.value })}
                     className="mb-4 font-bold"
+                    maxLength={100}
+                    debounceTime={300}
                 />
 
                 <div className="space-y-4">
@@ -143,11 +150,12 @@ export const PersonalTab: React.FC = () => {
             {/* Summary */}
             <div>
                 <SectionHeader title={t('sections.summary')} />
-                <textarea
+                <TextArea
                     value={profile.summary}
                     onChange={(e) => useCVStore.getState().updateSummary(e.target.value)}
-                    className="w-full p-3 border rounded-md text-sm min-h-[120px] focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="min-h-[120px]"
                     placeholder="Décrivez votre profil en quelques lignes..."
+                    debounceTime={300}
                 />
             </div>
         </div>

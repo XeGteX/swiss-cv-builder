@@ -29,9 +29,13 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
         }
 
         setGeneratingPDF(true);
+
+        // Yield to main thread to allow UI to update (show spinner)
+        await new Promise(resolve => setTimeout(resolve, 100));
+
         try {
             // const filename = `CV_${profile.personal.lastName}_${profile.personal.firstName}.pdf`;
-            await PDFService.generate(profile, 'visual'); // Default to visual for now
+            await PDFService.generate(profile, 'visual', language); // Default to visual for now
             addToast('PDF downloaded successfully!', 'success');
         } catch (error) {
             console.error('PDF Generation failed', error);
@@ -68,7 +72,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
 
             {/* Scrollable Preview Area */}
             <div className="flex-1 overflow-auto p-8 flex justify-center custom-scrollbar">
-                <div className="shadow-2xl bg-white" ref={cvRef}>
+                <div className="shadow-2xl bg-white shrink-0" style={{ width: '794px', minHeight: '1123px' }} ref={cvRef}>
                     <DynamicRenderer />
                 </div>
             </div>

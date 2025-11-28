@@ -6,7 +6,7 @@ export class SecurityAgent extends BaseAgent {
     name = 'SecurityAgent';
 
     async analyze() {
-        const risks = [];
+        const risks: string[] = [];
 
         // Check 1: Environment Variables
         if (!env.JWT_SECRET || env.JWT_SECRET.length < 32) {
@@ -20,7 +20,7 @@ export class SecurityAgent extends BaseAgent {
 
         // Check 3: Headers (Mock check)
         // In a real agent, we would make a request to localhost and check headers
-        const missingHeaders = []; // Mock
+        const missingHeaders: string[] = []; // Mock
         if (missingHeaders.length > 0) {
             risks.push(`Missing security headers: ${missingHeaders.join(', ')}`);
         }

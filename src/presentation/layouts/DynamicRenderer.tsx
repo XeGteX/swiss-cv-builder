@@ -14,9 +14,20 @@ export const DynamicRenderer: React.FC = React.memo(() => {
 
     const [layoutSolution, setLayoutSolution] = React.useState<{ fontSize: number; lineHeight: number; margin: number } | null>(null);
 
+    const workerRef = React.useRef<Worker | null>(null);
+
     React.useEffect(() => {
-        // Initialize worker
-        const worker = new Worker(new URL('../../worker/layout.worker.ts', import.meta.url), { type: 'module' });
+        // Initialize worker once
+        workerRef.current = new Worker(new URL('../../worker/layout.worker.ts', import.meta.url), { type: 'module' });
+        return () => {
+            workerRef.current?.terminate();
+        };
+    }, []);
+
+    React.useEffect(() => {
+        if (!workerRef.current) return;
+
+        const worker = workerRef.current;
 
         worker.onmessage = (e) => {
             if (e.data.type === 'SUCCESS') {
@@ -37,8 +48,6 @@ export const DynamicRenderer: React.FC = React.memo(() => {
                 targetHeight: 1123
             }
         });
-
-        return () => worker.terminate();
     }, [profile]);
 
     if (!template) {

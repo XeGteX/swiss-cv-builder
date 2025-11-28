@@ -64,5 +64,52 @@
         "smartInsights": "Insights",
         "impact": "Impact",
         "suggestions": "Suggestions"
+    },
+    "letterGen": {
+        "newLetter": "New Letter",
+        "emptyState": "No letters yet",
+        "edit": "Edit",
+        "delete": "Delete",
+        "optimize": "Optimize",
+        "back": "Back",
+        "offline": "Offline",
+        "online": "Online",
+        "jobTitle": "Job Title",
+        "company": "Company",
+        "targetLang": "Target Language",
+        "generate": "Generate",
+        "errorJob": "Job title required",
+        "saved": "Saved",
+        "deleted": "Deleted",
+        "generated": "Generated successfully",
+        "errorGen": "Generation failed",
+        "startNew": "Start a New Letter",
+        "placeholder": "Start typing your letter here, or use the generator above...",
+        "startTyping": "Start typing..."
+    },
+    "wizard": {
+        "title": "Swiss CV Wizard",
+        "steps": {
+            "identity": "Identity",
+            "experience": "Experience",
+            "template": "Template",
+            "download": "Download"
+        },
+        "headers": {
+            "identity": "Who are you?",
+            "experience": "Your Experience",
+            "template": "Choose a Look"
+        },
+        "actions": {
+            "exit": "Exit Wizard",
+            "back": "Back",
+            "next": "Next Step",
+            "finish": "Finish"
+        },
+        "templates": {
+            "modern": "Modern Swiss",
+            "modernDesc": "Clean, professional, and standard-compliant.",
+            "classic": "Classic (Coming Soon)"
+        }
     }
 }
