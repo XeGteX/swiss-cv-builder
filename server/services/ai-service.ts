@@ -49,4 +49,22 @@ export class AIService {
 
         return suggestions.length > 0 ? suggestions : ["Your CV looks great! Good luck!"];
     }
+    /**
+     * Generates content based on a prompt.
+     * (Mock LLM behavior for now)
+     */
+    static async generateContent(prompt: string): Promise<string> {
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        if (prompt.includes('summary')) {
+            return "Passionate professional with over 5 years of experience in delivering high-quality solutions. Proven track record of success in dynamic environments.";
+        }
+
+        if (prompt.includes('task') || prompt.includes('description')) {
+            return "• Led a team of 5 developers to deliver the project on time.\n• Optimized application performance by 30%.\n• Collaborated with stakeholders to define requirements.";
+        }
+
+        return "Here is some generated content based on your request. Please refine it to match your specific needs.";
+    }
 }

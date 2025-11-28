@@ -2,8 +2,8 @@ import React from 'react';
 import { useAdaptiveEngine } from '../../domain/services/adaptive/adaptive-engine';
 import { useSettingsStore } from '../../application/store/settings-store';
 import { MobileLayout } from './mobile/MobileLayout';
-import { useSmartDensity } from '../hooks/useSmartDensity';
 import { EditorSidebar } from '../features/editor/EditorSidebar';
+import { SmartDensityController } from '../features/editor/SmartDensityController';
 import { PreviewPane } from '../features/preview/PreviewPane';
 
 interface AdaptiveLayoutProps {
@@ -13,7 +13,6 @@ interface AdaptiveLayoutProps {
 export const AdaptiveLayout: React.FC<AdaptiveLayoutProps> = () => {
     const { layoutMode } = useAdaptiveEngine();
     const { isMobileMode } = useSettingsStore();
-    useSmartDensity();
 
     // Detect actual screen width (simple check)
     const [isActualMobile, setIsActualMobile] = React.useState(false);
@@ -73,7 +72,12 @@ export const AdaptiveLayout: React.FC<AdaptiveLayoutProps> = () => {
     }
 
     // CASE 3: Desktop Layout
-    return <DesktopLayout />;
+    return (
+        <>
+            <SmartDensityController />
+            <DesktopLayout />
+        </>
+    );
 };
 
 const DesktopLayout: React.FC = () => {

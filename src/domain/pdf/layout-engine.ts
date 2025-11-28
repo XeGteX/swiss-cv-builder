@@ -76,9 +76,11 @@ export class LayoutEngine {
         const pageHeight = this.config.page.height;
         const marginTop = this.config.page.marginTop;
         const marginBottom = this.config.page.marginBottom;
-        // Header/Footer logic repeated for simplicity, should be unified
-        const headerHeight = this.currentPage.index === 0 ? 150 : 80;
-        const footerHeight = 50;
+        // Header/Footer logic
+        // Page 1: Modern Header is tall (~220px with padding)
+        // Page 2+: Standard Header is small (~40px)
+        const headerHeight = this.currentPage.index === 0 ? 220 : 40;
+        const footerHeight = 30; // Reduced from 50 to match actual footer size
 
         const totalUsable = pageHeight - marginTop - marginBottom - headerHeight - footerHeight;
         return totalUsable - this.currentContentHeight;
