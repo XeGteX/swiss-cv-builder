@@ -3,7 +3,9 @@ import { useAuthStore } from '../../../application/store/auth-store';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '../../design-system/atoms/Button';
 import { Card } from '../../design-system/atoms/Card';
-import { Lock, Mail } from 'lucide-react';
+import { Lock, Mail, FileText } from 'lucide-react';
+import { InfinityService } from '../../../infrastructure/pdf/infinity/infinity-service';
+import type { CVProfile } from '../../../domain/entities/cv';
 
 export const LoginPage: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -17,6 +19,58 @@ export const LoginPage: React.FC = () => {
         if (useAuthStore.getState().isAuthenticated) {
             navigate('/');
         }
+    };
+
+    const handleTestPdf = async () => {
+        const dummyProfile: CVProfile = {
+            id: 'test-1',
+            lastUpdated: Date.now(),
+            personal: {
+                firstName: 'John',
+                lastName: 'Doe',
+                title: 'Software Engineer',
+                contact: {
+                    email: 'john@example.com',
+                    phone: '+1 234 567 890',
+                    address: 'New York, NY',
+                },
+            },
+            summary: 'Experienced software engineer with a passion for building scalable applications.',
+            experiences: [
+                {
+                    id: 'exp-1',
+                    role: 'Senior Developer',
+                    company: 'Tech Corp',
+                    dates: '2020 - Present',
+                    tasks: ['Built the core engine', 'Led a team of 5'],
+                },
+            ],
+            educations: [
+                {
+                    id: 'edu-1',
+                    degree: 'BS Computer Science',
+                    school: 'MIT',
+                    year: '2019',
+                },
+            ],
+            languages: [],
+            skills: ['TypeScript', 'React', 'Node.js'],
+            strengths: [],
+            metadata: {
+                templateId: 'modern',
+                density: 'comfortable',
+                accentColor: '#3b82f6',
+                fontFamily: 'sans',
+            },
+        };
+
+        const blob = await InfinityService.generatePdfBlob(dummyProfile);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'infinity-test.pdf';
+        a.click();
+        URL.revokeObjectURL(url);
     };
 
     return (
@@ -80,10 +134,17 @@ export const LoginPage: React.FC = () => {
                     </Link>
                 </div>
 
-                <div className="mt-4 text-center">
-                    <Link to="/" className="text-xs text-slate-400 hover:text-slate-600">
+                <div className="mt-4 text-center space-y-2">
+                    <Link to="/" className="block text-xs text-slate-400 hover:text-slate-600">
                         Continue in Offline Mode
                     </Link>
+                    <button
+                        onClick={handleTestPdf}
+                        type="button"
+                        className="text-xs text-indigo-500 hover:text-indigo-700 flex items-center justify-center gap-1 mx-auto"
+                    >
+                        <FileText size={12} /> Test Infinity PDF
+                    </button>
                 </div>
             </Card>
         </div>

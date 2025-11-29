@@ -17,6 +17,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@prisma/client": "5.22.0",
+    "@react-pdf/renderer": "^4.3.1",
     "autoprefixer": "^10.4.22",
     "bcrypt": "^6.0.0",
     "clsx": "^2.1.1",
