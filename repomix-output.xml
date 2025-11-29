@@ -163,6 +163,7 @@ server/routes/ai.ts
 server/routes/auth.ts
 server/routes/bi.ts
 server/routes/letters.ts
+server/routes/pdf.ts
 server/routes/profile.ts
 server/routes/subscriptions.ts
 server/routes/webhook.ts
@@ -253,6 +254,7 @@ src/infrastructure/api/api-client.ts
 src/infrastructure/events/event-bus.ts
 src/infrastructure/monitoring/system-monitor.ts
 src/infrastructure/pdf/html2pdf-adapter.ts
+src/infrastructure/pdf/infinity/icons.ts
 src/infrastructure/pdf/infinity/infinity-service.tsx
 src/infrastructure/pdf/infinity/InfinityRenderer.tsx
 src/infrastructure/pdf/page-renderer.ts
@@ -306,6 +308,8 @@ src/types.ts
 src/worker/ai.worker.ts
 src/worker/layout.worker.ts
 tailwind.config.js
+test-output.pdf
+test-profile.json
 tsconfig.app.json
 tsconfig.json
 tsconfig.node.json
@@ -317,567 +321,189 @@ vitest.config.ts
 <files>
 This section contains the contents of the repository's files.
 
-<file path="prisma/migrations/20251129084640_init/migration.sql">
-/*
-  Warnings:
+<file path="server/routes/pdf.ts">
+import express from 'express';
+import { InfinityService } from '../../src/infrastructure/pdf/infinity/infinity-service';
+import type { CVProfile } from '../../src/domain/entities/cv';
 
-  - You are about to drop the column `firstName` on the `Profile` table. All the data in the column will be lost.
-  - You are about to drop the column `lastName` on the `Profile` table. All the data in the column will be lost.
-  - You are about to drop the column `summary` on the `Profile` table. All the data in the column will be lost.
+const router = express.Router();
 
-*/
--- RedefineTables
-PRAGMA defer_foreign_keys=ON;
-PRAGMA foreign_keys=OFF;
-CREATE TABLE "new_Profile" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "userId" TEXT NOT NULL,
-    "title" TEXT NOT NULL DEFAULT 'My CV',
-    "isDemo" BOOLEAN NOT NULL DEFAULT false,
-    "data" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Profile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-INSERT INTO "new_Profile" ("createdAt", "data", "id", "title", "updatedAt", "userId") SELECT "createdAt", "data", "id", coalesce("title", 'My CV') AS "title", "updatedAt", "userId" FROM "Profile";
-DROP TABLE "Profile";
-ALTER TABLE "new_Profile" RENAME TO "Profile";
-PRAGMA foreign_keys=ON;
-PRAGMA defer_foreign_keys=OFF;
-</file>
+// Middleware to log ALL requests to this router
+router.use((req, res, next) => {
+    console.log(`[PDF-ROUTER] ${req.method} ${req.path} - Body size: ${JSON.stringify(req.body || {}).length} bytes`);
+    next();
+});
 
-<file path="src/domain/scv/mapper.ts">
-import type { CVProfile, Experience, Education, PersonalInfo } from '../entities/cv';
-import type { ScvDocument, ScvPage, ScvBlock, ScvTheme } from './types';
+// Test endpoint to verify InfinityService can be imported
+router.get('/test', (req, res) => {
+    try {
+        console.log('[PDF API] Testing InfinityService import...');
+        console.log('[PDF API] InfinityService exists:', !!InfinityService);
+        console.log('[PDF API] InfinityService.generateBlob exists:', !!InfinityService.generateBlob);
+        res.json({
+            success: true,
+            message: 'InfinityService import successful',
+            hasGenerateBlob: !!InfinityService.generateBlob
+        });
+    } catch (error) {
+        console.error('[PDF API] Test endpoint error:', error);
+        res.status(500).json({ error: String(error) });
+    }
+});
 
-export function mapProfileToScv(profile: CVProfile): ScvDocument {
-    const theme: ScvTheme = {
-        colors: {
-            primary: profile.metadata.accentColor || '#000000',
-            secondary: '#666666',
-            text: '#333333',
-            background: '#FFFFFF',
-            muted: '#999999',
-        },
-        fonts: {
-            body: profile.metadata.fontFamily === 'serif' ? 'Times-Roman' : 'Helvetica',
-            heading: profile.metadata.fontFamily === 'serif' ? 'Times-Bold' : 'Helvetica-Bold',
-        },
-        spacing: {
-            base: profile.metadata.density === 'compact' ? 4 : profile.metadata.density === 'dense' ? 2 : 8,
-        },
-    };
+// Simple POST test endpoint
+router.post('/test-post', (req, res) => {
+    console.log('[PDF API] TEST POST called with body:', req.body);
+    res.json({ success: true, message: 'POST works!', bodyKeys: Object.keys(req.body || {}) });
+});
 
-    const headerBlock = createHeader(profile.personal, theme);
-    const mainContentBlock = createMainContent(profile, theme);
+/**
+ * POST /api/generate-pdf
+ * Generates a PDF from the provided CV profile using the Infinity rendering system
+ * 
+ * Request body: { profile: CVProfile, language?: string }
+ * Response: PDF blob (application/pdf)
+ */
+router.post('/generate-pdf', (req, res, next) => {
+    console.log('[PDF API] ===== SYNCHRONOUS ENTRY - ROUTE HIT =====');
 
-    // Modern Layout: Header at top, then 2 columns (Main + Sidebar)
-    // For simplicity in Phase 1, we'll just stack them or do a simple flex row if we want columns.
-    // Let's do a simple flex column layout for the page root, containing Header and then a Content Row.
+    // Wrap in async IIFE to catch all errors
+    (async () => {
+        console.log('[PDF API] ===== ASYNC START =====');
+        console.log('[PDF API] Request body keys:', Object.keys(req.body || {}));
 
-    const pageContent: ScvBlock = {
-        id: 'page-root',
-        type: 'container',
-        style: {
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%',
-        },
-        children: [
-            headerBlock,
-            mainContentBlock,
-        ],
-    };
+        try {
+            const { profile, language = 'en' } = req.body;
 
-    const page: ScvPage = {
-        id: 'page-1',
-        size: 'A4',
-        orientation: 'portrait',
-        margins: { top: 30, right: 30, bottom: 30, left: 30 },
-        blocks: [pageContent],
-    };
+            if (!profile) {
+                console.log('[PDF API] No profile in request');
+                return res.status(400).json({ error: 'Profile data is required' });
+            }
 
-    return {
-        id: profile.id,
-        title: `${profile.personal.firstName} ${profile.personal.lastName} - CV`,
-        author: `${profile.personal.firstName} ${profile.personal.lastName}`,
-        theme,
-        pages: [page],
-        meta: {
-            createdAt: new Date().toISOString(),
-            generator: 'Infinity Engine v1.0',
-            version: '1.0.0',
-        },
-    };
-}
+            console.log(`[PDF API] Generating PDF for: ${profile.personal?.firstName} ${profile.personal?.lastName} (${language})`);
+            console.log('[PDF API] Profile has metadata?', !!profile.metadata);
+            console.log('[PDF API] Profile metadata:', JSON.stringify(profile.metadata || {}));
 
-function createHeader(personal: PersonalInfo, theme: ScvTheme): ScvBlock {
-    return {
-        id: 'header',
-        type: 'container',
-        style: {
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            borderBottom: `2px solid ${theme.colors.primary}`,
-            padding: [0, 0, 10, 0],
-            margin: [0, 0, 20, 0],
-        },
-        children: [
-            {
-                id: 'header-info',
-                type: 'container',
-                style: { flexDirection: 'column' },
-                children: [
-                    {
-                        id: 'name',
-                        type: 'heading',
-                        content: `${personal.firstName} ${personal.lastName}`,
-                        style: {
-                            fontSize: 24,
-                            fontFamily: theme.fonts.heading,
-                            color: theme.colors.primary,
-                        },
-                    },
-                    {
-                        id: 'title',
-                        type: 'text',
-                        content: personal.title,
-                        style: {
-                            fontSize: 14,
-                            color: theme.colors.secondary,
-                            margin: [4, 0, 0, 0],
-                        },
-                    },
-                ],
-            },
-            // Could add photo here if needed
-        ],
-    };
-}
+            // Ensure metadata exists with defaults
+            if (!profile.metadata) {
+                console.log('[PDF API] ⚠️  No metadata in profile, adding defaults');
+                profile.metadata = {
+                    templateId: 'modern',
+                    density: 'comfortable',
+                    accentColor: '#2563eb',
+                    fontFamily: 'sans'
+                };
+            }
 
-function createMainContent(profile: CVProfile, theme: ScvTheme): ScvBlock {
-    // 2 Column Layout
-    return {
-        id: 'content-row',
-        type: 'container',
-        style: {
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 20,
-        },
-        children: [
-            createLeftColumn(profile, theme),
-            createRightColumn(profile, theme),
-        ],
-    };
-}
+            // Generate PDF using Infinity Service (server-side, Node.js environment)
+            console.log('[PDF API] About to call InfinityService.generateBlob...');
+            const pdfBlob = await InfinityService.generateBlob(profile as CVProfile, language);
+            console.log('[PDF API] PDF Blob generated successfully, size:', pdfBlob.size);
 
-function createLeftColumn(profile: CVProfile, theme: ScvTheme): ScvBlock {
-    return {
-        id: 'left-col',
-        type: 'container',
-        style: {
-            width: '65%',
-            flexDirection: 'column',
-            gap: 15,
-        },
-        children: [
-            createSection('Summary', [
-                {
-                    id: 'summary-text',
-                    type: 'text',
-                    content: profile.summary,
-                    style: { fontSize: 10, lineHeight: 1.5 },
-                }
-            ], theme),
-            createSection('Experience', profile.experiences.map(exp => createExperienceBlock(exp, theme)), theme),
-            createSection('Education', profile.educations.map(edu => createEducationBlock(edu, theme)), theme),
-        ],
-    };
-}
+            // Convert Blob to Buffer for Express response
+            const arrayBuffer = await pdfBlob.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
 
-function createRightColumn(profile: CVProfile, theme: ScvTheme): ScvBlock {
-    return {
-        id: 'right-col',
-        type: 'container',
-        style: {
-            width: '35%',
-            flexDirection: 'column',
-            gap: 15,
-        },
-        children: [
-            createSection('Contact', [
-                createContactItem(profile.personal.contact.email || ''),
-                createContactItem(profile.personal.contact.phone || ''),
-                createContactItem(profile.personal.contact.address || ''),
-            ], theme),
-            createSection('Skills', [
-                {
-                    id: 'skills-list',
-                    type: 'text',
-                    content: profile.skills.join(', '),
-                    style: { fontSize: 10, lineHeight: 1.5 },
-                }
-            ], theme),
-        ],
-    };
-}
+            // Generate filename
+            const lastName = profile.personal?.lastName || 'Resume';
+            const firstName = profile.personal?.firstName || '';
+            const filename = `cv-${lastName}${firstName ? '-' + firstName : ''}.pdf`;
 
-function createSection(title: string, children: ScvBlock[], theme: ScvTheme): ScvBlock {
-    return {
-        id: `section-${title.toLowerCase()}`,
-        type: 'container',
-        style: { flexDirection: 'column', gap: 8 },
-        children: [
-            {
-                id: `section-title-${title.toLowerCase()}`,
-                type: 'heading',
-                content: title.toUpperCase(),
-                style: {
-                    fontSize: 12,
-                    fontFamily: theme.fonts.heading,
-                    color: theme.colors.primary,
-                    borderBottom: `1px solid ${theme.colors.muted}`,
-                    padding: [0, 0, 4, 0],
-                    margin: [0, 0, 4, 0],
-                },
-            },
-            ...children,
-        ],
-    };
-}
+            // Set headers for PDF download
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+            res.setHeader('Content-Length', buffer.length.toString());
 
-function createExperienceBlock(exp: Experience, theme: ScvTheme): ScvBlock {
-    return {
-        id: `exp-${exp.id}`,
-        type: 'container',
-        style: { flexDirection: 'column', margin: [0, 0, 10, 0] },
-        children: [
-            {
-                id: `exp-role-${exp.id}`,
-                type: 'text',
-                content: exp.role,
-                style: { fontSize: 11, fontFamily: theme.fonts.heading, fontWeight: 'bold' },
-            },
-            {
-                id: `exp-company-${exp.id}`,
-                type: 'container',
-                style: { flexDirection: 'row', justifyContent: 'space-between' },
-                children: [
-                    {
-                        id: `exp-comp-name-${exp.id}`,
-                        type: 'text',
-                        content: exp.company,
-                        style: { fontSize: 10, color: theme.colors.secondary },
-                    },
-                    {
-                        id: `exp-date-${exp.id}`,
-                        type: 'text',
-                        content: exp.dateRange?.displayString || exp.dates,
-                        style: { fontSize: 10, color: theme.colors.muted },
-                    },
-                ],
-            },
-            {
-                id: `exp-desc-${exp.id}`,
-                type: 'text',
-                content: exp.tasks.join(' • '), // Simple join for now
-                style: { fontSize: 10, marginTop: 4, lineHeight: 1.4 },
-            },
-        ],
-    };
-}
+            // Send PDF
+            res.send(buffer);
 
-function createEducationBlock(edu: Education, theme: ScvTheme): ScvBlock {
-    return {
-        id: `edu-${edu.id}`,
-        type: 'container',
-        style: { flexDirection: 'column', margin: [0, 0, 8, 0] },
-        children: [
-            {
-                id: `edu-degree-${edu.id}`,
-                type: 'text',
-                content: edu.degree,
-                style: { fontSize: 11, fontFamily: theme.fonts.heading, fontWeight: 'bold' },
-            },
-            {
-                id: `edu-school-${edu.id}`,
-                type: 'container',
-                style: { flexDirection: 'row', justifyContent: 'space-between' },
-                children: [
-                    {
-                        id: `edu-school-name-${edu.id}`,
-                        type: 'text',
-                        content: edu.school,
-                        style: { fontSize: 10, color: theme.colors.secondary },
-                    },
-                    {
-                        id: `edu-year-${edu.id}`,
-                        type: 'text',
-                        content: edu.year,
-                        style: { fontSize: 10, color: theme.colors.muted },
-                    },
-                ],
-            },
-        ],
-    };
-}
+            console.log(`[PDF API] ✅ PDF generated successfully: ${filename} (${buffer.length} bytes)`);
+        } catch (error) {
+            console.error('[PDF API] ❌ Error generating PDF:');
+            console.error('Error message:', error instanceof Error ? error.message : String(error));
+            console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+            console.error('Full error object:', error);
 
-function createContactItem(text: string): ScvBlock {
-    return {
-        id: `contact-${text}`,
-        type: 'text',
-        content: text,
-        style: { fontSize: 10, marginBottom: 4 },
-    };
-}
-</file>
-
-<file path="src/domain/scv/types.ts">
-export type ScvUnit = 'pt' | 'mm' | 'px' | '%';
-
-export interface ScvStyle {
-    fontFamily?: string;
-    fontSize?: number;
-    fontWeight?: number | string;
-    color?: string;
-    backgroundColor?: string;
-    padding?: number | [number, number, number, number]; // top, right, bottom, left
-    paddingTop?: number;
-    paddingRight?: number;
-    paddingBottom?: number;
-    paddingLeft?: number;
-    margin?: number | [number, number, number, number];
-    marginTop?: number;
-    marginRight?: number;
-    marginBottom?: number;
-    marginLeft?: number;
-    lineHeight?: number;
-    textAlign?: 'left' | 'right' | 'center' | 'justify';
-    width?: number | string;
-    height?: number | string;
-    display?: 'flex' | 'block' | 'none';
-    flexDirection?: 'row' | 'column';
-    justifyContent?: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around';
-    alignItems?: 'flex-start' | 'flex-end' | 'center' | 'stretch';
-    gap?: number;
-    border?: string;
-    borderBottom?: string;
-    borderRadius?: number;
-}
-
-export interface ScvTheme {
-    colors: {
-        primary: string;
-        secondary: string;
-        text: string;
-        background: string;
-        muted: string;
-    };
-    fonts: {
-        body: string;
-        heading: string;
-    };
-    spacing: {
-        base: number;
-    };
-}
-
-export type ScvBlockType =
-    | 'container'
-    | 'text'
-    | 'image'
-    | 'list'
-    | 'listItem'
-    | 'link'
-    | 'heading';
-
-export interface ScvBlock {
-    id: string;
-    type: ScvBlockType;
-    content?: string; // For text, heading, link
-    src?: string; // For image
-    href?: string; // For link
-    style?: ScvStyle;
-    children?: ScvBlock[];
-    metadata?: Record<string, any>;
-}
-
-export interface ScvPage {
-    id: string;
-    size: 'A4' | 'Letter';
-    orientation: 'portrait' | 'landscape';
-    margins: {
-        top: number;
-        right: number;
-        bottom: number;
-        left: number;
-    };
-    blocks: ScvBlock[]; // Top-level blocks (e.g., Header, Main Content)
-}
-
-export interface ScvDocument {
-    id: string;
-    title: string;
-    author: string;
-    theme: ScvTheme;
-    pages: ScvPage[];
-    meta: {
-        createdAt: string;
-        generator: string;
-        version: string;
-    };
-}
-</file>
-
-<file path="src/infrastructure/pdf/infinity/infinity-service.tsx">
-import { pdf } from '@react-pdf/renderer';
-import type { CVProfile } from '../../../domain/entities/cv';
-import { mapProfileToScv } from '../../../domain/scv/mapper';
-import { InfinityDocument } from './InfinityRenderer';
-
-
-export const InfinityService = {
-    async generatePdfBlob(profile: CVProfile): Promise<Blob> {
-        // 1. Map Profile -> SCV
-        const scvDocument = mapProfileToScv(profile);
-
-        // 2. Render SCV -> PDF Blob
-        // We need to pass the component as a React Element
-        const blob = await pdf(<InfinityDocument document={scvDocument} />).toBlob();
-
-        return blob;
-    },
-};
-</file>
-
-<file path="src/infrastructure/pdf/infinity/InfinityRenderer.tsx">
-import { Document, Page, View, Text, Image, Link, StyleSheet } from '@react-pdf/renderer';
-import type { ScvDocument, ScvPage, ScvBlock, ScvStyle } from '../../../domain/scv/types';
-import React from 'react';
-
-// Register fonts if needed (skipping for now, using standard fonts)
-
-interface InfinityDocumentProps {
-    document: ScvDocument;
-}
-
-export const InfinityDocument: React.FC<InfinityDocumentProps> = ({ document }) => {
-    return (
-        <Document
-            title={document.title}
-            author={document.author}
-            creator={document.meta.generator}
-            producer={document.meta.generator}
-        >
-            {document.pages.map((page) => (
-                <InfinityPage key={page.id} page={page} />
-            ))}
-        </Document>
-    );
-};
-
-const InfinityPage: React.FC<{ page: ScvPage }> = ({ page }) => {
-    const styles = StyleSheet.create({
-        page: {
-            paddingTop: page.margins.top,
-            paddingRight: page.margins.right,
-            paddingBottom: page.margins.bottom,
-            paddingLeft: page.margins.left,
-            fontFamily: 'Helvetica', // Default fallback
-        },
+            if (!res.headersSent) {
+                res.status(500).json({
+                    error: 'Failed to generate PDF',
+                    message: error instanceof Error ? error.message : 'Unknown error'
+                });
+            }
+        }
+    })().catch((error) => {
+        console.error('[PDF API] ❌ UNHANDLED ERROR IN ASYNC WRAPPER:');
+        console.error('Error:', error);
+        next(error);
     });
+});
 
-    return (
-        <Page size={page.size === 'Letter' ? 'LETTER' : 'A4'} orientation={page.orientation} style={styles.page}>
-            {page.blocks.map((block) => (
-                <InfinityBlock key={block.id} block={block} />
-            ))}
-        </Page>
-    );
+export default router;
+</file>
+
+<file path="src/infrastructure/pdf/infinity/icons.ts">
+import type { ScvIconShape } from '../../../domain/scv/types';
+
+export const PDF_ICONS: Record<string, ScvIconShape[]> = {
+    mapPin: [
+        { type: 'path', d: "M20 10c0 6-9 13-9 13s-9-7-9-13a9 9 0 0 1 18 0Z", stroke: 'currentColor', strokeWidth: 2, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' },
+        { type: 'circle', cx: 12, cy: 10, r: 3, stroke: 'currentColor', strokeWidth: 2, fill: 'none' }
+    ],
+    globe: [
+        { type: 'circle', cx: 12, cy: 12, r: 10, stroke: 'currentColor', strokeWidth: 2, fill: 'none' },
+        { type: 'path', d: "M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z", stroke: 'currentColor', strokeWidth: 2, fill: 'none' },
+        { type: 'path', d: "M2 12h20", stroke: 'currentColor', strokeWidth: 2, fill: 'none' }
+    ],
+    phone: [
+        { type: 'path', d: "M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z", stroke: 'currentColor', strokeWidth: 2, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' }
+    ],
+    mail: [
+        { type: 'rect', width: 20, height: 16, x: 2, y: 4, rx: 2, stroke: 'currentColor', strokeWidth: 2, fill: 'none' },
+        { type: 'path', d: "m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7", stroke: 'currentColor', strokeWidth: 2, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' }
+    ],
+    briefcase: [
+        { type: 'rect', width: 20, height: 14, x: 2, y: 7, rx: 2, ry: 2, stroke: 'currentColor', strokeWidth: 2, fill: 'none' },
+        { type: 'path', d: "M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", stroke: 'currentColor', strokeWidth: 2, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' }
+    ],
+    award: [
+        { type: 'circle', cx: 12, cy: 8, r: 6, stroke: 'currentColor', strokeWidth: 2, fill: 'none' },
+        { type: 'path', d: "M15.477 12.89 17 22l-5-3-5 3 1.523-9.11", stroke: 'currentColor', strokeWidth: 2, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' }
+    ],
+    graduationCap: [
+        { type: 'path', d: "M22 10v6M2 10l10-5 10 5-10 5z", stroke: 'currentColor', strokeWidth: 2, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' },
+        { type: 'path', d: "M6 12v5c3.33333 2 6.66667 2 10 0v-5", stroke: 'currentColor', strokeWidth: 2, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' }
+    ]
 };
+</file>
 
-const InfinityBlock: React.FC<{ block: ScvBlock }> = ({ block }) => {
-    const style = mapStyle(block.style);
-
-    switch (block.type) {
-        case 'container':
-            return (
-                <View style={style}>
-                    {block.children?.map((child) => (
-                        <InfinityBlock key={child.id} block={child} />
-                    ))}
-                </View>
-            );
-        case 'text':
-        case 'heading':
-            return (
-                <Text style={style}>
-                    {block.content}
-                </Text>
-            );
-        case 'image':
-            if (!block.src) return null;
-            return <Image src={block.src} style={style} />;
-        case 'link':
-            return (
-                <Link src={block.href || '#'} style={style}>
-                    {block.content}
-                </Link>
-            );
-        case 'list':
-            return (
-                <View style={style}>
-                    {block.children?.map((child) => (
-                        <InfinityBlock key={child.id} block={child} />
-                    ))}
-                </View>
-            );
-        case 'listItem':
-            return (
-                <View style={{ flexDirection: 'row', ...style }}>
-                    <Text style={{ marginRight: 5 }}>•</Text>
-                    <View>
-                        {block.children?.map((child) => (
-                            <InfinityBlock key={child.id} block={child} />
-                        )) || <Text>{block.content}</Text>}
-                    </View>
-                </View>
-            );
-        default:
-            return null;
-    }
-};
-
-function mapStyle(scvStyle?: ScvStyle): any {
-    if (!scvStyle) return {};
-
-    const style: any = { ...scvStyle };
-
-    // Map specific SCV style properties to react-pdf style properties if they differ
-    // Most are 1:1 compatible with React Native / react-pdf styles
-
-    // Handle padding array
-    if (Array.isArray(scvStyle.padding)) {
-        style.paddingTop = scvStyle.padding[0];
-        style.paddingRight = scvStyle.padding[1];
-        style.paddingBottom = scvStyle.padding[2];
-        style.paddingLeft = scvStyle.padding[3];
-        delete style.padding;
-    }
-
-    // Handle margin array
-    if (Array.isArray(scvStyle.margin)) {
-        style.marginTop = scvStyle.margin[0];
-        style.marginRight = scvStyle.margin[1];
-        style.marginBottom = scvStyle.margin[2];
-        style.marginLeft = scvStyle.margin[3];
-        delete style.margin;
-    }
-
-    return style;
+<file path="test-profile.json">
+{
+    "profile": {
+        "id": "test-123",
+        "lastUpdated": 1234567890,
+        "personal": {
+            "firstName": "Jean",
+            "lastName": "Dupont",
+            "title": "Développeur",
+            "contact": {
+                "email": "test@test.com",
+                "phone": "0612345678"
+            }
+        },
+        "summary": "Test summary",
+        "experiences": [],
+        "educations": [],
+        "languages": [],
+        "skills": [],
+        "strengths": [],
+        "metadata": {
+            "templateId": "modern",
+            "density": "comfortable",
+            "accentColor": "#2563eb",
+            "fontFamily": "sans"
+        }
+    },
+    "language": "en"
 }
 </file>
 
@@ -4452,19 +4078,38 @@ export default defineConfig([
 <file path="index.html">
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>swiss-cv-builder</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>swiss-cv-builder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Define global Buffer and process for @react-pdf/renderer -->
+  <script>
+    // Polyfill Buffer for browser environment
+    window.global = window;
+    window.Buffer = window.Buffer || {
+      isBuffer: () => false,
+    };
+    window.process = window.process || {
+      env: {},
+      version: '',
+      versions: {},
+      platform: 'browser',
+      nextTick: (fn) => setTimeout(fn, 0),
+    };
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
 </file>
 
@@ -4561,6 +4206,35 @@ INSERT INTO "new_User" ("createdAt", "email", "id", "passwordHash", "role", "sub
 DROP TABLE "User";
 ALTER TABLE "new_User" RENAME TO "User";
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+PRAGMA foreign_keys=ON;
+PRAGMA defer_foreign_keys=OFF;
+</file>
+
+<file path="prisma/migrations/20251129084640_init/migration.sql">
+/*
+  Warnings:
+
+  - You are about to drop the column `firstName` on the `Profile` table. All the data in the column will be lost.
+  - You are about to drop the column `lastName` on the `Profile` table. All the data in the column will be lost.
+  - You are about to drop the column `summary` on the `Profile` table. All the data in the column will be lost.
+
+*/
+-- RedefineTables
+PRAGMA defer_foreign_keys=ON;
+PRAGMA foreign_keys=OFF;
+CREATE TABLE "new_Profile" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "title" TEXT NOT NULL DEFAULT 'My CV',
+    "isDemo" BOOLEAN NOT NULL DEFAULT false,
+    "data" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Profile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+INSERT INTO "new_Profile" ("createdAt", "data", "id", "title", "updatedAt", "userId") SELECT "createdAt", "data", "id", coalesce("title", 'My CV') AS "title", "updatedAt", "userId" FROM "Profile";
+DROP TABLE "Profile";
+ALTER TABLE "new_Profile" RENAME TO "Profile";
 PRAGMA foreign_keys=ON;
 PRAGMA defer_foreign_keys=OFF;
 </file>
@@ -8136,6 +7810,708 @@ export interface Plugin {
 }
 </file>
 
+<file path="src/domain/scv/mapper.ts">
+import type { CVProfile, Experience, Education } from '../entities/cv';
+import type { ScvDocument, ScvBlock, ScvTheme } from './types';
+import { PDF_ICONS } from '../../infrastructure/pdf/infinity/icons';
+
+const translations = {
+    en: {
+        summary: 'Professional Summary',
+        experience: 'Experience',
+        education: 'Education',
+        skills: 'Skills',
+        languages: 'Languages',
+        contact: 'Contact'
+    },
+    fr: {
+        summary: 'Profil / Résumé',
+        experience: 'Expérience Professionnelle',
+        education: 'Formation & Diplômes',
+        skills: 'Compétences Techniques',
+        languages: 'Langues',
+        contact: 'Contact'
+    },
+    de: {
+        summary: 'Profil / Zusammenfassung',
+        experience: 'Berufserfahrung',
+        education: 'Ausbildung',
+        skills: 'Fähigkeiten',
+        languages: 'Sprachen',
+        contact: 'Kontakt'
+    },
+    it: {
+        summary: 'Profilo / Riepilogo',
+        experience: 'Esperienza Professionale',
+        education: 'Istruzione',
+        skills: 'Competenze',
+        languages: 'Lingue',
+        contact: 'Contatto'
+    }
+};
+
+const TAILWIND_COLORS = {
+    slate: {
+        50: '#f8fafc',
+        100: '#f1f5f9',
+        200: '#e2e8f0',
+        300: '#cbd5e1',
+        400: '#94a3b8',
+        500: '#64748b',
+        600: '#475569',
+        700: '#334155',
+        800: '#1e293b',
+        900: '#0f172a',
+    },
+    white: '#ffffff',
+};
+
+export function mapProfileToScv(profile: CVProfile, language: string = 'en'): ScvDocument {
+    const t = translations[language as keyof typeof translations] || translations.en;
+
+    const theme: ScvTheme = {
+        primaryColor: profile.metadata.accentColor || '#000000',
+        secondaryColor: TAILWIND_COLORS.slate[500],
+    };
+
+    // 1. Header (Full Width)
+    const header = createHeader(profile, theme);
+
+    // 2. Contact Bar (Full Width)
+    const contactBar = createContactBar(profile, theme);
+
+    // 3. Main Content (Two Columns)
+    const leftColumn = createLeftColumn(profile, theme, t);
+    const rightColumn = createRightColumn(profile, theme, t);
+
+    const mainGrid: ScvBlock = {
+        id: 'main-grid',
+        type: 'container',
+        layout: {
+            flexDirection: 'row',
+            gap: 48, // Match web gap-12 (48px)
+        },
+        styles: {
+            padding: [40, 40, 40, 40],
+            flexWrap: 'nowrap',
+        },
+        children: [leftColumn, rightColumn],
+    };
+
+    return {
+        meta: {
+            title: `${profile.personal.firstName} ${profile.personal.lastName} - CV`,
+            author: 'Swiss CV Builder',
+        },
+        theme,
+        blocks: [header, contactBar, mainGrid],
+    };
+}
+
+function createHeader(profile: CVProfile, theme: ScvTheme): ScvBlock {
+    const { personal } = profile;
+
+    // 1. Profile Picture Column (Left)
+    const photoBlock: ScvBlock = {
+        id: 'header-photo',
+        type: 'container',
+        styles: {
+            width: '25%',
+            display: 'flex',
+            paddingRight: 0,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        children: [
+            {
+                id: 'photo-img',
+                type: 'image',
+                src: personal.photoUrl || `https://ui-avatars.com/api/?name=${personal.firstName}+${personal.lastName}&background=random&color=fff`,
+                styles: {
+                    width: 144,
+                    height: 144,
+                    borderRadius: 72,
+                    border: '4px solid rgba(255,255,255,0.3)',
+                    backgroundColor: '#ffffff',
+                }
+            }
+        ]
+    };
+
+    // 2. Text Info Column (Right)
+    const infoBlock: ScvBlock = {
+        id: 'header-info',
+        type: 'container',
+        styles: {
+            width: '75%',
+            display: 'flex',
+            paddingLeft: 10,
+        },
+        layout: {
+            flexDirection: 'column',
+            justifyContent: 'center',
+        },
+        children: [
+            {
+                id: 'header-name',
+                type: 'text',
+                content: `${personal.firstName} ${personal.lastName}`.toUpperCase(),
+                styles: {
+                    color: '#FFFFFF',
+                    fontSize: 36,
+                    fontWeight: 'bold',
+                    lineHeight: 0.9,
+                    marginBottom: 8,
+                    fontFamily: 'Helvetica',
+                },
+            },
+            {
+                id: 'header-title',
+                type: 'text',
+                content: personal.title.toUpperCase(),
+                styles: {
+                    color: 'rgba(255,255,255,0.9)',
+                    fontSize: 18,
+                    fontWeight: 'medium',
+                    marginBottom: 16,
+                    fontFamily: 'Helvetica',
+                    letterSpacing: 1,
+                },
+            },
+            // Meta Info
+            {
+                id: 'header-meta',
+                type: 'container',
+                layout: {
+                    flexDirection: 'row',
+                    gap: 24,
+                    alignItems: 'center',
+                },
+                styles: {
+                    flexWrap: 'wrap',
+                },
+                children: ([
+                    personal.birthDate ? {
+                        id: 'meta-birth',
+                        type: 'text',
+                        content: personal.birthDate,
+                        styles: { color: 'rgba(255,255,255,0.8)', fontSize: 10, fontWeight: 'medium' }
+                    } : null,
+                    personal.nationality ? {
+                        id: 'meta-nat',
+                        type: 'text',
+                        content: personal.nationality,
+                        styles: { color: 'rgba(255,255,255,0.8)', fontSize: 10, fontWeight: 'medium' }
+                    } : null,
+                    personal.permit ? {
+                        id: 'meta-permit',
+                        type: 'container',
+                        styles: {
+                            backgroundColor: 'rgba(255,255,255,0.2)',
+                            padding: [2, 8, 2, 8],
+                            borderRadius: 4,
+                        },
+                        children: [{
+                            id: 'meta-permit-text',
+                            type: 'text',
+                            content: personal.permit,
+                            styles: { color: '#FFFFFF', fontSize: 10, lineHeight: 1 }
+                        }]
+                    } : null
+                ] as (ScvBlock | null)[]).filter((b): b is ScvBlock => b !== null)
+            }
+        ]
+    };
+
+    return {
+        id: 'header',
+        type: 'container',
+        styles: {
+            backgroundColor: theme.primaryColor,
+            padding: [40, 40, 40, 40],
+            color: '#FFFFFF',
+        },
+        layout: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 32,
+        },
+        children: [photoBlock, infoBlock]
+    };
+}
+
+function createContactBar(profile: CVProfile, theme: ScvTheme): ScvBlock {
+    const { contact, mobility } = profile.personal;
+
+    const items: ScvBlock[] = [];
+
+    // Helper to create contact item
+    const createItem = (id: string, iconShapes: any[], text: string): ScvBlock => ({
+        id,
+        type: 'container',
+        layout: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+        styles: {},
+        children: [
+            {
+                id: `${id}-icon-bg`,
+                type: 'container',
+                styles: {
+                    width: 24,
+                    height: 24,
+                    borderRadius: 12,
+                    backgroundColor: '#FFFFFF',
+                    border: `1px solid ${TAILWIND_COLORS.slate[200]}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 0,
+                },
+                children: [{
+                    id: `${id}-icon`,
+                    type: 'svg',
+                    shapes: iconShapes,
+                    viewBox: "0 0 24 24",
+                    styles: { width: 14, height: 14, color: theme.primaryColor }
+                }]
+            },
+            {
+                id: `${id}-text`,
+                type: 'text',
+                content: text,
+                styles: { fontSize: 10, color: TAILWIND_COLORS.slate[600], fontWeight: 'bold' }
+            }
+        ]
+    });
+
+    if (contact.address) items.push(createItem('contact-address', PDF_ICONS.mapPin, contact.address));
+    if (mobility) items.push(createItem('contact-mobility', PDF_ICONS.globe, mobility));
+    if (contact.phone) items.push(createItem('contact-phone', PDF_ICONS.phone, contact.phone));
+    if (contact.email) items.push(createItem('contact-email', PDF_ICONS.mail, contact.email));
+
+    return {
+        id: 'contact-bar',
+        type: 'container',
+        styles: {
+            backgroundColor: TAILWIND_COLORS.slate[50],
+            padding: [24, 40, 24, 40],
+            borderBottom: `1px solid ${TAILWIND_COLORS.slate[200]}`,
+            flexWrap: 'wrap',
+        },
+        layout: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 32,
+        },
+        children: items
+    };
+}
+
+function createLeftColumn(profile: CVProfile, theme: ScvTheme, t: any): ScvBlock {
+    return {
+        id: 'left-col',
+        type: 'container',
+        layout: {
+            width: '62%', // Reduced from 66% to avoid overflow with gap
+            flexDirection: 'column',
+            gap: 40,
+        },
+        children: [
+            createSection(t.summary, [
+                {
+                    id: 'summary-text',
+                    type: 'text',
+                    content: profile.summary,
+                    styles: { fontSize: 10, lineHeight: 1.6, color: TAILWIND_COLORS.slate[600], textAlign: 'justify' },
+                }
+            ], theme, PDF_ICONS.briefcase),
+            createSection(t.experience, profile.experiences.map(exp => createExperienceBlock(exp, theme)), theme, PDF_ICONS.award),
+            createSection(t.education, profile.educations.map(edu => createEducationBlock(edu)), theme, PDF_ICONS.graduationCap),
+        ],
+    };
+}
+
+function createRightColumn(profile: CVProfile, theme: ScvTheme, t: any): ScvBlock {
+    const blocks: ScvBlock[] = [];
+
+    // Skills
+    if (profile.skills.length > 0) {
+        blocks.push(createBoxedSection(
+            'skills',
+            t.skills,
+            profile.skills.map(skill => ({
+                id: `skill-${skill}`,
+                type: 'container',
+                layout: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+                styles: { marginBottom: 12 },
+                children: [
+                    {
+                        id: `skill-dot-${skill}`,
+                        type: 'container',
+                        styles: { width: 6, height: 6, borderRadius: 3, backgroundColor: theme.primaryColor }
+                    },
+                    {
+                        id: `skill-text-${skill}`,
+                        type: 'text',
+                        content: skill,
+                        styles: { fontSize: 10, color: TAILWIND_COLORS.slate[700], fontWeight: 'bold' }
+                    }
+                ]
+            }))
+        ));
+    }
+
+    // Languages
+    if (profile.languages.length > 0) {
+        blocks.push(createBoxedSection(
+            'languages',
+            t.languages,
+            profile.languages.map((lang, i) => ({
+                id: `lang-${i}`,
+                type: 'container',
+                styles: { marginBottom: 20 },
+                children: [
+                    {
+                        id: `lang-name-${i}`,
+                        type: 'text',
+                        content: `${lang.name} - ${lang.level}`,
+                        styles: { fontSize: 10, fontWeight: 'bold', color: TAILWIND_COLORS.slate[700], marginBottom: 6 }
+                    },
+                    // Progress Bar Background
+                    {
+                        id: `lang-bar-bg-${i}`,
+                        type: 'container',
+                        styles: {
+                            width: '100%',
+                            height: 6,
+                            backgroundColor: TAILWIND_COLORS.slate[200],
+                            borderRadius: 3,
+                        },
+                        children: [
+                            // Progress Bar Fill
+                            {
+                                id: `lang-bar-fill-${i}`,
+                                type: 'container',
+                                styles: {
+                                    width: i === 0 ? '100%' : '65%',
+                                    height: 6,
+                                    backgroundColor: theme.primaryColor,
+                                    borderRadius: 3,
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }))
+        ));
+    }
+
+    return {
+        id: 'right-col',
+        type: 'container',
+        styles: {
+            width: '30%', // Reduced from 33% to avoid overflow
+        },
+        children: blocks,
+    };
+}
+
+function createSection(title: string, children: ScvBlock[], theme: ScvTheme, iconShapes?: any[]): ScvBlock {
+    return {
+        id: `section-${title.toLowerCase()}`,
+        type: 'container',
+        layout: { flexDirection: 'column', gap: 10 },
+        children: [
+            {
+                id: `section-header-${title.toLowerCase()}`,
+                type: 'container',
+                layout: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+                styles: {
+                    borderBottom: `2px solid ${TAILWIND_COLORS.slate[100]}`,
+                    paddingBottom: 8,
+                    marginBottom: 8,
+                },
+                children: [
+                    iconShapes ? {
+                        id: `icon-bg-${title}`,
+                        type: 'container',
+                        styles: {
+                            backgroundColor: TAILWIND_COLORS.slate[100],
+                            padding: 4,
+                            borderRadius: 4,
+                        },
+                        children: [{
+                            id: `icon-${title}`,
+                            type: 'svg',
+                            shapes: iconShapes,
+                            styles: { width: 14, height: 14, color: theme.primaryColor },
+                            viewBox: "0 0 24 24"
+                        }]
+                    } : { id: 'no-icon', type: 'container' },
+                    {
+                        id: `section-title-${title.toLowerCase()}`,
+                        type: 'text',
+                        content: title.toUpperCase(),
+                        styles: {
+                            fontSize: 12,
+                            color: TAILWIND_COLORS.slate[900],
+                            fontWeight: 'bold',
+                            fontFamily: 'Helvetica',
+                            letterSpacing: 1, // tracking-widest
+                        },
+                    }
+                ]
+            },
+            ...children,
+        ],
+    };
+}
+
+function createBoxedSection(idPrefix: string, title: string, content: ScvBlock[]): ScvBlock {
+    return {
+        id: `section-${idPrefix}`,
+        type: 'container',
+        layout: {
+            flexDirection: 'column',
+            gap: 10,
+        },
+        styles: {
+            backgroundColor: TAILWIND_COLORS.slate[50],
+            padding: [20, 20, 20, 20],
+            borderRadius: 12,
+            border: `1px solid ${TAILWIND_COLORS.slate[100]}`,
+            marginBottom: 20,
+        },
+        children: [
+            {
+                id: `heading-${idPrefix}`,
+                type: 'text',
+                content: title.toUpperCase(),
+                styles: {
+                    fontSize: 10,
+                    fontWeight: 'bold',
+                    color: TAILWIND_COLORS.slate[900],
+                    borderBottom: `1px solid ${TAILWIND_COLORS.slate[200]}`,
+                    paddingBottom: 8,
+                    marginBottom: 10,
+                    fontFamily: 'Helvetica',
+                    letterSpacing: 1,
+                },
+            },
+            ...content,
+        ],
+    };
+}
+
+function createExperienceBlock(exp: Experience, theme: ScvTheme): ScvBlock {
+    return {
+        id: `exp-${exp.id}`,
+        type: 'container',
+        styles: {
+            position: 'relative',
+            paddingLeft: 24, // Space for the line
+            paddingBottom: 24,
+            borderLeft: `2px solid ${TAILWIND_COLORS.slate[100]}`, // Continuous line effect
+            marginLeft: 8, // Offset for the dot to hang out
+        },
+        children: [
+            // Dot (Absolute Positioned)
+            {
+                id: `dot-${exp.id}`,
+                type: 'container',
+                styles: {
+                    position: 'absolute',
+                    left: -6, // Center on the 2px border: -5 (half width) - 1 (half border) = -6
+                    top: 0,
+                    width: 10,
+                    height: 10,
+                    borderRadius: 5,
+                    backgroundColor: theme.primaryColor,
+                    border: '2px solid #FFFFFF',
+                }
+            },
+            // Content
+            {
+                id: `content-${exp.id}`,
+                type: 'container',
+                layout: { flexDirection: 'column', gap: 4 },
+                children: [
+                    {
+                        id: `exp-header-${exp.id}`,
+                        type: 'container',
+                        layout: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
+                        children: [
+                            {
+                                id: `exp-role-${exp.id}`,
+                                type: 'text',
+                                content: exp.role,
+                                styles: { fontSize: 12, fontWeight: 'bold', fontFamily: 'Helvetica', color: TAILWIND_COLORS.slate[800] },
+                            },
+                            {
+                                id: `exp-date-${exp.id}`,
+                                type: 'text',
+                                content: exp.dateRange?.displayString || exp.dates,
+                                styles: {
+                                    fontSize: 10,
+                                    color: TAILWIND_COLORS.slate[500],
+                                    fontWeight: 'bold',
+                                    backgroundColor: TAILWIND_COLORS.slate[100],
+                                    padding: [2, 8, 2, 8],
+                                    borderRadius: 10,
+                                },
+                            },
+                        ]
+                    },
+                    {
+                        id: `exp-company-${exp.id}`,
+                        type: 'text',
+                        content: `${exp.company}${exp.location ? ' • ' + exp.location : ''}`.toUpperCase(),
+                        styles: { fontSize: 10, color: TAILWIND_COLORS.slate[500], fontWeight: 'bold', marginBottom: 4 },
+                    },
+                    {
+                        id: `exp-desc-${exp.id}`,
+                        type: 'list',
+                        children: exp.tasks.map((task, i) => ({
+                            id: `task-${exp.id}-${i}`,
+                            type: 'listItem',
+                            content: task,
+                            styles: { fontSize: 10, lineHeight: 1.5, color: TAILWIND_COLORS.slate[600] }
+                        }))
+                    },
+                ],
+            }
+        ],
+    };
+}
+
+function createEducationBlock(edu: Education): ScvBlock {
+    return {
+        id: `edu-${edu.id}`,
+        type: 'container',
+        layout: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+        styles: {
+            marginBottom: 15,
+        },
+        children: [
+            {
+                id: `edu-info-${edu.id}`,
+                type: 'container',
+                layout: { flexDirection: 'column', gap: 2 },
+                styles: { width: '80%' },
+                children: [
+                    {
+                        id: `edu-degree-${edu.id}`,
+                        type: 'text',
+                        content: edu.degree,
+                        styles: { fontSize: 11, fontWeight: 'bold', fontFamily: 'Helvetica', color: TAILWIND_COLORS.slate[800] },
+                    },
+                    {
+                        id: `edu-school-${edu.id}`,
+                        type: 'text',
+                        content: `${edu.school} ${edu.description ? '— ' + edu.description : ''}`,
+                        styles: { fontSize: 10, color: TAILWIND_COLORS.slate[500], fontWeight: 'medium' },
+                    },
+                ]
+            },
+            {
+                id: `edu-year-${edu.id}`,
+                type: 'text',
+                content: edu.year,
+                styles: {
+                    fontSize: 10,
+                    color: TAILWIND_COLORS.slate[400],
+                    fontWeight: 'bold',
+                    backgroundColor: TAILWIND_COLORS.slate[50],
+                    padding: [2, 6, 2, 6],
+                    borderRadius: 4,
+                },
+            },
+        ],
+    };
+}
+</file>
+
+<file path="src/domain/scv/types.ts">
+export interface ScvStyle {
+    color?: string;
+    backgroundColor?: string;
+    fontSize?: number;
+    fontWeight?: 'bold' | 'normal' | number | string; // Kept flexible for now
+    fontFamily?: string;
+    lineHeight?: number;
+    // Keeping some layout props in style for flexibility if needed, but spec says layout is separate
+    padding?: number | [number, number, number, number];
+    margin?: number | [number, number, number, number];
+    textAlign?: 'left' | 'right' | 'center' | 'justify';
+    width?: number | string;
+    height?: number | string;
+    display?: 'flex' | 'block' | 'none';
+    flexWrap?: 'nowrap' | 'wrap' | 'wrap-reverse';
+    borderRadius?: number;
+    border?: string;
+    borderBottom?: string;
+    borderLeft?: string;
+    flexGrow?: number;
+    marginTop?: number;
+    marginRight?: number;
+    marginBottom?: number;
+    marginLeft?: number;
+    paddingBottom?: number;
+    paddingLeft?: number;
+    paddingRight?: number;
+    paddingTop?: number;
+    letterSpacing?: number;
+    alignItems?: 'flex-start' | 'flex-end' | 'center' | 'stretch' | 'baseline';
+    justifyContent?: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around';
+    position?: 'absolute' | 'relative';
+    top?: number;
+    left?: number;
+    right?: number;
+    bottom?: number;
+    zIndex?: number;
+}
+
+export type ScvIconShape =
+    | { type: 'path'; d: string; fill?: string; stroke?: string; strokeWidth?: number; strokeLinecap?: 'butt' | 'round' | 'square'; strokeLinejoin?: 'miter' | 'round' | 'bevel' }
+    | { type: 'circle'; cx: number; cy: number; r: number; fill?: string; stroke?: string; strokeWidth?: number }
+    | { type: 'rect'; x: number; y: number; width: number; height: number; rx?: number; ry?: number; fill?: string; stroke?: string; strokeWidth?: number }
+    | { type: 'line'; x1: number; y1: number; x2: number; y2: number; stroke?: string; strokeWidth?: number }
+    | { type: 'polyline'; points: string; fill?: string; stroke?: string; strokeWidth?: number };
+
+export interface ScvBlock {
+    id: string;
+    type: 'text' | 'container' | 'list' | 'listItem' | 'image' | 'link' | 'heading' | 'svg';
+    content?: string;
+    src?: string;
+    href?: string;
+
+    // SVG Support
+    shapes?: ScvIconShape[]; // For multi-shape icons
+    viewBox?: string;
+
+    styles?: ScvStyle;
+    children?: ScvBlock[];
+    layout?: {
+        width?: string;
+        flexDirection?: 'row' | 'column';
+        padding?: number | [number, number, number, number];
+        gap?: number;
+        justifyContent?: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around';
+        alignItems?: 'flex-start' | 'flex-end' | 'center' | 'stretch' | 'baseline';
+    };
+}
+
+export interface ScvTheme {
+    primaryColor: string;
+    secondaryColor: string;
+}
+
+export interface ScvDocument {
+    meta: { title: string; author: string };
+    theme: ScvTheme;
+    blocks: ScvBlock[];
+}
+</file>
+
 <file path="src/domain/services/adaptive/adaptive-engine.ts">
 import { create } from 'zustand';
 import { deviceDetector } from './device-detector';
@@ -10029,6 +10405,219 @@ export class Html2PdfAdapter implements PDFGenerator {
 }
 </file>
 
+<file path="src/infrastructure/pdf/infinity/infinity-service.tsx">
+import React from 'react';
+import { pdf } from '@react-pdf/renderer';
+import type { CVProfile } from '../../../domain/entities/cv';
+import { mapProfileToScv } from '../../../domain/scv/mapper';
+import { InfinityDocument } from './InfinityRenderer';
+
+
+export const InfinityService = {
+    async generateBlob(profile: CVProfile, language: string = 'en'): Promise<Blob> {
+        try {
+            const scv = mapProfileToScv(profile, language);
+            return await pdf(<InfinityDocument scv={scv} />).toBlob();
+        } catch (error) {
+            console.error("Infinity Engine Generation Error:", error);
+            throw error;
+        }
+    }
+};
+</file>
+
+<file path="src/infrastructure/pdf/infinity/InfinityRenderer.tsx">
+import React from 'react';
+import { Document, Page, View, Text, Image, Link, Svg, Path, Circle, Rect, Line, Polyline, StyleSheet } from '@react-pdf/renderer';
+import type { ScvDocument, ScvBlock, ScvStyle } from '../../../domain/scv/types';
+
+// Standard fonts are available by default.
+// No need to register Helvetica manually unless using a custom version.
+
+interface InfinityDocumentProps {
+    scv: ScvDocument;
+}
+
+export const InfinityDocument: React.FC<InfinityDocumentProps> = ({ scv }) => {
+    return (
+        <Document
+            title={scv.meta.title}
+            author={scv.meta.author}
+        >
+            <Page size="A4" style={styles.page}>
+                {scv.blocks.map((block) => (
+                    <BlockRenderer key={block.id} block={block} />
+                ))}
+            </Page>
+        </Document>
+    );
+};
+
+const styles = StyleSheet.create({
+    page: {
+        padding: 30,
+        fontFamily: 'Helvetica',
+        backgroundColor: '#FFFFFF',
+    },
+});
+
+const BlockRenderer: React.FC<{ block: ScvBlock }> = ({ block }) => {
+    const combinedStyle = {
+        ...mapStyles(block.styles),
+        ...mapLayout(block.layout),
+    };
+
+    switch (block.type) {
+        case 'container':
+            return (
+                <View style={combinedStyle}>
+                    {block.children?.map((child) => (
+                        <BlockRenderer key={child.id} block={child} />
+                    ))}
+                </View>
+            );
+        case 'text':
+        case 'heading':
+            return (
+                <Text style={combinedStyle}>
+                    {block.content}
+                </Text>
+            );
+        case 'image':
+            if (!block.src) return null;
+            return <Image src={block.src} style={combinedStyle} />;
+        case 'link':
+            return (
+                <Link src={block.href || '#'} style={combinedStyle}>
+                    {block.content}
+                </Link>
+            );
+        case 'list':
+            return (
+                <View style={combinedStyle}>
+                    {block.children?.map((child) => (
+                        <BlockRenderer key={child.id} block={child} />
+                    ))}
+                </View>
+            );
+        case 'listItem':
+            return (
+                <View style={{ flexDirection: 'row', ...combinedStyle }}>
+                    <Text style={{ marginRight: 5 }}>•</Text>
+                    <View>
+                        {block.children?.map((child) => (
+                            <BlockRenderer key={child.id} block={child} />
+                        )) || <Text>{block.content}</Text>}
+                    </View>
+                </View>
+            );
+        case 'svg':
+            if (block.shapes) {
+                return (
+                    <Svg viewBox={block.viewBox || "0 0 24 24"} style={combinedStyle}>
+                        {block.shapes.map((shape, i) => {
+                            const commonStyle: any = {
+                                stroke: shape.stroke || combinedStyle.color || '#000000',
+                                strokeWidth: shape.strokeWidth || 2,
+                                strokeLinecap: (shape as any).strokeLinecap || 'round',
+                                strokeLinejoin: (shape as any).strokeLinejoin || 'round',
+                            };
+
+                            // Handle fill safely as it's not on all shapes
+                            if ('fill' in shape) {
+                                commonStyle.fill = shape.fill || 'none';
+                            } else {
+                                commonStyle.fill = 'none';
+                            }
+
+                            switch (shape.type) {
+                                case 'path':
+                                    return <Path key={i} d={shape.d} {...commonStyle} />;
+                                case 'circle':
+                                    return <Circle key={i} cx={shape.cx} cy={shape.cy} r={shape.r} {...commonStyle} />;
+                                case 'rect':
+                                    return <Rect key={i} x={shape.x} y={shape.y} width={shape.width} height={shape.height} rx={shape.rx} ry={shape.ry} {...commonStyle} />;
+                                case 'line':
+                                    return <Line key={i} x1={shape.x1} y1={shape.y1} x2={shape.x2} y2={shape.y2} {...commonStyle} />;
+                                case 'polyline':
+                                    return <Polyline key={i} points={shape.points} {...commonStyle} />;
+                                default:
+                                    return null;
+                            }
+                        })}
+                    </Svg>
+                );
+            }
+            return null;
+        default:
+            return null;
+    }
+};
+
+function mapStyles(scvStyle?: ScvStyle): any {
+    if (!scvStyle) return {};
+    const style: any = { ...scvStyle };
+
+    if (scvStyle.flexWrap) {
+        style.flexWrap = scvStyle.flexWrap;
+    }
+
+    // Map specific props if needed, but most match React Native styles
+    // Handle array padding/margin if present (though types.ts defines them as number | array)
+    if (Array.isArray(scvStyle.padding)) {
+        style.paddingTop = scvStyle.padding[0];
+        style.paddingRight = scvStyle.padding[1];
+        style.paddingBottom = scvStyle.padding[2];
+        style.paddingLeft = scvStyle.padding[3];
+        delete style.padding;
+    }
+    if (Array.isArray(scvStyle.margin)) {
+        style.marginTop = scvStyle.margin[0];
+        style.marginRight = scvStyle.margin[1];
+        style.marginBottom = scvStyle.margin[2];
+        style.marginLeft = scvStyle.margin[3];
+        delete style.margin;
+    }
+
+    if (scvStyle.border) {
+        const parts = scvStyle.border.split(' ');
+        if (parts.length >= 3) {
+            style.borderWidth = parseFloat(parts[0]);
+            style.borderStyle = parts[1];
+            style.borderColor = parts.slice(2).join(' ');
+        }
+        delete style.border;
+    }
+
+    if (scvStyle.borderBottom) {
+        const parts = scvStyle.borderBottom.split(' ');
+        if (parts.length >= 3) {
+            style.borderBottomWidth = parseFloat(parts[0]);
+            style.borderBottomStyle = parts[1];
+            style.borderBottomColor = parts.slice(2).join(' ');
+        }
+        delete style.borderBottom;
+    }
+
+    return style;
+}
+
+function mapLayout(layout?: ScvBlock['layout']): any {
+    if (!layout) return {};
+    const style: any = { ...layout };
+
+    if (Array.isArray(layout.padding)) {
+        style.paddingTop = layout.padding[0];
+        style.paddingRight = layout.padding[1];
+        style.paddingBottom = layout.padding[2];
+        style.paddingLeft = layout.padding[3];
+        delete style.padding;
+    }
+
+    return style;
+}
+</file>
+
 <file path="src/infrastructure/pdf/page-renderer.ts">
 import { toPng } from 'html-to-image';
 
@@ -10081,6 +10670,12 @@ export class KnowledgeMemory {
 </file>
 
 <file path="src/main.tsx">
+// Polyfill Buffer for @react-pdf/renderer browser compatibility
+import { Buffer } from 'buffer';
+(window as any).Buffer = Buffer;
+(window as any).global = window;
+(window as any).process = (window as any).process || { env: {}, version: '', versions: {}, platform: 'browser', nextTick: (fn: any) => setTimeout(fn, 0) };
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
@@ -10502,161 +11097,6 @@ export const DESIGN_TOKENS = {
             '2xl': '1.5rem',
         },
     },
-};
-</file>
-
-<file path="src/presentation/features/auth/LoginPage.tsx">
-import React, { useState } from 'react';
-import { useAuthStore } from '../../../application/store/auth-store';
-import { useNavigate, Link } from 'react-router-dom';
-import { Button } from '../../design-system/atoms/Button';
-import { Card } from '../../design-system/atoms/Card';
-import { Lock, Mail, FileText } from 'lucide-react';
-import { InfinityService } from '../../../infrastructure/pdf/infinity/infinity-service';
-import type { CVProfile } from '../../../domain/entities/cv';
-
-export const LoginPage: React.FC = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const { login, isLoading, error } = useAuthStore();
-    const navigate = useNavigate();
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        await login(email, password);
-        if (useAuthStore.getState().isAuthenticated) {
-            navigate('/');
-        }
-    };
-
-    const handleTestPdf = async () => {
-        const dummyProfile: CVProfile = {
-            id: 'test-1',
-            lastUpdated: Date.now(),
-            personal: {
-                firstName: 'John',
-                lastName: 'Doe',
-                title: 'Software Engineer',
-                contact: {
-                    email: 'john@example.com',
-                    phone: '+1 234 567 890',
-                    address: 'New York, NY',
-                },
-            },
-            summary: 'Experienced software engineer with a passion for building scalable applications.',
-            experiences: [
-                {
-                    id: 'exp-1',
-                    role: 'Senior Developer',
-                    company: 'Tech Corp',
-                    dates: '2020 - Present',
-                    tasks: ['Built the core engine', 'Led a team of 5'],
-                },
-            ],
-            educations: [
-                {
-                    id: 'edu-1',
-                    degree: 'BS Computer Science',
-                    school: 'MIT',
-                    year: '2019',
-                },
-            ],
-            languages: [],
-            skills: ['TypeScript', 'React', 'Node.js'],
-            strengths: [],
-            metadata: {
-                templateId: 'modern',
-                density: 'comfortable',
-                accentColor: '#3b82f6',
-                fontFamily: 'sans',
-            },
-        };
-
-        const blob = await InfinityService.generatePdfBlob(dummyProfile);
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'infinity-test.pdf';
-        a.click();
-        URL.revokeObjectURL(url);
-    };
-
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-            <Card className="w-full max-w-md p-8 bg-white shadow-xl rounded-2xl">
-                <div className="text-center mb-8">
-                    <h1 className="text-2xl font-bold text-slate-800">Welcome Back</h1>
-                    <p className="text-slate-500 mt-2">Sign in to your account</p>
-                </div>
-
-                {error && (
-                    <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100">
-                        {error}
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                        <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                            <input
-                                type="email"
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-                                placeholder="you@example.com"
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
-                        <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                            <input
-                                type="password"
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-                                placeholder="••••••••"
-                            />
-                        </div>
-                    </div>
-
-                    <Button
-                        type="submit"
-                        className="w-full justify-center py-2.5 text-base"
-                        isLoading={isLoading}
-                    >
-                        Sign In
-                    </Button>
-                </form>
-
-                <div className="mt-6 text-center text-sm text-slate-600">
-                    Don't have an account?{' '}
-                    <Link to="/register" className="text-indigo-600 hover:text-indigo-700 font-medium">
-                        Create one
-                    </Link>
-                </div>
-
-                <div className="mt-4 text-center space-y-2">
-                    <Link to="/" className="block text-xs text-slate-400 hover:text-slate-600">
-                        Continue in Offline Mode
-                    </Link>
-                    <button
-                        onClick={handleTestPdf}
-                        type="button"
-                        className="text-xs text-indigo-500 hover:text-indigo-700 flex items-center justify-center gap-1 mx-auto"
-                    >
-                        <FileText size={12} /> Test Infinity PDF
-                    </button>
-                </div>
-            </Card>
-        </div>
-    );
 };
 </file>
 
@@ -11665,6 +12105,7 @@ import React, { useState } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 import { useCVStore } from '../../../application/store/cv-store';
+import { useSettingsStore } from '../../../application/store/settings-store';
 import { Button } from '../../design-system/atoms/Button';
 import { ChevronRight, ChevronLeft, Check, User, Briefcase, Layout, Download } from 'lucide-react';
 import { PersonalTab } from '../editor/tabs/PersonalTab';
@@ -11681,6 +12122,48 @@ export const WizardPage: React.FC = () => {
     const { t } = useTranslation();
     const [step, setStep] = useState<WizardStep>('identity');
     const { profile } = useCVStore();
+    const { language } = useSettingsStore();
+    const [isDownloading, setIsDownloading] = useState(false);
+
+    const handleDownload = async () => {
+        try {
+            setIsDownloading(true);
+
+            // Call server-side PDF generation API DIRECTLY (bypass Vite proxy for large bodies)
+            const response = await fetch('http://localhost:3000/api/pdf/generate-pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    profile,
+                    language
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+            }
+
+            // Get PDF blob from server response
+            const blob = await response.blob();
+
+            // Trigger download
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `cv-${profile.personal.lastName || 'resume'}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Failed to generate PDF:', error);
+            // Could add toast notification here
+        } finally {
+            setIsDownloading(false);
+        }
+    };
 
     const steps: { id: WizardStep; label: string; icon: React.ReactNode }[] = [
         { id: 'identity', label: t('wizard.steps.identity'), icon: <User size={18} /> },
@@ -11844,9 +12327,10 @@ export const WizardPage: React.FC = () => {
 
                     {step === 'download' ? (
                         <Button
-                            onClick={() => window.dispatchEvent(new Event('TRIGGER_PDF_DOWNLOAD'))}
+                            onClick={handleDownload}
                             className="bg-emerald-600 hover:bg-emerald-700 text-white"
                             rightIcon={<Download size={16} />}
+                            isLoading={isDownloading}
                         >
                             {t('actions.download')}
                         </Button>
@@ -12466,13 +12950,19 @@ export default {
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "allowSyntheticDefaultImports": true,
+        "jsx": "react-jsx",
+        "lib": [
+            "ES2022",
+            "DOM"
+        ],
         "types": [
             "node",
             "express"
         ]
     },
     "include": [
-        "server/**/*"
+        "server/**/*",
+        "src/**/*"
     ],
     "exclude": [
         "node_modules",
@@ -12485,12 +12975,13 @@ export default {
 <file path="vite.config.ts">
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-
 import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -12501,6 +12992,12 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
+        // Bypass proxy for large requests - let server handle directly
+        bypass: (req) => {
+          // Log all proxied requests
+          console.log(`[VITE PROXY] ${req.method} ${req.url}`);
+          return null; // null means continue with proxy
+        },
       },
     },
   },
@@ -12641,90 +13138,6 @@ All 4 phases of the ZENITH roadmap have been successfully executed.
 The application is now robust, user-friendly, and architecturally sound.
 </file>
 
-<file path="package.json">
-{
-  "name": "swiss-cv-builder",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "dev:all": "node scripts/start-all.js",
-    "server": "tsx --watch server/index.ts",
-    "build:client": "tsc -b && vite build",
-    "build:server": "tsc -p tsconfig.server.json",
-    "build": "npm run build:client && npm run build:server",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "test": "vitest"
-  },
-  "dependencies": {
-    "@google/generative-ai": "^0.24.1",
-    "@prisma/client": "5.22.0",
-    "@react-pdf/renderer": "^4.3.1",
-    "autoprefixer": "^10.4.22",
-    "bcrypt": "^6.0.0",
-    "clsx": "^2.1.1",
-    "cookie-parser": "^1.4.7",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "express-rate-limit": "^8.2.1",
-    "framer-motion": "^12.23.24",
-    "helmet": "^8.1.0",
-    "html-to-image": "^1.11.13",
-    "html2canvas": "^1.4.1",
-    "html2pdf.js": "^0.12.1",
-    "jsonwebtoken": "^9.0.2",
-    "jspdf": "^3.0.4",
-    "lucide-react": "^0.555.0",
-    "morgan": "^1.10.1",
-    "postcss": "^8.5.6",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "react-router-dom": "^7.9.6",
-    "stripe": "^20.0.0",
-    "tailwind-merge": "^3.4.0",
-    "tailwindcss": "^3.4.17",
-    "uuid": "^13.0.0",
-    "zod": "^3.25.76",
-    "zustand": "^5.0.8"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.39.1",
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.0",
-    "@types/bcrypt": "^6.0.0",
-    "@types/cookie-parser": "^1.4.10",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.5",
-    "@types/html2pdf.js": "^0.10.0",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/morgan": "^1.9.10",
-    "@types/node": "^24.10.1",
-    "@types/react": "^19.2.5",
-    "@types/react-dom": "^19.2.3",
-    "@types/uuid": "^10.0.0",
-    "@vitejs/plugin-react": "^5.1.1",
-    "eslint": "^9.39.1",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.4.24",
-    "globals": "^16.5.0",
-    "jsdom": "^27.2.0",
-    "prisma": "5.22.0",
-    "tsx": "^4.20.6",
-    "typescript": "~5.9.3",
-    "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4",
-    "vitest": "^4.0.14"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  }
-}
-</file>
-
 <file path="server/agents/security-agent.ts">
 import { BaseAgent } from './base-agent';
 import { LoggerService } from '../services/logger-service';
@@ -12789,10 +13202,17 @@ import letterRoutes from './routes/letters';
 import subscriptionRoutes from './routes/subscriptions';
 import aiRoutes from './routes/ai';
 import webhookRoutes from './routes/webhook';
+import pdfRoutes from './routes/pdf';
 
 import rateLimit from 'express-rate-limit';
 
 const app = express();
+
+// GLOBAL DEBUG: Log ALL requests BEFORE any middleware
+app.use((req, res, next) => {
+    console.log(`[APP-GLOBAL] ${req.method} ${req.url} - Content-Length: ${req.headers['content-length'] || '0'}`);
+    next();
+});
 
 // Rate Limiter for Auth
 const authLimiter = rateLimit({
@@ -12825,7 +13245,9 @@ app.use(profiler);
 // Webhook route must be before express.json() to get raw body
 app.use('/api/webhook', express.raw({ type: 'application/json' }), webhookRoutes);
 
-app.use(express.json());
+// Increase body size limit for PDF generation (profiles can be large with images)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
 
 // Routes
@@ -12834,6 +13256,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/letters', letterRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/ai', aiLimiter, aiRoutes);
+app.use('/api/pdf', pdfRoutes);
 
 import { MonitorService } from './services/monitor-service';
 
@@ -14051,6 +14474,161 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
 );
 
 Input.displayName = 'Input';
+</file>
+
+<file path="src/presentation/features/auth/LoginPage.tsx">
+import React, { useState } from 'react';
+import { useAuthStore } from '../../../application/store/auth-store';
+import { useNavigate, Link } from 'react-router-dom';
+import { Button } from '../../design-system/atoms/Button';
+import { Card } from '../../design-system/atoms/Card';
+import { Lock, Mail, FileText } from 'lucide-react';
+import { InfinityService } from '../../../infrastructure/pdf/infinity/infinity-service';
+import type { CVProfile } from '../../../domain/entities/cv';
+
+export const LoginPage: React.FC = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const { login, isLoading, error } = useAuthStore();
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        await login(email, password);
+        if (useAuthStore.getState().isAuthenticated) {
+            navigate('/');
+        }
+    };
+
+    const handleTestPdf = async () => {
+        const dummyProfile: CVProfile = {
+            id: 'test-1',
+            lastUpdated: Date.now(),
+            personal: {
+                firstName: 'John',
+                lastName: 'Doe',
+                title: 'Software Engineer',
+                contact: {
+                    email: 'john@example.com',
+                    phone: '+1 234 567 890',
+                    address: 'New York, NY',
+                },
+            },
+            summary: 'Experienced software engineer with a passion for building scalable applications.',
+            experiences: [
+                {
+                    id: 'exp-1',
+                    role: 'Senior Developer',
+                    company: 'Tech Corp',
+                    dates: '2020 - Present',
+                    tasks: ['Built the core engine', 'Led a team of 5'],
+                },
+            ],
+            educations: [
+                {
+                    id: 'edu-1',
+                    degree: 'BS Computer Science',
+                    school: 'MIT',
+                    year: '2019',
+                },
+            ],
+            languages: [],
+            skills: ['TypeScript', 'React', 'Node.js'],
+            strengths: [],
+            metadata: {
+                templateId: 'modern',
+                density: 'comfortable',
+                accentColor: '#3b82f6',
+                fontFamily: 'sans',
+            },
+        };
+
+        const blob = await InfinityService.generatePdfBlob(dummyProfile);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'infinity-test.pdf';
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+            <Card className="w-full max-w-md p-8 bg-white shadow-xl rounded-2xl">
+                <div className="text-center mb-8">
+                    <h1 className="text-2xl font-bold text-slate-800">Welcome Back</h1>
+                    <p className="text-slate-500 mt-2">Sign in to your account</p>
+                </div>
+
+                {error && (
+                    <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100">
+                        {error}
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                        <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                            <input
+                                type="email"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                placeholder="you@example.com"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                        <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                            <input
+                                type="password"
+                                required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                placeholder="••••••••"
+                            />
+                        </div>
+                    </div>
+
+                    <Button
+                        type="submit"
+                        className="w-full justify-center py-2.5 text-base"
+                        isLoading={isLoading}
+                    >
+                        Sign In
+                    </Button>
+                </form>
+
+                <div className="mt-6 text-center text-sm text-slate-600">
+                    Don't have an account?{' '}
+                    <Link to="/register" className="text-indigo-600 hover:text-indigo-700 font-medium">
+                        Create one
+                    </Link>
+                </div>
+
+                <div className="mt-4 text-center space-y-2">
+                    <Link to="/" className="block text-xs text-slate-400 hover:text-slate-600">
+                        Continue in Offline Mode
+                    </Link>
+                    <button
+                        onClick={handleTestPdf}
+                        type="button"
+                        className="text-xs text-indigo-500 hover:text-indigo-700 flex items-center justify-center gap-1 mx-auto"
+                    >
+                        <FileText size={12} /> Test Infinity PDF
+                    </button>
+                </div>
+            </Card>
+        </div>
+    );
+};
 </file>
 
 <file path="src/presentation/features/editor/EditorSidebar.tsx">
@@ -16098,6 +16676,89 @@ self.onmessage = (e: MessageEvent) => {
 };
 </file>
 
+<file path="package.json">
+{
+  "name": "swiss-cv-builder",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:all": "node scripts/start-all.js",
+    "server": "tsx --watch server/index.ts",
+    "build:client": "tsc -b && vite build",
+    "build:server": "tsc -p tsconfig.server.json",
+    "build": "npm run build:client && npm run build:server",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@prisma/client": "5.22.0",
+    "@react-pdf/renderer": "^4.3.1",
+    "autoprefixer": "^10.4.22",
+    "bcrypt": "^6.0.0",
+    "buffer": "^6.0.3",
+    "clsx": "^2.1.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
+    "framer-motion": "^12.23.24",
+    "helmet": "^8.1.0",
+    "html2pdf.js": "^0.12.1",
+    "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.555.0",
+    "morgan": "^1.10.1",
+    "postcss": "^8.5.6",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.9.6",
+    "stripe": "^20.0.0",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^3.4.17",
+    "uuid": "^13.0.0",
+    "zod": "^3.25.76",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.5",
+    "@types/html2pdf.js": "^0.10.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^5.1.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "jsdom": "^27.2.0",
+    "prisma": "5.22.0",
+    "tsx": "^4.20.6",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.4",
+    "vite": "^7.2.4",
+    "vite-plugin-node-polyfills": "^0.24.0",
+    "vitest": "^4.0.14"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
+}
+</file>
+
 <file path="src/domain/pdf/layout-engine.ts">
 import type { PageDefinition, SectionBlock } from './types';
 import type { TemplateConfig } from './template-config';
@@ -16271,7 +16932,6 @@ import { useUIStore } from '../../../application/store/ui-store';
 import { useSettingsStore } from '../../../application/store/settings-store';
 import { useCVStore } from '../../../application/store/cv-store';
 import { useToastStore } from '../../../application/store/toast-store';
-import { PDFService } from '../../../infrastructure/pdf/pdf-service';
 import { Button } from '../../design-system/atoms/Button';
 import { Download, Loader2 } from 'lucide-react';
 import { t } from '../../../data/translations';
@@ -16301,8 +16961,38 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
         await new Promise(resolve => setTimeout(resolve, 100));
 
         try {
-            // const filename = `CV_${profile.personal.lastName}_${profile.personal.firstName}.pdf`;
-            await PDFService.generate(profile, 'visual', language); // Default to visual for now
+            console.log('[PDF] Full profile object:', profile);
+            console.log('[PDF] Profile metadata:', profile?.metadata);
+
+            // Call server-side PDF generation API DIRECTLY (bypass Vite proxy for large bodies)
+            const response = await fetch('http://localhost:3000/api/pdf/generate-pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    profile,
+                    language
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+            }
+
+            // Get PDF blob from server response
+            const blob = await response.blob();
+
+            // Trigger download
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `cv-${profile.personal.lastName || 'resume'}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
             addToast('PDF downloaded successfully!', 'success');
         } catch (error) {
             console.error('PDF Generation failed', error);

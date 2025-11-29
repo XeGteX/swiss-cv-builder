@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 import { useCVStore } from '../../../application/store/cv-store';
+import { useSettingsStore } from '../../../application/store/settings-store';
 import { Button } from '../../design-system/atoms/Button';
 import { ChevronRight, ChevronLeft, Check, User, Briefcase, Layout, Download } from 'lucide-react';
 import { PersonalTab } from '../editor/tabs/PersonalTab';
@@ -18,6 +19,48 @@ export const WizardPage: React.FC = () => {
     const { t } = useTranslation();
     const [step, setStep] = useState<WizardStep>('identity');
     const { profile } = useCVStore();
+    const { language } = useSettingsStore();
+    const [isDownloading, setIsDownloading] = useState(false);
+
+    const handleDownload = async () => {
+        try {
+            setIsDownloading(true);
+
+            // Call server-side PDF generation API DIRECTLY (bypass Vite proxy for large bodies)
+            const response = await fetch('http://localhost:3000/api/pdf/generate-pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    profile,
+                    language
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+            }
+
+            // Get PDF blob from server response
+            const blob = await response.blob();
+
+            // Trigger download
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `cv-${profile.personal.lastName || 'resume'}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Failed to generate PDF:', error);
+            // Could add toast notification here
+        } finally {
+            setIsDownloading(false);
+        }
+    };
 
     const steps: { id: WizardStep; label: string; icon: React.ReactNode }[] = [
         { id: 'identity', label: t('wizard.steps.identity'), icon: <User size={18} /> },
@@ -181,9 +224,10 @@ export const WizardPage: React.FC = () => {
 
                     {step === 'download' ? (
                         <Button
-                            onClick={() => window.dispatchEvent(new Event('TRIGGER_PDF_DOWNLOAD'))}
+                            onClick={handleDownload}
                             className="bg-emerald-600 hover:bg-emerald-700 text-white"
                             rightIcon={<Download size={16} />}
+                            isLoading={isDownloading}
                         >
                             {t('actions.download')}
                         </Button>

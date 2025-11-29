@@ -1,0 +1,28 @@
+{
+    "profile": {
+        "id": "test-123",
+        "lastUpdated": 1234567890,
+        "personal": {
+            "firstName": "Jean",
+            "lastName": "Dupont",
+            "title": "Développeur",
+            "contact": {
+                "email": "test@test.com",
+                "phone": "0612345678"
+            }
+        },
+        "summary": "Test summary",
+        "experiences": [],
+        "educations": [],
+        "languages": [],
+        "skills": [],
+        "strengths": [],
+        "metadata": {
+            "templateId": "modern",
+            "density": "comfortable",
+            "accentColor": "#2563eb",
+            "fontFamily": "sans"
+        }
+    },
+    "language": "en"
+}

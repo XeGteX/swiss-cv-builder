@@ -1,3 +1,9 @@
+// Polyfill Buffer for @react-pdf/renderer browser compatibility
+import { Buffer } from 'buffer';
+(window as any).Buffer = Buffer;
+(window as any).global = window;
+(window as any).process = (window as any).process || { env: {}, version: '', versions: {}, platform: 'browser', nextTick: (fn: any) => setTimeout(fn, 0) };
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';

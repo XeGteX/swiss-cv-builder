@@ -4,7 +4,6 @@ import { useUIStore } from '../../../application/store/ui-store';
 import { useSettingsStore } from '../../../application/store/settings-store';
 import { useCVStore } from '../../../application/store/cv-store';
 import { useToastStore } from '../../../application/store/toast-store';
-import { PDFService } from '../../../infrastructure/pdf/pdf-service';
 import { Button } from '../../design-system/atoms/Button';
 import { Download, Loader2 } from 'lucide-react';
 import { t } from '../../../data/translations';
@@ -34,8 +33,38 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
         await new Promise(resolve => setTimeout(resolve, 100));
 
         try {
-            // const filename = `CV_${profile.personal.lastName}_${profile.personal.firstName}.pdf`;
-            await PDFService.generate(profile, 'visual', language); // Default to visual for now
+            console.log('[PDF] Full profile object:', profile);
+            console.log('[PDF] Profile metadata:', profile?.metadata);
+
+            // Call server-side PDF generation API DIRECTLY (bypass Vite proxy for large bodies)
+            const response = await fetch('http://localhost:3000/api/pdf/generate-pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    profile,
+                    language
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+            }
+
+            // Get PDF blob from server response
+            const blob = await response.blob();
+
+            // Trigger download
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `cv-${profile.personal.lastName || 'resume'}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
             addToast('PDF downloaded successfully!', 'success');
         } catch (error) {
             console.error('PDF Generation failed', error);

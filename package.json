@@ -20,6 +20,7 @@
     "@react-pdf/renderer": "^4.3.1",
     "autoprefixer": "^10.4.22",
     "bcrypt": "^6.0.0",
+    "buffer": "^6.0.3",
     "clsx": "^2.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -28,11 +29,8 @@
     "express-rate-limit": "^8.2.1",
     "framer-motion": "^12.23.24",
     "helmet": "^8.1.0",
-    "html-to-image": "^1.11.13",
-    "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.12.1",
     "jsonwebtoken": "^9.0.2",
-    "jspdf": "^3.0.4",
     "lucide-react": "^0.555.0",
     "morgan": "^1.10.1",
     "postcss": "^8.5.6",
@@ -73,6 +71,7 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4",
+    "vite-plugin-node-polyfills": "^0.24.0",
     "vitest": "^4.0.14"
   },
   "prisma": {

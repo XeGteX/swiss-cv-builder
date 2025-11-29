@@ -10,13 +10,19 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "allowSyntheticDefaultImports": true,
+        "jsx": "react-jsx",
+        "lib": [
+            "ES2022",
+            "DOM"
+        ],
         "types": [
             "node",
             "express"
         ]
     },
     "include": [
-        "server/**/*"
+        "server/**/*",
+        "src/**/*"
     ],
     "exclude": [
         "node_modules",
