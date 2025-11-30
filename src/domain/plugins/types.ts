@@ -1,3 +1,4 @@
+
 export type PluginEventType =
     | 'USER_REGISTERED'
     | 'CV_CREATED'

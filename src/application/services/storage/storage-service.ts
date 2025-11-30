@@ -1,3 +1,4 @@
+
 import type { CVProfile, Letter } from '../../../domain/entities/cv';
 
 export interface StorageService {

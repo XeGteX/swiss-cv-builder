@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 
 type Tab = 'personal' | 'experience' | 'education' | 'skills' | 'letter' | 'ai' | 'critic' | 'letter-gen' | 'settings' | 'system';

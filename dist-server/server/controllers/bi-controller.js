@@ -1,3 +1,4 @@
+
 import { BIService } from '../services/bi-service';
 export class BIController {
     static async getStats(req, res, next) {

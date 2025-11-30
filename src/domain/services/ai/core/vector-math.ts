@@ -1,3 +1,4 @@
+
 /**
  * Vector Math Utility for AI Operations
  * Used for calculating similarity between text embeddings (keywords).

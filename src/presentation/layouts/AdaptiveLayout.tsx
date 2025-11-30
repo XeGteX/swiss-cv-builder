@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useAdaptiveEngine } from '../../domain/services/adaptive/adaptive-engine';
 import { useSettingsStore } from '../../application/store/settings-store';

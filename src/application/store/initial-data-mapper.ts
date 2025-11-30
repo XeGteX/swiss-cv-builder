@@ -1,3 +1,4 @@
+
 import { type CVProfile } from '../../domain/entities/cv';
 import { initialDataFr } from '../../data/initialData';
 import { v4 as uuidv4 } from 'uuid';

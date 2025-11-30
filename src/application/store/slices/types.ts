@@ -1,3 +1,4 @@
+
 import type { CVProfile, Experience, Education, PersonalInfo, Letter } from '../../../domain/entities/cv';
 
 export interface ProfileSlice {

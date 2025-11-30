@@ -1,3 +1,4 @@
+
 # FAILURE LOG 💀
 
 Tracking failed attempts, bugs, and abandoned approaches. Learning from mistakes.

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { PageDefinition, SectionBlock } from '../../domain/pdf/types';
 import { PDF_CONFIG } from '../../domain/pdf/template-config';

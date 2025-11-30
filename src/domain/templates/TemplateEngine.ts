@@ -1,3 +1,4 @@
+
 export interface TemplateConfig {
     id: string;
     layout: 'classic' | 'modern' | 'sidebar-left' | 'sidebar-right';

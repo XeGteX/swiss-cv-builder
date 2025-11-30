@@ -1,3 +1,4 @@
+
 import { monitor as systemMonitor } from '../../../infrastructure/monitoring/system-monitor';
 
 export type DeviceType = 'mobile' | 'tablet' | 'desktop' | 'ultrawide';

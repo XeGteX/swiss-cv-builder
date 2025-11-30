@@ -1,3 +1,4 @@
+
 import prisma from '../prisma';
 export class LetterService {
     static async listLetters(userId) {

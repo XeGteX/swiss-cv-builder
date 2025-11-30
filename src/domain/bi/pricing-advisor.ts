@@ -1,3 +1,4 @@
+
 export interface PricingScenario {
     tier: 'FREE' | 'PRO' | 'ELITE';
     currentPrice: number;

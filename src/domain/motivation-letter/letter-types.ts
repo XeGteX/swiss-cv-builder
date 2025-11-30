@@ -1,3 +1,4 @@
+
 export type Language = 'en' | 'fr';
 export type Tone = 'professional' | 'enthusiastic' | 'confident';
 

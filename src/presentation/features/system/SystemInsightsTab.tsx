@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { insightsLog } from '../../../domain/services/system/insights-log';
 import type { SystemInsight } from '../../../domain/services/system/insights-log';

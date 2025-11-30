@@ -1,3 +1,4 @@
+
 import type { Experience, Education, Language } from '../domain/entities/cv';
 
 export const initialDataFr = {

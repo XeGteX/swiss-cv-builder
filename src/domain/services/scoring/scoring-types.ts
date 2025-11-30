@@ -1,3 +1,4 @@
+
 import type { CVProfile } from '../../entities/cv';
 
 export interface Suggestion {

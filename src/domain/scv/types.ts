@@ -1,3 +1,4 @@
+
 export interface ScvStyle {
     color?: string;
     backgroundColor?: string;

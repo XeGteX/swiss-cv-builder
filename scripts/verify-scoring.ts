@@ -1,3 +1,4 @@
+
 import { SemanticAnalyzer } from '../src/domain/services/semantic-analyzer';
 import { CVProfile } from '../src/domain/entities/cv';
 

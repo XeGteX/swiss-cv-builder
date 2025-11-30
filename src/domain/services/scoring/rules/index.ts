@@ -1,3 +1,4 @@
+
 import type { ScoringRule, ScoringContext, RuleResult } from '../scoring-types';
 import { ACTION_VERBS_EN, ACTION_VERBS_FR, WEAK_WORDS_EN, WEAK_WORDS_FR } from '../../../../data/dictionaries/action-verbs';
 

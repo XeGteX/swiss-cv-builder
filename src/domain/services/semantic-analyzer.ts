@@ -1,3 +1,4 @@
+
 import type { CVProfile } from '../entities/cv';
 import { ContentCompletenessRule, ActionVerbsRule, MetricsRule } from './scoring/rules';
 import type { ScoringContext, Suggestion } from './scoring/scoring-types';

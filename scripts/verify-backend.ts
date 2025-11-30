@@ -1,3 +1,4 @@
+
 // import fetch from 'node-fetch'; // Using native fetch in Node 22
 
 const BASE_URL = 'http://localhost:3000/api';

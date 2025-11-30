@@ -1,3 +1,4 @@
+
 import type { CVProfile, Experience, Education } from '../entities/cv';
 import type { ScvDocument, ScvBlock, ScvTheme } from './types';
 import { PDF_ICONS } from '../../infrastructure/pdf/infinity/icons';

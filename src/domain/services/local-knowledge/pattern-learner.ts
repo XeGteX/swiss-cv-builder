@@ -1,3 +1,4 @@
+
 import type { KnowledgePattern } from './types';
 
 export class PatternLearner {

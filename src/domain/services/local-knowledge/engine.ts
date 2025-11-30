@@ -1,3 +1,4 @@
+
 import type { KnowledgePattern, Suggestion } from './types';
 import { PatternLearner } from './pattern-learner';
 import { KnowledgeMemory } from '../../../infrastructure/storage/knowledge-memory';

@@ -1,3 +1,4 @@
+
 # Swiss CV Builder - Self-Diagnosis Report
 
 ## 1. Summary

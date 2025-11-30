@@ -1,3 +1,4 @@
+
 # ⚔️ THE COUNCIL DEBATE: ROUND 1
 
 **Context**: The Council has reviewed the audit reports from Antigravity, Grok, GPT-4, Gemini, and GPT-5. The consensus is clear: the app is feature-rich but structurally fragile and insecure.

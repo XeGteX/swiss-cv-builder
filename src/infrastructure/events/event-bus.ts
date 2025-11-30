@@ -1,3 +1,4 @@
+
 type Handler<T = any> = (event: T) => void;
 
 class EventBus {

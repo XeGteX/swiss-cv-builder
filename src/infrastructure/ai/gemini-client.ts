@@ -1,3 +1,4 @@
+
 import type { AIClient } from '../../domain/services/ai-client.interface';
 
 export class GeminiClient implements AIClient {

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { AVAILABLE_FEATURES, useFeatureStore } from '../../domain/experiments/feature-registry';
 import { FlaskConical, AlertTriangle, TrendingUp } from 'lucide-react';

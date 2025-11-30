@@ -1,3 +1,4 @@
+
 // Polyfill Buffer for @react-pdf/renderer browser compatibility
 import { Buffer } from 'buffer';
 (window as any).Buffer = Buffer;

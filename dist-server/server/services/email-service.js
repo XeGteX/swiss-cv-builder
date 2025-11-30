@@ -1,3 +1,4 @@
+
 export class ConsoleEmailService {
     async sendEmail(to, subject, html) {
         console.log(`[EmailService] Sending email to ${to}`);

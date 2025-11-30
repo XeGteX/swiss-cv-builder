@@ -1,3 +1,4 @@
+
 import prisma from '../prisma';
 import { LoggerService } from './logger-service';
 export class BIService {

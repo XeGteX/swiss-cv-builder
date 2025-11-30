@@ -1,3 +1,4 @@
+
 import type { GenerationContext, LetterSection } from './letter-types';
 import { LocalMemory } from '../services/local-learning/local-memory';
 

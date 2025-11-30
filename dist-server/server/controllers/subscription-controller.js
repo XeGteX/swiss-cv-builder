@@ -1,3 +1,4 @@
+
 import { SubscriptionService } from '../services/subscription-service';
 export class SubscriptionController {
     static async getStatus(req, res, next) {

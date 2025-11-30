@@ -1,3 +1,4 @@
+
 import type { PDFVariant } from './types';
 
 export interface TemplateConfig {

@@ -1,3 +1,4 @@
+
 # IDEAS & EXPERIMENTS 💡
 
 A parking lot for future improvements, wild ideas, and "nice to haves" that don't fit in the current phase.

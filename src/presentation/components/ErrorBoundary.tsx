@@ -1,3 +1,4 @@
+
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Button } from '@/presentation/design-system/atoms/Button';
 import { AlertTriangle, RefreshCw } from 'lucide-react';

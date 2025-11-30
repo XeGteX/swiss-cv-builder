@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { CVProfile } from '../../domain/entities/cv';
 

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { pdf } from '@react-pdf/renderer';
 import type { CVProfile } from '../../../domain/entities/cv';

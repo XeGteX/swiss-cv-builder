@@ -1,3 +1,4 @@
+
 # PDF Engine Architecture 📄
 
 This document explains the "Pixel-Perfect" PDF generation pipeline used in Swiss CV Builder.

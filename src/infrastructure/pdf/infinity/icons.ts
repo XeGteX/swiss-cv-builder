@@ -1,3 +1,4 @@
+
 import type { ScvIconShape } from '../../../domain/scv/types';
 
 export const PDF_ICONS: Record<string, ScvIconShape[]> = {

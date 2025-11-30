@@ -1,3 +1,4 @@
+
 import type { LetterSection } from '../../motivation-letter/letter-types';
 
 export const INITIAL_SECTIONS: LetterSection[] = [

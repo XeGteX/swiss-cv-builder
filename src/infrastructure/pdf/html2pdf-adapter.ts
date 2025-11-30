@@ -1,3 +1,4 @@
+
 export interface PDFGenerator {
     generate(element: HTMLElement, filename: string): Promise<void>;
 }

@@ -1,3 +1,4 @@
+
 import type { KnowledgePattern } from '../../domain/services/local-knowledge/types';
 
 const STORAGE_KEY = 'swiss-cv-knowledge-memory';

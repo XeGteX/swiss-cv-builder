@@ -1,3 +1,4 @@
+
 import type { StorageService } from './storage-service';
 import type { CVProfile, Letter } from '../../../domain/entities/cv';
 

@@ -1,3 +1,4 @@
+
 import { monitor } from '../../../infrastructure/monitoring/system-monitor';
 import { insightsLog } from './insights-log';
 

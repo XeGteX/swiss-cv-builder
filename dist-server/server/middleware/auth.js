@@ -1,3 +1,4 @@
+
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
 export const authenticateToken = (req, res, next) => {

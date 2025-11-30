@@ -1,3 +1,4 @@
+
 export interface KnowledgePattern {
     id: string;
     pattern: string; // The text pattern (e.g., "Led a team of")

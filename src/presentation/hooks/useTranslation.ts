@@ -1,3 +1,4 @@
+
 import { useSettingsStore } from '../../application/store/settings-store';
 import en from '../../i18n/en.json';
 import fr from '../../i18n/fr.json';

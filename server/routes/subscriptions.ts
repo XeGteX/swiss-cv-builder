@@ -1,3 +1,4 @@
+
 import express from 'express';
 import { SubscriptionController } from '../controllers/subscription-controller';
 import { authenticateToken } from '../middleware/auth';

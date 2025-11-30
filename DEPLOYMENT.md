@@ -1,3 +1,4 @@
+
 # Deployment Guide 🚀
 
 This project is configured as a **Modular Monolith**, meaning both the React Frontend and Node.js Backend are deployed as a **single service**. This simplifies deployment and reduces costs.

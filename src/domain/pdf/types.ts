@@ -1,3 +1,4 @@
+
 export type PDFVariant = 'visual' | 'ats' | 'swiss';
 
 export type SectionType =

@@ -1,3 +1,4 @@
+
 import prisma from '../prisma';
 export class ProfileService {
     static async listProfiles(userId) {

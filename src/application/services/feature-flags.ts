@@ -1,3 +1,4 @@
+
 type FeatureFlag = 'ENABLE_WIZARD' | 'ENABLE_AI_V2' | 'ENABLE_CLOUD_STORAGE' | 'ENABLE_PAYMENTS';
 
 const DEFAULT_FLAGS: Record<FeatureFlag, boolean> = {

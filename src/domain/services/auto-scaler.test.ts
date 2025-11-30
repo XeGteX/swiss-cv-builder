@@ -1,3 +1,4 @@
+
 import { describe, it, expect } from 'vitest';
 import { AutoScaler } from './auto-scaler';
 import type { CVProfile } from '../entities/cv';

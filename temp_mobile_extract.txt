@@ -1,0 +1,500 @@
+﻿src/presentation/layouts/registry.ts
+src/presentation/layouts/templates/ATSTemplate.tsx
+src/presentation/layouts/templates/ModernTemplate.tsx
+src/presentation/pdf/PdfPageTemplate.tsx
+src/shared/constants.ts
+src/shared/sanitizer.test.ts
+src/shared/sanitizer.ts
+src/test-uuid.ts
+src/test/setup.ts
+src/types.ts
+src/worker/ai.worker.ts
+src/worker/layout.worker.ts
+tailwind.config.js
+test-output.pdf
+test-profile.json
+tsconfig.app.json
+tsconfig.json
+tsconfig.node.json
+tsconfig.server.json
+vite.config.ts
+vitest.config.ts
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="server/routes/pdf.ts">
+import express from 'express';
+import { InfinityService } from '../../src/infrastructure/pdf/infinity/infinity-service';
+import type { CVProfile } from '../../src/domain/entities/cv';
+
+const router = express.Router();
+
+// Middleware to log ALL requests to this router
+router.use((req, res, next) => {
+    console.log(`[PDF-ROUTER] ${req.method} ${req.path} - Body size: ${JSON.stringify(req.body || {}).length} bytes`);
+    next();
+});
+
+// Test endpoint to verify InfinityService can be imported
+router.get('/test', (req, res) => {
+    try {
+        console.log('[PDF API] Testing InfinityService import...');
+        console.log('[PDF API] InfinityService exists:', !!InfinityService);
+        console.log('[PDF API] InfinityService.generateBlob exists:', !!InfinityService.generateBlob);
+        res.json({
+            success: true,
+            message: 'InfinityService import successful',
+            hasGenerateBlob: !!InfinityService.generateBlob
+        });
+    } catch (error) {
+        console.error('[PDF API] Test endpoint error:', error);
+        res.status(500).json({ error: String(error) });
+    }
+});
+
+// Simple POST test endpoint
+router.post('/test-post', (req, res) => {
+    console.log('[PDF API] TEST POST called with body:', req.body);
+    res.json({ success: true, message: 'POST works!', bodyKeys: Object.keys(req.body || {}) });
+});
+
+/**
+ * POST /api/generate-pdf
+ * Generates a PDF from the provided CV profile using the Infinity rendering system
+ * 
+ * Request body: { profile: CVProfile, language?: string }
+ * Response: PDF blob (application/pdf)
+ */
+router.post('/generate-pdf', (req, res, next) => {
+    console.log('[PDF API] ===== SYNCHRONOUS ENTRY - ROUTE HIT =====');
+
+    // Wrap in async IIFE to catch all errors
+    (async () => {
+        console.log('[PDF API] ===== ASYNC START =====');
+        console.log('[PDF API] Request body keys:', Object.keys(req.body || {}));
+
+        try {
+            const { profile, language = 'en' } = req.body;
+
+            if (!profile) {
+                console.log('[PDF API] No profile in request');
+                return res.status(400).json({ error: 'Profile data is required' });
+            }
+
+            console.log(`[PDF API] Generating PDF for: ${profile.personal?.firstName} ${profile.personal?.lastName} (${language})`);
+            console.log('[PDF API] Profile has metadata?', !!profile.metadata);
+            console.log('[PDF API] Profile metadata:', JSON.stringify(profile.metadata || {}));
+
+            // Ensure metadata exists with defaults
+            if (!profile.metadata) {
+                console.log('[PDF API] ⚠️  No metadata in profile, adding defaults');
+                profile.metadata = {
+                    templateId: 'modern',
+                    density: 'comfortable',
+                    accentColor: '#2563eb',
+                    fontFamily: 'sans'
+                };
+            }
+
+            // Generate PDF using Infinity Service (server-side, Node.js environment)
+            console.log('[PDF API] About to call InfinityService.generateBlob...');
+            const pdfBlob = await InfinityService.generateBlob(profile as CVProfile, language);
+            console.log('[PDF API] PDF Blob generated successfully, size:', pdfBlob.size);
+
+            // Convert Blob to Buffer for Express response
+            const arrayBuffer = await pdfBlob.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+
+            // Generate filename
+            const lastName = profile.personal?.lastName || 'Resume';
+            const firstName = profile.personal?.firstName || '';
+            const filename = `cv-${lastName}${firstName ? '-' + firstName : ''}.pdf`;
+
+            // Set headers for PDF download
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+            res.setHeader('Content-Length', buffer.length.toString());
+
+            // Send PDF
+            res.send(buffer);
+
+            console.log(`[PDF API] ✅ PDF generated successfully: ${filename} (${buffer.length} bytes)`);
+        } catch (error) {
+            console.error('[PDF API] ❌ Error generating PDF:');
+            console.error('Error message:', error instanceof Error ? error.message : String(error));
+            console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+            console.error('Full error object:', error);
+
+            if (!res.headersSent) {
+                res.status(500).json({
+                    error: 'Failed to generate PDF',
+                    message: error instanceof Error ? error.message : 'Unknown error'
+                });
+            }
+        }
+    })().catch((error) => {
+        console.error('[PDF API] ❌ UNHANDLED ERROR IN ASYNC WRAPPER:');
+        console.error('Error:', error);
+        next(error);
+    });
+});
+
+export default router;
+</file>
+
+<file path="src/infrastructure/pdf/infinity/icons.ts">
+import type { ScvIconShape } from '../../../domain/scv/types';
+
+export const PDF_ICONS: Record<string, ScvIconShape[]> = {
+    mapPin: [
+        { type: 'path', d: "M20 10c0 6-9 13-9 13s-9-7-9-13a9 9 0 0 1 18 0Z", stroke: 'currentColor', strokeWidth: 2, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' },
+        { type: 'circle', cx: 12, cy: 10, r: 3, stroke: 'currentColor', strokeWidth: 2, fill: 'none' }
+    ],
+    globe: [
+        { type: 'circle', cx: 12, cy: 12, r: 10, stroke: 'currentColor', strokeWidth: 2, fill: 'none' },
+        { type: 'path', d: "M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z", stroke: 'currentColor', strokeWidth: 2, fill: 'none' },
+        { type: 'path', d: "M2 12h20", stroke: 'currentColor', strokeWidth: 2, fill: 'none' }
+    ],
+    phone: [
+        { type: 'path', d: "M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z", stroke: 'currentColor', strokeWidth: 2, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' }
+    ],
+    mail: [
+        { type: 'rect', width: 20, height: 16, x: 2, y: 4, rx: 2, stroke: 'currentColor', strokeWidth: 2, fill: 'none' },
+        { type: 'path', d: "m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7", stroke: 'currentColor', strokeWidth: 2, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' }
+    ],
+    briefcase: [
+        { type: 'rect', width: 20, height: 14, x: 2, y: 7, rx: 2, ry: 2, stroke: 'currentColor', strokeWidth: 2, fill: 'none' },
+        { type: 'path', d: "M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", stroke: 'currentColor', strokeWidth: 2, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' }
+    ],
+    award: [
+        { type: 'circle', cx: 12, cy: 8, r: 6, stroke: 'currentColor', strokeWidth: 2, fill: 'none' },
+        { type: 'path', d: "M15.477 12.89 17 22l-5-3-5 3 1.523-9.11", stroke: 'currentColor', strokeWidth: 2, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' }
+    ],
+    graduationCap: [
+        { type: 'path', d: "M22 10v6M2 10l10-5 10 5-10 5z", stroke: 'currentColor', strokeWidth: 2, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' },
+        { type: 'path', d: "M6 12v5c3.33333 2 6.66667 2 10 0v-5", stroke: 'currentColor', strokeWidth: 2, fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' }
+    ]
+};
+</file>
+
+<file path="test-profile.json">
+{
+    "profile": {
+        "id": "test-123",
+        "lastUpdated": 1234567890,
+        "personal": {
+            "firstName": "Jean",
+            "lastName": "Dupont",
+            "title": "Développeur",
+            "contact": {
+                "email": "test@test.com",
+                "phone": "0612345678"
+            }
+        },
+        "summary": "Test summary",
+        "experiences": [],
+        "educations": [],
+        "languages": [],
+        "skills": [],
+        "strengths": [],
+        "metadata": {
+            "templateId": "modern",
+            "density": "comfortable",
+            "accentColor": "#2563eb",
+            "fontFamily": "sans"
+        }
+    },
+    "language": "en"
+}
+</file>
+
+<file path=".gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+/src/generated/prisma
+</file>
+
+<file path="ai-notes/FAILURE_LOG.md">
+# FAILURE LOG 💀
+
+Tracking failed attempts, bugs, and abandoned approaches. Learning from mistakes.
+
+| Date | Component | Description | Root Cause | Solution/Workaround |
+|------|-----------|-------------|------------|---------------------|
+</file>
+
+<file path="ai-notes/IDEAS_AND_EXPERIMENTS.md">
+# IDEAS & EXPERIMENTS 💡
+
+A parking lot for future improvements, wild ideas, and "nice to haves" that don't fit in the current phase.
+
+## Future Phases (Godmode)
+- [ ] Docker containerization for one-click deploy.
+- [ ] CI/CD Pipeline (GitHub Actions).
+- [ ] AI-powered text improvement suggestions.
+- [ ] Multi-language support with auto-translation.
+</file>
+
+<file path="ai-notes/SUCCESS_LOG.md">
+# SUCCESS LOG 🏆
+
+Tracking successful patterns, refactors, and victories during Phase TITAN.
+
+| Date | Component | Description | Why it worked |
+|------|-----------|-------------|---------------|
+| 2025-11-27 | Backend | Refactored Monolith to Controller/Service pattern | Decoupled logic, easier to test, cleaner routes. |
+| 2025-11-27 | Config | Implemented Zod-validated Env Config | Prevents runtime errors due to missing env vars. |
+| 2025-11-27 | SaaS | Implemented Mock Payment Flow | Allows testing Pro features without real credit cards. |
+| 2025-11-27 | Database | Created Seed Script | Ensures consistent dev environment with Admin/Test users. |
+| 2025-11-27 | Frontend | Implemented ApiClient | Centralized API logic, removed hardcoded URLs. |
+| 2025-11-27 | PDF | Documented PDF Engine | Created `docs/PDF_ENGINE.md` to preserve knowledge. |
+| 2025-11-27 | PDF | Implemented Image Validation | Prevents crashes by limiting upload size/dimensions. |
+| 2025-11-27 | Testing | Added Unit Tests | `cv-store` and `AuthService` are now tested. |
+| 2025-11-27 | i18n | Implemented Translation System | JSON-based i18n with `useTranslation` hook. |
+| 2025-11-27 | DevOps | Phase TITAN Completed | All objectives met. Report generated. |
+| 2025-11-27 | Stripe | Implemented Stripe Integration | Service, Webhook, and Controller ready. |
+| 2025-11-27 | Auth | Implemented Refresh Tokens | Dual token strategy (Access/Refresh) with httpOnly cookies. |
+| 2025-11-27 | Docker | Containerized Application | Created Dockerfiles for Frontend/Backend and Compose file. |
+| 2025-11-27 | Deployment | Created Deployment Guide | `deployment/README.md` and `render.yaml` ready for launch. |
+| 2025-11-27 | i18n | Migrated PersonalTab | Replaced hardcoded text with `useTranslation` hook. |
+| 2025-11-27 | DevOps | Phase OLYMPUS Completed | All objectives met. Ready for Phase GODMODE. |
+| 2025-11-27 | AI | Implemented Vector Math | Cosine Similarity for keyword matching. |
+| 2025-11-27 | AI | Implemented AI Service | CV Analysis and Suggestion engine (Mock LLM). |
+| 2025-11-27 | Monitoring | Implemented Self-Healing | System detects error spikes and triggers auto-recovery. |
+| 2025-11-27 | BI | Implemented Churn Analysis | System identifies at-risk users and proposes offers. |
+| 2025-11-27 | System | Phase GODMODE Completed | The system is now autonomous and intelligent. |
+| 2025-11-28 | Architecture | Defined Architecture v3 | Modular Monolith with Autonomous Agent Layer. |
+| 2025-11-28 | Agents | Created Meta-Agent Layer | Security, CodeRefactor, and Base agents implemented. |
+| 2025-11-28 | Automation | Implemented Eternal Loop | Automated cycle of observation and evolution. |
+| 2025-11-28 | System | Phase DIVINITY Completed | System Status: TRANSCENDED. |
+| 2025-11-28 | Labs | Implemented Feature Registry | Created `src/domain/experiments/feature-registry.ts`. |
+| 2025-11-28 | Labs | Created Labs Dashboard | Added `/labs` route for toggling experimental features. |
+| 2025-11-28 | UI Engine | Created Template Engine | Parametric generation of CSS variables and layouts. |
+| 2025-11-28 | UI Engine | Refactored ModernTemplate | Now uses `TemplateEngine` for dynamic styling. |
+| 2025-11-28 | Optimizer | Implemented Profiler | Middleware logs request duration for performance tracking. |
+| 2025-11-28 | Optimizer | Created Deep Health Check | `/api/health/deep` monitors DB, Memory, and Uptime. |
+| 2025-11-28 | Plugins | Defined Plugin Contract | Interface for future extensions. |
+| 2025-11-28 | Plugins | Implemented Event Bus | Internal event system decoupled from logic. |
+| 2025-11-28 | BI | Implemented Pricing Advisor | Logic for suggesting optimal pricing tiers. |
+| 2025-11-28 | BI | Updated Labs Dashboard | Added Revenue Projections and Pricing Advice UI. |
+| 2025-11-28 | System | Phase CELESTIAL Completed | System Status: EXPANDED. |
+| 2025-11-28 | UI/UX | Fixed Mobile Simulator | Added real mobile detection and 'Exit Simulator' button. |
+| 2025-11-28 | UI/UX | Fixed Mobile Preview | Removed grey background glitch and improved scaling. |
+| 2025-11-28 | UI/UX | Polished Editor Sidebar | Removed debug 'System' tab and renamed 'Critic' to 'Review'. |
+| 2025-11-28 | UI/UX | Mobile Layout Refactor | Implemented fixed header/footer with scrollable content area. |
+| 2025-11-28 | UI/UX | Safe Area Support | Added `pt-safe-top` and `pb-safe-bottom` for iOS devices. |
+| 2025-11-28 | UI/UX | Responsive Forms | Updated `PersonalTab` to stack inputs on mobile screens. |
+| 2025-11-28 | UI/UX | Fixed Mobile CSS Escape | Prevented `MobileLayout` from breaking out of the Simulator frame. |
+| 2025-11-28 | UI/UX | Polished Simulator UI | Improved device frame, centered layout, and styled Exit button. |
+| 2025-11-28 | UI/UX | Optimized Mobile Preview | Adjusted scaling to 0.65x and fixed scrolling issues. |
+| 2025-11-28 | UI/UX | Fixed Mobile Navigation | Added horizontal scrollable tabs to access all editor sections on mobile. |
+| 2025-11-28 | UI/UX | Responsive Simulator | Adjusted simulator height to `85vh` to fit on standard laptop screens. |
+| 2025-11-28 | UI/UX | Fixed Mobile Download | Connected mobile download button to PDF generation service. |
+| 2025-11-28 | UX | Mobile Protocol Activation | Replaced Desktop Tabs with Native "List -> Detail" Navigation Stack. |
+| 2025-11-28 | UX | Mobile Editor Home | Implemented large touch-friendly cards for section selection. |
+| 2025-11-28 | Fix | MobileLayout Syntax | Restored corrupted file content, fixing "Adjacent JSX elements" error. |
+| 2025-11-28 | Fix | MobileEditor Imports | Removed non-existent LanguagesTab and restored missing imports. |
+| 2025-11-28 | Fix | MobileEditor Translations | Fixed `t()` function usage and import path. |
+| 2025-11-28 | Fix | Mobile UX Scrolling | Removed nested scroll containers to fix "mushy" scrolling. |
+| 2025-11-28 | Polish | Mobile UX Header | Removed redundant "Editor" title for cleaner layout. |
+| 2025-11-28 | Fix | Mobile Preview Scaling | Implemented CSS zoom/transform for proper A4 display on mobile. |
+| 2025-11-28 | Fix | Desktop i18n | Added missing translation keys for Settings/Billing. |
+</file>
+
+<file path="DEPLOYMENT.md">
+# Deployment Guide 🚀
+
+This project is configured as a **Modular Monolith**, meaning both the React Frontend and Node.js Backend are deployed as a **single service**. This simplifies deployment and reduces costs.
+
+## 🐳 Docker Deployment (Render / Railway)
+
+The project includes a production-optimized `Dockerfile` that:
+1.  Builds the Frontend (Vite)
+2.  Builds the Backend (TypeScript)
+3.  Serves the Frontend via the Node.js Backend
+
+### 1. Environment Variables
+You **MUST** set these variables in your deployment platform (Render/Railway):
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `NODE_ENV` | Set to production | `production` |
+| `DATABASE_URL` | Connection string for your database (PostgreSQL/SQLite) | `postgresql://user:pass@host/db` |
+| `JWT_SECRET` | Secret for signing tokens (min 10 chars) | `complex_random_string` |
+| `CORS_ORIGIN` | URL of your deployed app | `https://my-cv-builder.onrender.com` |
+| `STRIPE_SECRET_KEY` | (Optional) Stripe Secret Key | `sk_live_...` |
+
+### 2. Deploy on Render
+1.  Create a new **Web Service**.
+2.  Connect your GitHub repository.
+3.  Select **Docker** as the Runtime.
+4.  Add the Environment Variables listed above.
+5.  Deploy!
+
+### 3. Deploy on Railway
+1.  New Project -> Deploy from GitHub.
+2.  Railway will automatically detect the `Dockerfile`.
+3.  Go to **Variables** and add the required Environment Variables.
+4.  Railway will build and deploy.
+
+## 🛠️ Local Production Test
+To test the production build locally:
+
+```bash
+# 1. Build everything
+npm run build
+
+# 2. Start the production server
+node dist-server/server/index.js
+```
+
+## 📦 Build Details
+-   **Frontend**: Built to `dist/` using Vite.
+-   **Backend**: Built to `dist-server/` using `tsc`.
+-   **Server**: `server/app.ts` is configured to serve static files from `dist/` when `NODE_ENV=production`.
+</file>
+
+<file path="deployment/README.md">
+# Deployment Guide 🚀
+
+## Option 1: Docker Compose (VPS / Local)
+
+The easiest way to run the full stack (Frontend + Backend + Database).
+
+### Prerequisites
+- Docker & Docker Compose installed.
+
+### Steps
+1. **Configure Environment**:
+   Create a `.env` file (or use system env vars) with:
+   ```env
+   JWT_SECRET=your_secure_jwt_secret
+   REFRESH_TOKEN_SECRET=your_secure_refresh_secret
+   STRIPE_SECRET_KEY=sk_live_...
+   STRIPE_WEBHOOK_SECRET=whsec_...
+   STRIPE_PRICE_ID_PRO=price_...
+   ```
+
+2. **Run**:
+   ```bash
+   docker-compose up -d --build
+   ```
+
+3. **Access**:
+   - Frontend: `http://localhost:8080`
+   - Backend: `http://localhost:3000`
+
+---
+
+## Option 2: PaaS (Railway / Render)
+
+### Backend (Node.js)
+1. **Build Command**: `npm ci && npx prisma generate`
+2. **Start Command**: `npx tsx server/index.ts`
+3. **Environment Variables**:
+   - `DATABASE_URL`: (Provided by PaaS Postgres)
+   - `JWT_SECRET`: ...
+   - `REFRESH_TOKEN_SECRET`: ...
+   - `STRIPE_...`: ...
+   - `CORS_ORIGIN`: URL of your frontend (e.g., `https://my-app.vercel.app`)
+
+### Frontend (Vercel / Netlify)
+1. **Build Command**: `npm run build`
+2. **Output Directory**: `dist`
+3. **Environment Variables**:
+   - `VITE_API_URL`: URL of your backend (e.g., `https://my-api.railway.app`)
+
+---
+
+## Production Checklist ✅
+- [ ] **Database**: Use a managed Postgres instance (RDS, Railway, Neon).
+- [ ] **Secrets**: Rotate all secrets (JWT, Stripe).
+- [ ] **HTTPS**: Ensure SSL is enabled (handled by PaaS/Vercel automatically).
+- [ ] **Stripe Webhook**: Add your backend URL (`/api/webhook`) to Stripe Dashboard.
+</file>
+
+<file path="deployment/render.yaml">
+services:
+  # Backend
+  - type: web
+    name: swiss-cv-backend
+    env: node
+    buildCommand: npm ci && npx prisma generate
+    startCommand: npx tsx server/index.ts
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: swiss-cv-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: REFRESH_TOKEN_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: https://swiss-cv-frontend.onrender.com # Update after deployment
+
+  # Frontend
+  - type: web
+    name: swiss-cv-frontend
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: swiss-cv-backend
+          property: url
+
+databases:
+  - name: swiss-cv-db
+    databaseName: swiss_cv
+    user: swiss_user
+</file>
+
+<file path="dist-server/server/agents/base-agent.js">
+import { LoggerService } from '../services/logger-service';
+export class BaseAgent {
+    /**
+     * Main entry point for the agent.
+     */
+    async run() {
+        LoggerService.info(`🤖 [${this.name}] Starting cycle...`);
+        try {
+            const analysis = await this.analyze();
+            await this.execute(analysis);
+            LoggerService.info(`✅ [${this.name}] Cycle complete.`);
+        }
+        catch (error) {
+            LoggerService.error(`❌ [${this.name}] Failed: ${error.message}`);
+        }
+    }
+}
+</file>

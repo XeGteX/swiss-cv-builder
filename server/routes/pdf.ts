@@ -1,3 +1,4 @@
+
 import express from 'express';
 import { InfinityService } from '../../src/infrastructure/pdf/infinity/infinity-service';
 import type { CVProfile } from '../../src/domain/entities/cv';

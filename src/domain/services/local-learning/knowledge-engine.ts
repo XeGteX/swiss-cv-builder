@@ -1,3 +1,4 @@
+
 export class KnowledgeEngine {
     suggest(text: string): any[] {
         // Mock implementation for now

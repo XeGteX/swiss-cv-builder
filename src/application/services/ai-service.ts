@@ -1,3 +1,4 @@
+
 import type { AIClient } from '../../domain/services/ai-client.interface';
 import { DataSanitizer } from '../../shared/sanitizer';
 import { CVProfileSchema, type CVProfile } from '../../domain/entities/cv';

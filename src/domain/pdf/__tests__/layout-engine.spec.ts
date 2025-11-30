@@ -1,3 +1,4 @@
+
 import { describe, it, expect } from 'vitest';
 import { LayoutEngine } from '../layout-engine';
 import { PDF_CONFIG } from '../template-config';

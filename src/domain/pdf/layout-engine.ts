@@ -1,3 +1,4 @@
+
 import type { PageDefinition, SectionBlock } from './types';
 import type { TemplateConfig } from './template-config';
 

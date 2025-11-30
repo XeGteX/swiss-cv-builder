@@ -1,3 +1,4 @@
+
 export const APP_CONSTANTS = {
     MAX_SUMMARY_LENGTH: 900,
     DEFAULT_ACCENT_COLOR: '#2563eb',

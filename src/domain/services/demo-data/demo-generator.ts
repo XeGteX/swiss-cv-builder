@@ -1,3 +1,4 @@
+
 import { v4 as uuidv4 } from 'uuid';
 import type { CVProfile, Experience, Education } from '../../entities/cv';
 import { FIRST_NAMES, LAST_NAMES, CITIES, JOB_FAMILIES, UNIVERSITIES, DEGREES } from './demo-data';

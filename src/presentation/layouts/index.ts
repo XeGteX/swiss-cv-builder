@@ -1,3 +1,4 @@
+
 import { layoutRegistry } from './registry';
 import ModernTemplate from './templates/ModernTemplate';
 import ATSTemplate from './templates/ATSTemplate';
