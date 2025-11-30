@@ -28,7 +28,7 @@ export const MobileLayout: React.FC = () => {
         <div className="w-full flex flex-col bg-slate-50 overflow-hidden relative" style={{ height: viewportHeight }}>
             {/* Header - Fixed Top */}
             <div className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0 z-20 pt-safe-top">
-                <h1 className="font-bold text-slate-800 text-lg">Swiss CV</h1>
+                <h1 className="font-bold text-slate-800 text-lg">Nexal</h1>
                 <div className="flex gap-2">
                     {/* Header Actions if needed */}
                 </div>
