@@ -6,6 +6,7 @@ import { MobileLayout } from './mobile/MobileLayout';
 import { EditorSidebar } from '../features/editor/EditorSidebar';
 import { SmartDensityController } from '../features/editor/SmartDensityController';
 import { PreviewPane } from '../features/preview/PreviewPane';
+import { WizardProgress } from '../components/WizardProgress';
 
 interface AdaptiveLayoutProps {
     children?: React.ReactNode;
@@ -82,6 +83,15 @@ export const AdaptiveLayout: React.FC<AdaptiveLayoutProps> = () => {
 };
 
 const DesktopLayout: React.FC = () => {
+    // Wizard steps - all marked as completed for now
+    const wizardSteps = [
+        { id: 'identity', label: 'Identité', completed: true },
+        { id: 'experience', label: 'Expérience', completed: true },
+        { id: 'formation', label: 'Formation', completed: true },
+        { id: 'skills', label: 'Compétences', completed: true },
+        { id: 'model', label: 'Modèle', completed: true },
+    ];
+
     return (
         <div className="flex h-screen bg-slate-100 overflow-hidden font-sans text-slate-900">
             {/* Sidebar */}
@@ -91,7 +101,13 @@ const DesktopLayout: React.FC = () => {
 
             {/* Main Content (Preview) */}
             <div className="flex-1 relative overflow-hidden bg-slate-50/50 flex flex-col">
-                <div className="absolute inset-0 overflow-auto p-8 flex justify-center">
+                {/* Wizard Progress Bar */}
+                <div className="border-b border-slate-200 bg-white/80 backdrop-blur-sm">
+                    <WizardProgress steps={wizardSteps} />
+                </div>
+
+                {/* CV Preview */}
+                <div className="flex-1 overflow-auto p-8 flex justify-center">
                     <div className="w-full max-w-[1000px] animate-in fade-in duration-500 slide-in-from-bottom-4">
                         <PreviewPane />
                     </div>
