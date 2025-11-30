@@ -319,73 +319,14 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                         height: '40px',
                         animation: 'ripple 0.6s ease-out forwards'
                     }}
-                    onAnimationEnd={() => removeRipple(ripple.id)}
-                />
-                    ))}
-            </div>
-
-            {/* Inline Editor */}
-            {editorState.isEditing && (
-                <div
-                    className="absolute bg-white rounded-lg shadow-2xl border border-slate-200 p-4 z-50"
-                    style={{
-                        left: editorState.position.x,
-                        top: editorState.position.y,
-                        minWidth: '300px'
-                    }}
-                >
-                    <div className="text-xs font-semibold text-slate-500 mb-2">
-                        {editorState.label}
-                    </div>
-                    {editorState.type === 'textarea' ? (
-                        <textarea
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-indigo-500"
-                            value={editorState.value}
-                            onChange={(e) => updateValue(e.target.value)}
-                            rows={4}
-                            autoFocus
-                        />
-                    ) : (
-                        <input
-                            type={editorState.type === 'email' ? 'email' : editorState.type === 'tel' ? 'tel' : 'text'}
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-indigo-500"
-                            value={editorState.value}
-                            onChange={(e) => updateValue(e.target.value)}
-                            autoFocus
-                        />
-                    )}
-                    <div className="flex gap-2 mt-3">
-                        <button
-                            className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                            onClick={() => {
-                                handleSaveEdit(editorState.path, editorState.value);
-                                closeEditor();
-                            }}
-                        >
-                            Save
-                        </button>
-                        <button
-                            className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors"
-                            onClick={closeEditor}
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            )}
-        </div>
-
-            {/* Mobile zoom indicator */ }
-    {
-        isMobile && mobileZoom !== 1 && (
             <div className="absolute top-20 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
-                {Math.round(mobileZoom * 100)}%
-            </div>
-        )
+                    {Math.round(mobileZoom * 100)}%
+                </div>
+                )
     }
 
-    {/* CSS for float animation */ }
-    <style>{`
+                {/* CSS for float animation */}
+                <style>{`
                 @keyframes float {
                     0%, 100% { transform: scale(${mobileScale}) translateY(0) translateX(0); }
                     33% { transform: scale(${mobileScale}) translateY(-10px) translateX(5px); }
@@ -399,6 +340,6 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                     }
                 }
             `}</style>
-        </div >
-    );
+            </div >
+            );
 };
