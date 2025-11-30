@@ -6,12 +6,19 @@ import { MobileEditor } from '../../features/editor/MobileEditor';
 import { PreviewPane } from '../../features/preview/PreviewPane';
 import { CriticTab } from '../../features/editor/tabs/CriticTab';
 import { Button } from '../../design-system/atoms/Button';
+import { useCVStore } from '../../../application/store/cv-store';
+import { generateSoftBackground } from '../../utils/color-utils';
 
 type MobileTab = 'editor' | 'preview' | 'ai' | 'settings';
 
 export const MobileLayout: React.FC = () => {
     const [activeTab, setActiveTab] = useState<MobileTab>('editor');
     const [viewportHeight, setViewportHeight] = useState('100%');
+    const profile = useCVStore(state => state.profile);
+
+    // Generate adaptive background based on CV accent color
+    const accentColor = profile.metadata?.accentColor || '#6366f1';
+    const adaptiveBackground = activeTab === 'preview' ? generateSoftBackground(accentColor) : '#f8fafc';
 
     React.useEffect(() => {
         const handleResize = () => {
@@ -25,7 +32,11 @@ export const MobileLayout: React.FC = () => {
     }, []);
 
     return (
-        <div className="w-full flex flex-col bg-slate-50 overflow-hidden relative" style={{ height: viewportHeight }}>
+        <div className="w-full flex flex-col overflow-hidden relative" style={{
+            height: viewportHeight,
+            backgroundColor: adaptiveBackground,
+            transition: 'background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}>
             {/* Header - Fixed Top with Logo and Settings */}
             <div className="h-14 bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-between px-4 shrink-0 z-20 pt-safe-top shadow-lg">
                 <div className="flex items-center gap-3">
@@ -55,7 +66,7 @@ export const MobileLayout: React.FC = () => {
                     )}
 
                     {activeTab === 'preview' && (
-                        <LiquidTab id="preview" className="absolute inset-0 overflow-hidden bg-slate-100">
+                        <LiquidTab id="preview" className="absolute inset-0 overflow-hidden">
                             <PreviewPane hideToolbar />
                         </LiquidTab>
                     )}
