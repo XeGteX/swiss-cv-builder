@@ -309,24 +309,120 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                         transform: `scale(${mobileScale * mobileZoom}) translate(${panPosition.x / mobileScale / mobileZoom}px, ${panPosition.y / mobileScale / mobileZoom}px)`,
                         transformOrigin: 'center center',
                         transition: isInteracting ? 'none' : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        < div
-                            key={ripple.id}
-                    className="absolute rounded-full bg-indigo-400 opacity-30 pointer-events-none"
-                    style={{
-                        left: ripple.x - 20,
-                        top: ripple.y - 20,
-                        width: '40px',
-                        height: '40px',
-                        animation: 'ripple 0.6s ease-out forwards'
+                        willChange: isInteracting ? 'transform' : 'auto',
+                        animation: !isInteracting && mobileZoom === 1 ? 'float 6s ease-in-out infinite' : 'none'
+                    } : {
+                        width: '794px',
+                        minHeight: '1123px',
+                        borderRadius: '12px',
+                        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease',
+                        transform: 'translateZ(0) rotateX(0deg) rotateY(0deg)',
+                        transformStyle: 'preserve-3d'
                     }}
-            <div className="absolute top-20 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    onClick={triggerRipple}
+                    onMouseMove={(e) => {
+                        if (!isMobile && cvRef.current) {
+                            const rect = cvRef.current.getBoundingClientRect();
+                            const x = (e.clientX - rect.left - rect.width / 2) / rect.width;
+                            const y = (e.clientY - rect.top - rect.height / 2) / rect.height;
+                            cvRef.current.style.transform = `
+                                translateZ(0)
+                                rotateX(${-y * 5}deg)
+                                rotateY(${x * 5}deg)
+                                scale(1.02)
+                            `;
+                            cvRef.current.style.boxShadow = `
+                                ${-x * 20}px ${-y * 20}px 50px rgba(0, 0, 0, 0.15),
+                                0 25px 50px rgba(0, 0, 0, 0.1)
+                            `;
+                        }
+                    }}
+                    onMouseLeave={() => {
+                        if (!isMobile && cvRef.current) {
+                            cvRef.current.style.transform = 'translateZ(0) rotateX(0deg) rotateY(0deg)';
+                            cvRef.current.style.boxShadow = '0 25px 50px rgba(0, 0, 0, 0.15)';
+                        }
+                    }}
+                >
+                    <DynamicRenderer profile={profile} language={language} />
+
+                    {/* Ripple effects */}
+                    {ripples.map(ripple => (
+                        <div
+                            key={ripple.id}
+                            className="absolute rounded-full bg-indigo-400 opacity-30 pointer-events-none"
+                            style={{
+                                left: ripple.x - 20,
+                                top: ripple.y - 20,
+                                width: '40px',
+                                height: '40px',
+                                animation: 'ripple 0.6s ease-out forwards'
+                            }}
+                            onAnimationEnd={() => removeRipple(ripple.id)}
+                        />
+                    ))}
+                </div>
+
+                {/* Inline Editor */}
+                {editorState.isEditing && (
+                    <div
+                        className="absolute bg-white rounded-lg shadow-2xl border border-slate-200 p-4 z-50"
+                        style={{
+                            left: editorState.position.x,
+                            top: editorState.position.y,
+                            minWidth: '300px'
+                        }}
+                    >
+                        <div className="text-xs font-semibold text-slate-500 mb-2">
+                            {editorState.label}
+                        </div>
+                        {editorState.type === 'textarea' ? (
+                            <textarea
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-indigo-500"
+                                value={editorState.value}
+                                onChange={(e) => updateValue(e.target.value)}
+                                rows={4}
+                                autoFocus
+                            />
+                        ) : (
+                            <input
+                                type={editorState.type === 'email' ? 'email' : editorState.type === 'tel' ? 'tel' : 'text'}
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-indigo-500"
+                                value={editorState.value}
+                                onChange={(e) => updateValue(e.target.value)}
+                                autoFocus
+                            />
+                        )}
+                        <div className="flex gap-2 mt-3">
+                            <button
+                                className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                                onClick={() => {
+                                    handleSaveEdit(editorState.path, editorState.value);
+                                    closeEditor();
+                                }}
+                            >
+                                Save
+                            </button>
+                            <button
+                                className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors"
+                                onClick={closeEditor}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Mobile zoom indicator */}
+            {isMobile && mobileZoom !== 1 && (
+                <div className="absolute top-20 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
                     {Math.round(mobileZoom * 100)}%
                 </div>
-                )
-    }
+            )}
 
-                {/* CSS for float animation */}
-                <style>{`
+            {/* CSS for float animation */}
+            <style>{`
                 @keyframes float {
                     0%, 100% { transform: scale(${mobileScale}) translateY(0) translateX(0); }
                     33% { transform: scale(${mobileScale}) translateY(-10px) translateX(5px); }
@@ -340,6 +436,6 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                     }
                 }
             `}</style>
-            </div >
-            );
+        </div>
+    );
 };

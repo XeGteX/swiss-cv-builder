@@ -37,23 +37,26 @@ export const MobileLayout: React.FC = () => {
             backgroundColor: adaptiveBackground,
             transition: 'background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
         }}>
-            {/* Header - Fixed Top with Logo and Settings */}
-            <div className="h-14 bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-between px-4 shrink-0 z-20 pt-safe-top shadow-lg">
+            {/* Header - WHITE with GRADIENT Logo */}
+            <div className="h-14 bg-white flex items-center justify-between px-4 shrink-0 z-20 pt-safe-top shadow-md">
                 <div className="flex items-center gap-3">
                     <img
                         src="/nexal-logo.png"
                         alt="Nexal"
-                        className="h-8 w-8 rounded-lg shadow-sm"
+                        className="h-8 w-8 rounded-lg"
                         onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                     />
-                    <h1 className="font-bold text-white text-lg tracking-wide">Nexal</h1>
+                    <h1 className="font-bold text-lg tracking-wide bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Nexal</h1>
                 </div>
-                <button
+                {/* ANIMATED GEAR - Rotates on open/close */}
+                <motion.button
                     onClick={() => setActiveTab('settings')}
-                    className="p-2 rounded-lg bg-white/20 hover:bg-white/30 active:scale-95 transition-all"
+                    className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 active:scale-95 transition-colors"
+                    animate={{ rotate: activeTab === 'settings' ? 180 : 0 }}
+                    transition={{ duration: 0.5, ease: 'easeInOut' }}
                 >
-                    <Settings size={20} className="text-white" />
-                </button>
+                    <Settings size={20} className="text-slate-700" />
+                </motion.button>
             </div>
 
             {/* Main Content Area - Scrollable */}
@@ -93,7 +96,7 @@ export const MobileLayout: React.FC = () => {
                 </AnimatePresence>
             </div>
 
-            {/* Contextual FAB (Morphing) */}
+            {/* Contextual FAB (Morphing) - LOGO COLORS */}
             <AnimatePresence>
                 {activeTab === 'editor' && (
                     <motion.div
@@ -123,7 +126,7 @@ export const MobileLayout: React.FC = () => {
                         <Button
                             size="lg"
                             variant="primary"
-                            className="rounded-full shadow-2xl h-16 w-16 p-0 flex items-center justify-center bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 border-none transform hover:scale-110 transition-transform"
+                            className="rounded-full shadow-2xl h-16 w-16 p-0 flex items-center justify-center bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 border-none transform hover:scale-110 transition-transform"
                             onClick={() => window.dispatchEvent(new Event('TRIGGER_PDF_DOWNLOAD'))}
                         >
                             <Download size={28} className="text-white" />
@@ -132,19 +135,19 @@ export const MobileLayout: React.FC = () => {
                 )}
             </AnimatePresence>
 
-            {/* Bottom Navigation - Fixed Bottom - Styled with gradients */}
+            {/* Bottom Navigation - CENTERED INDICATOR */}
             <div className="h-16 bg-white border-t border-slate-200 flex justify-around items-center shrink-0 pb-safe-bottom z-20 shadow-lg">
                 <button
                     onClick={() => setActiveTab('editor')}
-                    className={`flex flex-col items-center gap-1 p-2 w-full active:scale-95 transition-all relative ${activeTab === 'editor'
-                            ? 'text-indigo-600'
-                            : 'text-slate-400'
+                    className={`flex flex-col items-center justify-center gap-1 p-2 flex-1 active:scale-95 transition-all relative ${activeTab === 'editor'
+                        ? 'text-indigo-600'
+                        : 'text-slate-400'
                         }`}
                 >
                     {activeTab === 'editor' && (
                         <motion.div
                             layoutId="activeTab"
-                            className="absolute top-0 left-1/2 -translate-x-1/2 h-1 w-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full"
+                            className="absolute top-0 h-1 w-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full"
                         />
                     )}
                     <Edit2 size={22} />
@@ -153,15 +156,15 @@ export const MobileLayout: React.FC = () => {
 
                 <button
                     onClick={() => setActiveTab('preview')}
-                    className={`flex flex-col items-center gap-1 p-2 w-full active:scale-95 transition-all relative ${activeTab === 'preview'
-                            ? 'text-indigo-600'
-                            : 'text-slate-400'
+                    className={`flex flex-col items-center justify-center gap-1 p-2 flex-1 active:scale-95 transition-all relative ${activeTab === 'preview'
+                        ? 'text-indigo-600'
+                        : 'text-slate-400'
                         }`}
                 >
                     {activeTab === 'preview' && (
                         <motion.div
                             layoutId="activeTab"
-                            className="absolute top-0 left-1/2 -translate-x-1/2 h-1 w-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full"
+                            className="absolute top-0 h-1 w-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full"
                         />
                     )}
                     <Eye size={22} />
@@ -170,15 +173,15 @@ export const MobileLayout: React.FC = () => {
 
                 <button
                     onClick={() => setActiveTab('ai')}
-                    className={`flex flex-col items-center gap-1 p-2 w-full active:scale-95 transition-all relative ${activeTab === 'ai'
-                            ? 'text-indigo-600'
-                            : 'text-slate-400'
+                    className={`flex flex-col items-center justify-center gap-1 p-2 flex-1 active:scale-95 transition-all relative ${activeTab === 'ai'
+                        ? 'text-indigo-600'
+                        : 'text-slate-400'
                         }`}
                 >
                     {activeTab === 'ai' && (
                         <motion.div
                             layoutId="activeTab"
-                            className="absolute top-0 left-1/2 -translate-x-1/2 h-1 w-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full"
+                            className="absolute top-0 h-1 w-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full"
                         />
                     )}
                     <Sparkles size={22} />

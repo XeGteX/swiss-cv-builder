@@ -12,10 +12,11 @@ export const CriticTab: React.FC = () => {
     const qualityScore = 60;
     const pertinenceScore = null; // Not yet calculated
 
+    // IMPROVED LABELS - More descriptive and clear
     const impactCategories = [
-        { label: 'Positive', value: 70, color: 'bg-emerald-500' },
-        { label: 'Neutral', value: 45, color: 'bg-red-500' },
-        { label: 'Strong', value: 85, color: 'bg-lime-400' },
+        { label: 'Verbes Action', value: 70, color: 'bg-emerald-500' },
+        { label: 'Chiffres/Données', value: 45, color: 'bg-red-500' },
+        { label: 'Mots-Clés', value: 85, color: 'bg-lime-400' },
     ];
 
     const suggestions = [
@@ -75,7 +76,7 @@ export const CriticTab: React.FC = () => {
                     </motion.div>
                 </div>
 
-                {/* Impact Section */}
+                {/* Impact Section - IMPROVED LABELS */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
