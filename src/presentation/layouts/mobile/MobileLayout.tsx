@@ -1,17 +1,4 @@
 import React, { useState } from 'react';
-import { Edit2, Eye, Sparkles, Download, Settings } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { LiquidTab } from '../../components/LiquidTab';
-import { MobileEditor } from '../../features/editor/MobileEditor';
-import { PreviewPane } from '../../features/preview/PreviewPane';
-import { CriticTab } from '../../features/editor/tabs/CriticTab';
-import { SettingsTab } from '../features/settings/SettingsTab';
-import { Button } from '../../design-system/atoms/Button';
-import { useCVStore } from '../../../application/store/cv-store';
-import { generateSoftBackground } from '../../utils/color-utils';
-
-type MobileTab = 'editor' | 'preview' | 'ai' | 'settings';
-
 export const MobileLayout: React.FC = () => {
     const [activeTab, setActiveTab] = useState<MobileTab>('editor');
     const [viewportHeight, setViewportHeight] = useState('100%');
