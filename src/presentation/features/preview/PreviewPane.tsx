@@ -5,7 +5,7 @@ import { useSettingsStore } from '../../../application/store/settings-store';
 import { useCVStore } from '../../../application/store/cv-store';
 import { useToastStore } from '../../../application/store/toast-store';
 import { Button } from '../../design-system/atoms/Button';
-import { Download, Loader2, Camera } from 'lucide-react';
+import { Download, Loader2 } from 'lucide-react';
 import { t } from '../../../data/translations';
 import { usePageDetection } from '../../hooks/usePageDetection';
 import { useInlineEditor } from '../../hooks/useInlineEditor';
@@ -25,12 +25,15 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
     const profile = useCVStore(state => state.profile);
     const { updateProfile } = useCVStore();
 
-    // Mobile zoom & pan state
+    // Mobile zoom & pan state - IMPROVED LIMITS
     const [mobileZoom, setMobileZoom] = useState(1);
     const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
     const [initialDistance, setInitialDistance] = useState(0);
     const [lastTouchPos, setLastTouchPos] = useState({ x: 0, y: 0 });
     const [isInteracting, setIsInteracting] = useState(false);
+
+    // Magnetic attraction state
+    const [magneticOffset, setMagneticOffset] = useState({ x: 0, y: 0 });
 
     // Mobile tap detection
     const [lastTapTime, setLastTapTime] = useState(0);
@@ -47,8 +50,6 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
         setGeneratingPDF(true);
 
         try {
-            // Use Puppeteer PDF generation for pixel-perfect output
-            // Use relative URL so it works on both localhost and mobile (via IP)
             const response = await fetch('/api/puppeteer-pdf/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -62,14 +63,11 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
 
-            // Try download link first (works on most browsers)
             const link = document.createElement('a');
             link.href = url;
             link.download = `cv-${profile.personal.lastName || 'resume'}.pdf`;
 
-            // For mobile browsers, especially iOS
             if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {
-                // Open in new tab on mobile (iOS Safari doesn't support download attribute)
                 link.target = '_blank';
                 link.rel = 'noopener noreferrer';
             }
@@ -78,7 +76,6 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
             link.click();
             document.body.removeChild(link);
 
-            // Cleanup
             setTimeout(() => URL.revokeObjectURL(url), 100);
 
             addToast('PDF downloaded successfully!', 'success');
@@ -154,7 +151,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
         }
     };
 
-    // Mobile pinch zoom handlers
+    // IMPROVED Mobile pinch zoom handlers with LIMITS
     const getDistance = (touch1: React.Touch, touch2: React.Touch) => {
         const dx = touch1.clientX - touch2.clientX;
         const dy = touch1.clientY - touch2.clientY;
@@ -168,6 +165,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
         const cvWidth = 794 * zoom;
         const cvHeight = 1123 * zoom;
 
+        // Calculate bounds
         const maxX = Math.max(0, (cvWidth - containerRect.width) / 2);
         const maxY = Math.max(0, (cvHeight - containerRect.height) / 2);
 
@@ -193,12 +191,14 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
 
     const handleTouchMove = useCallback((e: React.TouchEvent) => {
         if (e.touches.length === 2 && initialDistance > 0) {
+            // PINCH ZOOM with LIMITS (0.8 - 2.5)
             const currentDistance = getDistance(e.touches[0], e.touches[1]);
             const scale = currentDistance / initialDistance;
-            const newZoom = Math.max(0.5, Math.min(3, mobileZoom * scale));
+            const newZoom = Math.max(0.8, Math.min(2.5, mobileZoom * scale));
             setMobileZoom(newZoom);
             setInitialDistance(currentDistance);
         } else if (e.touches.length === 1 && mobileZoom > 1.05) {
+            // OPTIMIZED PANNING
             const deltaX = e.touches[0].clientX - lastTouchPos.x;
             const deltaY = e.touches[0].clientY - lastTouchPos.y;
 
@@ -212,8 +212,22 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                 x: e.touches[0].clientX,
                 y: e.touches[0].clientY
             });
+        } else if (e.touches.length === 1 && mobileZoom <= 1.05) {
+            // MAGNETIC TOUCH ATTRACTION
+            if (cvRef.current) {
+                const touch = e.touches[0];
+                const rect = cvRef.current.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                // Calculate attraction force
+                const dx = (touch.clientX - centerX) * 0.03;
+                const dy = (touch.clientY - centerY) * 0.03;
+
+                setMagneticOffset({ x: dx, y: dy });
+            }
         }
-    }, [initialDistance, lastTouchPos, mobileZoom, panPosition, clampPanPosition, isInteracting]);
+    }, [initialDistance, lastTouchPos, mobileZoom, panPosition, clampPanPosition]);
 
     const handleTouchEnd = useCallback((e: React.TouchEvent) => {
         // Double-tap detection for photo upload on mobile
@@ -222,11 +236,10 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
         const target = e.target as HTMLElement;
 
         if (timeDiff < 300 && lastTapTarget === e.target) {
-            // Double-tap detected - check if on photo zone
             if (target.closest('[data-photo-zone="true"]')) {
                 e.preventDefault();
                 photoInputRef.current?.click();
-                setLastTapTime(0); // Reset
+                setLastTapTime(0);
             }
         } else {
             setLastTapTime(now);
@@ -235,6 +248,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
 
         setInitialDistance(0);
         setIsInteracting(false);
+        setMagneticOffset({ x: 0, y: 0 }); // Reset magnetic
     }, [lastTapTime, lastTapTarget]);
 
     React.useEffect(() => {
@@ -252,7 +266,6 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
             ref={containerRef}
             className="flex flex-col h-full bg-slate-100"
             onDoubleClick={(e) => {
-                // PC only
                 if (!isMobile) {
                     handlePhotoClick(e);
                     handleDoubleClick(e);
@@ -302,45 +315,64 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
             >
                 <div
                     ref={cvRef}
-                    className="shadow-2xl bg-white relative"
+                    className="bg-white relative"
                     style={isMobile ? {
                         width: '794px',
                         minHeight: '1123px',
-                        transform: `scale(${mobileScale * mobileZoom}) translate(${panPosition.x / mobileScale / mobileZoom}px, ${panPosition.y / mobileScale / mobileZoom}px)`,
+                        borderRadius: '8px',
+                        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2), 0 10px 30px rgba(99, 102, 241, 0.1)',
+                        transform: `scale(${mobileScale * mobileZoom}) translate(${(panPosition.x + magneticOffset.x) / mobileScale / mobileZoom}px, ${(panPosition.y + magneticOffset.y) / mobileScale / mobileZoom}px)`,
                         transformOrigin: 'center center',
                         transition: isInteracting ? 'none' : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         willChange: isInteracting ? 'transform' : 'auto',
-                        animation: !isInteracting && mobileZoom === 1 ? 'float 6s ease-in-out infinite' : 'none'
+                        animation: !isInteracting && mobileZoom === 1 ? 'dynamicFloat 8s ease-in-out infinite' : 'none'
                     } : {
                         width: '794px',
                         minHeight: '1123px',
                         borderRadius: '12px',
-                        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease',
+                        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.2), 0 15px 30px rgba(99, 102, 241, 0.08)',
+                        transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease',
                         transform: 'translateZ(0) rotateX(0deg) rotateY(0deg)',
-                        transformStyle: 'preserve-3d'
+                        transformStyle: 'preserve-3d',
+                        perspective: '1200px'
                     }}
                     onClick={triggerRipple}
                     onMouseMove={(e) => {
+                        // MAGNETIC CURSOR ATTRACTION + ENHANCED 3D
                         if (!isMobile && cvRef.current) {
                             const rect = cvRef.current.getBoundingClientRect();
-                            const x = (e.clientX - rect.left - rect.width / 2) / rect.width;
-                            const y = (e.clientY - rect.top - rect.height / 2) / rect.height;
+                            const centerX = rect.left + rect.width / 2;
+                            const centerY = rect.top + rect.height / 2;
+
+                            const mouseX = e.clientX;
+                            const mouseY = e.clientY;
+
+                            // Calculate relative position
+                            const x = (mouseX - centerX) / rect.width;
+                            const y = (mouseY - centerY) / rect.height;
+
+                            // Magnetic attraction (subtle)
+                            const attractX = x * 8;
+                            const attractY = y * 8;
+
                             cvRef.current.style.transform = `
                                 translateZ(0)
-                                rotateX(${-y * 5}deg)
-                                rotateY(${x * 5}deg)
+                                translateX(${attractX}px)
+                                translateY(${attractY}px)
+                                rotateX(${-y * 8}deg)
+                                rotateY(${x * 8}deg)
                                 scale(1.02)
                             `;
                             cvRef.current.style.boxShadow = `
-                                ${-x * 20}px ${-y * 20}px 50px rgba(0, 0, 0, 0.15),
-                                0 25px 50px rgba(0, 0, 0, 0.1)
+                                ${-x * 25}px ${-y * 25}px 60px rgba(0, 0, 0, 0.2),
+                                0 25px 60px rgba(99, 102, 241, 0.15)
                             `;
                         }
                     }}
                     onMouseLeave={() => {
                         if (!isMobile && cvRef.current) {
                             cvRef.current.style.transform = 'translateZ(0) rotateX(0deg) rotateY(0deg)';
-                            cvRef.current.style.boxShadow = '0 25px 50px rgba(0, 0, 0, 0.15)';
+                            cvRef.current.style.boxShadow = '0 25px 60px rgba(0, 0, 0, 0.2), 0 15px 30px rgba(99, 102, 241, 0.08)';
                         }
                     }}
                 >
@@ -366,28 +398,28 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                 {/* Inline Editor */}
                 {editorState.isEditing && (
                     <div
-                        className="absolute bg-white rounded-lg shadow-2xl border border-slate-200 p-4 z-50"
+                        className="absolute bg-white rounded-lg shadow-2xl border border-purple-200 p-4 z-50"
                         style={{
                             left: editorState.position.x,
                             top: editorState.position.y,
-                            minWidth: '300px'
+                            minWidth: '360px'
                         }}
                     >
-                        <div className="text-xs font-semibold text-slate-500 mb-2">
+                        <div className="text-xs font-semibold text-purple-700 mb-2">
                             {editorState.label}
                         </div>
                         {editorState.type === 'textarea' ? (
                             <textarea
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-indigo-500"
+                                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-purple-500"
                                 value={editorState.value}
                                 onChange={(e) => updateValue(e.target.value)}
-                                rows={4}
+                                rows={5}
                                 autoFocus
                             />
                         ) : (
                             <input
                                 type={editorState.type === 'email' ? 'email' : editorState.type === 'tel' ? 'tel' : 'text'}
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-indigo-500"
+                                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-purple-500"
                                 value={editorState.value}
                                 onChange={(e) => updateValue(e.target.value)}
                                 autoFocus
@@ -395,7 +427,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                         )}
                         <div className="flex gap-2 mt-3">
                             <button
-                                className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                                className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-colors"
                                 onClick={() => {
                                     handleSaveEdit(editorState.path, editorState.value);
                                     closeEditor();
@@ -404,7 +436,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                                 Save
                             </button>
                             <button
-                                className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors"
+                                className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
                                 onClick={closeEditor}
                             >
                                 Cancel
@@ -421,12 +453,21 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                 </div>
             )}
 
-            {/* CSS for float animation */}
+            {/* DYNAMIC FLOAT + RIPPLE ANIMATIONS */}
             <style>{`
-                @keyframes float {
-                    0%, 100% { transform: scale(${mobileScale}) translateY(0) translateX(0); }
-                    33% { transform: scale(${mobileScale}) translateY(-10px) translateX(5px); }
-                    66% { transform: scale(${mobileScale}) translateY(5px) translateX(-5px); }
+                @keyframes dynamicFloat {
+                    0%, 100% { 
+                        transform: scale(${mobileScale}) translateY(0) translateX(0) rotate(0deg); 
+                    }
+                    25% { 
+                        transform: scale(${mobileScale}) translateY(-12px) translateX(8px) rotate(0.5deg); 
+                    }
+                    50% { 
+                        transform: scale(${mobileScale}) translateY(-5px) translateX(-8px) rotate(-0.5deg); 
+                    }
+                    75% { 
+                        transform: scale(${mobileScale}) translateY(8px) translateX(6px) rotate(0.3deg); 
+                    }
                 }
 
                 @keyframes ripple {

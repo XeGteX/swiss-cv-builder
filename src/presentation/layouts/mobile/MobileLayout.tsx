@@ -48,22 +48,28 @@ export const MobileLayout: React.FC = () => {
                     />
                     <h1 className="font-bold text-lg tracking-wide bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Nexal</h1>
                 </div>
-                {/* ANIMATED GEAR - Rotates on open/close */}
+                {/* REALISTIC ANIMATED GEAR - Progressive rotation with spring physics */}
                 <motion.button
                     onClick={() => setActiveTab('settings')}
                     className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 active:scale-95 transition-colors"
                     animate={{ rotate: activeTab === 'settings' ? 180 : 0 }}
-                    transition={{ duration: 0.5, ease: 'easeInOut' }}
+                    transition={{
+                        type: 'spring',
+                        stiffness: 60,
+                        damping: 15,
+                        mass: 1.2,
+                        duration: 0.8
+                    }}
                 >
                     <Settings size={20} className="text-slate-700" />
                 </motion.button>
             </div>
 
-            {/* Main Content Area - Scrollable */}
+            {/* Main Content Area - Scrollable - NO WHITE BLOCKS */}
             <div className="flex-1 relative w-full overflow-hidden">
                 <AnimatePresence mode="wait">
                     {activeTab === 'editor' && (
-                        <LiquidTab id="editor" className="absolute inset-0 overflow-hidden pb-0">
+                        <LiquidTab id="editor" className="absolute inset-0 overflow-hidden">
                             <MobileEditor />
                         </LiquidTab>
                     )}
@@ -75,13 +81,13 @@ export const MobileLayout: React.FC = () => {
                     )}
 
                     {activeTab === 'ai' && (
-                        <LiquidTab id="ai" className="absolute inset-0 overflow-y-auto pb-24 custom-scrollbar">
+                        <LiquidTab id="ai" className="absolute inset-0 overflow-y-auto">
                             <CriticTab />
                         </LiquidTab>
                     )}
 
                     {activeTab === 'settings' && (
-                        <LiquidTab id="settings" className="absolute inset-0 overflow-y-auto pb-24 custom-scrollbar p-4">
+                        <LiquidTab id="settings" className="absolute inset-0 overflow-y-auto p-4">
                             <div className="max-w-lg mx-auto">
                                 <h2 className="text-2xl font-bold text-slate-800 mb-6">Settings</h2>
                                 <div className="bg-white rounded-xl p-6 shadow-lg space-y-4">
