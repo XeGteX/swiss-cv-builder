@@ -25,7 +25,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
     const profile = useCVStore(state => state.profile);
     const { updateProfile } = useCVStore();
 
-    // Mobile zoom & pan state - IMPROVED WITH FREE MOVEMENT
+    // Mobile zoom & pan state - NO AUTO-RESET
     const [mobileZoom, setMobileZoom] = useState(1);
     const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
     const [initialDistance, setInitialDistance] = useState(0);
@@ -148,7 +148,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
         }
     };
 
-    // Mobile pinch zoom handlers with FREE MOVEMENT
+    // Mobile pinch zoom handlers with SMOOTH UX
     const getDistance = (touch1: React.Touch, touch2: React.Touch) => {
         const dx = touch1.clientX - touch2.clientX;
         const dy = touch1.clientY - touch2.clientY;
@@ -186,15 +186,17 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
     }, []);
 
     const handleTouchMove = useCallback((e: React.TouchEvent) => {
+        e.preventDefault(); // Prevent default scrolling
+
         if (e.touches.length === 2 && initialDistance > 0) {
-            // PINCH ZOOM with LIMITS (0.8 - 2.5)
+            // SMOOTH PINCH ZOOM with LIMITS (0.8 - 2.5)
             const currentDistance = getDistance(e.touches[0], e.touches[1]);
             const scale = currentDistance / initialDistance;
             const newZoom = Math.max(0.8, Math.min(2.5, mobileZoom * scale));
             setMobileZoom(newZoom);
             setInitialDistance(currentDistance);
         } else if (e.touches.length === 1) {
-            // FREE PANNING - Always allow, even at zoom 1
+            // FREE PANNING - NO AUTO-RESET
             const deltaX = e.touches[0].clientX - lastTouchPos.x;
             const deltaY = e.touches[0].clientY - lastTouchPos.y;
 
@@ -223,7 +225,6 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                 photoInputRef.current?.click();
                 setLastTapTime(0);
             } else if (target.closest('[data-editable]')) {
-                // Double-tap on editable element
                 handleDoubleClick(e as any);
                 setLastTapTime(0);
             }
@@ -234,6 +235,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
 
         setInitialDistance(0);
         setIsInteracting(false);
+        // DON'T RESET panPosition - let it stay where user left it
     }, [lastTapTime, lastTapTarget, handleDoubleClick]);
 
     React.useEffect(() => {
@@ -308,7 +310,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                         boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2), 0 10px 30px rgba(99, 102, 241, 0.1)',
                         transform: `scale(${mobileScale * mobileZoom}) translate(${panPosition.x / mobileScale / mobileZoom}px, ${panPosition.y / mobileScale / mobileZoom}px)`,
                         transformOrigin: 'center center',
-                        transition: isInteracting ? 'none' : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        transition: isInteracting ? 'none' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         willChange: isInteracting ? 'transform' : 'auto',
                         animation: !isInteracting && mobileZoom === 1 ? 'dynamicFloat 8s ease-in-out infinite' : 'none'
                     } : {
@@ -316,14 +318,14 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                         minHeight: '1123px',
                         borderRadius: '12px',
                         boxShadow: '0 25px 60px rgba(0, 0, 0, 0.2), 0 15px 30px rgba(99, 102, 241, 0.08)',
-                        transition: 'transform 0.15s ease-out, box-shadow 0.15s ease-out',
+                        transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
                         transform: 'translateZ(0) rotateX(0deg) rotateY(0deg)',
                         transformStyle: 'preserve-3d',
                         perspective: '1200px'
                     }}
                     onClick={triggerRipple}
                     onMouseMove={(e) => {
-                        // FIXED MAGNETIC CURSOR ATTRACTION - ATTRACTS, not repels
+                        // SMOOTH MAGNETIC CURSOR ATTRACTION
                         if (!isMobile && cvRef.current) {
                             const rect = cvRef.current.getBoundingClientRect();
                             const centerX = rect.left + rect.width / 2;
@@ -332,11 +334,9 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                             const mouseX = e.clientX;
                             const mouseY = e.clientY;
 
-                            // Calculate relative position (-1 to 1)
                             const x = (mouseX - centerX) / rect.width;
                             const y = (mouseY - centerY) / rect.height;
 
-                            // REVERSED: Attracts toward cursor (positive values pull CV toward cursor)
                             const attractX = x * 12;
                             const attractY = y * 12;
 
