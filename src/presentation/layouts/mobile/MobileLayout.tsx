@@ -1,4 +1,17 @@
 import React, { useState } from 'react';
+import { Edit2, Eye, Sparkles, Download, Settings } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { LiquidTab } from '../../components/LiquidTab';
+import { MobileEditor } from '../../features/editor/MobileEditor';
+import { PreviewPane } from '../../features/preview/PreviewPane';
+import { CriticTab } from '../../features/editor/tabs/CriticTab';
+import { SettingsTab } from '../../features/settings/SettingsTab';
+import { Button } from '../../design-system/atoms/Button';
+import { useCVStore } from '../../../application/store/cv-store';
+import { generateSoftBackground } from '../../utils/color-utils';
+
+type MobileTab = 'editor' | 'preview' | 'ai' | 'settings';
+
 export const MobileLayout: React.FC = () => {
     const [activeTab, setActiveTab] = useState<MobileTab>('editor');
     const [viewportHeight, setViewportHeight] = useState('100%');
@@ -36,20 +49,66 @@ export const MobileLayout: React.FC = () => {
                     />
                     <h1 className="font-bold text-lg tracking-wide bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Nexal</h1>
                 </div>
-                {/* REALISTIC STUTTERING GEAR ANIMATION */}
+
+                {/* SOPHISTICATED GEAR with LIQUID GLASS BORDER */}
                 <motion.button
                     onClick={() => setActiveTab('settings')}
-                    className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 active:scale-95 transition-colors"
+                    className="p-2 rounded-lg relative overflow-visible"
+                    style={{
+                        backgroundColor: activeTab === 'settings' ? 'transparent' : '#f1f5f9'
+                    }}
                     animate={{
-                        rotate: activeTab === 'settings' ? [0, 30, 25, 60, 55, 100, 95, 145, 140, 180] : 0
+                        backgroundColor: activeTab === 'settings'
+                            ? 'rgba(241, 245, 249, 0)'
+                            : 'rgba(241, 245, 249, 1)'
                     }}
-                    transition={{
-                        duration: 0.8,
-                        times: [0, 0.1, 0.15, 0.25, 0.3, 0.45, 0.5, 0.7, 0.75, 1],
-                        ease: "linear"
-                    }}
+                    transition={{ duration: 0.3 }}
                 >
-                    <Settings size={20} className="text-slate-700" />
+                    {/* LIQUID GLASS BORDER - appears progressively */}
+                    {activeTab === 'settings' && (
+                        <motion.div
+                            className="absolute inset-0 rounded-lg"
+                            initial={{
+                                opacity: 0,
+                                scale: 0.8,
+                                backdropFilter: 'blur(0px)'
+                            }}
+                            animate={{
+                                opacity: 1,
+                                scale: 1,
+                                backdropFilter: 'blur(12px)'
+                            }}
+                            transition={{
+                                duration: 0.6,
+                                ease: [0.23, 1, 0.32, 1]
+                            }}
+                            style={{
+                                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(99, 102, 241, 0.15))',
+                                border: '1.5px solid rgba(139, 92, 246, 0.3)',
+                                boxShadow: '0 4px 20px rgba(139, 92, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5)'
+                            }}
+                        />
+                    )}
+
+                    {/* GEAR ICON with SOPHISTICATED ROTATION */}
+                    <motion.div
+                        animate={activeTab === 'settings' ? {
+                            rotate: [0, 15, 30, 35, 50, 55, 75, 80, 110, 120, 180]
+                        } : {
+                            rotate: 0
+                        }}
+                        transition={activeTab === 'settings' ? {
+                            duration: 1.2,
+                            times: [0, 0.08, 0.15, 0.18, 0.28, 0.32, 0.48, 0.52, 0.72, 0.8, 1],
+                            ease: [0.23, 1, 0.32, 1] // Starts slow, ends fast
+                        } : {
+                            duration: 0.8,
+                            ease: [0.32, 0, 0.67, 0]
+                        }}
+                        className="relative z-10"
+                    >
+                        <Settings size={20} className="text-slate-700" />
+                    </motion.div>
                 </motion.button>
             </div>
 

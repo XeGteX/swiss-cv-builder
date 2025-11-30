@@ -25,12 +25,14 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
     const profile = useCVStore(state => state.profile);
     const { updateProfile } = useCVStore();
 
-    // Mobile zoom & pan state - NO AUTO-RESET
+    // Mobile FREE zoom & pan - 1 finger = pan, 2 fingers = free zoom
     const [mobileZoom, setMobileZoom] = useState(1);
     const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
+    const [zoomCenter, setZoomCenter] = useState({ x: 0, y: 0 });
     const [initialDistance, setInitialDistance] = useState(0);
     const [lastTouchPos, setLastTouchPos] = useState({ x: 0, y: 0 });
     const [isInteracting, setIsInteracting] = useState(false);
+    const [isPinching, setIsPinching] = useState(false);
 
     // Mobile tap detection
     const [lastTapTime, setLastTapTime] = useState(0);
@@ -148,78 +150,85 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
         }
     };
 
-    // Mobile pinch zoom handlers with SMOOTH UX
+    // Mobile FREE pinch zoom - zoom at finger position
     const getDistance = (touch1: React.Touch, touch2: React.Touch) => {
         const dx = touch1.clientX - touch2.clientX;
         const dy = touch1.clientY - touch2.clientY;
         return Math.sqrt(dx * dx + dy * dy);
     };
 
-    const clampPanPosition = useCallback((pos: { x: number; y: number }, zoom: number) => {
-        if (!containerRef.current || !cvRef.current) return pos;
-
-        const containerRect = containerRef.current.getBoundingClientRect();
-        const cvWidth = 794 * zoom;
-        const cvHeight = 1123 * zoom;
-
-        const maxX = Math.max(0, (cvWidth - containerRect.width) / 2);
-        const maxY = Math.max(0, (cvHeight - containerRect.height) / 2);
-
+    const getMidpoint = (touch1: React.Touch, touch2: React.Touch) => {
         return {
-            x: Math.max(-maxX, Math.min(maxX, pos.x)),
-            y: Math.max(-maxY, Math.min(maxY, pos.y))
+            x: (touch1.clientX + touch2.clientX) / 2,
+            y: (touch1.clientY + touch2.clientY) / 2
         };
-    }, []);
+    };
 
     const handleTouchStart = useCallback((e: React.TouchEvent) => {
         if (e.touches.length === 2) {
+            // PINCH START
             const distance = getDistance(e.touches[0], e.touches[1]);
+            const midpoint = getMidpoint(e.touches[0], e.touches[1]);
             setInitialDistance(distance);
+            setZoomCenter(midpoint);
             setIsInteracting(true);
+            setIsPinching(true);
         } else if (e.touches.length === 1) {
+            // PAN START
             setLastTouchPos({
                 x: e.touches[0].clientX,
                 y: e.touches[0].clientY
             });
             setIsInteracting(true);
+            setIsPinching(false);
         }
     }, []);
 
     const handleTouchMove = useCallback((e: React.TouchEvent) => {
-        e.preventDefault(); // Prevent default scrolling
+        e.preventDefault();
 
         if (e.touches.length === 2 && initialDistance > 0) {
-            // SMOOTH PINCH ZOOM with LIMITS (0.8 - 2.5)
+            // FREE PINCH ZOOM - zoom at midpoint position
             const currentDistance = getDistance(e.touches[0], e.touches[1]);
             const scale = currentDistance / initialDistance;
             const newZoom = Math.max(0.8, Math.min(2.5, mobileZoom * scale));
+
+            // Adjust pan to keep zoom centered at midpoint
+            const midpoint = getMidpoint(e.touches[0], e.touches[1]);
+            const deltaX = midpoint.x - zoomCenter.x;
+            const deltaY = midpoint.y - zoomCenter.y;
+
+            setPanPosition(prev => ({
+                x: prev.x + deltaX * 0.5,
+                y: prev.y + deltaY * 0.5
+            }));
+
             setMobileZoom(newZoom);
             setInitialDistance(currentDistance);
-        } else if (e.touches.length === 1) {
-            // FREE PANNING - NO AUTO-RESET
+            setZoomCenter(midpoint);
+        } else if (e.touches.length === 1 && !isPinching) {
+            // FREE PANNING with 1 finger
             const deltaX = e.touches[0].clientX - lastTouchPos.x;
             const deltaY = e.touches[0].clientY - lastTouchPos.y;
 
-            const newPan = {
-                x: panPosition.x + deltaX,
-                y: panPosition.y + deltaY
-            };
+            setPanPosition(prev => ({
+                x: prev.x + deltaX,
+                y: prev.y + deltaY
+            }));
 
-            setPanPosition(clampPanPosition(newPan, mobileZoom));
             setLastTouchPos({
                 x: e.touches[0].clientX,
                 y: e.touches[0].clientY
             });
         }
-    }, [initialDistance, lastTouchPos, mobileZoom, panPosition, clampPanPosition]);
+    }, [initialDistance, lastTouchPos, mobileZoom, zoomCenter, isPinching]);
 
     const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-        // Double-tap detection for photo upload on mobile
         const now = Date.now();
         const timeDiff = now - lastTapTime;
         const target = e.target as HTMLElement;
 
-        if (timeDiff < 300 && lastTapTarget === e.target) {
+        if (timeDiff < 300 && lastTapTarget === e.target && e.touches.length === 0) {
             if (target.closest('[data-photo-zone="true"]')) {
                 e.preventDefault();
                 photoInputRef.current?.click();
@@ -233,9 +242,11 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
             setLastTapTarget(e.target);
         }
 
-        setInitialDistance(0);
-        setIsInteracting(false);
-        // DON'T RESET panPosition - let it stay where user left it
+        if (e.touches.length === 0) {
+            setInitialDistance(0);
+            setIsInteracting(false);
+            setIsPinching(false);
+        }
     }, [lastTapTime, lastTapTarget, handleDoubleClick]);
 
     React.useEffect(() => {
@@ -267,7 +278,6 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                 userSelect: 'none'
             } : {}}
         >
-            {/* Hidden photo input */}
             <input
                 ref={photoInputRef}
                 type="file"
@@ -276,7 +286,6 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                 style={{ display: 'none' }}
             />
 
-            {/* Toolbar - Desktop only */}
             {!hideToolbar && !isMobile && (
                 <div className="p-4 bg-white border-b border-slate-200 flex justify-between items-center shadow-sm z-10">
                     <div className="text-sm font-semibold text-slate-500">
@@ -292,7 +301,6 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                 </div>
             )}
 
-            {/* CV Preview Container */}
             <div
                 className="flex-1 flex items-center justify-center p-4 relative"
                 style={{
@@ -310,9 +318,8 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                         boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2), 0 10px 30px rgba(99, 102, 241, 0.1)',
                         transform: `scale(${mobileScale * mobileZoom}) translate(${panPosition.x / mobileScale / mobileZoom}px, ${panPosition.y / mobileScale / mobileZoom}px)`,
                         transformOrigin: 'center center',
-                        transition: isInteracting ? 'none' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        willChange: isInteracting ? 'transform' : 'auto',
-                        animation: !isInteracting && mobileZoom === 1 ? 'dynamicFloat 8s ease-in-out infinite' : 'none'
+                        transition: isInteracting ? 'none' : 'transform 0.2s ease-out',
+                        willChange: isInteracting ? 'transform' : 'auto'
                     } : {
                         width: '794px',
                         minHeight: '1123px',
@@ -325,7 +332,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                     }}
                     onClick={triggerRipple}
                     onMouseMove={(e) => {
-                        // SMOOTH MAGNETIC CURSOR ATTRACTION
+                        // INVERTED MAGNETIC - CV moves OPPOSITE to cursor, at cursor's Y level
                         if (!isMobile && cvRef.current) {
                             const rect = cvRef.current.getBoundingClientRect();
                             const centerX = rect.left + rect.width / 2;
@@ -334,11 +341,13 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                             const mouseX = e.clientX;
                             const mouseY = e.clientY;
 
+                            // Calculate relative position
                             const x = (mouseX - centerX) / rect.width;
                             const y = (mouseY - centerY) / rect.height;
 
-                            const attractX = x * 12;
-                            const attractY = y * 12;
+                            // INVERTED: CV moves OPPOSITE direction (negative multiplication)
+                            const attractX = -x * 15;
+                            const attractY = -y * 15;
 
                             cvRef.current.style.transform = `
                                 translateZ(0)
@@ -349,7 +358,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                                 scale(1.02)
                             `;
                             cvRef.current.style.boxShadow = `
-                                ${-x * 25}px ${-y * 25}px 60px rgba(0, 0, 0, 0.2),
+                                ${x * 25}px ${y * 25}px 60px rgba(0, 0, 0, 0.2),
                                 0 25px 60px rgba(99, 102, 241, 0.15)
                             `;
                         }
@@ -363,7 +372,6 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                 >
                     <DynamicRenderer profile={profile} language={language} />
 
-                    {/* Ripple effects */}
                     {ripples.map(ripple => (
                         <div
                             key={ripple.id}
@@ -380,7 +388,6 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                     ))}
                 </div>
 
-                {/* Inline Editor */}
                 {editorState.isEditing && (
                     <div
                         className="absolute bg-white rounded-lg shadow-2xl border border-purple-200 p-4 z-50"
@@ -431,30 +438,13 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                 )}
             </div>
 
-            {/* Mobile zoom indicator */}
             {isMobile && mobileZoom !== 1 && (
                 <div className="absolute top-20 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
                     {Math.round(mobileZoom * 100)}%
                 </div>
             )}
 
-            {/* DYNAMIC FLOAT + RIPPLE ANIMATIONS */}
             <style>{`
-                @keyframes dynamicFloat {
-                    0%, 100% { 
-                        transform: scale(${mobileScale}) translateY(0) translateX(0) rotate(0deg); 
-                    }
-                    25% { 
-                        transform: scale(${mobileScale}) translateY(-12px) translateX(8px) rotate(0.5deg); 
-                    }
-                    50% { 
-                        transform: scale(${mobileScale}) translateY(-5px) translateX(-8px) rotate(-0.5deg); 
-                    }
-                    75% { 
-                        transform: scale(${mobileScale}) translateY(8px) translateX(6px) rotate(0.3deg); 
-                    }
-                }
-
                 @keyframes ripple {
                     to {
                         transform: scale(4);
