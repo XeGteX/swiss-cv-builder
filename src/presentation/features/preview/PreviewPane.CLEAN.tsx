@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+﻿import React, { useRef, useState, useCallback } from 'react';
 import { DynamicRenderer } from '../../layouts/DynamicRenderer';
 import { useUIStore } from '../../../application/store/ui-store';
 import { useSettingsStore } from '../../../application/store/settings-store';
@@ -10,8 +10,6 @@ import { t } from '../../../data/translations';
 import { usePageDetection } from '../../hooks/usePageDetection';
 import { useInlineEditor } from '../../hooks/useInlineEditor';
 import { useRippleEffect } from '../../hooks/useRippleEffect';
-import { InlineEditorOverlay } from '../editor/InlineEditorOverlay';
-import { MagicParticles } from '../editor/MagicParticles';
 
 interface PreviewPaneProps {
     hideToolbar?: boolean;
@@ -27,7 +25,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
     const profile = useCVStore(state => state.profile);
     const { updateProfile } = useCVStore();
 
-    // Mobile zoom & pan
+    // Mobile FREE zoom & pan - 1 finger = pan, 2 fingers = free zoom
     const [mobileZoom, setMobileZoom] = useState(1);
     const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
     const [zoomCenter, setZoomCenter] = useState({ x: 0, y: 0 });
@@ -35,15 +33,13 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
     const [lastTouchPos, setLastTouchPos] = useState({ x: 0, y: 0 });
     const [isInteracting, setIsInteracting] = useState(false);
     const [isPinching, setIsPinching] = useState(false);
+
+    // Mobile tap detection
     const [lastTapTime, setLastTapTime] = useState(0);
     const [lastTapTarget, setLastTapTarget] = useState<EventTarget | null>(null);
 
-    // Magic inline editing state
-    const [isHovered, setIsHovered] = useState(false);
-    const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
-
     const { pageCount, currentPage, setCurrentPage } = usePageDetection(cvRef, [profile]);
-    const { state: editorState, openEditor } = useInlineEditor();
+    const { editorState, handleDoubleClick, updateValue, closeEditor } = useInlineEditor();
     const { ripples, triggerRipple, removeRipple } = useRippleEffect();
 
     const txt = t[language];
@@ -99,7 +95,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
             const photoUrl = event.target?.result as string;
             const updatedProfile = { ...profile, personal: { ...profile.personal, photoUrl } };
             updateProfile(updatedProfile);
-            addToast('✨ Photo updated!', 'success');
+            addToast('Ô£¿ Photo updated!', 'success');
         };
         reader.readAsDataURL(file);
     };
@@ -112,38 +108,49 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
         }
     };
 
-    // MAGIC INLINE EDITING - Double-click handler
-    const handleInlineDoubleClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
-        const target = e.target as HTMLElement;
-        const editableEl = target.closest('[data-inline-edit]') as HTMLElement;
+    const handleSaveEdit = (path: string, value: string) => {
+        try {
+            const updatedProfile = JSON.parse(JSON.stringify(profile));
+            const directArrayMatch = path.match(/^(\w+)\[(\d+)\]$/);
 
-        if (!editableEl) return;
+            if (directArrayMatch) {
+                const [, arrayName, index] = directArrayMatch;
+                if (Array.isArray(updatedProfile[arrayName])) {
+                    updatedProfile[arrayName][parseInt(index)] = value;
+                }
+            } else {
+                const keys = path.split('.');
+                let current: any = updatedProfile;
+                for (let i = 0; i < keys.length - 1; i++) {
+                    const key = keys[i];
+                    const arrayMatch = key.match(/(\w+)\[(\d+)\]/);
+                    if (arrayMatch) {
+                        const [, arrayName, index] = arrayMatch;
+                        current = current[arrayName][parseInt(index)];
+                    } else {
+                        if (!current[key]) current[key] = {};
+                        current = current[key];
+                    }
+                }
+                const lastKey = keys[keys.length - 1];
+                const lastArrayMatch = lastKey.match(/(\w+)\[(\d+)\]/);
+                if (lastArrayMatch) {
+                    const [, arrayName, index] = lastArrayMatch;
+                    current[arrayName][parseInt(index)] = value;
+                } else {
+                    current[lastKey] = value;
+                }
+            }
 
-        const fieldKey = editableEl.getAttribute('data-inline-edit') || '';
-        const label = editableEl.getAttribute('data-inline-label') || '';
-        const required = editableEl.getAttribute('data-inline-required') === 'true';
-        const removable = editableEl.getAttribute('data-inline-removable') === 'true';
-        const placeholderLabel = editableEl.getAttribute('data-inline-placeholder') || '';
-        const removeWarning = editableEl.getAttribute('data-inline-remove-warning') || '';
-        const currentValue = editableEl.textContent || '';
+            updateProfile(updatedProfile);
+            addToast('Ô£¿ Changes saved!', 'success');
+        } catch (error) {
+            console.error('Error saving edit:', error);
+            addToast('Failed to save changes', 'error');
+        }
+    };
 
-        const rect = editableEl.getBoundingClientRect();
-        const position = {
-            x: rect.left,
-            y: rect.bottom + 8
-        };
-
-        openEditor({
-            fieldKey,
-            label,
-            required,
-            removable,
-            placeholderLabel,
-            removeWarning
-        }, currentValue, position);
-    }, [openEditor]);
-
-    // Mobile pinch zoom helpers
+    // Mobile FREE pinch zoom - zoom at finger position
     const getDistance = (touch1: React.Touch, touch2: React.Touch) => {
         const dx = touch1.clientX - touch2.clientX;
         const dy = touch1.clientY - touch2.clientY;
@@ -159,6 +166,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
 
     const handleTouchStart = useCallback((e: React.TouchEvent) => {
         if (e.touches.length === 2) {
+            // PINCH START
             const distance = getDistance(e.touches[0], e.touches[1]);
             const midpoint = getMidpoint(e.touches[0], e.touches[1]);
             setInitialDistance(distance);
@@ -166,6 +174,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
             setIsInteracting(true);
             setIsPinching(true);
         } else if (e.touches.length === 1) {
+            // PAN START
             setLastTouchPos({
                 x: e.touches[0].clientX,
                 y: e.touches[0].clientY
@@ -179,10 +188,12 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
         e.preventDefault();
 
         if (e.touches.length === 2 && initialDistance > 0) {
+            // FREE PINCH ZOOM - zoom at midpoint position
             const currentDistance = getDistance(e.touches[0], e.touches[1]);
             const scale = currentDistance / initialDistance;
             const newZoom = Math.max(0.8, Math.min(2.5, mobileZoom * scale));
 
+            // Adjust pan to keep zoom centered at midpoint
             const midpoint = getMidpoint(e.touches[0], e.touches[1]);
             const deltaX = midpoint.x - zoomCenter.x;
             const deltaY = midpoint.y - zoomCenter.y;
@@ -196,6 +207,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
             setInitialDistance(currentDistance);
             setZoomCenter(midpoint);
         } else if (e.touches.length === 1 && !isPinching) {
+            // FREE PANNING with 1 finger
             const deltaX = e.touches[0].clientX - lastTouchPos.x;
             const deltaY = e.touches[0].clientY - lastTouchPos.y;
 
@@ -221,6 +233,9 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                 e.preventDefault();
                 photoInputRef.current?.click();
                 setLastTapTime(0);
+            } else if (target.closest('[data-editable]')) {
+                handleDoubleClick(e as any);
+                setLastTapTime(0);
             }
         } else {
             setLastTapTime(now);
@@ -232,7 +247,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
             setIsInteracting(false);
             setIsPinching(false);
         }
-    }, [lastTapTime, lastTapTarget]);
+    }, [lastTapTime, lastTapTarget, handleDoubleClick]);
 
     React.useEffect(() => {
         const onTrigger = () => handleDownload();
@@ -251,7 +266,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
             onDoubleClick={(e) => {
                 if (!isMobile) {
                     handlePhotoClick(e);
-                    handleInlineDoubleClick(e);
+                    handleDoubleClick(e);
                 }
             }}
             onTouchStart={handleTouchStart}
@@ -292,22 +307,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                     minHeight: 0,
                     overflow: isMobile ? 'hidden' : 'auto'
                 }}
-                onMouseEnter={() => !isMobile && setIsHovered(true)}
-                onMouseLeave={() => !isMobile && setIsHovered(false)}
-                onMouseMove={(e) => {
-                    if (!isMobile) {
-                        setCursorPos({ x: e.clientX, y: e.clientY });
-                    }
-                }}
             >
-                {/* MAGIC PARTICLES - Desktop only, visible when hover */}
-                {!isMobile && isHovered && (
-                    <MagicParticles
-                        cursor={cursorPos}
-                        accentColor={profile.metadata?.accentColor || '#8b5cf6'}
-                    />
-                )}
-
                 <div
                     ref={cvRef}
                     className="bg-white relative"
@@ -325,9 +325,50 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                         minHeight: '1123px',
                         borderRadius: '12px',
                         boxShadow: '0 25px 60px rgba(0, 0, 0, 0.2), 0 15px 30px rgba(99, 102, 241, 0.08)',
-                        transition: 'box-shadow 0.15s ease-out'
+                        transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                        transform: 'translateZ(0) rotateX(0deg) rotateY(0deg)',
+                        transformStyle: 'preserve-3d',
+                        perspective: '1200px'
                     }}
                     onClick={triggerRipple}
+                    onMouseMove={(e) => {
+                        // INVERTED MAGNETIC - CV moves OPPOSITE to cursor, at cursor's Y level
+                        if (!isMobile && cvRef.current) {
+                            const rect = cvRef.current.getBoundingClientRect();
+                            const centerX = rect.left + rect.width / 2;
+                            const centerY = rect.top + rect.height / 2;
+
+                            const mouseX = e.clientX;
+                            const mouseY = e.clientY;
+
+                            // Calculate relative position
+                            const x = (mouseX - centerX) / rect.width;
+                            const y = (mouseY - centerY) / rect.height;
+
+                            // INVERTED: CV moves OPPOSITE direction (negative multiplication)
+                            const attractX = -x * 15;
+                            const attractY = -y * 15;
+
+                            cvRef.current.style.transform = `
+                                translateZ(0)
+                                translateX(${attractX}px)
+                                translateY(${attractY}px)
+                                rotateX(${-y * 8}deg)
+                                rotateY(${x * 8}deg)
+                                scale(1.02)
+                            `;
+                            cvRef.current.style.boxShadow = `
+                                ${x * 25}px ${y * 25}px 60px rgba(0, 0, 0, 0.2),
+                                0 25px 60px rgba(99, 102, 241, 0.15)
+                            `;
+                        }
+                    }}
+                    onMouseLeave={() => {
+                        if (!isMobile && cvRef.current) {
+                            cvRef.current.style.transform = 'translateZ(0) rotateX(0deg) rotateY(0deg)';
+                            cvRef.current.style.boxShadow = '0 25px 60px rgba(0, 0, 0, 0.2), 0 15px 30px rgba(99, 102, 241, 0.08)';
+                        }
+                    }}
                 >
                     <DynamicRenderer profile={profile} language={language} />
 
@@ -347,8 +388,54 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                     ))}
                 </div>
 
-                {/* INLINE EDITOR OVERLAY */}
-                <InlineEditorOverlay />
+                {editorState.isEditing && (
+                    <div
+                        className="absolute bg-white rounded-lg shadow-2xl border border-purple-200 p-4 z-50"
+                        style={{
+                            left: editorState.position.x,
+                            top: editorState.position.y,
+                            minWidth: '360px'
+                        }}
+                    >
+                        <div className="text-xs font-semibold text-purple-700 mb-2">
+                            {editorState.label}
+                        </div>
+                        {editorState.type === 'textarea' ? (
+                            <textarea
+                                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-purple-500"
+                                value={editorState.value}
+                                onChange={(e) => updateValue(e.target.value)}
+                                rows={5}
+                                autoFocus
+                            />
+                        ) : (
+                            <input
+                                type={editorState.type === 'email' ? 'email' : editorState.type === 'tel' ? 'tel' : 'text'}
+                                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-purple-500"
+                                value={editorState.value}
+                                onChange={(e) => updateValue(e.target.value)}
+                                autoFocus
+                            />
+                        )}
+                        <div className="flex gap-2 mt-3">
+                            <button
+                                className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-colors"
+                                onClick={() => {
+                                    handleSaveEdit(editorState.path, editorState.value);
+                                    closeEditor();
+                                }}
+                            >
+                                Save
+                            </button>
+                            <button
+                                className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
+                                onClick={closeEditor}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {isMobile && mobileZoom !== 1 && (
@@ -363,20 +450,6 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                         transform: scale(4);
                         opacity: 0;
                     }
-                }
-
-                /* Hover effect for editable elements */
-                [data-inline-edit]:hover {
-                    outline: 2px solid rgba(139, 92, 246, 0.4);
-                    outline-offset: 2px;
-                    background-color: rgba(139, 92, 246, 0.05);
-                    border-radius: 3px;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                }
-
-                [data-inline-edit] {
-                    transition: all 0.2s ease;
                 }
             `}</style>
         </div>
