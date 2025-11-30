@@ -1,92 +1,62 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState } from 'react';
 
-export interface EditableField {
-    path: string; // e.g., 'personal.firstName' or 'experience.0.position'
+interface EditorState {
+    isEditing: boolean;
+    path: string;
     value: string;
-    type: 'text' | 'textarea' | 'email' | 'tel' | 'url';
     label: string;
-}
-
-interface InlineEditorState {
-    isOpen: boolean;
-    field: EditableField | null;
+    type: string;
     position: { x: number; y: number };
 }
 
+const initialState: EditorState = {
+    isEditing: false,
+    path: '',
+    value: '',
+    label: '',
+    type: 'text',
+    position: { x: 0, y: 0 }
+};
+
+/**
+ * Hook for inline editing functionality
+ */
 export const useInlineEditor = () => {
-    const [editorState, setEditorState] = useState<InlineEditorState>({
-        isOpen: false,
-        field: null,
-        position: { x: 0, y: 0 }
-    });
+    const [editorState, setEditorState] = useState<EditorState>(initialState);
 
-    const handleDoubleClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    const handleDoubleClick = (e: React.MouseEvent) => {
         const target = e.target as HTMLElement;
-        const editableElement = target.closest('[data-editable]');
+        const editable = target.closest('[data-editable]');
 
-        if (!editableElement) return;
+        if (editable) {
+            e.stopPropagation();
+            const path = editable.getAttribute('data-editable') || '';
+            const type = editable.getAttribute('data-type') || 'text';
+            const label = editable.getAttribute('data-label') || 'Edit';
+            const value = editable.textContent || '';
 
-        e.preventDefault();
-        e.stopPropagation();
-
-        const path = editableElement.getAttribute('data-editable');
-        const fieldType = editableElement.getAttribute('data-type') || 'text';
-        const label = editableElement.getAttribute('data-label') || '';
-        const currentValue = editableElement.textContent || '';
-
-        if (!path) return;
-
-        // Get position relative to viewport
-        const rect = editableElement.getBoundingClientRect();
-
-        setEditorState({
-            isOpen: true,
-            field: {
+            const rect = editable.getBoundingClientRect();
+            setEditorState({
+                isEditing: true,
                 path,
-                value: currentValue.trim(),
-                type: fieldType as EditableField['type'],
-                label
-            },
-            position: {
-                x: rect.left,
-                y: rect.bottom + 8 // 8px below the element
-            }
-        });
-    }, []);
-
-    const closeEditor = useCallback(() => {
-        setEditorState({
-            isOpen: false,
-            field: null,
-            position: { x: 0, y: 0 }
-        });
-    }, []);
-
-    const updateValue = useCallback((newValue: string) => {
-        if (editorState.field) {
-            setEditorState(prev => ({
-                ...prev,
-                field: prev.field ? { ...prev.field, value: newValue } : null
-            }));
+                value,
+                label,
+                type,
+                position: {
+                    x: rect.left,
+                    y: rect.bottom + 8
+                }
+            });
         }
-    }, [editorState.field]);
-
-    // Close on Escape key
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && editorState.isOpen) {
-                closeEditor();
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [editorState.isOpen, closeEditor]);
-
-    return {
-        editorState,
-        handleDoubleClick,
-        closeEditor,
-        updateValue
     };
+
+    const updateValue = (value: string) => {
+        setEditorState(prev => ({ ...prev, value }));
+    };
+
+    const closeEditor = () => {
+        setEditorState(initialState);
+    };
+
+    return { editorState, handleDoubleClick, updateValue, closeEditor };
 };
