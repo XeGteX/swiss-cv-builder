@@ -15,6 +15,8 @@ import {
     Camera, Mail, Phone, MapPin, Briefcase, GraduationCap, Globe, Award, User
 } from 'lucide-react';
 import { EditableField, EditableEmail, EditablePhone } from '../../../components/atomic-editor/EditableField';
+import { EditableImage } from '../../../components/atomic-editor/EditableImage';
+import { useUpdateField } from '../../../../application/store/v2';
 import { SortableItem } from '../../../components/lego/SortableItem';
 import { SortableSection } from '../../../components/lego/SortableSection';
 import { t } from '../../../../data/translations';
@@ -71,6 +73,14 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
         textBase: density === 'compact' ? 'text-xs' : density === 'dense' ? 'text-[10px]' : 'text-sm',
         headerPad: density === 'compact' ? 'py-6' : density === 'dense' ? 'py-4' : 'py-8',
         sectionGap: density === 'compact' ? 'mb-4' : density === 'dense' ? 'mb-3' : 'mb-6',
+    };
+
+    // PROJET NARCISSE - Photo detection for adaptive layout
+    const hasPhoto = !!data.personal.photoUrl;
+    const updateField = useUpdateField();
+
+    const handlePhotoChange = (newPhotoUrl: string) => {
+        updateField('personal.photoUrl', newPhotoUrl);
     };
 
     // Section metadata
@@ -281,27 +291,30 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
             {/* HEADER */}
             {pageIndex === 0 ? (
                 <>
-                    {/* FULL HEADER - Page 1 */}
-                    <div className={`text-white ${densityStyles.headerPad} grid grid-cols-12 gap-8 relative px-10 py-10 print:py-10`} style={headerStyle}>
-                        {/* Photo */}
-                        <div className="col-span-3 flex items-center justify-center">
-                            <div className="w-36 h-36 bg-white rounded-full overflow-hidden border-4 border-white/30 shadow-lg relative z-10 shrink-0 aspect-square">
-                                {data.personal.photoUrl ? (
-                                    <img
-                                        src={data.personal.photoUrl}
-                                        alt="Profile"
-                                        className="w-full h-full block object-cover"
-                                    />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-slate-200 text-slate-400">
-                                        <Camera size={40} />
-                                    </div>
-                                )}
+                    {/* FULL HEADER - Page 1 (GRID LOCK PATTERN - Projet Narcisse) */}
+                    <div
+                        className={`text-white ${densityStyles.headerPad} relative px-10 py-8 print:py-8`}
+                        style={{
+                            ...headerStyle,
+                            display: 'grid',
+                            gridTemplateColumns: hasPhoto ? '150px 1fr' : '1fr',
+                            gap: hasPhoto ? '2rem' : '0',
+                            alignItems: 'center'
+                        }}
+                    >
+                        {hasPhoto && (
+                            /* Photo Column (Fixed Width - 150px) */
+                            <div className="flex items-center justify-center">
+                                <EditableImage
+                                    src={data.personal.photoUrl}
+                                    alt="Profile Photo"
+                                    onImageChange={handlePhotoChange}
+                                />
                             </div>
-                        </div>
+                        )}
 
-                        {/* Name & Title */}
-                        <div className="col-span-9 flex flex-col justify-center pl-2">
+                        {/* Text Column (Adaptive Alignment) */}
+                        <div className={hasPhoto ? '' : 'text-center'}>
                             <h1 className="text-5xl font-bold tracking-tight uppercase mb-2 leading-[0.9] break-words">
                                 <EditableField
                                     path="personal.firstName"
@@ -327,13 +340,13 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
                                 validation={{ required: true, minLength: 5 }}
                             >
                                 {(title) => (
-                                    <h2 className="text-2xl font-medium text-white/90 tracking-wide mb-4 break-words">
+                                    <h2 className="text-2xl font-medium text-white/90 tracking-wide mb-3 break-words">
                                         {title}
                                     </h2>
                                 )}
                             </EditableField>
 
-                            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-white/80 items-center">
+                            <div className={`flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-white/80 items-center ${hasPhoto ? '' : 'justify-center'}`}>
                                 {data.personal.birthDate && (
                                     <EditableField path="personal.birthDate" label="Birth Date">
                                         {(value) => <span>{value}</span>}
@@ -354,6 +367,17 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
                                     </EditableField>
                                 )}
                             </div>
+
+                            {/* Photo Upload Hint (No Photo) */}
+                            {!hasPhoto && (
+                                <div className="flex justify-center mt-4">
+                                    <EditableImage
+                                        src={data.personal.photoUrl}
+                                        alt="Profile Photo"
+                                        onImageChange={handlePhotoChange}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
 

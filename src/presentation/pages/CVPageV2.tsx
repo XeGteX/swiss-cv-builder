@@ -14,6 +14,7 @@ import React from 'react';
 import { RefreshCw } from 'lucide-react';
 import { ModernTemplateV2 } from '../layouts/templates/v2/ModernTemplate.v2';
 import { CVPresentationLayer } from '../features/preview/CVPresentationLayer';
+import { ModeToggleButton } from '../components/lego/ModeToggleButton';
 import { AtlasStatus } from '../components/AtlasStatus';
 import { useCVStoreV2 } from '../../application/store/v2';
 
@@ -24,6 +25,9 @@ export const CVPageV2: React.FC = () => {
         <div className="min-h-screen bg-slate-100 relative">
             {/* ATLAS Status Indicator */}
             <AtlasStatus />
+
+            {/* MODE TOGGLE BUTTON (EJECTED - Not affected by 3D transforms) */}
+            <ModeToggleButton />
 
             {/* Demo Reset Button */}
             <button
@@ -64,7 +68,6 @@ export const CVPageV2: React.FC = () => {
                 </div>
             </div>
         </div>
-        </div >
     );
 };
 
