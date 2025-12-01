@@ -1,0 +1,62 @@
+{
+  "status": "BROKEN",
+  "timestamp": 1764534810337,
+  "lastAction": "Sentinel scan",
+  "checks": {
+    "imports": {
+      "passed": false,
+      "totalFiles": 152,
+      "totalImports": 294,
+      "brokenCount": 5,
+      "details": [
+        {
+          "file": "presentation\\layouts\\templates\\v2\\ModernTemplate.v2.tsx",
+          "line": 21,
+          "importPath": "../../components/atomic-editor",
+          "resolvedPath": null,
+          "exists": false
+        },
+        {
+          "file": "presentation\\layouts\\templates\\v2\\ModernTemplate.v2.tsx",
+          "line": 22,
+          "importPath": "../../../application/store/v2",
+          "resolvedPath": null,
+          "exists": false
+        },
+        {
+          "file": "presentation\\layouts\\templates\\v2\\ModernTemplate.v2.tsx",
+          "line": 23,
+          "importPath": "../../../data/translations",
+          "resolvedPath": null,
+          "exists": false
+        },
+        {
+          "file": "presentation\\layouts\\templates\\v2\\ModernTemplate.v2.tsx",
+          "line": 24,
+          "importPath": "../../../domain/templates/TemplateEngine",
+          "resolvedPath": null,
+          "exists": false
+        },
+        {
+          "file": "presentation\\layouts\\templates\\v2\\ModernTemplate.v2.tsx",
+          "line": 25,
+          "importPath": "../../../domain/templates/TemplateEngine",
+          "resolvedPath": null,
+          "exists": false
+        }
+      ]
+    },
+    "types": {
+      "passed": true,
+      "errorCount": 0,
+      "duration": 1707,
+      "details": []
+    },
+    "circularDeps": {
+      "passed": true,
+      "cycleCount": 0,
+      "details": []
+    }
+  },
+  "summary": "❌ imports failed."
+}

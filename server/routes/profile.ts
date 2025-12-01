@@ -5,6 +5,10 @@ import { ProfileController } from '../controllers/profile-controller';
 
 const router = express.Router();
 
+// ATLAS Protocol Permanence - Auto-save (no ID, no auth for V2 testing)
+router.put('/', ProfileController.updateCurrent);
+
+// Standard CRUD routes (with auth)
 router.get('/', authenticateToken, ProfileController.list);
 router.get('/:id', authenticateToken, ProfileController.get);
 router.post('/', authenticateToken, ProfileController.create);

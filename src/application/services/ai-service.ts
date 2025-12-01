@@ -55,6 +55,31 @@ export class AIService {
     return DataSanitizer.cleanText(text);
   }
 
+  /**
+   * Improve any text with AI enhancement
+   * Used for inline editing improvements
+   */
+  async improveText(text: string, context?: string): Promise<string> {
+    const prompt = `
+      You are a professional Swiss CV writer. Improve this text to make it more professional, concise, and impactful.
+      
+      ${context ? `Context: ${context}` : ''}
+      
+      Original text:
+      ${text}
+      
+      Requirements:
+      - Keep the same language as the original
+      - Maintain factual accuracy
+      - Use action verbs and results-oriented language
+      - Keep it concise (max 20% longer than original)
+      - Return ONLY the improved text, no explanations
+    `;
+
+    const improved = await this.client.generateContent(prompt);
+    return DataSanitizer.cleanText(improved);
+  }
+
   async writeCoverLetter(profile: CVProfile, language: string): Promise<string> {
     const prompt = `
       Write a Swiss-style cover letter for this profile:

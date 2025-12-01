@@ -15,6 +15,7 @@ import subscriptionRoutes from './routes/subscriptions';
 import aiRoutes from './routes/ai';
 import webhookRoutes from './routes/webhook';
 import pdfRoutes from './routes/pdf';
+import systemRoutes from './routes/system.routes';
 
 import rateLimit from 'express-rate-limit';
 
@@ -69,6 +70,7 @@ app.use('/api/letters', letterRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/ai', aiLimiter, aiRoutes);
 app.use('/api/pdf', pdfRoutes);
+app.use('/api/system', systemRoutes);
 
 import { MonitorService } from './services/monitor-service';
 
