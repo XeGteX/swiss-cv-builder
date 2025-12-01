@@ -20,6 +20,16 @@ import { setValueByPath, PathUtils } from '../../../domain/cv/v2/path-utils';
 import type { CVProfile, CVProfilePath } from '../../../domain/cv/v2/types';
 
 // ============================================================================
+// CONSTANTS
+// ============================================================================
+
+/**
+ * Default section order for CV template
+ * PATCH V2.1: Used for initialization and auto-migration
+ */
+const DEFAULT_SECTION_ORDER = ['summary', 'experience', 'education', 'skills', 'languages'] as const;
+
+// ============================================================================
 // TYPES
 // ============================================================================
 
@@ -537,7 +547,25 @@ export const useCVStoreV2 = create<CVStoreV2State>()(
                 }),
                 {
                     name: 'swiss-cv-v2-storage',
-                    version: 2
+                    version: 2,
+
+                    // PATCH V2.1: Auto-migration for sectionOrder
+                    // Ensures new sections (skills, languages) appear even in old localStorage
+                    onRehydrateStorage: () => (state) => {
+                        if (state) {
+                            const currentOrder = state.sectionOrder || [];
+                            const missingSections = DEFAULT_SECTION_ORDER.filter(
+                                section => !currentOrder.includes(section)
+                            );
+
+                            if (missingSections.length > 0) {
+                                state.sectionOrder = [...currentOrder, ...missingSections];
+                                console.info(
+                                    `[PATCH V2.1] 🔧 Auto-migrated sectionOrder: added ${missingSections.join(', ')}`
+                                );
+                            }
+                        }
+                    }
                 }
             ),
             {
