@@ -1,13 +1,16 @@
 
 import React from 'react';
-import { useCVStore } from '../../../../application/store/cv-store';
+import { useCVStoreV2 } from '../../../../application/store/v2';
 import { Input } from '../../../design-system/atoms/Input';
 import { Button } from '../../../design-system/atoms/Button';
 import { Card } from '../../../design-system/atoms/Card';
 import { Plus, Trash2 } from 'lucide-react';
 
 export const EducationTab: React.FC = () => {
-    const { profile, addEducation, updateEducation, removeEducation } = useCVStore();
+    const profile = useCVStoreV2((state) => state.profile);
+    const addEducation = useCVStoreV2((state) => state.addEducation);
+    const removeEducation = useCVStoreV2((state) => state.removeEducation);
+    const updateField = useCVStoreV2((state) => state.updateField);
 
     return (
         <div className="space-y-6">
@@ -26,28 +29,27 @@ export const EducationTab: React.FC = () => {
 
                     <div className="space-y-3">
                         <Input
-                            label="Diplôme / Certificat"
+                            label="Diplôme"
                             value={edu.degree}
-                            onChange={(e) => updateEducation(edu.id, { degree: e.target.value })}
+                            onChange={(e) => updateField(`educations.${index}.degree`, e.target.value)}
                             className="font-semibold"
+                            maxLength={100}
+                            debounceTime={300}
                         />
                         <div className="grid grid-cols-2 gap-3">
                             <Input
-                                label="École / Institution"
+                                label="École / Université"
                                 value={edu.school}
-                                onChange={(e) => updateEducation(edu.id, { school: e.target.value })}
+                                onChange={(e) => updateField(`educations.${index}.school`, e.target.value)}
+                                maxLength={100}
+                                debounceTime={300}
                             />
                             <Input
                                 label="Année"
                                 value={edu.year}
-                                onChange={(e) => updateEducation(edu.id, { year: e.target.value })}
+                                onChange={(e) => updateField(`educations.${index}.year`, e.target.value)}
                             />
                         </div>
-                        <Input
-                            label="Description (Optionnel)"
-                            value={edu.description || ''}
-                            onChange={(e) => updateEducation(edu.id, { description: e.target.value })}
-                        />
                     </div>
                 </Card>
             ))}

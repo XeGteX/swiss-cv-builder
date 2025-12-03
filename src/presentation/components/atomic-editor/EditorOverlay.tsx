@@ -113,6 +113,10 @@ export const EditorOverlay: React.FC<EditorOverlayProps> = ({
 
     if (!isOpen) return null;
 
+    // Calculate position with scroll compensation
+    const scrollX = window.scrollX || window.pageXOffset;
+    const scrollY = window.scrollY || window.pageYOffset;
+
     return (
         <AnimatePresence>
             <motion.div
@@ -122,8 +126,8 @@ export const EditorOverlay: React.FC<EditorOverlayProps> = ({
                 transition={{ duration: 0.15, ease: 'easeOut' }}
                 className="fixed z-[9999]"
                 style={{
-                    left: Math.min(position.x, window.innerWidth - 400),
-                    top: Math.min(position.y, window.innerHeight - 250)
+                    left: Math.min(position.x + scrollX, window.innerWidth - 400),
+                    top: Math.min(position.y + scrollY, window.innerHeight + scrollY - 250)
                 }}
             >
                 <div className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-lg shadow-2xl p-4 min-w-[320px] max-w-[500px]">

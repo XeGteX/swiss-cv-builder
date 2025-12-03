@@ -9,10 +9,11 @@ import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion } from 'framer-motion';
+import { GripVertical } from 'lucide-react';
 
 interface SortableSectionProps {
     id: string;
-    mode: 'write' | 'structure';
+    mode: 'edition' | 'structure' | 'modele';
     header: React.ReactNode;
     children: React.ReactNode;
     className?: string;
@@ -64,13 +65,28 @@ export const SortableSection: React.FC<SortableSectionProps> = ({
             `}
             whileHover={mode === 'structure' ? { scale: 1.01 } : {}}
         >
-            {/* DRAG HANDLE - Header ONLY (strict separation) */}
+            {/* DRAG HANDLE - Header ONLY (strict separation) WITH GRIP ICON */}
             <div
-                className={mode === 'structure' ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}
+                className={`
+                    ${mode === 'structure' ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}
+                    ${mode === 'structure' ? 'hover:bg-indigo-50/50 rounded-md px-2 -mx-2' : ''}
+                    transition-colors duration-150
+                    flex items-center gap-2
+                `}
                 {...attributes}  // ONLY on header
                 {...listeners}   // ONLY on header
             >
-                {header}
+                {/* Grip Icon (Visual Affordance) */}
+                {mode === 'structure' && (
+                    <GripVertical
+                        size={20}
+                        className="text-indigo-400 flex-shrink-0 opacity-60 group-hover:opacity-100"
+                    />
+                )}
+
+                <div className="flex-1">
+                    {header}
+                </div>
             </div>
 
             {/* BODY - NO drag listeners, completely inert for parent drag */}

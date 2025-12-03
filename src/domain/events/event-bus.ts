@@ -6,7 +6,12 @@ export type EventType =
     | 'LAYOUT_CALCULATED'
     | 'PERFORMANCE_METRIC'
     | 'SYSTEM_ERROR'
-    | 'USER_INTERACTION';
+    | 'USER_INTERACTION'
+    | 'DRAG_START'
+    | 'DRAG_END'
+    | 'DROP_PREVIEW'
+    | 'MODE_SWITCHED'
+    | 'TEMPLATE_CHANGED';
 
 export interface SystemEvent<T = any> {
     id: string;

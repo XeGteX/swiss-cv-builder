@@ -9,11 +9,18 @@
 import { useCVStoreV2 as _useCVStoreV2 } from './cv-store-v2';
 
 // Store
-export { useCVStoreV2, useProfile, useUpdateField, useArrayActions, useAtlasStatus } from './cv-store-v2';
+export {
+    useCVStoreV2,
+    useProfile,
+    useUpdateField,
+    useArrayActions,
+    useAtlasStatus,
+    useMode,
+    useSetMode,
+    useReorderActions
+} from './cv-store-v2';
 
 // Convenience hooks for Telekinesis
-export const useMode = () => _useCVStoreV2((state) => state.mode);
-export const useToggleMode = () => _useCVStoreV2((state) => state.toggleMode);
 export const useSectionOrder = () => _useCVStoreV2((state) => state.sectionOrder);
 export const useReorderExperiences = () => _useCVStoreV2((state) => state.reorderExperiences);
 export const useReorderSkills = () => _useCVStoreV2((state) => state.reorderSkills);
@@ -58,6 +65,7 @@ export {
 
 // Types
 export type { CVProfile, CVProfilePath, PersonalInfo, Experience, Education, Language } from '../../../domain/cv/v2/types';
+export type { CVMode, SyncStatus } from './cv-store-v2.types';
 
 // Utils
 export { PathUtils } from '../../../domain/cv/v2/path-utils';

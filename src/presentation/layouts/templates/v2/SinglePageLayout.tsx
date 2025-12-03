@@ -12,7 +12,7 @@
 import React from 'react';
 import { SortableContext, verticalListSortingStrategy, rectSortingStrategy } from '@dnd-kit/sortable';
 import {
-    Camera, Mail, Phone, MapPin, Briefcase, GraduationCap, Globe, Award, User
+    Mail, Phone, MapPin, Briefcase, GraduationCap, Globe, Award, User
 } from 'lucide-react';
 import { EditableField, EditableEmail, EditablePhone } from '../../../components/atomic-editor/EditableField';
 import { EditableImage } from '../../../components/atomic-editor/EditableImage';
@@ -28,7 +28,7 @@ interface SinglePageLayoutProps {
     pageIndex: number;
     sectionIds: string[];
     data: CVProfile;
-    mode: 'write' | 'structure';
+    mode: 'edition' | 'structure' | 'modele'; // Updated to match CVMode
     config?: TemplateConfig;
     language?: 'en' | 'fr';
 }
@@ -75,8 +75,7 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
         sectionGap: density === 'compact' ? 'mb-4' : density === 'dense' ? 'mb-3' : 'mb-6',
     };
 
-    // PROJET NARCISSE - Photo detection for adaptive layout
-    const hasPhoto = !!data.personal.photoUrl;
+
     const updateField = useUpdateField();
 
     const handlePhotoChange = (newPhotoUrl: string) => {
@@ -297,24 +296,22 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
                         style={{
                             ...headerStyle,
                             display: 'grid',
-                            gridTemplateColumns: hasPhoto ? '150px 1fr' : '1fr',
-                            gap: hasPhoto ? '2rem' : '0',
+                            gridTemplateColumns: '150px 1fr',
+                            gap: '2rem',
                             alignItems: 'center'
                         }}
                     >
-                        {hasPhoto && (
-                            /* Photo Column (Fixed Width - 150px) */
-                            <div className="flex items-center justify-center">
-                                <EditableImage
-                                    src={data.personal.photoUrl}
-                                    alt="Profile Photo"
-                                    onImageChange={handlePhotoChange}
-                                />
-                            </div>
-                        )}
+                        {/* Photo Column - Always present */}
+                        <div className="flex items-center justify-center">
+                            <EditableImage
+                                src={data.personal.photoUrl}
+                                alt="Profile Photo"
+                                onImageChange={handlePhotoChange}
+                            />
+                        </div>
 
-                        {/* Text Column (Adaptive Alignment) */}
-                        <div className={hasPhoto ? '' : 'text-center'}>
+                        {/* Text Column */}
+                        <div>
                             <h1 className="text-5xl font-bold tracking-tight uppercase mb-2 leading-[0.9] break-words">
                                 <EditableField
                                     path="personal.firstName"
@@ -346,7 +343,7 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
                                 )}
                             </EditableField>
 
-                            <div className={`flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-white/80 items-center ${hasPhoto ? '' : 'justify-center'}`}>
+                            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-white/80 items-center">
                                 {data.personal.birthDate && (
                                     <EditableField path="personal.birthDate" label="Birth Date">
                                         {(value) => <span>{value}</span>}
@@ -368,16 +365,7 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
                                 )}
                             </div>
 
-                            {/* Photo Upload Hint (No Photo) */}
-                            {!hasPhoto && (
-                                <div className="flex justify-center mt-4">
-                                    <EditableImage
-                                        src={data.personal.photoUrl}
-                                        alt="Profile Photo"
-                                        onImageChange={handlePhotoChange}
-                                    />
-                                </div>
-                            )}
+
                         </div>
                     </div>
 

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useCVStore } from '../../../../application/store/cv-store';
+import { useCVStoreV2 } from '../../../../application/store/v2';
 import { useSettingsStore } from '../../../../application/store/settings-store';
 import { useAuthStore } from '../../../../application/store/auth-store';
 import { AIService } from '../../../../application/services/ai-service';
@@ -19,7 +19,7 @@ export const CVImportTab: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [usage, setUsage] = useState<{ usage: number, limit: number | string, isPro: boolean } | null>(null);
 
-    const { setFullProfile } = useCVStore();
+    const updateField = useCVStoreV2((state) => state.updateField);
     const { language } = useSettingsStore();
     const { isAuthenticated } = useAuthStore();
     const navigate = useNavigate();
@@ -69,9 +69,11 @@ export const CVImportTab: React.FC = () => {
             const result = await service.analyzeCV(cvText, language === 'fr' ? 'Suisse' : 'Swiss');
 
             if (result) {
-                // @ts-ignore
-                setFullProfile(result);
-                if (isAuthenticated) fetchUsage(); // Refresh usage
+                // V2: Bulk update entire profile
+                Object.keys(result).forEach((key) => {
+                    updateField(key as any, (result as any)[key]);
+                });
+                if (isAuthenticated) fetchUsage();
             } else {
                 setError(language === 'fr' ? "L'IA n'a pas pu analyser le CV correctement." : "AI could not analyze the CV correctly.");
             }

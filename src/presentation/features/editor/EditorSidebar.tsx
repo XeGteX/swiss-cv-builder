@@ -1,24 +1,20 @@
-
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useUIStore } from '../../../application/store/ui-store';
 import { cn } from '../../design-system/atoms/Button';
-import { User, Briefcase, GraduationCap, Wrench, FileText, Sparkles, TrendingUp, Settings, Wand2 } from 'lucide-react';
+import { User, Briefcase, GraduationCap, Wrench, FileText, TrendingUp } from 'lucide-react';
 import { PersonalTab } from './tabs/PersonalTab';
 import { ExperienceTab } from './tabs/ExperienceTab';
 import { EducationTab } from './tabs/EducationTab';
 import { SkillsTab } from './tabs/SkillsTab';
 import { CoverLetterTab } from './tabs/CoverLetterTab';
-import { CVImportTab } from './tabs/CVImportTab';
 import { CriticTab } from './tabs/CriticTab';
-import { SettingsTab } from '../settings/SettingsTab';
 import { SystemInsightsTab } from '../system/SystemInsightsTab';
+import { GlassStyles } from '../../design-system/tokens';
 
 import { useSettingsStore } from '../../../application/store/settings-store';
 import { useTranslation } from '../../hooks/useTranslation';
 
 export const EditorSidebar: React.FC = () => {
-    const navigate = useNavigate();
     const { activeTab, setActiveTab } = useUIStore();
     const { isMobileMode } = useSettingsStore();
     const { t } = useTranslation();
@@ -29,29 +25,20 @@ export const EditorSidebar: React.FC = () => {
         { id: 'education', label: t('tabs.education'), icon: GraduationCap },
         { id: 'skills', label: t('tabs.skills'), icon: Wrench },
         { id: 'letter', label: t('tabs.letter'), icon: FileText },
-        { id: 'ai', label: t('tabs.ai'), icon: Sparkles },
         { id: 'critic', label: t('tabs.review'), icon: TrendingUp },
-        { id: 'settings', label: t('tabs.settings'), icon: Settings },
+        // NOTE: 'ai' and 'settings' removed - now handled by SmartSidebar (Option A)
         // { id: 'system', label: 'Système', icon: Activity }, // Hidden for cleaner UI
     ] as const;
 
     return (
-        <div className="flex flex-col h-full bg-white border-r border-slate-200 w-full lg:w-[450px] shrink-0">
-            {/* Tabs Header - Scrollable on Mobile too, but styled differently */}
+        <div className={cn("flex flex-col h-full w-full lg:min-w-[550px] lg:max-w-[650px] shrink-0", GlassStyles.base)}>
+            {/* Tabs Header - Grid layout, no horizontal scroll */}
             <div className={cn(
-                "flex overflow-x-auto border-b border-slate-100 no-scrollbar bg-white sticky top-0 z-10",
-                isMobileMode ? "py-2" : ""
+                "grid grid-cols-3 gap-1 border-b border-slate-100 sticky top-0 z-10 p-2",
+                GlassStyles.elevated,
+                isMobileMode ? "grid-cols-2" : ""
             )}>
-                <button
-                    onClick={() => navigate('/wizard')}
-                    className="flex-1 min-w-[70px] flex flex-col items-center gap-1 text-[10px] font-medium transition-colors shrink-0 py-3 text-indigo-600 hover:bg-indigo-50 border-b-2 border-transparent"
-                    title="Wizard Mode"
-                >
-                    <div className="p-1.5 rounded-md bg-indigo-100 text-indigo-600">
-                        <Wand2 size={18} />
-                    </div>
-                    <span>Wizard</span>
-                </button>
+                {/* Wizard button removed - now in SmartSidebar (Option A) */}
                 {TABS.map((tab) => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.id;
@@ -60,13 +47,10 @@ export const EditorSidebar: React.FC = () => {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as any)}
                             className={cn(
-                                'flex-1 min-w-[70px] flex flex-col items-center gap-1 text-[10px] font-medium transition-colors shrink-0',
-                                isMobileMode ? "py-2 px-1 rounded-lg mx-1" : "py-3 border-b-2",
+                                'flex flex-col items-center gap-1.5 py-2.5 px-2 rounded-lg text-[11px] font-medium transition-all duration-200',
                                 isActive
-                                    ? isMobileMode
-                                        ? 'text-indigo-600 bg-indigo-50'
-                                        : 'text-indigo-600 border-indigo-600 bg-indigo-50/50'
-                                    : 'text-slate-500 border-transparent hover:bg-slate-50 hover:text-slate-700'
+                                    ? 'text-white bg-gradient-to-br from-indigo-600 to-purple-600 shadow-md scale-105'
+                                    : 'text-slate-600 bg-white hover:bg-slate-50 hover:text-slate-900 hover:shadow-sm'
                             )}
                         >
                             <Icon size={isMobileMode ? 20 : 18} />
@@ -83,9 +67,8 @@ export const EditorSidebar: React.FC = () => {
                 {activeTab === 'education' && <EducationTab />}
                 {activeTab === 'skills' && <SkillsTab />}
                 {activeTab === 'letter' && <CoverLetterTab />}
-                {activeTab === 'ai' && <CVImportTab />}
                 {activeTab === 'critic' && <CriticTab />}
-                {activeTab === 'settings' && <SettingsTab />}
+                {/* 'ai' and 'settings' tabs removed */}
                 {activeTab === 'system' && <SystemInsightsTab />}
             </div>
         </div>

@@ -1,33 +1,30 @@
 
 import React from 'react';
-import { useCVStore } from '../../../../application/store/cv-store';
+import { useCVStoreV2 } from '../../../../application/store/v2';
 import { Input } from '../../../design-system/atoms/Input';
 import { Button } from '../../../design-system/atoms/Button';
 import { Card } from '../../../design-system/atoms/Card';
 import { Plus, Trash2 } from 'lucide-react';
 
 export const ExperienceTab: React.FC = () => {
-    const { profile, addExperience, updateExperience, removeExperience } = useCVStore();
+    const profile = useCVStoreV2((state) => state.profile);
+    const addExperience = useCVStoreV2((state) => state.addExperience);
+    const removeExperience = useCVStoreV2((state) => state.removeExperience);
+    const updateField = useCVStoreV2((state) => state.updateField);
 
-    const handleTaskChange = (expId: string, taskIndex: number, value: string) => {
-        const exp = profile.experiences.find(e => e.id === expId);
-        if (!exp) return;
-        const newTasks = [...exp.tasks];
-        newTasks[taskIndex] = value;
-        updateExperience(expId, { tasks: newTasks });
+    const handleTaskChange = (expIndex: number, taskIndex: number, value: string) => {
+        updateField(`experiences.${expIndex}.tasks.${taskIndex}`, value);
     };
 
-    const addTask = (expId: string) => {
-        const exp = profile.experiences.find(e => e.id === expId);
-        if (!exp) return;
-        updateExperience(expId, { tasks: [...exp.tasks, ''] });
+    const addTask = (expIndex: number) => {
+        const exp = profile.experiences[expIndex];
+        updateField(`experiences.${expIndex}.tasks`, [...exp.tasks, '']);
     };
 
-    const removeTask = (expId: string, taskIndex: number) => {
-        const exp = profile.experiences.find(e => e.id === expId);
-        if (!exp) return;
+    const removeTask = (expIndex: number, taskIndex: number) => {
+        const exp = profile.experiences[expIndex];
         const newTasks = exp.tasks.filter((_, i) => i !== taskIndex);
-        updateExperience(expId, { tasks: newTasks });
+        updateField(`experiences.${expIndex}.tasks`, newTasks);
     };
 
     return (
@@ -49,7 +46,7 @@ export const ExperienceTab: React.FC = () => {
                         <Input
                             label="Poste"
                             value={exp.role}
-                            onChange={(e) => updateExperience(exp.id, { role: e.target.value })}
+                            onChange={(e) => updateField(`experiences.${index}.role`, e.target.value)}
                             className="font-semibold"
                             maxLength={100}
                             debounceTime={300}
@@ -58,21 +55,16 @@ export const ExperienceTab: React.FC = () => {
                             <Input
                                 label="Entreprise"
                                 value={exp.company}
-                                onChange={(e) => updateExperience(exp.id, { company: e.target.value })}
+                                onChange={(e) => updateField(`experiences.${index}.company`, e.target.value)}
                                 maxLength={100}
                                 debounceTime={300}
                             />
                             <Input
                                 label="Dates"
                                 value={exp.dates}
-                                onChange={(e) => updateExperience(exp.id, { dates: e.target.value })}
+                                onChange={(e) => updateField(`experiences.${index}.dates`, e.target.value)}
                             />
                         </div>
-                        <Input
-                            label="Lieu"
-                            value={exp.location || ''}
-                            onChange={(e) => updateExperience(exp.id, { location: e.target.value })}
-                        />
 
                         <div className="pt-2">
                             <label className="block text-xs font-semibold text-slate-600 mb-2">Tâches & Réalisations</label>
@@ -81,13 +73,13 @@ export const ExperienceTab: React.FC = () => {
                                     <div key={i} className="flex gap-2">
                                         <Input
                                             value={task}
-                                            onChange={(e) => handleTaskChange(exp.id, i, e.target.value)}
+                                            onChange={(e) => handleTaskChange(index, i, e.target.value)}
                                             className="flex-1"
                                             maxLength={300}
                                             debounceTime={300}
                                         />
                                         <button
-                                            onClick={() => removeTask(exp.id, i)}
+                                            onClick={() => removeTask(index, i)}
                                             className="text-slate-300 hover:text-red-500 px-1"
                                         >
                                             <Trash2 size={14} />
@@ -97,7 +89,7 @@ export const ExperienceTab: React.FC = () => {
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => addTask(exp.id)}
+                                    onClick={() => addTask(index)}
                                     leftIcon={<Plus size={14} />}
                                     className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
                                 >

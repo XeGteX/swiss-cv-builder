@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useCVStore } from '../../../../application/store/cv-store';
+import { useCVStoreV2 } from '../../../../application/store/v2';
 import { Input } from '../../../design-system/atoms/Input';
 import { TextArea } from '../../../design-system/atoms/TextArea';
 import { SectionHeader } from '../../../design-system/molecules/SectionHeader';
@@ -9,7 +9,8 @@ import { Card } from '../../../design-system/atoms/Card';
 import { useTranslation } from '../../../hooks/useTranslation';
 
 export const PersonalTab: React.FC = () => {
-    const { profile, updatePersonal, updateMetadata } = useCVStore();
+    const profile = useCVStoreV2((state) => state.profile);
+    const updateField = useCVStoreV2((state) => state.updateField);
     const { personal, metadata } = profile;
     const { t } = useTranslation();
 
@@ -33,7 +34,7 @@ export const PersonalTab: React.FC = () => {
                         alert('Image trop grande. Maximum 2048x2048 pixels.');
                         return;
                     }
-                    updatePersonal({ photoUrl: result });
+                    updateField('personal.photoUrl', result);
                 };
                 img.src = result;
             };
@@ -46,7 +47,7 @@ export const PersonalTab: React.FC = () => {
             {/* Theme Config */}
             <Card className="bg-slate-50 border-slate-200">
                 <SectionHeader
-                    title={t('personal.title')} // Using title from personal section as proxy for "Apparence" or add new key
+                    title={t('personal.title')}
                     icon={<Palette size={16} />}
                     className="mb-3"
                 />
@@ -54,7 +55,7 @@ export const PersonalTab: React.FC = () => {
                     {['#ef4444', '#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#0f172a'].map((color) => (
                         <button
                             key={color}
-                            onClick={() => updateMetadata({ accentColor: color })}
+                            onClick={() => updateField('metadata.accentColor', color)}
                             className={`w-6 h-6 rounded-full border-2 transition-transform ${metadata.accentColor === color ? 'border-slate-600 scale-110' : 'border-transparent'
                                 }`}
                             style={{ backgroundColor: color }}
@@ -70,14 +71,14 @@ export const PersonalTab: React.FC = () => {
                     <Input
                         label={t('personal.firstName')}
                         value={personal.firstName}
-                        onChange={(e) => updatePersonal({ firstName: e.target.value })}
+                        onChange={(e) => updateField('personal.firstName', e.target.value)}
                         maxLength={50}
                         debounceTime={300}
                     />
                     <Input
                         label={t('personal.lastName')}
                         value={personal.lastName}
-                        onChange={(e) => updatePersonal({ lastName: e.target.value })}
+                        onChange={(e) => updateField('personal.lastName', e.target.value)}
                         maxLength={50}
                         debounceTime={300}
                     />
@@ -85,7 +86,7 @@ export const PersonalTab: React.FC = () => {
                 <Input
                     label={t('personal.role')}
                     value={personal.title}
-                    onChange={(e) => updatePersonal({ title: e.target.value })}
+                    onChange={(e) => updateField('personal.title', e.target.value)}
                     className="mb-4 font-bold"
                     maxLength={100}
                     debounceTime={300}
@@ -106,19 +107,19 @@ export const PersonalTab: React.FC = () => {
                         <Input
                             label={t('personal.birthDate')}
                             value={personal.birthDate || ''}
-                            onChange={(e) => updatePersonal({ birthDate: e.target.value })}
+                            onChange={(e) => updateField('personal.birthDate', e.target.value)}
                             className="bg-white"
                         />
                         <Input
                             label={t('personal.nationality')}
                             value={personal.nationality || ''}
-                            onChange={(e) => updatePersonal({ nationality: e.target.value })}
+                            onChange={(e) => updateField('personal.nationality', e.target.value)}
                             className="bg-white"
                         />
                         <Input
                             label={t('personal.permit')}
                             value={personal.permit || ''}
-                            onChange={(e) => updatePersonal({ permit: e.target.value })}
+                            onChange={(e) => updateField('personal.permit', e.target.value)}
                             className="bg-white"
                         />
                     </div>
@@ -127,22 +128,22 @@ export const PersonalTab: React.FC = () => {
                         <Input
                             label={t('personal.email')}
                             value={personal.contact.email || ''}
-                            onChange={(e) => updatePersonal({ contact: { ...personal.contact, email: e.target.value } })}
+                            onChange={(e) => updateField('personal.contact.email', e.target.value)}
                         />
                         <Input
                             label={t('personal.phone')}
                             value={personal.contact.phone || ''}
-                            onChange={(e) => updatePersonal({ contact: { ...personal.contact, phone: e.target.value } })}
+                            onChange={(e) => updateField('personal.contact.phone', e.target.value)}
                         />
                         <Input
                             label={t('personal.address')}
                             value={personal.contact.address || ''}
-                            onChange={(e) => updatePersonal({ contact: { ...personal.contact, address: e.target.value } })}
+                            onChange={(e) => updateField('personal.contact.address', e.target.value)}
                         />
                         <Input
                             label={t('personal.mobility')}
                             value={personal.mobility || ''}
-                            onChange={(e) => updatePersonal({ mobility: e.target.value })}
+                            onChange={(e) => updateField('personal.mobility', e.target.value)}
                         />
                     </div>
                 </div>
@@ -153,7 +154,7 @@ export const PersonalTab: React.FC = () => {
                 <SectionHeader title={t('sections.summary')} />
                 <TextArea
                     value={profile.summary}
-                    onChange={(e) => useCVStore.getState().updateSummary(e.target.value)}
+                    onChange={(e) => updateField('summary', e.target.value)}
                     className="min-h-[120px]"
                     placeholder="Décrivez votre profil en quelques lignes..."
                     debounceTime={300}

@@ -1,29 +1,25 @@
 
 import React, { useState } from 'react';
-import { useCVStore } from '../../../../application/store/cv-store';
+import { useCVStoreV2 } from '../../../../application/store/v2';
 import { Input } from '../../../design-system/atoms/Input';
 import { Button } from '../../../design-system/atoms/Button';
 import { Card } from '../../../design-system/atoms/Card';
 import { Plus, X } from 'lucide-react';
 
 export const SkillsTab: React.FC = () => {
-    const { profile } = useCVStore();
+    const profile = useCVStoreV2((state) => state.profile);
+    const updateField = useCVStoreV2((state) => state.updateField);
     const [newSkill, setNewSkill] = useState('');
 
     const addSkill = () => {
         if (!newSkill.trim()) return;
-        const updatedSkills = [...profile.skills, newSkill.trim()];
-        useCVStore.setState(state => ({
-            profile: { ...state.profile, skills: updatedSkills }
-        }));
+        updateField('skills', [...profile.skills, newSkill.trim()]);
         setNewSkill('');
     };
 
     const removeSkill = (index: number) => {
         const updatedSkills = profile.skills.filter((_, i) => i !== index);
-        useCVStore.setState(state => ({
-            profile: { ...state.profile, skills: updatedSkills }
-        }));
+        updateField('skills', updatedSkills);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -70,7 +66,7 @@ export const SkillsTab: React.FC = () => {
 
             <Card>
                 <h3 className="text-sm font-bold text-slate-700 mb-4">Langues</h3>
-                {/* We can implement a more complex language editor here later */}
+                {/* Languages editing */}
                 <p className="text-xs text-slate-500 italic">
                     L'édition des langues sera améliorée dans la prochaine version.
                     Pour l'instant, utilisez l'onglet IA pour générer une structure complète.

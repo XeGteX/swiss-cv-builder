@@ -13,7 +13,7 @@ import { GripVertical } from 'lucide-react';
 
 interface SortableItemProps {
     id: string;
-    mode: 'write' | 'structure';
+    mode: 'edition' | 'structure' | 'modele';
     children: React.ReactNode;
     className?: string;
 }
@@ -38,8 +38,8 @@ export const SortableItem: React.FC<SortableItemProps> = ({
         transition,
     };
 
-    // In write mode, render normally without drag functionality
-    if (mode === 'write') {
+    // In edition/modele mode, render normally without drag functionality
+    if (mode === 'edition' || mode === 'modele') {
         return <div className={className}>{children}</div>;
     }
 

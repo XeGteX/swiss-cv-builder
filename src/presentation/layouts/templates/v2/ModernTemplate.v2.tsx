@@ -6,6 +6,7 @@
  * Architecture:
  * - usePagination: Splits content across pages
  * - SinglePageLayout: Renders individual pages
+ * - CVCardStack: Premium card deck display
  * - DndContext: Global drag & drop (cross-page capable)
  * - DragOverlay: Visual feedback for dragging
  */
@@ -21,9 +22,10 @@ import {
     useReorderSkills,
     useReorderSections
 } from '../../../../application/store/v2';
-import { ModeToggleButton } from '../../../components/lego/ModeToggleButton';
+
 import { usePagination } from '../../../hooks/usePagination';
 import { SinglePageLayout } from './SinglePageLayout';
+import { CVCardStack } from '../../../components/CVCardStack';
 import { DEFAULT_THEME } from '../../../../domain/templates/TemplateEngine';
 import type { TemplateConfig } from '../../../../domain/templates/TemplateEngine';
 
@@ -154,23 +156,38 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
-            {/* TELEKINESIS - Mode Toggle Button */}
-            <ModeToggleButton />
-
-            {/* MULTI-PAGE RENDERING */}
-            <div className="space-y-10">
-                {pages.map((page, index) => (
-                    <SinglePageLayout
-                        key={index}
-                        pageIndex={page.pageIndex}
-                        sectionIds={page.sections}
-                        data={data}
-                        mode={mode}
-                        config={config}
-                        language={language}
-                    />
-                ))}
-            </div>
+            {/* MULTI-PAGE RENDERING - Mode-aware with Card Stack */}
+            {mode === 'modele' ? (
+                // MODE MODÈLE: Single page only (no stack)
+                <div className="space-y-10">
+                    {pages.slice(0, 1).map((page, index) => (
+                        <SinglePageLayout
+                            key={index}
+                            pageIndex={page.pageIndex}
+                            sectionIds={page.sections}
+                            data={data}
+                            mode={mode}
+                            config={config}
+                            language={language}
+                        />
+                    ))}
+                </div>
+            ) : (
+                // MODE ÉDITION & STRUCTURE: Premium Card Stack
+                <CVCardStack
+                    pages={pages.map((page, index) => (
+                        <SinglePageLayout
+                            key={index}
+                            pageIndex={page.pageIndex}
+                            sectionIds={page.sections}
+                            data={data}
+                            mode={mode}
+                            config={config}
+                            language={language}
+                        />
+                    ))}
+                />
+            )}
 
             {/* DRAG OVERLAY - Visual Ghost Feedback */}
             <DragOverlay>

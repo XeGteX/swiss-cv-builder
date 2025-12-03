@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useCVStore } from '../../../../application/store/cv-store';
+import { useCVStoreV2 } from '../../../../application/store/v2';
 import { AIService } from '../../../../application/services/ai-service';
 import { GeminiClient } from '../../../../infrastructure/ai/gemini-client';
 import { LetterGenerator } from '../../../../domain/motivation-letter/letter-generator';
@@ -16,7 +16,8 @@ import { useTranslation } from '../../../hooks/useTranslation';
 
 export const CoverLetterTab: React.FC = () => {
     const { t, language } = useTranslation();
-    const { profile, saveLetter, deleteLetter } = useCVStore();
+    const profile = useCVStoreV2((state) => state.profile);
+    const updateField = useCVStoreV2((state) => state.updateField);
     const { addToast } = useToastStore();
     const { isAuthenticated } = useAuthStore();
 
@@ -28,7 +29,7 @@ export const CoverLetterTab: React.FC = () => {
     const [mode, setMode] = useState<'offline' | 'online'>('offline');
     const [apiKey, setApiKey] = useState('');
     const [isOnlineLoading, setIsOnlineLoading] = useState(false);
-    const [targetLang, setTargetLang] = useState<'fr' | 'en'>(language); // Default to UI language but independent
+    const [targetLang, setTargetLang] = useState<'fr' | 'en'>(language);
     const [usage, setUsage] = useState<{ usage: number, limit: number | string, isPro: boolean } | null>(null);
 
     // Form State
@@ -82,7 +83,6 @@ export const CoverLetterTab: React.FC = () => {
         }
     };
 
-    // Initialize editor for new or existing letter
     const openEditor = (letter?: Letter) => {
         if (letter) {
             setActiveLetter(letter);
@@ -118,7 +118,16 @@ export const CoverLetterTab: React.FC = () => {
             targetCompany: company
         };
 
-        saveLetter(letter);
+        // V2: Update letters array
+        const letters = profile.letters || [];
+        const existingIndex = letters.findIndex(l => l.id === letter.id);
+
+        if (existingIndex >= 0) {
+            updateField(`letters.${existingIndex}`, letter);
+        } else {
+            updateField('letters', [...letters, letter]);
+        }
+
         setActiveLetter(letter);
         setIsSaving(false);
         if (!silent) {
@@ -129,7 +138,8 @@ export const CoverLetterTab: React.FC = () => {
 
     const handleDelete = (id: string) => {
         if (confirm('Are you sure?')) {
-            deleteLetter(id);
+            const updatedLetters = (profile.letters || []).filter(l => l.id !== id);
+            updateField('letters', updatedLetters);
             addToast(txt.deleted, 'success');
         }
     };
@@ -156,8 +166,6 @@ export const CoverLetterTab: React.FC = () => {
     };
 
     const handleOptimize = (letter: Letter) => {
-        // Placeholder for optimization logic
-        // Ideally this would open the CriticTab with this letter content
         addToast(`Optimization for "${letter.title}" coming soon!`, 'info');
     };
 
@@ -179,7 +187,7 @@ export const CoverLetterTab: React.FC = () => {
             const contextProfile = { ...profile };
             const text = await service.writeCoverLetter(contextProfile, targetLang === 'fr' ? 'Français' : 'English');
             setEditorContent(text);
-            if (isAuthenticated) fetchUsage(); // Refresh usage
+            if (isAuthenticated) fetchUsage();
             addToast(txt.generated, 'success');
         } catch (error) {
             console.error(error);
@@ -208,7 +216,6 @@ export const CoverLetterTab: React.FC = () => {
     };
 
     // --- Render ---
-
     if (view === 'list') {
         return (
             <div className="h-full flex flex-col bg-slate-50">
@@ -326,7 +333,7 @@ export const CoverLetterTab: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Language Selector for Generation */}
+                {/* Language Selector */}
                 <div className="flex items-center gap-2 mb-2">
                     <span className="text-xs font-medium text-slate-600">{txt.targetLang}:</span>
                     <div className="flex gap-1">

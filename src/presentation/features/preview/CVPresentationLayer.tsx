@@ -11,9 +11,9 @@
  * - Overflow Detection (red alert)
  */
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useUpdateField } from '../../../application/store/v2';
 
 interface CVPresentationLayerProps {
@@ -25,8 +25,7 @@ export const CVPresentationLayer: React.FC<CVPresentationLayerProps> = ({
     children,
     onTemplateChange
 }) => {
-    // State
-    const [isOverflowing, setIsOverflowing] = useState(false);
+    // State (removed overflow detection - not needed for preview mode)
     const containerRef = useRef<HTMLDivElement>(null);
     const updateField = useUpdateField();
 
@@ -47,25 +46,7 @@ export const CVPresentationLayer: React.FC<CVPresentationLayerProps> = ({
         { name: 'Noir Élégant', value: '#1f2937' },
     ];
 
-    // Overflow detection
-    useEffect(() => {
-        const container = containerRef.current;
-        if (!container) return;
 
-        const checkOverflow = () => {
-            const isOver = container.scrollHeight > container.clientHeight;
-            setIsOverflowing(isOver);
-        };
-
-        // Initial check
-        checkOverflow();
-
-        // Watch for content changes
-        const observer = new ResizeObserver(checkOverflow);
-        observer.observe(container);
-
-        return () => observer.disconnect();
-    }, [children]);
 
     // 3D Tilt handlers
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -135,14 +116,14 @@ export const CVPresentationLayer: React.FC<CVPresentationLayerProps> = ({
                         rotateX,
                         rotateY,
                         transformStyle: 'preserve-3d',
-                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0, 0, 0, 0.1)',
+                        boxShadow: '0 10px 30px -10px rgba(0, 0, 0, 0.15)', // Lightened shadow
                     }}
                     onMouseMove={handleMouseMove}
                     onMouseLeave={handleMouseLeave}
                     transition={{
                         type: 'spring',
-                        stiffness: 150,
-                        damping: 20,
+                        stiffness: 180,
+                        damping: 35, // Increased from 20 to fix jitter
                     }}
                 >
                     {/* A4 PAPER CONTAINER */}
@@ -157,16 +138,6 @@ export const CVPresentationLayer: React.FC<CVPresentationLayerProps> = ({
                         className="rounded-lg"
                     >
                         {children}
-
-                        {/* OVERFLOW ALERT (Red Alert) */}
-                        {isOverflowing && (
-                            <div className="absolute bottom-0 left-0 right-0 bg-red-600 text-white py-3 px-6 flex items-center gap-3 z-50 rounded-b-lg">
-                                <AlertTriangle size={20} />
-                                <span className="font-semibold text-sm">
-                                    ⚠️ Contenu trop long - Page 2 requise
-                                </span>
-                            </div>
-                        )}
                     </div>
                 </motion.div>
 
