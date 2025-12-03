@@ -39,10 +39,21 @@ interface NavItem {
     mode?: CVMode;
     gradient: string;
     description: string;
-    section: 'pages' | 'tools';
+    section: 'pages' | 'tools' | 'quickaccess';
 }
 
 const NAV_ITEMS: NavItem[] = [
+    // ═══════ QUICK ACCESS (Most Important) ═══════
+    {
+        id: 'wizard',
+        label: 'Wizard',
+        icon: Wand2,
+        path: '/wizard',
+        gradient: 'from-indigo-500 to-blue-500',
+        description: 'Assistant guidé - Le plus facile',
+        section: 'quickaccess'
+    },
+
     // ═══════ PAGES ═══════
     {
         id: 'dashboard',
@@ -98,15 +109,6 @@ const NAV_ITEMS: NavItem[] = [
         gradient: 'from-amber-500 to-orange-500',
         description: 'Optimisation intelligente',
         section: 'tools'
-    },
-    {
-        id: 'wizard',
-        label: 'Wizard',
-        icon: Wand2,
-        path: '/wizard',
-        gradient: 'from-indigo-500 to-blue-500',
-        description: 'Assistant guidé',
-        section: 'tools'
     }
 ];
 
@@ -135,6 +137,9 @@ export const SmartSidebar: React.FC = () => {
         }
         return false;
     };
+
+    // Check if we're on templates page
+    const isOnTemplatesPage = location.pathname === '/templates';
 
     return (
         <motion.div
@@ -206,74 +211,77 @@ export const SmartSidebar: React.FC = () => {
                                 </div>
                             )}
 
-                            <motion.button
-                                onClick={() => handleItemClick(item)}
-                                onMouseEnter={() => setHoveredItem(item.id)}
-                                onMouseLeave={() => setHoveredItem(null)}
-                                className={`
+                            {/* Hide CV tools when on templates page */}
+                            {isOnTemplatesPage && item.section === 'tools' ? null : (
+                                <motion.button
+                                    onClick={() => handleItemClick(item)}
+                                    onMouseEnter={() => setHoveredItem(item.id)}
+                                    onMouseLeave={() => setHoveredItem(null)}
+                                    className={`
                                     relative w-full flex items-center gap-4 px-4 py-3 rounded-xl
                                     transition-all duration-200 group
                                     ${active
-                                        ? 'bg-gradient-to-r ' + item.gradient + ' text-white shadow-lg'
-                                        : 'text-slate-600 hover:bg-slate-100/80'
-                                    }
+                                            ? 'bg-gradient-to-r ' + item.gradient + ' text-white shadow-lg'
+                                            : 'text-slate-600 hover:bg-slate-100/80'
+                                        }
                                 `}
-                                whileHover={{ scale: 1.02, x: 2 }}
-                                whileTap={{ scale: 0.98 }}
-                            >
-                                {/* Icon */}
-                                <motion.div
-                                    className="flex-shrink-0"
-                                    animate={{
-                                        rotate: hoveredItem === item.id ? [0, -10, 10, 0] : 0
-                                    }}
-                                    transition={{ duration: 0.3 }}
+                                    whileHover={{ scale: 1.02, x: 2 }}
+                                    whileTap={{ scale: 0.98 }}
                                 >
-                                    <Icon size={22} strokeWidth={active ? 2.5 : 2} />
-                                </motion.div>
+                                    {/* Icon */}
+                                    <motion.div
+                                        className="flex-shrink-0"
+                                        animate={{
+                                            rotate: hoveredItem === item.id ? [0, -10, 10, 0] : 0
+                                        }}
+                                        transition={{ duration: 0.3 }}
+                                    >
+                                        <Icon size={22} strokeWidth={active ? 2.5 : 2} />
+                                    </motion.div>
 
-                                {/* Label (visible when expanded) */}
-                                <AnimatePresence>
-                                    {isExpanded && (
+                                    {/* Label (visible when expanded) */}
+                                    <AnimatePresence>
+                                        {isExpanded && (
+                                            <motion.div
+                                                className="flex-1 text-left"
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, x: -10 }}
+                                                transition={{ duration: 0.2, delay: 0.05 }}
+                                            >
+                                                <div className={`font-semibold text-sm ${active ? 'text-white' : 'text-slate-700'}`}>
+                                                    {item.label}
+                                                </div>
+                                                <div className={`text-xs ${active ? 'text-white/80' : 'text-slate-500'}`}>
+                                                    {item.description}
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+
+                                    {/* Active Indicator */}
+                                    {active && (
                                         <motion.div
-                                            className="flex-1 text-left"
+                                            className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-l-full"
+                                            layoutId="activeIndicator"
+                                            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                                        />
+                                    )}
+
+                                    {/* Tooltip for collapsed state */}
+                                    {!isExpanded && hoveredItem === item.id && (
+                                        <motion.div
+                                            className="absolute left-full ml-4 px-3 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg shadow-xl pointer-events-none whitespace-nowrap z-50"
                                             initial={{ opacity: 0, x: -10 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             exit={{ opacity: 0, x: -10 }}
-                                            transition={{ duration: 0.2, delay: 0.05 }}
                                         >
-                                            <div className={`font-semibold text-sm ${active ? 'text-white' : 'text-slate-700'}`}>
-                                                {item.label}
-                                            </div>
-                                            <div className={`text-xs ${active ? 'text-white/80' : 'text-slate-500'}`}>
-                                                {item.description}
-                                            </div>
+                                            {item.label}
+                                            <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-slate-900 rotate-45" />
                                         </motion.div>
                                     )}
-                                </AnimatePresence>
-
-                                {/* Active Indicator */}
-                                {active && (
-                                    <motion.div
-                                        className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-l-full"
-                                        layoutId="activeIndicator"
-                                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                                    />
-                                )}
-
-                                {/* Tooltip for collapsed state */}
-                                {!isExpanded && hoveredItem === item.id && (
-                                    <motion.div
-                                        className="absolute left-full ml-4 px-3 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg shadow-xl pointer-events-none whitespace-nowrap z-50"
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -10 }}
-                                    >
-                                        {item.label}
-                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-slate-900 rotate-45" />
-                                    </motion.div>
-                                )}
-                            </motion.button>
+                                </motion.button>
+                            )}
                         </React.Fragment>
                     );
                 })}

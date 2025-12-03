@@ -10,6 +10,7 @@
  */
 
 import React, { useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Camera, Upload } from 'lucide-react';
 
 interface EditableImageProps {
@@ -28,8 +29,13 @@ export const EditableImage: React.FC<EditableImageProps> = ({
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isHovered, setIsHovered] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+    const location = useLocation();
+
+    // Block editing on templates page
+    const isOnTemplatesPage = location.pathname === '/templates';
 
     const handleClick = () => {
+        if (isOnTemplatesPage) return;
         fileInputRef.current?.click();
     };
 
@@ -74,9 +80,9 @@ export const EditableImage: React.FC<EditableImageProps> = ({
     return (
         <div
             className={`relative ${className}`}
-            onMouseEnter={() => setIsHovered(true)}
+            onMouseEnter={() => !isOnTemplatesPage && setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            onDoubleClick={handleClick}
+            onDoubleClick={!isOnTemplatesPage ? handleClick : undefined}
         >
             {/* Hidden file input */}
             <input

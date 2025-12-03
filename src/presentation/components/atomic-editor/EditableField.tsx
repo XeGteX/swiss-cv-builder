@@ -13,6 +13,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useFieldValue, useUpdateField, useMode } from '../../../application/store/v2';
 import { EditorOverlay } from './EditorOverlay';
 import type { ValidationRule } from './validators';
@@ -98,6 +99,10 @@ export function EditableField<T = string>({
     const value = useFieldValue<T>(path);
     const updateField = useUpdateField();
     const mode = useMode(); // TELEKINESIS - Mode awareness
+    const location = useLocation();
+
+    // Block editing on templates page
+    const isOnTemplatesPage = location.pathname === '/templates';
 
     // ========================================
     // HANDLERS
@@ -111,6 +116,9 @@ export function EditableField<T = string>({
         // TELEKINESIS - Prevent editing when arranging layout
         if (mode === 'structure') return;
 
+        // Prevent editing on templates page
+        if (isOnTemplatesPage) return;
+
         if (disabled) return;
 
         e.stopPropagation();
@@ -123,7 +131,7 @@ export function EditableField<T = string>({
         });
 
         setIsEditing(true);
-    }, [disabled, mode]);
+    }, [disabled, mode, isOnTemplatesPage]);
 
     /**
      * Handle save
@@ -182,11 +190,11 @@ export function EditableField<T = string>({
                 onDoubleClick={handleDoubleClick}
                 className={`
                     ${className || ''}
-                    ${!disabled ? 'cursor-pointer transition-all duration-200' : ''}
-                    ${!disabled ? 'hover:outline hover:outline-2 hover:outline-purple-400/40 hover:outline-offset-2 hover:bg-purple-50/30 hover:rounded' : ''}
+                    ${!disabled && !isOnTemplatesPage ? 'cursor-pointer transition-all duration-200' : ''}
+                    ${!disabled && !isOnTemplatesPage ? 'hover:outline hover:outline-2 hover:outline-purple-400/40 hover:outline-offset-2 hover:bg-purple-50/30 hover:rounded' : ''}
                     ${isEmpty ? 'min-h-[1.5em] min-w-[80px]' : ''}
                 `}
-                title={!disabled ? 'Double-click to edit' : undefined}
+                title={!disabled && !isOnTemplatesPage ? 'Double-click to edit' : undefined}
             >
                 {isEmpty ? (
                     <span className="text-gray-400 italic text-sm">
