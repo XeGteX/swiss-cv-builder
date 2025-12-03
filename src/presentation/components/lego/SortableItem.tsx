@@ -10,10 +10,11 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion } from 'framer-motion';
 import { GripVertical } from 'lucide-react';
+import type { CVMode } from '../../../application/store/v2/cv-store-v2.types';
 
 interface SortableItemProps {
     id: string;
-    mode: 'edition' | 'structure' | 'modele';
+    mode: CVMode;
     children: React.ReactNode;
     className?: string;
 }

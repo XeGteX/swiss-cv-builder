@@ -1,14 +1,7 @@
 /**
- * CV Engine v2 - Modern Template v2 (REFACTORED - MITOSIS PATTERN)
+ * ClassicTemplate - Traditional ATS-Friendly Template
  * 
- * Opération Mitose: Orchestrator for multi-page CV rendering
- * 
- * Architecture:
- * - usePagination: Splits content across pages
- * - SinglePageLayout: Renders individual pages
- * - CVCardStack: Premium card deck display
- * - DndContext: Global drag & drop (cross-page capable)
- * - DragOverlay: Visual feedback for dragging
+ * Orchestrator for multi-page CV rendering using ClassicLayout
  */
 
 import React, { useState } from 'react';
@@ -24,18 +17,19 @@ import {
 } from '../../../../application/store/v2';
 
 import { usePagination } from '../../../hooks/usePagination';
-import { SinglePageLayout } from './SinglePageLayout';
+import { ClassicLayout } from './ClassicLayout';
 import { CVCardStack } from '../../../components/CVCardStack';
 import { DEFAULT_THEME } from '../../../../domain/templates/TemplateEngine';
 import type { TemplateConfig } from '../../../../domain/templates/TemplateEngine';
+import type { CVMode } from '../../../../application/store/v2/cv-store-v2.types';
 
-interface ModernTemplateV2Props {
+interface ClassicTemplateProps {
     config?: TemplateConfig;
     language?: 'en' | 'fr';
-    forceMode?: 'edition' | 'structure' | 'modele';
+    forceMode?: CVMode;
 }
 
-export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
+export const ClassicTemplate: React.FC<ClassicTemplateProps> = ({
     config = DEFAULT_THEME,
     language = 'fr',
     forceMode
@@ -117,8 +111,8 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
         // Section ghost
         if (sectionOrder.includes(activeId)) {
             return (
-                <div className="bg-white/95 backdrop-blur-md shadow-2xl rounded-lg p-4 border-2 border-purple-500 scale-105">
-                    <div className="flex items-center gap-2 text-lg font-bold uppercase">
+                <div className="bg-white/95 backdrop-blur-md shadow-2xl rounded-lg p-4 border-2 border-gray-500 scale-105">
+                    <div className="flex items-center gap-2 text-lg font-bold uppercase font-serif">
                         {activeId.toUpperCase()}
                     </div>
                 </div>
@@ -129,8 +123,8 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
         const exp = data.experiences.find(e => e.id === activeId);
         if (exp) {
             return (
-                <div className="bg-white/95 backdrop-blur-md shadow-2xl rounded-lg p-4 border-2 border-purple-500 scale-105 max-w-md">
-                    <h4 className="font-bold text-base mb-1">{exp.role}</h4>
+                <div className="bg-white/95 backdrop-blur-md shadow-2xl rounded-lg p-4 border-2 border-gray-500 scale-105 max-w-md">
+                    <h4 className="font-bold text-base mb-1 font-serif">{exp.role}</h4>
                     <strong className="text-sm">{exp.company}</strong>
                 </div>
             );
@@ -140,10 +134,7 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
         const skill = data.skills.find(s => s === activeId);
         if (skill) {
             return (
-                <span
-                    className="text-xs px-3 py-1.5 rounded-full font-medium text-white shadow-2xl scale-110"
-                    style={{ backgroundColor: data.metadata.accentColor || config.colors.primary }}
-                >
+                <span className="text-xs px-3 py-1.5 rounded-full font-medium text-white bg-gray-700 shadow-2xl scale-110">
                     {skill}
                 </span>
             );
@@ -164,7 +155,7 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
                 // MODE MODÈLE: Single page only (no stack)
                 <div className="h-full w-full space-y-10">
                     {pages.slice(0, 1).map((page, index) => (
-                        <SinglePageLayout
+                        <ClassicLayout
                             key={index}
                             pageIndex={page.pageIndex}
                             sectionIds={page.sections}
@@ -179,7 +170,7 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
                 // MODE ÉDITION & STRUCTURE: Premium Card Stack
                 <CVCardStack
                     pages={pages.map((page, index) => (
-                        <SinglePageLayout
+                        <ClassicLayout
                             key={index}
                             pageIndex={page.pageIndex}
                             sectionIds={page.sections}
@@ -199,5 +190,3 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
         </DndContext>
     );
 };
-
-export default ModernTemplateV2;

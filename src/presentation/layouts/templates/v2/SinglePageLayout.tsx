@@ -23,12 +23,13 @@ import { t } from '../../../../data/translations';
 import { TemplateEngine, DEFAULT_THEME } from '../../../../domain/templates/TemplateEngine';
 import type { TemplateConfig } from '../../../../domain/templates/TemplateEngine';
 import type { CVProfile } from '../../../../domain/cv/v2/types';
+import type { CVMode } from '../../../../application/store/v2/cv-store-v2.types';
 
 interface SinglePageLayoutProps {
     pageIndex: number;
     sectionIds: string[];
     data: CVProfile;
-    mode: 'edition' | 'structure' | 'modele'; // Updated to match CVMode
+    mode: CVMode;
     config?: TemplateConfig;
     language?: 'en' | 'fr';
 }

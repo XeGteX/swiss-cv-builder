@@ -1,14 +1,7 @@
 /**
- * CV Engine v2 - Modern Template v2 (REFACTORED - MITOSIS PATTERN)
+ * CreativeTemplate - Bold & Modern Template
  * 
- * Opération Mitose: Orchestrator for multi-page CV rendering
- * 
- * Architecture:
- * - usePagination: Splits content across pages
- * - SinglePageLayout: Renders individual pages
- * - CVCardStack: Premium card deck display
- * - DndContext: Global drag & drop (cross-page capable)
- * - DragOverlay: Visual feedback for dragging
+ * Orchestrator for multi-page CV rendering using CreativeLayout
  */
 
 import React, { useState } from 'react';
@@ -24,23 +17,23 @@ import {
 } from '../../../../application/store/v2';
 
 import { usePagination } from '../../../hooks/usePagination';
-import { SinglePageLayout } from './SinglePageLayout';
+import { CreativeLayout } from './CreativeLayout';
 import { CVCardStack } from '../../../components/CVCardStack';
 import { DEFAULT_THEME } from '../../../../domain/templates/TemplateEngine';
 import type { TemplateConfig } from '../../../../domain/templates/TemplateEngine';
+import type { CVMode } from '../../../../application/store/v2/cv-store-v2.types';
 
-interface ModernTemplateV2Props {
+interface CreativeTemplateProps {
     config?: TemplateConfig;
     language?: 'en' | 'fr';
-    forceMode?: 'edition' | 'structure' | 'modele';
+    forceMode?: CVMode;
 }
 
-export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
+export const CreativeTemplate: React.FC<CreativeTemplateProps> = ({
     config = DEFAULT_THEME,
     language = 'fr',
     forceMode
 }) => {
-    // Store hooks
     const data = useProfile();
     const storeMode = useMode();
     const mode = forceMode || storeMode;
@@ -49,13 +42,9 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
     const reorderSkills = useReorderSkills();
     const reorderSections = useReorderSections();
 
-    // Pagination
     const pages = usePagination(data, sectionOrder);
-
-    // Drag state
     const [activeId, setActiveId] = useState<string | null>(null);
 
-    // Configure drag sensors
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -64,12 +53,10 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
         })
     );
 
-    // Handle drag start
     const handleDragStart = (event: DragStartEvent) => {
         setActiveId(event.active.id as string);
     };
 
-    // Handle drag end
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
         setActiveId(null);
@@ -79,7 +66,6 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
         const activeId = active.id as string;
         const overId = over.id as string;
 
-        // Check if dragging sections (macro level)
         const sectionIndex = sectionOrder.indexOf(activeId);
         if (sectionIndex !== -1) {
             const overSectionIndex = sectionOrder.indexOf(overId);
@@ -89,7 +75,6 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
             }
         }
 
-        // Check if dragging experiences (meso level)
         const expIndex = data.experiences.findIndex(exp => exp.id === activeId);
         if (expIndex !== -1) {
             const overExpIndex = data.experiences.findIndex(exp => exp.id === overId);
@@ -99,7 +84,6 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
             }
         }
 
-        // Check if dragging skills (micro level)
         const skillIndex = data.skills.indexOf(activeId);
         if (skillIndex !== -1) {
             const overSkillIndex = data.skills.indexOf(overId);
@@ -110,11 +94,9 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
         }
     };
 
-    // Render drag overlay
     const renderDragOverlay = () => {
         if (!activeId) return null;
 
-        // Section ghost
         if (sectionOrder.includes(activeId)) {
             return (
                 <div className="bg-white/95 backdrop-blur-md shadow-2xl rounded-lg p-4 border-2 border-purple-500 scale-105">
@@ -125,7 +107,6 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
             );
         }
 
-        // Experience ghost
         const exp = data.experiences.find(e => e.id === activeId);
         if (exp) {
             return (
@@ -136,14 +117,10 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
             );
         }
 
-        // Skill ghost
         const skill = data.skills.find(s => s === activeId);
         if (skill) {
             return (
-                <span
-                    className="text-xs px-3 py-1.5 rounded-full font-medium text-white shadow-2xl scale-110"
-                    style={{ backgroundColor: data.metadata.accentColor || config.colors.primary }}
-                >
+                <span className="text-xs px-3 py-1.5 rounded-full font-medium text-white bg-purple-600 shadow-2xl scale-110">
                     {skill}
                 </span>
             );
@@ -159,12 +136,10 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
-            {/* MULTI-PAGE RENDERING - Mode-aware with Card Stack */}
             {mode === 'modele' ? (
-                // MODE MODÈLE: Single page only (no stack)
                 <div className="h-full w-full space-y-10">
                     {pages.slice(0, 1).map((page, index) => (
-                        <SinglePageLayout
+                        <CreativeLayout
                             key={index}
                             pageIndex={page.pageIndex}
                             sectionIds={page.sections}
@@ -176,10 +151,9 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
                     ))}
                 </div>
             ) : (
-                // MODE ÉDITION & STRUCTURE: Premium Card Stack
                 <CVCardStack
                     pages={pages.map((page, index) => (
-                        <SinglePageLayout
+                        <CreativeLayout
                             key={index}
                             pageIndex={page.pageIndex}
                             sectionIds={page.sections}
@@ -191,13 +165,9 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
                     ))}
                 />
             )}
-
-            {/* DRAG OVERLAY - Visual Ghost Feedback */}
             <DragOverlay>
                 {renderDragOverlay()}
             </DragOverlay>
         </DndContext>
     );
 };
-
-export default ModernTemplateV2;

@@ -10,10 +10,11 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion } from 'framer-motion';
 import { GripVertical } from 'lucide-react';
+import type { CVMode } from '../../../application/store/v2/cv-store-v2.types';
 
 interface SortableSectionProps {
     id: string;
-    mode: 'edition' | 'structure' | 'modele';
+    mode: CVMode;
     header: React.ReactNode;
     children: React.ReactNode;
     className?: string;
@@ -41,7 +42,7 @@ export const SortableSection: React.FC<SortableSectionProps> = ({
     };
 
     // In write mode, render normally without drag functionality
-    if (mode === 'write') {
+    if (mode === 'edition') {
         return (
             <div className={className}>
                 {header}
