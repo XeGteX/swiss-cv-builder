@@ -154,6 +154,9 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
+            {/* TELEKINESIS - Mode Toggle Button */}
+            <ModeToggleButton />
+
             {/* MULTI-PAGE RENDERING */}
             <div className="space-y-10">
                 {pages.map((page, index) => (

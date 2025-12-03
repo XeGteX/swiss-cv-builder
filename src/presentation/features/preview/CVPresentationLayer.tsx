@@ -1,20 +1,20 @@
 /**
- * CV Presentation Layer - Projet Galerie (USABILITY FIXES)
+ * CV Presentation Layer - Projet Galerie
  * 
  * Premium 3D presentation wrapper for CV templates.
  * 
  * Features:
- * - SMART FIT ENGINE: Auto-scaling to fit any screen
- * - CONDITIONAL 3D: Disabled in edit mode (prevents click offset)
- * - MULTI-PAGE SUPPORT: Auto-height for multiple A4 pages
- * - Color Chameleon toolbar
- * - Navigation carousel
+ * - A4 Physical Constraints (210mm × 297mm strict)
+ * - 3D Tilt Effect (smooth framer-motion)
+ * - Color Chameleon Toolbar (instant theme switching)
+ * - Navigation Carousel (elegant floating arrows)
+ * - Overflow Detection (red alert)
  */
 
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useUpdateField, useMode } from '../../../application/store/v2';
+import { ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react';
+import { useUpdateField } from '../../../application/store/v2';
 
 interface CVPresentationLayerProps {
     children: React.ReactNode;
@@ -26,19 +26,17 @@ export const CVPresentationLayer: React.FC<CVPresentationLayerProps> = ({
     onTemplateChange
 }) => {
     // State
+    const [isOverflowing, setIsOverflowing] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
-    const [scale, setScale] = useState(1);
     const updateField = useUpdateField();
-    const mode = useMode(); // CRITICAL: Mode detection for conditional 3D
 
-    // 3D Tilt - CONDITIONAL (disabled in write mode to prevent click offset)
+    // 3D Tilt - Mouse tracking
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
 
-    // Only apply rotation in structure mode, FLAT in write mode
-    const isEditMode = mode === 'write';
-    const rotateX = useTransform(mouseY, [-300, 300], isEditMode ? [0, 0] : [2, -2]);
-    const rotateY = useTransform(mouseX, [-300, 300], isEditMode ? [0, 0] : [-2, 2]);
+    // Transform to rotation (smooth, subtle)
+    const rotateX = useTransform(mouseY, [-300, 300], [5, -5]);
+    const rotateY = useTransform(mouseX, [-300, 300], [-5, 5]);
 
     // Color palette
     const colors = [
@@ -49,39 +47,28 @@ export const CVPresentationLayer: React.FC<CVPresentationLayerProps> = ({
         { name: 'Noir Élégant', value: '#1f2937' },
     ];
 
-    // SMART FIT ENGINE - Auto-scaling
+    // Overflow detection
     useEffect(() => {
-        const calculateScale = () => {
-            // A4 dimensions in pixels at 96 DPI
-            const A4_WIDTH_PX = 794;   // 210mm
+        const container = containerRef.current;
+        if (!container) return;
 
-            const windowWidth = window.innerWidth;
-            const windowHeight = window.innerHeight;
-
-            // Calculate scale to fit with margins
-            const scaleX = (windowWidth - 100) / A4_WIDTH_PX;   // 50px margin each side
-            const scaleY = (windowHeight - 200) / A4_WIDTH_PX;  // Conservative for multi-page
-
-            // Use smaller scale to ensure full visibility
-            const newScale = Math.min(scaleX, scaleY, 1); // Never scale above 100%
-
-            setScale(newScale);
+        const checkOverflow = () => {
+            const isOver = container.scrollHeight > container.clientHeight;
+            setIsOverflowing(isOver);
         };
 
-        // Initial calculation
-        calculateScale();
+        // Initial check
+        checkOverflow();
 
-        // Recalculate on window resize
-        const resizeObserver = new ResizeObserver(calculateScale);
-        resizeObserver.observe(document.body);
+        // Watch for content changes
+        const observer = new ResizeObserver(checkOverflow);
+        observer.observe(container);
 
-        return () => resizeObserver.disconnect();
-    }, []);
+        return () => observer.disconnect();
+    }, [children]);
 
-    // 3D Tilt handlers (ONLY in structure mode)
+    // 3D Tilt handlers
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (isEditMode) return; // Disable in edit mode
-
         const rect = e.currentTarget.getBoundingClientRect();
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
@@ -94,7 +81,6 @@ export const CVPresentationLayer: React.FC<CVPresentationLayerProps> = ({
     };
 
     const handleMouseLeave = () => {
-        if (isEditMode) return; // Disable in edit mode
         mouseX.set(0);
         mouseY.set(0);
     };
@@ -118,7 +104,7 @@ export const CVPresentationLayer: React.FC<CVPresentationLayerProps> = ({
                             title={color.name}
                         >
                             {/* Tooltip on hover */}
-                            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                                 {color.name}
                             </span>
                         </button>
@@ -126,68 +112,79 @@ export const CVPresentationLayer: React.FC<CVPresentationLayerProps> = ({
                 </div>
             </div>
 
-            {/* 3D PRESENTATION CONTAINER (SMART FIT - AUTO HEIGHT) */}
+            {/* 3D PRESENTATION CONTAINER */}
             <div
-                ref={containerRef}
-                className="relative flex justify-center items-start"
-                style={{
-                    perspective: isEditMode ? 'none' : '1500px',  // No perspective in edit mode
-                }}
+                className="relative px-32"
+                style={{ perspective: '1000px' }}
             >
-                {/* LEFT CAROUSEL ARROW (FIXED POSITION) */}
-                <button
-                    onClick={() => onTemplateChange?.('prev')}
-                    className="fixed left-4 top-1/2 -translate-y-1/2 z-50 p-4 bg-white rounded-full shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-200 text-slate-600 hover:text-slate-900"
-                    title="Template précédent"
-                >
-                    <ChevronLeft size={28} strokeWidth={2.5} />
-                </button>
+                {/* LEFT CAROUSEL ARROW */}
+                <div className="absolute left-8 top-1/2 -translate-y-1/2 z-10">
+                    <button
+                        onClick={() => onTemplateChange?.('prev')}
+                        className="p-4 bg-white rounded-full shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-200 text-slate-600 hover:text-slate-900"
+                        title="Template précédent"
+                    >
+                        <ChevronLeft size={28} strokeWidth={2.5} />
+                    </button>
+                </div>
 
-                {/* 3D TILT CV PAPER (SMART SCALED - AUTO HEIGHT FOR MULTI-PAGE) */}
+                {/* 3D TILT CV PAPER */}
                 <motion.div
-                    className="bg-transparent"  // Transparent to not interfere with page backgrounds
+                    className="mx-auto bg-white rounded-lg"
                     style={{
-                        rotateX: isEditMode ? 0 : rotateX,  // Force flat in edit mode
-                        rotateY: isEditMode ? 0 : rotateY,
-                        transformStyle: isEditMode ? 'flat' : 'preserve-3d',
-                        transform: `scale(${scale})`,
-                        transformOrigin: 'top center',
-                        // NO fixed height - let children determine size
+                        rotateX,
+                        rotateY,
+                        transformStyle: 'preserve-3d',
+                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0, 0, 0, 0.1)',
                     }}
                     onMouseMove={handleMouseMove}
                     onMouseLeave={handleMouseLeave}
                     transition={{
                         type: 'spring',
-                        stiffness: 80,
-                        damping: 50,
+                        stiffness: 150,
+                        damping: 20,
                     }}
                 >
-                    {/* CV CONTENT (AUTO HEIGHT - MULTI-PAGE SUPPORT) */}
-                    <div className="space-y-8">
+                    {/* A4 PAPER CONTAINER */}
+                    <div
+                        ref={containerRef}
+                        style={{
+                            width: '210mm',
+                            height: '297mm',
+                            overflow: 'hidden',
+                            position: 'relative',
+                        }}
+                        className="rounded-lg"
+                    >
                         {children}
+
+                        {/* OVERFLOW ALERT (Red Alert) */}
+                        {isOverflowing && (
+                            <div className="absolute bottom-0 left-0 right-0 bg-red-600 text-white py-3 px-6 flex items-center gap-3 z-50 rounded-b-lg">
+                                <AlertTriangle size={20} />
+                                <span className="font-semibold text-sm">
+                                    ⚠️ Contenu trop long - Page 2 requise
+                                </span>
+                            </div>
+                        )}
                     </div>
                 </motion.div>
 
-                {/* RIGHT CAROUSEL ARROW (FIXED POSITION) */}
-                <button
-                    onClick={() => onTemplateChange?.('next')}
-                    className="fixed right-4 top-1/2 -translate-y-1/2 z-50 p-4 bg-white rounded-full shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-200 text-slate-600 hover:text-slate-900"
-                    title="Template suivant"
-                >
-                    <ChevronRight size={28} strokeWidth={2.5} />
-                </button>
+                {/* RIGHT CAROUSEL ARROW */}
+                <div className="absolute right-8 top-1/2 -translate-y-1/2 z-10">
+                    <button
+                        onClick={() => onTemplateChange?.('next')}
+                        className="p-4 bg-white rounded-full shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-200 text-slate-600 hover:text-slate-900"
+                        title="Template suivant"
+                    >
+                        <ChevronRight size={28} strokeWidth={2.5} />
+                    </button>
+                </div>
             </div>
 
-            {/* MODE INDICATOR (for debugging) */}
-            {isEditMode && (
-                <div className="text-center mt-4 text-slate-500 text-xs">
-                    ✏️ Mode Édition - 3D Désactivé (Click précis)
-                </div>
-            )}
-
             {/* GALLERY CREDITS (Subtle) */}
-            <div className="text-center mt-4 text-slate-400 text-xs">
-                Projet Galerie - Premium 3D Presentation (v{scale.toFixed(2)}x)
+            <div className="text-center mt-8 text-slate-400 text-xs">
+                Projet Galerie - Premium 3D Presentation
             </div>
         </div>
     );
