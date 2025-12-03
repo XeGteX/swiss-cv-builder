@@ -1,18 +1,14 @@
 /**
- * TEMPLATE GALLERY - Mode Modèle with Carousel
- * 
- * Page dédiée à la sélection de templates avec navigation carousel.
- * Route: /templates
+ * TEMPLATE GALLERY - True 3D Circular Carousel
+ * Real carousel rotation where all CVs rotate together in a circle
  */
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Check, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { MainLayout } from '../../layouts/MainLayout';
 import { useCVStoreV2, useSetMode } from '../../../application/store/v2';
 import { ModernTemplateV2 } from '../../layouts/templates/v2/ModernTemplate.v2';
-import { DesignTokens } from '../../design-system/tokens';
 
 interface Template {
     id: string;
@@ -20,38 +16,93 @@ interface Template {
     description: string;
     preview: React.ComponentType<{ language?: 'en' | 'fr' }>;
     gradient: string;
+    bgGradient: string;
 }
 
 const TEMPLATES: Template[] = [
     {
         id: 'modern',
         name: 'Modern Pro',
-        description: 'Design moderne avec sections colorées et mise en page dynamique',
+        description: 'Design moderne avec sections colorées',
         preview: ModernTemplateV2,
-        gradient: 'from-blue-600 to-cyan-600'
+        gradient: 'from-blue-600 to-cyan-600',
+        bgGradient: 'from-blue-950 via-slate-900 to-cyan-950'
     },
     {
         id: 'classic',
         name: 'Classic ATS',
-        description: 'Format traditionnel optimisé pour les systèmes ATS',
+        description: 'Format traditionnel optimisé ATS',
         preview: ModernTemplateV2,
-        gradient: 'from-slate-600 to-gray-600'
+        gradient: 'from-slate-600 to-gray-600',
+        bgGradient: 'from-slate-950 via-gray-900 to-slate-950'
     },
     {
         id: 'creative',
         name: 'Creative Bold',
-        description: 'Design audacieux pour les profils créatifs',
+        description: 'Design audacieux et créatif',
         preview: ModernTemplateV2,
-        gradient: 'from-purple-600 to-pink-600'
+        gradient: 'from-purple-600 to-pink-600',
+        bgGradient: 'from-purple-950 via-slate-900 to-pink-950'
     },
     {
         id: 'executive',
         name: 'Executive Elite',
-        description: 'Template premium pour cadres supérieurs',
+        description: 'Template premium pour cadres',
         preview: ModernTemplateV2,
-        gradient: 'from-amber-600 to-orange-600'
+        gradient: 'from-amber-600 to-orange-600',
+        bgGradient: 'from-amber-950 via-slate-900 to-orange-950'
     }
 ];
+
+// Calculate position based on carousel rotation angle
+const getCarouselPosition = (index: number, currentIndex: number, total: number) => {
+    const diff = ((index - currentIndex + total) % total);
+
+    // Only show 3 positions: -1 (left), 0 (center), 1 (right)
+    if (diff === 0) {
+        return { position: 0, visible: true }; // Center
+    } else if (diff === 1 || diff === -(total - 1)) {
+        return { position: 1, visible: true }; // Right
+    } else if (diff === total - 1 || diff === -1) {
+        return { position: -1, visible: true }; // Left
+    }
+    return { position: 0, visible: false }; // Hidden
+};
+
+const getPositionStyles = (position: number) => {
+    switch (position) {
+        case -1: // Left - CLOSER
+            return {
+                x: -450,
+                rotateY: 30,
+                scale: 0.65,
+                opacity: 0.6,
+                z: -350
+            };
+        case 0: // Center
+            return {
+                x: 0,
+                rotateY: 0,
+                scale: 1,
+                opacity: 1,
+                z: 0
+            };
+        case 1: // Right - CLOSER
+            return {
+                x: 450,
+                rotateY: -30,
+                scale: 0.65,
+                opacity: 0.6,
+                z: -350
+            };
+        default:
+            return {
+                x: 0,
+                opacity: 0,
+                scale: 0.5
+            };
+    }
+};
 
 export const TemplateGallery: React.FC = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -62,12 +113,14 @@ export const TemplateGallery: React.FC = () => {
     const currentTemplate = TEMPLATES[currentIndex];
 
     const handlePrevious = () => {
-        setCurrentIndex((prev) => (prev === 0 ? TEMPLATES.length - 1 : prev - 1));
+        setCurrentIndex((prev) => (prev - 1 + TEMPLATES.length) % TEMPLATES.length);
     };
 
     const handleNext = () => {
-        setCurrentIndex((prev) => (prev === TEMPLATES.length - 1 ? 0 : prev + 1));
+        setCurrentIndex((prev) => (prev + 1) % TEMPLATES.length);
     };
+
+    const handleExit = () => navigate('/');
 
     const handleSelect = () => {
         updateField('metadata.templateId', currentTemplate.id);
@@ -75,187 +128,187 @@ export const TemplateGallery: React.FC = () => {
         navigate('/');
     };
 
-    const PreviewComponent = currentTemplate.preview;
-
     return (
-        <MainLayout>
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 py-12">
-                {/* Header */}
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">
-                        Galerie de Templates
-                    </h1>
-                    <p className="text-slate-600 max-w-2xl mx-auto">
-                        Choisissez le template qui correspond le mieux à votre profil.
-                    </p>
-                </div>
+        <motion.div
+            className={`min-h-screen bg-gradient-to-br ${currentTemplate.bgGradient} relative overflow-hidden`}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+        >
+            {/* Background orbs */}
+            <motion.div
+                key={`orb-1-${currentIndex}`}
+                className={`absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br ${currentTemplate.gradient} rounded-full blur-3xl opacity-20`}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 0.2 }}
+                transition={{ duration: 1 }}
+                style={{ willChange: 'transform, opacity' }}
+            />
+            <motion.div
+                key={`orb-2-${currentIndex}`}
+                className={`absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr ${currentTemplate.gradient} rounded-full blur-3xl opacity-15`}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 0.15 }}
+                transition={{ duration: 1, delay: 0.2 }}
+                style={{ willChange: 'transform, opacity' }}
+            />
 
-                {/* Carousel Container - Side by Side Layout */}
-                <div className="relative px-20" style={{ perspective: '1000px' }}>
-                    {/* Left Arrow */}
-                    <button
-                        onClick={handlePrevious}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-4 bg-white rounded-full shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-200 text-slate-600 hover:text-slate-900"
-                        aria-label="Template précédent"
-                    >
-                        <ChevronLeft size={32} strokeWidth={2.5} />
-                    </button>
+            {/* Exit Button */}
+            <motion.button
+                onClick={handleExit}
+                className="absolute top-6 left-6 z-50 p-3 bg-white/10 backdrop-blur-md rounded-full shadow-xl hover:bg-white/20 transition-all duration-200 text-white border border-white/20"
+                whileHover={{ scale: 1.1, x: -2 }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+            >
+                <ArrowLeft size={24} strokeWidth={2.5} />
+            </motion.button>
 
-                    {/* Main Content: CV Preview + Info Card Side by Side */}
-                    <div className="flex items-start justify-center gap-8 max-w-7xl mx-auto">
-                        {/* CV Preview - Smaller for better visibility */}
-                        <AnimatePresence mode="wait">
+            {/* Header */}
+            <div className="text-center pt-6 pb-2 relative z-10">
+                <motion.h1
+                    className="text-2xl font-bold text-white mb-1"
+                    key={`title-${currentIndex}`}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    {currentTemplate.name}
+                </motion.h1>
+                <p className="text-slate-300 text-xs">{currentTemplate.description}</p>
+            </div>
+
+            {/* 3D Carousel - ALIGNED WITH ARROWS */}
+            <div className="relative h-[calc(100vh-180px)] flex items-center justify-center mt-8" style={{ perspective: '2000px' }}>
+                {/* Left Arrow */}
+                <button
+                    onClick={handlePrevious}
+                    className="absolute left-8 z-50 p-4 bg-white/10 backdrop-blur-md rounded-full shadow-2xl hover:bg-white/20 hover:scale-110 transition-all duration-200 text-white border border-white/20"
+                >
+                    <ChevronLeft size={32} strokeWidth={2.5} />
+                </button>
+
+                {/* Circular Carousel - ALL CVs rotate together */}
+                <div className="relative w-full h-full flex items-center justify-center">
+                    {TEMPLATES.map((template, index) => {
+                        const { position, visible } = getCarouselPosition(index, currentIndex, TEMPLATES.length);
+                        if (!visible) return null;
+
+                        const posStyles = getPositionStyles(position);
+                        const isCenter = position === 0;
+
+                        return (
                             <motion.div
-                                key={currentTemplate.id}
-                                initial={{ opacity: 0, rotateY: -30, x: -100 }}
-                                animate={{ opacity: 1, rotateY: 0, x: 0 }}
-                                exit={{ opacity: 0, rotateY: 30, x: 100 }}
+                                key={template.id}
+                                className={`absolute ${isCenter ? 'z-30' : 'z-10'}`}
+                                animate={{
+                                    ...posStyles,
+                                    y: isCenter ? [0, -8, 0] : 0
+                                }}
                                 transition={{
                                     type: 'spring',
-                                    stiffness: 200,
-                                    damping: 20
+                                    stiffness: 180,
+                                    damping: 35,
+                                    mass: 0.8,
+                                    y: isCenter ? {
+                                        repeat: Infinity,
+                                        duration: 3,
+                                        ease: "easeInOut"
+                                    } : undefined
                                 }}
-                                className="relative bg-white rounded-lg shadow-2xl overflow-hidden shrink-0"
                                 style={{
-                                    width: 'calc(210mm * 0.65)',
-                                    height: 'calc(297mm * 0.65)',
-                                    transformStyle: 'preserve-3d'
+                                    transformStyle: 'preserve-3d',
+                                    willChange: 'transform, opacity'
                                 }}
                             >
-                                <div style={{ transform: 'scale(0.65)', transformOrigin: 'top left', width: '210mm', height: '297mm' }}>
-                                    <PreviewComponent language="fr" />
-                                </div>
-
-                                {/* Gradient overlay for readability */}
-                                <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
-
-                                {/* Template Name Badge - Bottom Left on CV */}
-                                <div className="absolute bottom-6 left-6 right-6 z-10">
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.3 }}
-                                        className="flex items-center gap-3"
-                                    >
-                                        <motion.div
-                                            animate={{ rotate: [0, 10, -10, 0] }}
-                                            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                                        >
-                                            <Sparkles className="text-amber-400" size={28} />
-                                        </motion.div>
-                                        <h2 className={`text-4xl font-bold bg-gradient-to-r ${currentTemplate.gradient} bg-clip-text text-transparent drop-shadow-lg`}>
-                                            {currentTemplate.name}
-                                        </h2>
-                                    </motion.div>
+                                <div
+                                    style={{
+                                        transform: `scale(${isCenter ? 0.7 : 0.6})`,
+                                        transformOrigin: 'center center',
+                                        width: '210mm',
+                                        height: '297mm',
+                                        filter: isCenter
+                                            ? 'drop-shadow(0 30px 60px rgba(0,0,0,0.6)) drop-shadow(0 0 60px rgba(99, 102, 241, 0.4))'
+                                            : 'drop-shadow(0 20px 40px rgba(0,0,0,0.4))'
+                                    }}
+                                >
+                                    {React.createElement(template.preview, { language: 'fr' })}
                                 </div>
                             </motion.div>
-                        </AnimatePresence>
+                        );
+                    })}
+                </div>
 
-                        {/* Info Card - Right Side */}
-                        <motion.div
-                            initial={{ opacity: 0, x: 30 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="flex-1 max-w-md"
-                        >
-                            <div className={`${DesignTokens.glass.elevated} rounded-2xl p-8 shadow-2xl border border-white/20 sticky top-24`}>
-                                {/* Description */}
-                                <p className="text-slate-600 text-lg mb-6 leading-relaxed">
-                                    {currentTemplate.description}
-                                </p>
+                {/* Right Arrow */}
+                <button
+                    onClick={handleNext}
+                    className="absolute right-8 z-50 p-4 bg-white/10 backdrop-blur-md rounded-full shadow-2xl hover:bg-white/20 hover:scale-110 transition-all duration-200 text-white border border-white/20"
+                >
+                    <ChevronRight size={32} strokeWidth={2.5} />
+                </button>
+            </div>
 
-                                {/* Features */}
-                                <div className="flex flex-wrap gap-2 mb-8">
-                                    <motion.span
-                                        className="px-3 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 rounded-full text-xs font-semibold border border-green-200"
-                                        whileHover={{ scale: 1.05, y: -2 }}
-                                        transition={DesignTokens.springs.snappy}
-                                    >
-                                        ✓ ATS Optimized
-                                    </motion.span>
-                                    <motion.span
-                                        className="px-3 py-1.5 bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-700 rounded-full text-xs font-semibold border border-blue-200"
-                                        whileHover={{ scale: 1.05, y: -2 }}
-                                        transition={DesignTokens.springs.snappy}
-                                    >
-                                        ✓ Swiss Standards
-                                    </motion.span>
-                                    <motion.span
-                                        className="px-3 py-1.5 bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 rounded-full text-xs font-semibold border border-purple-200"
-                                        whileHover={{ scale: 1.05, y: -2 }}
-                                        transition={DesignTokens.springs.snappy}
-                                    >
-                                        ✓ Personnalisable
-                                    </motion.span>
-                                </div>
-
-                                {/* CTA Button */}
-                                <motion.button
-                                    onClick={handleSelect}
-                                    className={`
-                                        w-full px-10 py-5 rounded-xl font-bold text-white text-lg
-                                        bg-gradient-to-r ${currentTemplate.gradient}
-                                        shadow-2xl hover:shadow-3xl
-                                        flex items-center justify-center gap-3
-                                        relative overflow-hidden
-                                        group mb-6
-                                    `}
-                                    whileHover={DesignTokens.interactions.hover}
-                                    whileTap={DesignTokens.interactions.tap}
-                                    transition={DesignTokens.springs.snappy}
-                                >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                                    <Check size={24} strokeWidth={3} />
-                                    <span>Utiliser ce template</span>
-                                </motion.button>
-
-                                {/* Indicator Dots */}
-                                <div className="flex justify-center gap-3">
-                                    {TEMPLATES.map((template, index) => (
-                                        <motion.button
-                                            key={template.id}
-                                            onClick={() => setCurrentIndex(index)}
-                                            className={`
-                                                relative
-                                                ${index === currentIndex ? 'w-4 h-4' : 'w-3 h-3'}
-                                                rounded-full transition-all duration-300
-                                            `}
-                                            whileHover={{ scale: 1.3 }}
-                                            whileTap={{ scale: 0.9 }}
-                                        >
-                                            {index === currentIndex ? (
-                                                <>
-                                                    <div className={`absolute inset-0 bg-gradient-to-r ${template.gradient} rounded-full animate-pulse`} />
-                                                    <div className={`absolute inset-0 bg-gradient-to-r ${template.gradient} rounded-full opacity-30 scale-150`} />
-                                                </>
-                                            ) : (
-                                                <div className="w-full h-full bg-slate-300 hover:bg-slate-400 rounded-full transition-colors" />
-                                            )}
-                                        </motion.button>
-                                    ))}
-                                </div>
+            {/* Bottom Panel - SMALLER BUTTON */}
+            <div className="absolute bottom-0 inset-x-0 pb-8">
+                <div className="max-w-2xl mx-auto">
+                    <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border-2 border-white/30 shadow-2xl">
+                        <div className="flex items-center justify-between gap-6">
+                            {/* Features */}
+                            <div className="flex gap-2 flex-1">
+                                <span className="px-3 py-1.5 bg-green-500/30 text-green-100 rounded-lg text-xs font-semibold border border-green-400/50">
+                                    ✓ ATS
+                                </span>
+                                <span className="px-3 py-1.5 bg-blue-500/30 text-blue-100 rounded-lg text-xs font-semibold border border-blue-400/50">
+                                    ✓ Swiss
+                                </span>
+                                <span className="px-3 py-1.5 bg-purple-500/30 text-purple-100 rounded-lg text-xs font-semibold border border-purple-400/50">
+                                    ✓ Pro
+                                </span>
                             </div>
-                        </motion.div>
-                    </div>
 
-                    {/* Right Arrow */}
-                    <button
-                        onClick={handleNext}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-4 bg-white rounded-full shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-200 text-slate-600 hover:text-slate-900"
-                        aria-label="Template suivant"
-                    >
-                        <ChevronRight size={32} strokeWidth={2.5} />
-                    </button>
+                            {/* CTA Button - BALANCED */}
+                            <motion.button
+                                onClick={handleSelect}
+                                className={`
+                                    px-6 py-2.5 rounded-lg font-semibold text-white text-sm
+                                    bg-gradient-to-r ${currentTemplate.gradient}
+                                    shadow-xl hover:shadow-2xl
+                                    flex items-center gap-2
+                                    border border-white/30
+                                `}
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                <Check size={16} strokeWidth={3} />
+                                <span>Utiliser</span>
+                            </motion.button>
+
+                            {/* Dots */}
+                            <div className="flex gap-2">
+                                {TEMPLATES.map((_, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => setCurrentIndex(index)}
+                                        className={`
+                                            ${index === currentIndex ? 'w-8 h-2 bg-white' : 'w-2 h-2 bg-white/40'}
+                                            rounded-full transition-all duration-300 border border-white/30
+                                        `}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Navigation hint */}
-                <div className="text-center mt-8 text-slate-400 text-sm">
-                    <kbd className="px-2 py-1 bg-slate-200 rounded">←</kbd>
+                <div className="text-center mt-4 text-slate-300 text-xs">
+                    <kbd className="px-2 py-1 bg-white/20 rounded border border-white/30 text-white">←</kbd>
                     {' '}et{' '}
-                    <kbd className="px-2 py-1 bg-slate-200 rounded">→</kbd>
+                    <kbd className="px-2 py-1 bg-white/20 rounded border border-white/30 text-white">→</kbd>
                     {' '}pour naviguer
                 </div>
             </div>
-        </MainLayout>
+        </motion.div>
     );
 };

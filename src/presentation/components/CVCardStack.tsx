@@ -13,6 +13,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 interface CVCardStackProps {
     pages: React.ReactNode[];
@@ -24,6 +25,10 @@ export const CVCardStack: React.FC<CVCardStackProps> = ({ pages }) => {
     const [activePage, setActivePage] = useState(0);
     const [autoScale, setAutoScale] = useState(1);
     const [userZoom, setUserZoom] = useState(1.0); // User-controlled zoom (default 100%)
+    const location = useLocation();
+
+    // Hide zoom controls on templates page
+    const isOnTemplatesPage = location.pathname === '/templates';
 
     // Auto-scale calculation to fit CV in viewport (less aggressive)
     useEffect(() => {
@@ -91,33 +96,35 @@ export const CVCardStack: React.FC<CVCardStackProps> = ({ pages }) => {
 
     return (
         <>
-            {/* ZOOM CONTROLS - Floating toolbar */}
-            <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-2 bg-white rounded-lg shadow-xl p-2 border border-slate-200">
-                <button
-                    onClick={handleZoomIn}
-                    className="w-10 h-10 flex items-center justify-center rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-bold text-lg"
-                    title="Zoom in (+10%)"
-                >
-                    +
-                </button>
-                <div className="text-center text-xs font-semibold text-slate-600 py-1">
-                    {Math.round(userZoom * 100)}%
+            {/* ZOOM CONTROLS - Floating toolbar (hidden on templates page) */}
+            {!isOnTemplatesPage && (
+                <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-2 bg-white rounded-lg shadow-xl p-2 border border-slate-200">
+                    <button
+                        onClick={handleZoomIn}
+                        className="w-10 h-10 flex items-center justify-center rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-bold text-lg"
+                        title="Zoom in (+10%)"
+                    >
+                        +
+                    </button>
+                    <div className="text-center text-xs font-semibold text-slate-600 py-1">
+                        {Math.round(userZoom * 100)}%
+                    </div>
+                    <button
+                        onClick={handleZoomOut}
+                        className="w-10 h-10 flex items-center justify-center rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-bold text-lg"
+                        title="Zoom out (-10%)"
+                    >
+                        −
+                    </button>
+                    <button
+                        onClick={handleResetZoom}
+                        className="w-10 h-10 flex items-center justify-center rounded-md bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors text-xs font-semibold"
+                        title="Reset zoom (100%)"
+                    >
+                        100
+                    </button>
                 </div>
-                <button
-                    onClick={handleZoomOut}
-                    className="w-10 h-10 flex items-center justify-center rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-bold text-lg"
-                    title="Zoom out (-10%)"
-                >
-                    −
-                </button>
-                <button
-                    onClick={handleResetZoom}
-                    className="w-10 h-10 flex items-center justify-center rounded-md bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors text-xs font-semibold"
-                    title="Reset zoom (100%)"
-                >
-                    100
-                </button>
-            </div>
+            )}
 
             <div
                 className="relative mx-auto pb-32"
