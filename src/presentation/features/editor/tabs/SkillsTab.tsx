@@ -5,6 +5,7 @@ import { Input } from '../../../design-system/atoms/Input';
 import { Button } from '../../../design-system/atoms/Button';
 import { Card } from '../../../design-system/atoms/Card';
 import { Plus, X } from 'lucide-react';
+import { LanguageEditor } from '../components/LanguageEditor';
 
 export const SkillsTab: React.FC = () => {
     const profile = useCVStoreV2((state) => state.profile);
@@ -71,11 +72,7 @@ export const SkillsTab: React.FC = () => {
 
             <Card variant="glass">
                 <h3 className="text-sm font-bold text-slate-200 mb-4">Langues</h3>
-                {/* Languages editing */}
-                <p className="text-xs text-slate-400 italic">
-                    L'édition des langues sera améliorée dans la prochaine version.
-                    Pour l'instant, utilisez l'onglet IA pour générer une structure complète.
-                </p>
+                <LanguageEditor />
             </Card>
         </div>
     );

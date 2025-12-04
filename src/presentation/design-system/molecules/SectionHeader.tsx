@@ -20,7 +20,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
     return (
         <div className={cn('flex items-start justify-between mb-4', className)}>
             <div className="space-y-1">
-                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
                     {icon && <span className="text-indigo-600">{icon}</span>}
                     {title}
                 </h3>

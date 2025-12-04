@@ -13,7 +13,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
 
 interface CVCardStackProps {
     pages: React.ReactNode[];
@@ -62,7 +61,7 @@ export const CVCardStack: React.FC<CVCardStackProps> = ({ pages }) => {
 
     return (
         <>
-    // Zoom controls removed - handled by parent
+            {/* Zoom controls handled by parent */}
 
 
             <div

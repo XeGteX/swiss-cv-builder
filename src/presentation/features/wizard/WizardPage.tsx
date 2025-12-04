@@ -143,7 +143,7 @@ export const WizardPage: React.FC = () => {
                             const isCompleted = idx < currentStepIndex;
 
                             return (
-                                <div key={s.id} className="flex flex-col items-center gap-2 bg-transparent px-2">
+                                <div key={s.id} className="flex flex-col items-center gap-2 bg-transparent px-2 pt-3">
                                     <div
                                         className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 border-2 ${isActive ? 'bg-brand-600 border-brand-400 text-white scale-110 shadow-lg shadow-brand-500/30' :
                                             isCompleted ? 'bg-emerald-500 border-emerald-400 text-white' : 'bg-slate-900/50 border-slate-700 text-slate-500'

@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { Cloud, CloudOff, Check, Loader } from 'lucide-react';
+import { CloudOff, Check, Loader } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAtlasStatus } from '../../application/store/v2/cv-store-v2';
 
@@ -77,10 +77,8 @@ export const AtlasStatus: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 className={`
-                    fixed bottom-4 left-4 z-50 
-                    flex items-center gap-2 px-3 py-2 rounded-lg
+                    flex items-center gap-2 px-3 py-1.5 rounded-lg
                     border ${config.borderColor} ${config.bgColor}
-                    shadow-sm
                 `}
             >
                 <Icon

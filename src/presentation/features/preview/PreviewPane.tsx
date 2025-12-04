@@ -329,77 +329,61 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
                         disabled={isGeneratingPDF}
                         leftIcon={isGeneratingPDF ? <Loader2 className="animate-spin" /> : <Download size={16} />}
                     >
-                        {isGeneratingPDF ? txt.generating : txt.download}
-                    </Button>
-                </div>
-            )}
-
-            <div
-                className="flex-1 flex items-center justify-center p-4 relative"
-                style={{
-                    minHeight: 0,
-                    overflow: isMobile ? 'hidden' : 'auto'
-                }}
-                onMouseEnter={() => !isMobile && setIsHovered(true)}
-                onMouseLeave={() => !isMobile && setIsHovered(false)}
-                onMouseMove={(e) => {
-                    if (!isMobile) {
-                        setCursorPos({ x: e.clientX, y: e.clientY });
                     }
                 }}
             >
-                {/* MAGIC PARTICLES - Desktop only, visible when hover AND not scrolling */}
-                {!isMobile && isHovered && !isScrolling && (
-                    <MagicParticles
-                        cursor={cursorPos}
-                        accentColor={profile.metadata?.accentColor || '#8b5cf6'}
-                    />
-                )}
+                        {/* MAGIC PARTICLES - Desktop only, visible when hover AND not scrolling */}
+                        {!isMobile && isHovered && !isScrolling && (
+                            <MagicParticles
+                                cursor={cursorPos}
+                                accentColor={profile.metadata?.accentColor || '#8b5cf6'}
+                            />
+                        )}
 
-                <div
-                    ref={cvRef}
-                    className="bg-white relative backface-visibility-hidden"
-                    style={isMobile ? {
-                        width: '794px',
-                        minHeight: '1123px',
-                        borderRadius: '8px',
-                        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2), 0 10px 30px rgba(99, 102, 241, 0.1)',
-                        transform: `scale(${mobileScale * mobileZoom}) translate(${panPosition.x / mobileScale / mobileZoom}px, ${panPosition.y / mobileScale / mobileZoom}px)`,
-                        transformOrigin: 'center center',
-                        transition: isInteracting ? 'none' : 'transform 0.2s ease-out',
-                        willChange: isInteracting ? 'transform' : 'auto'
-                    } : {
-                        width: '794px',
-                        minHeight: '1123px',
-                        borderRadius: '12px',
-                        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.2), 0 15px 30px rgba(99, 102, 241, 0.08)',
-                        transition: 'box-shadow 0.15s ease-out',
-                        zoom: finalZoom,
-                        marginBottom: '100px'
-                    }}
-                    onClick={handleRippleClick}
-                >
-                    <CVRenderer language={language} />
-
-                    {ripples.map(ripple => (
                         <div
-                            key={ripple.id}
-                            className="absolute rounded-full bg-indigo-400 opacity-30 pointer-events-none"
-                            style={{
-                                left: ripple.x - 20,
-                                top: ripple.y - 20,
-                                width: '40px',
-                                height: '40px',
-                                animation: 'ripple 0.6s ease-out forwards'
+                            ref={cvRef}
+                            className="relative backface-visibility-hidden"
+                            style={isMobile ? {
+                                width: '794px',
+                                minHeight: '1123px',
+                                borderRadius: '8px',
+                                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2), 0 10px 30px rgba(99, 102, 241, 0.1)',
+                                transform: `scale(${mobileScale * mobileZoom}) translate(${panPosition.x / mobileScale / mobileZoom}px, ${panPosition.y / mobileScale / mobileZoom}px)`,
+                                transformOrigin: 'center center',
+                                transition: isInteracting ? 'none' : 'transform 0.2s ease-out',
+                                willChange: isInteracting ? 'transform' : 'auto'
+                            } : {
+                                width: '794px',
+                                minHeight: '1123px',
+                                borderRadius: '12px',
+                                boxShadow: '0 25px 60px rgba(0, 0, 0, 0.2), 0 15px 30px rgba(99, 102, 241, 0.08)',
+                                transition: 'transform 0.15s ease-out, box-shadow 0.15s ease-out',
+                                transform: `scale(${finalZoom})`,
+                                transformOrigin: 'top center'
                             }}
-                            onAnimationEnd={() => removeRipple(ripple.id)}
-                        />
-                    ))}
-                </div>
+                            onClick={handleRippleClick}
+                        >
+                            <CVRenderer language={language} />
 
-                {/* INLINE EDITOR OVERLAY */}
-                <InlineEditorOverlay />
-            </div>
+                            {ripples.map(ripple => (
+                                <div
+                                    key={ripple.id}
+                                    className="absolute rounded-full bg-indigo-400 opacity-30 pointer-events-none"
+                                    style={{
+                                        left: ripple.x - 20,
+                                        top: ripple.y - 20,
+                                        width: '40px',
+                                        height: '40px',
+                                        animation: 'ripple 0.6s ease-out forwards'
+                                    }}
+                                    onAnimationEnd={() => removeRipple(ripple.id)}
+                                />
+                            ))}
+                        </div>
+
+                        {/* INLINE EDITOR OVERLAY */}
+                        <InlineEditorOverlay />
+                </div>
 
             {isMobile && mobileZoom !== 1 && (
                 <div className="absolute top-20 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">

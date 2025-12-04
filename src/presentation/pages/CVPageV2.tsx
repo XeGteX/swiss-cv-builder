@@ -16,7 +16,7 @@ import { EditorSidebar } from '../features/editor/EditorSidebar';
 import { MainLayout } from '../layouts/MainLayout';
 import { useMode, useSetMode } from '../../application/store/v2';
 import { FocusModeToggle } from '../features/preview/FocusModeToggle';
-import { ZoomIn, ZoomOut, Layout, Edit3 } from 'lucide-react';
+import { ZoomIn, ZoomOut, Layout, Edit3, User } from 'lucide-react';
 
 export const CVPageV2: React.FC = () => {
     const mode = useMode();
@@ -67,9 +67,12 @@ export const CVPageV2: React.FC = () => {
         }
     }, [mode, isFocusMode]);
 
-    // Zoom Controls (Limits: 50% - 150%)
-    const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.1, 1.5));
+    // Zoom Controls (Limits: 50% - 90%, display 100% at max)
+    const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.1, 0.9));
     const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.1, 0.5));
+
+    // Display 100% when at max (90%) for better UX
+    const displayZoom = zoom >= 0.9 ? 100 : Math.round(zoom * 100);
 
     // Keyboard scroll support (Arrow Up/Down) - now targets CVCardStack's scroll container
     useEffect(() => {
@@ -124,14 +127,22 @@ export const CVPageV2: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3">
+                            {/* Account Button (Coming Soon) */}
+                            <button
+                                className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                                title="Compte (Bientôt disponible)"
+                            >
+                                <User size={18} />
+                            </button>
+
                             {/* Zoom Controls */}
                             <div className="flex items-center gap-2 bg-slate-900/50 rounded-lg p-1 border border-white/10">
                                 <button onClick={handleZoomOut} className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded">
                                     <ZoomOut size={16} />
                                 </button>
                                 <span className="text-xs font-mono text-slate-300 w-12 text-center">
-                                    {Math.round(zoom * 100)}%
+                                    {displayZoom}%
                                 </span>
                                 <button onClick={handleZoomIn} className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded">
                                     <ZoomIn size={16} />
@@ -162,12 +173,14 @@ export const CVPageV2: React.FC = () => {
                         {/* CV Preview/Canvas - TOP ALIGNED (aligned with sidebar) */}
                         <div
                             ref={previewContainerRef}
-                            className={`flex-1 flex items-start justify-center overflow-hidden ${isFocusMode ? 'items-center' : ''}`}
+                            className={`flex-1 flex flex-col overflow-hidden ${isFocusMode ? 'items-center justify-center' : 'items-start justify-center'}`}
                         >
-                            <PreviewPane
-                                hideToolbar={true}
-                                scale={zoom}
-                            />
+                            <div className="w-full h-full overflow-y-auto overflow-x-hidden custom-scrollbar flex justify-center pt-4">
+                                <PreviewPane
+                                    hideToolbar={true}
+                                    scale={zoom}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
