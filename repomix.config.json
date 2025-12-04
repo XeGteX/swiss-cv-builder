@@ -1,0 +1,31 @@
+{
+    "output": {
+        "filePath": "repomix-output.xml",
+        "style": "xml",
+        "removeComments": false,
+        "removeEmptyLines": false
+    },
+    "ignore": {
+        "useGitignore": true,
+        "useDefaultPatterns": true,
+        "customPatterns": [
+            "node_modules",
+            ".git",
+            "dist",
+            "dist-server",
+            "coverage",
+            "*.log",
+            "package-lock.json",
+            "yarn.lock",
+            "pnpm-lock.yaml",
+            ".env",
+            "**/*.spec.ts",
+            "**/*.test.ts",
+            "test-output.pdf",
+            "repomix-output.xml"
+        ]
+    },
+    "include": [
+        "**/*"
+    ]
+}
