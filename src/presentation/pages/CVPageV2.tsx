@@ -15,14 +15,21 @@ import { AtlasStatus } from '../components/AtlasStatus';
 import { EditorSidebar } from '../features/editor/EditorSidebar';
 import { MainLayout } from '../layouts/MainLayout';
 import { useMode, useSetMode } from '../../application/store/v2';
+import { useAuthStore } from '../../application/store/auth-store';
 import { FocusModeToggle } from '../features/preview/FocusModeToggle';
-import { ZoomIn, ZoomOut, Layout, Edit3, User } from 'lucide-react';
+import { AuthModal } from '../features/auth/AuthModal';
+import { UserDropdown } from '../features/auth/UserDropdown';
+import { SettingsModal } from '../features/settings/SettingsModal';
+import { ZoomIn, ZoomOut, Layout, Edit3, User, Settings } from 'lucide-react';
 
 export const CVPageV2: React.FC = () => {
     const mode = useMode();
     const setMode = useSetMode();
+    const { isAuthenticated } = useAuthStore();
     const [isFocusMode, setIsFocusMode] = useState(false);
     const [zoom, setZoom] = useState(1);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
     const previewContainerRef = React.useRef<HTMLDivElement>(null);
 
     // Auto-Zoom Logic: Fit to width when sidebar opens or resizes
@@ -30,9 +37,9 @@ export const CVPageV2: React.FC = () => {
         if (!previewContainerRef.current) return;
 
         const calculateZoom = (width: number) => {
-            // Subtract 100px to account for padding, scrollbar, and safety margin
-            // Cap at 1.0 (100%) to prevent "giga zoom"
-            const fitScale = Math.min(1.0, Math.max(0.5, (width - 100) / 794));
+            // Subtract 150px for padding, scrollbar, and safety margin
+            // Cap at 0.80 (80%) to ensure CV is always fully visible
+            const fitScale = Math.min(0.80, Math.max(0.5, (width - 150) / 794));
             setZoom(fitScale);
         };
 
@@ -67,8 +74,8 @@ export const CVPageV2: React.FC = () => {
         }
     }, [mode, isFocusMode]);
 
-    // Zoom Controls (Limits: 50% - 90%, display 100% at max)
-    const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.1, 0.9));
+    // Zoom Controls (Limits: 50% - 80%, display percentage)
+    const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.1, 0.80));
     const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.1, 0.5));
 
     // Display 100% when at max (90%) for better UX
@@ -95,6 +102,13 @@ export const CVPageV2: React.FC = () => {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
+    // Listen for settings modal open event from SmartSidebar
+    useEffect(() => {
+        const handleOpenSettings = () => setIsSettingsModalOpen(true);
+        window.addEventListener('OPEN_SETTINGS_MODAL', handleOpenSettings);
+        return () => window.removeEventListener('OPEN_SETTINGS_MODAL', handleOpenSettings);
     }, []);
 
     return (
@@ -128,13 +142,27 @@ export const CVPageV2: React.FC = () => {
                         </div>
 
                         <div className="flex items-center gap-3">
-                            {/* Account Button (Coming Soon) */}
+                            {/* Settings Button */}
                             <button
+                                onClick={() => setIsSettingsModalOpen(true)}
                                 className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-                                title="Compte (Bientôt disponible)"
+                                title="Paramètres"
                             >
-                                <User size={18} />
+                                <Settings size={18} />
                             </button>
+
+                            {/* Account Button / UserDropdown */}
+                            {isAuthenticated ? (
+                                <UserDropdown onOpenSettings={() => setIsSettingsModalOpen(true)} />
+                            ) : (
+                                <button
+                                    onClick={() => setIsAuthModalOpen(true)}
+                                    className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                                    title="Connexion"
+                                >
+                                    <User size={18} />
+                                </button>
+                            )}
 
                             {/* Zoom Controls */}
                             <div className="flex items-center gap-2 bg-slate-900/50 rounded-lg p-1 border border-white/10">
@@ -161,7 +189,7 @@ export const CVPageV2: React.FC = () => {
                 )}
 
                 {/* Main Content Area - INDEPENDENT BLOCKS */}
-                <div className="flex-1 overflow-hidden">
+                <div className="flex-1 overflow-hidden min-h-0">
                     <div className="h-full flex gap-4 p-4">
                         {/* Editor Sidebar - INDEPENDENT SCROLL - Hidden in Focus Mode */}
                         {mode === 'edition' && !isFocusMode && (
@@ -170,12 +198,31 @@ export const CVPageV2: React.FC = () => {
                             </div>
                         )}
 
-                        {/* CV Preview/Canvas - TOP ALIGNED (aligned with sidebar) */}
+                        {/* CV Preview/Canvas - TOP ALIGNED with EditorSidebar */}
                         <div
                             ref={previewContainerRef}
-                            className={`flex-1 flex flex-col overflow-hidden ${isFocusMode ? 'items-center justify-center' : 'items-start justify-center'}`}
+                            className={`flex-1 min-h-0 min-w-0 ${isFocusMode ? 'flex items-center justify-center' : ''}`}
                         >
-                            <div className="w-full h-full overflow-y-auto overflow-x-hidden custom-scrollbar flex justify-center pt-4">
+                            <div
+                                id="cv-scroll-container"
+                                tabIndex={0}
+                                className="w-full h-full overflow-y-scroll overflow-x-hidden visible-scrollbar focus:outline-none"
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'flex-start',
+                                    paddingTop: '0',
+                                    paddingBottom: '0'
+                                }}
+                                onKeyDown={(e) => {
+                                    const container = e.currentTarget;
+                                    if (e.key === 'ArrowDown') {
+                                        container.scrollBy({ top: 100, behavior: 'smooth' });
+                                    } else if (e.key === 'ArrowUp') {
+                                        container.scrollBy({ top: -100, behavior: 'smooth' });
+                                    }
+                                }}
+                            >
                                 <PreviewPane
                                     hideToolbar={true}
                                     scale={zoom}
@@ -195,6 +242,18 @@ export const CVPageV2: React.FC = () => {
                     </div>
                 )}
             </div>
+
+            {/* Auth Modal */}
+            <AuthModal
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
+            />
+
+            {/* Settings Modal */}
+            <SettingsModal
+                isOpen={isSettingsModalOpen}
+                onClose={() => setIsSettingsModalOpen(false)}
+            />
         </MainLayout>
     );
 };

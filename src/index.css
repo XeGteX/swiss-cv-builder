@@ -27,6 +27,7 @@ body,
     scrollbar-width: none;
   }
 
+  /* Elegant Minimal Scrollbar */
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -37,31 +38,60 @@ body,
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1;
-    border-radius: 20px;
+    background-color: rgba(148, 163, 184, 0.3);
+    border-radius: 10px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: #94a3b8;
+    background-color: rgba(148, 163, 184, 0.6);
   }
 
-  /* Horizontal Scrollbar for Tabs */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+  }
+
+  /* Visible Scrollbar - Always visible for CV preview */
+  .visible-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .visible-scrollbar::-webkit-scrollbar-track {
+    background: rgba(30, 41, 59, 0.3);
+    border-radius: 4px;
+    margin: 4px 0;
+  }
+
+  .visible-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.5);
+    border-radius: 4px;
+  }
+
+  .visible-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.8);
+  }
+
+  .visible-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.5) rgba(30, 41, 59, 0.3);
+  }
+
+  /* Horizontal Scrollbar */
   .custom-scrollbar-horizontal::-webkit-scrollbar {
-    height: 8px;
+    height: 6px;
   }
 
   .custom-scrollbar-horizontal::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 4px;
+    background: transparent;
   }
 
   .custom-scrollbar-horizontal::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1;
-    border-radius: 4px;
+    background-color: rgba(148, 163, 184, 0.3);
+    border-radius: 10px;
   }
 
   .custom-scrollbar-horizontal::-webkit-scrollbar-thumb:hover {
-    background-color: #94a3b8;
+    background-color: rgba(148, 163, 184, 0.5);
   }
 
   /* Safe Area Utilities for Mobile */

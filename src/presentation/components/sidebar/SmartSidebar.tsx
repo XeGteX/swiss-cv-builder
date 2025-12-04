@@ -38,6 +38,7 @@ interface NavItem {
     icon: React.ElementType;
     path?: string;
     mode?: CVMode;
+    action?: string;
     gradient: string;
     description: string;
     section: 'pages' | 'tools' | 'quickaccess';
@@ -78,7 +79,7 @@ const NAV_ITEMS: NavItem[] = [
         id: 'settings',
         label: 'Paramètres',
         icon: Settings,
-        path: '/settings',
+        action: 'openSettings',
         gradient: 'from-slate-500 to-gray-500',
         description: 'Configuration',
         section: 'pages'
@@ -122,7 +123,10 @@ export const SmartSidebar: React.FC = () => {
     const setMode = useSetMode();
 
     const handleItemClick = (item: NavItem) => {
-        if (item.path) {
+        if (item.action === 'openSettings') {
+            // Dispatch custom event for SettingsModal
+            window.dispatchEvent(new CustomEvent('OPEN_SETTINGS_MODAL'));
+        } else if (item.path) {
             navigate(item.path);
         } else if (item.mode) {
             setMode(item.mode);
@@ -149,7 +153,7 @@ export const SmartSidebar: React.FC = () => {
             initial={{ width: 80 }}
             animate={{ width: isExpanded ? 280 : 80 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className={`h-screen flex flex-col py-6 sticky top-0 z-50 ${GlassStyles.panel}`}
+            className={`h-screen flex flex-col pt-10 pb-6 sticky top-0 z-50 ${GlassStyles.panel}`}
         >
             {/* Logo */}
             <div className="px-6 mb-8">
