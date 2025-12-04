@@ -23,7 +23,7 @@ export interface AtlasState {
 // MODE TYPES (Updated for 3-mode system)
 // ============================================================================
 
-export type CVMode = 'edition' | 'structure' | 'modele' | 'ai';
+export type CVMode = 'edition' | 'structure' | 'ai';
 
 // ============================================================================
 // STORE STATE INTERFACE

@@ -6,7 +6,6 @@ import { MobileLayout } from './mobile/MobileLayout';
 import { EditorSidebar } from '../features/editor/EditorSidebar';
 import { SmartDensityController } from '../features/editor/SmartDensityController';
 import { PreviewPane } from '../features/preview/PreviewPane';
-import { WizardProgress } from '../components/WizardProgress';
 
 interface AdaptiveLayoutProps {
     children?: React.ReactNode;
@@ -83,15 +82,33 @@ export const AdaptiveLayout: React.FC<AdaptiveLayoutProps> = () => {
 };
 
 const DesktopLayout: React.FC = () => {
+    const { focusMode, setFocusMode } = useSettingsStore();
+
     return (
-        <div className="flex h-screen bg-slate-100 overflow-hidden font-sans text-slate-900">
-            {/* Sidebar */}
-            <div className="w-[450px] flex-shrink-0 bg-white border-r border-slate-200 flex flex-col shadow-xl z-10">
+        <div className="flex h-screen bg-transparent overflow-hidden overflow-x-hidden font-sans text-slate-900 relative">
+            {/* Sidebar - Collapsible - Transparent Container */}
+            <div
+                className={`
+                    flex-shrink-0 bg-transparent flex flex-col z-10 transition-all duration-300 ease-in-out
+                    ${focusMode ? 'w-0 opacity-0 overflow-hidden hidden' : 'w-[450px] opacity-100 flex'}
+                `}
+            >
                 <EditorSidebar />
             </div>
 
-            {/* Main Content (Preview) - Full Height */}
-            <div className="flex-1 overflow-auto p-8 bg-slate-50/50 flex justify-center items-start">
+            {/* Main Content (Preview) - Full Height - Transparent */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden p-8 bg-transparent flex justify-center items-start relative">
+                {/* Exit Focus Mode Button */}
+                {focusMode && (
+                    <button
+                        onClick={() => setFocusMode(false)}
+                        className="fixed top-6 right-6 z-50 bg-white/10 backdrop-blur-md shadow-lg border border-white/20 text-white px-4 py-2 rounded-full font-medium text-sm hover:bg-white/20 transition-all flex items-center gap-2 animate-in fade-in slide-in-from-top-4"
+                    >
+                        <span>✕</span>
+                        Exit Focus Mode
+                    </button>
+                )}
+
                 <div className="w-full max-w-[1000px] animate-in fade-in duration-500 slide-in-from-bottom-4">
                     <PreviewPane />
                 </div>

@@ -131,11 +131,10 @@ export const SortableSection: React.FC<SortableSectionProps> = ({
                     )}
                 </div>
 
-                {/* BODY - pointer-events disabled in structure mode for full drop zone */}
+                {/* BODY - pointer-events enabled for child dragging */}
                 <div
                     className={`
                         mt-2
-                        ${mode === 'structure' ? 'pointer-events-none select-none' : ''}
                     `}
                 >
                     {children}

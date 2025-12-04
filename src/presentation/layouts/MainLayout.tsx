@@ -13,13 +13,14 @@ interface MainLayoutProps {
 }
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+    console.log('📐 MainLayout rendering...');
     return (
-        <div className="flex min-h-screen">
+        <div className="flex h-screen overflow-hidden bg-transparent">
             {/* Smart Sidebar (collapsible) */}
             <SmartSidebar />
 
             {/* Main Content Area */}
-            <main className="flex-1 ml-20 transition-all duration-300">
+            <main className="flex-1 ml-20 transition-all duration-300 h-full overflow-hidden relative z-10">
                 {children}
             </main>
         </div>

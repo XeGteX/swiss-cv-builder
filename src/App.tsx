@@ -13,6 +13,7 @@ import { useAuthStore } from './application/store/auth-store';
 import { useCVStore } from './application/store/cv-store';
 import { initializeLayouts } from './presentation/layouts';
 import { ErrorBoundary } from './presentation/components/ErrorBoundary';
+import { AppShell } from './presentation/layouts/AppShell';
 
 function App() {
   const { checkAuth } = useAuthStore();
@@ -27,17 +28,19 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/labs" element={<LabsDashboard />} />
-          <Route path="/wizard" element={<WizardPage />} />
-          <Route path="/templates" element={<TemplateGallery />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/" element={<CVPageV2 />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-        <ToastContainer />
+        <AppShell>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/labs" element={<LabsDashboard />} />
+            <Route path="/wizard" element={<WizardPage />} />
+            <Route path="/templates" element={<TemplateGallery />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/" element={<CVPageV2 />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+          <ToastContainer />
+        </AppShell>
       </BrowserRouter>
     </ErrorBoundary>
   );

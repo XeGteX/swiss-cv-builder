@@ -14,10 +14,16 @@ export interface CVRendererProps {
     language?: 'en' | 'fr';
 }
 
-export const CVRenderer: React.FC<CVRendererProps> = ({
+export const CVRenderer: React.FC<CVRendererProps> = React.memo(({
     language = 'fr',
 }) => {
-    const { metadata } = useProfile();
+    const profile = useProfile();
+
+    if (!profile || !profile.metadata) {
+        return null;
+    }
+
+    const { metadata } = profile;
     const templateId = metadata.templateId || 'modern';
 
     switch (templateId) {
@@ -31,4 +37,4 @@ export const CVRenderer: React.FC<CVRendererProps> = ({
         default:
             return <ModernTemplateV2 language={language} />;
     }
-};
+});

@@ -52,8 +52,21 @@ export const AtlasStatus: React.FC = () => {
         }
     };
 
+    // Auto-hide "Synced" status after 3 seconds
+    const [isVisible, setIsVisible] = React.useState(true);
+
+    React.useEffect(() => {
+        if (atlas.syncStatus === 'synced') {
+            const timer = setTimeout(() => setIsVisible(false), 3000);
+            return () => clearTimeout(timer);
+        } else {
+            setIsVisible(true);
+        }
+    }, [atlas.syncStatus, atlas.lastSyncTime]);
+
     const config = getStatusConfig();
-    if (!config) return null;
+
+    if (!config || !isVisible) return null;
 
     const Icon = config.icon;
 
@@ -64,7 +77,7 @@ export const AtlasStatus: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 className={`
-                    fixed top-4 right-4 z-50
+                    fixed bottom-4 left-4 z-50 
                     flex items-center gap-2 px-3 py-2 rounded-lg
                     border ${config.borderColor} ${config.bgColor}
                     shadow-sm

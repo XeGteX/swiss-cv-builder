@@ -1,18 +1,18 @@
-
 import React from 'react';
 import { cn } from './Button';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-    variant?: 'default' | 'outline' | 'ghost';
+    variant?: 'default' | 'outline' | 'ghost' | 'glass';
     padding?: 'none' | 'sm' | 'md' | 'lg';
 }
 
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
     ({ className, variant = 'default', padding = 'md', children, ...props }, ref) => {
         const variants = {
-            default: 'bg-white shadow-sm border border-slate-200',
-            outline: 'bg-transparent border border-slate-200',
-            ghost: 'bg-slate-50 border-none',
+            default: 'bg-white shadow-sm border border-surface-200',
+            outline: 'bg-transparent border border-surface-300',
+            ghost: 'bg-surface-50 border-none',
+            glass: 'glass-card',
         };
 
         const paddings = {

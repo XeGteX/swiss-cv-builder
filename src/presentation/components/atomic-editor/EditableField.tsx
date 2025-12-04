@@ -15,6 +15,7 @@
 import React, { useState, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useFieldValue, useUpdateField, useMode } from '../../../application/store/v2';
+import { useSettingsStore } from '../../../application/store/settings-store';
 import { EditorOverlay } from './EditorOverlay';
 import type { ValidationRule } from './validators';
 
@@ -100,6 +101,7 @@ export function EditableField<T = string>({
     const updateField = useUpdateField();
     const mode = useMode(); // TELEKINESIS - Mode awareness
     const location = useLocation();
+    const { setFocusMode } = useSettingsStore();
 
     // Block editing on templates page
     const isOnTemplatesPage = location.pathname === '/templates';
@@ -131,7 +133,8 @@ export function EditableField<T = string>({
         });
 
         setIsEditing(true);
-    }, [disabled, mode, isOnTemplatesPage]);
+        setFocusMode(true); // Auto-hide sidebar
+    }, [disabled, mode, isOnTemplatesPage, setFocusMode]);
 
     /**
      * Handle save

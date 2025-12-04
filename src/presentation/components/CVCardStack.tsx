@@ -23,51 +23,17 @@ interface CVCardStackProps {
 
 export const CVCardStack: React.FC<CVCardStackProps> = ({ pages }) => {
     const [activePage, setActivePage] = useState(0);
-    const [autoScale, setAutoScale] = useState(1);
-    const [userZoom, setUserZoom] = useState(1.0); // User-controlled zoom (default 100%)
-    const location = useLocation();
 
-    // Hide zoom controls on templates page
-    const isOnTemplatesPage = location.pathname === '/templates';
 
     // Auto-scale calculation to fit CV in viewport (less aggressive)
-    useEffect(() => {
-        const calculateScale = () => {
-            const availableHeight = window.innerHeight - 200;
-            const availableWidth = window.innerWidth - 600;
 
-            // A4 dimensions in pixels
-            const cvWidth = 210 * 3.7795275591; // ~794px
-            const cvHeight = 297 * 3.7795275591; // ~1123px
-
-            // Calculate scale - but keep it larger (min 0.7 instead of going to very small values)
-            const scaleWidth = availableWidth / cvWidth;
-            const scaleHeight = availableHeight / cvHeight;
-
-            const newScale = Math.max(0.7, Math.min(1, scaleWidth, scaleHeight));
-            setAutoScale(newScale);
-        };
-
-        calculateScale();
-        window.addEventListener('resize', calculateScale);
-        return () => window.removeEventListener('resize', calculateScale);
-    }, []);
 
     // Zoom controls
-    const handleZoomIn = () => {
-        setUserZoom(prev => Math.min(prev + 0.1, 1.4)); // Max 140%
-    };
 
-    const handleZoomOut = () => {
-        setUserZoom(prev => Math.max(prev - 0.1, 0.8)); // Min 80%
-    };
-
-    const handleResetZoom = () => {
-        setUserZoom(1.0);
-    };
 
     // Combined scale: auto-scale * user zoom
-    const finalScale = autoScale * userZoom;
+    // No internal scaling - rely on parent
+    const finalScale = 1;
 
 
     const handlePrevious = () => {
@@ -96,35 +62,8 @@ export const CVCardStack: React.FC<CVCardStackProps> = ({ pages }) => {
 
     return (
         <>
-            {/* ZOOM CONTROLS - Floating toolbar (hidden on templates page) */}
-            {!isOnTemplatesPage && (
-                <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-2 bg-white rounded-lg shadow-xl p-2 border border-slate-200">
-                    <button
-                        onClick={handleZoomIn}
-                        className="w-10 h-10 flex items-center justify-center rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-bold text-lg"
-                        title="Zoom in (+10%)"
-                    >
-                        +
-                    </button>
-                    <div className="text-center text-xs font-semibold text-slate-600 py-1">
-                        {Math.round(userZoom * 100)}%
-                    </div>
-                    <button
-                        onClick={handleZoomOut}
-                        className="w-10 h-10 flex items-center justify-center rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-bold text-lg"
-                        title="Zoom out (-10%)"
-                    >
-                        −
-                    </button>
-                    <button
-                        onClick={handleResetZoom}
-                        className="w-10 h-10 flex items-center justify-center rounded-md bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors text-xs font-semibold"
-                        title="Reset zoom (100%)"
-                    >
-                        100
-                    </button>
-                </div>
-            )}
+    // Zoom controls removed - handled by parent
+
 
             <div
                 className="relative mx-auto pb-32"

@@ -12,18 +12,22 @@ export const EducationTab: React.FC = () => {
     const removeEducation = useCVStoreV2((state) => state.removeEducation);
     const updateField = useCVStoreV2((state) => state.updateField);
 
+    if (!profile || !profile.educations) {
+        return <div className="p-4 text-slate-400">Chargement...</div>;
+    }
+
     return (
         <div className="space-y-6">
             {profile.educations.map((edu, index) => (
-                <Card key={edu.id} className="relative group">
+                <Card key={edu.id} className="relative group" variant="glass">
                     <button
                         onClick={() => removeEducation(edu.id)}
-                        className="absolute top-3 right-3 text-slate-300 hover:text-red-500 transition-colors"
+                        className="absolute top-3 right-3 text-slate-400 hover:text-red-400 transition-colors"
                     >
                         <Trash2 size={16} />
                     </button>
 
-                    <h4 className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">
+                    <h4 className="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">
                         Formation {index + 1}
                     </h4>
 
@@ -35,6 +39,7 @@ export const EducationTab: React.FC = () => {
                             className="font-semibold"
                             maxLength={100}
                             debounceTime={300}
+                            variant="glass"
                         />
                         <div className="grid grid-cols-2 gap-3">
                             <Input
@@ -43,11 +48,13 @@ export const EducationTab: React.FC = () => {
                                 onChange={(e) => updateField(`educations.${index}.school`, e.target.value)}
                                 maxLength={100}
                                 debounceTime={300}
+                                variant="glass"
                             />
                             <Input
                                 label="Année"
                                 value={edu.year}
                                 onChange={(e) => updateField(`educations.${index}.year`, e.target.value)}
+                                variant="glass"
                             />
                         </div>
                     </div>

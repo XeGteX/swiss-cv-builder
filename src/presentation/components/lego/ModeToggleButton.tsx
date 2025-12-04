@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { Edit3, Box, Palette } from 'lucide-react';
+import { Edit3, Box } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import { useMode, useSetMode } from '../../../application/store/v2';
@@ -43,12 +43,7 @@ export const ModeToggleButton: React.FC = () => {
             gradient: DesignTokens.gradients.info, // Blue for structure
             ring: 'ring-4 ring-blue-300'
         },
-        modele: {
-            icon: Palette,
-            label: '🎨 Modèle',
-            gradient: DesignTokens.gradients.accent, // Pink for creative
-            ring: 'ring-4 ring-pink-300'
-        },
+
         ai: {
             icon: Edit3,
             label: '✨ IA',
@@ -64,7 +59,7 @@ export const ModeToggleButton: React.FC = () => {
         <motion.button
             onClick={cycleMode}
             className={`
-                fixed bottom-8 right-8 z-50
+                fixed bottom-8 left-8 z-50
                 flex items-center gap-3 px-6 py-4 rounded-2xl
                 font-semibold text-white shadow-2xl
                 transition-all duration-300

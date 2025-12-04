@@ -1,5 +1,5 @@
-import React, { useRef, useState, useCallback } from 'react';
-import { DynamicRenderer } from '../../layouts/DynamicRenderer';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
+import { CVRenderer } from '../../components/CVRenderer';
 import { useUIStore } from '../../../application/store/ui-store';
 import { useSettingsStore } from '../../../application/store/settings-store';
 import { useCVStore } from '../../../application/store/cv-store';
@@ -15,9 +15,13 @@ import { MagicParticles } from '../editor/MagicParticles';
 
 interface PreviewPaneProps {
     hideToolbar?: boolean;
+    scale?: number;
 }
 
-export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
+export const PreviewPane: React.FC<PreviewPaneProps> = ({
+    hideToolbar,
+    scale = 1,
+}) => {
     const cvRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const photoInputRef = useRef<HTMLInputElement>(null);
@@ -26,6 +30,19 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
     const { addToast } = useToastStore();
     const profile = useCVStore(state => state.profile);
     const { updateProfile } = useCVStore();
+
+    // Mobile detection
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    // Determine final zoom
+    const finalZoom = isMobile ? 1 : scale;
 
     // Mobile zoom & pan
     const [mobileZoom, setMobileZoom] = useState(1);
@@ -41,13 +58,37 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
     // Magic inline editing state
     const [isHovered, setIsHovered] = useState(false);
     const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+    const [isScrolling, setIsScrolling] = useState(false);
+    const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
 
-    const { pageCount, currentPage, setCurrentPage } = usePageDetection(cvRef, [profile]);
-    const { state: editorState, openEditor } = useInlineEditor();
+    // Detect scrolling to disable particles
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolling(true);
+            if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+            scrollTimeout.current = setTimeout(() => {
+                setIsScrolling(false);
+            }, 150);
+        };
+
+        const scrollContainer = document.querySelector('.custom-scrollbar');
+        if (scrollContainer) {
+            scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+        }
+
+        return () => {
+            if (scrollContainer) {
+                scrollContainer.removeEventListener('scroll', handleScroll);
+            }
+            if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+        };
+    }, []);
+
+    usePageDetection(cvRef, [profile]);
+    const { openEditor } = useInlineEditor();
     const { ripples, triggerRipple, removeRipple } = useRippleEffect();
 
     const txt = t[language];
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
     const handleDownload = async () => {
         setGeneratingPDF(true);
@@ -176,7 +217,10 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
     }, []);
 
     const handleTouchMove = useCallback((e: React.TouchEvent) => {
-        e.preventDefault();
+        // Prevent default only if interacting to avoid blocking scroll when not zooming/panning
+        if (isInteracting) {
+            e.preventDefault();
+        }
 
         if (e.touches.length === 2 && initialDistance > 0) {
             const currentDistance = getDistance(e.touches[0], e.touches[1]);
@@ -195,7 +239,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
             setMobileZoom(newZoom);
             setInitialDistance(currentDistance);
             setZoomCenter(midpoint);
-        } else if (e.touches.length === 1 && !isPinching) {
+        } else if (e.touches.length === 1 && !isPinching && isInteracting) {
             const deltaX = e.touches[0].clientX - lastTouchPos.x;
             const deltaY = e.touches[0].clientY - lastTouchPos.y;
 
@@ -209,7 +253,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                 y: e.touches[0].clientY
             });
         }
-    }, [initialDistance, lastTouchPos, mobileZoom, zoomCenter, isPinching]);
+    }, [initialDistance, lastTouchPos, mobileZoom, zoomCenter, isPinching, isInteracting]);
 
     const handleTouchEnd = useCallback((e: React.TouchEvent) => {
         const now = Date.now();
@@ -234,20 +278,24 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
         }
     }, [lastTapTime, lastTapTarget]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const onTrigger = () => handleDownload();
         window.addEventListener('TRIGGER_PDF_DOWNLOAD', onTrigger);
         return () => window.removeEventListener('TRIGGER_PDF_DOWNLOAD', onTrigger);
-    }, [profile]);
+    }, [profile, language]);
 
     const mobileScale = isMobile
         ? Math.min((window.innerWidth * 0.92) / 794, (window.innerHeight * 0.85) / 1123)
         : 1;
 
+    const handleRippleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        triggerRipple(e.currentTarget);
+    };
+
     return (
         <div
             ref={containerRef}
-            className="flex flex-col h-full bg-slate-100"
+            className="flex flex-col h-full bg-transparent will-change-transform"
             onDoubleClick={(e) => {
                 if (!isMobile) {
                     handlePhotoClick(e);
@@ -300,8 +348,8 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                     }
                 }}
             >
-                {/* MAGIC PARTICLES - Desktop only, visible when hover */}
-                {!isMobile && isHovered && (
+                {/* MAGIC PARTICLES - Desktop only, visible when hover AND not scrolling */}
+                {!isMobile && isHovered && !isScrolling && (
                     <MagicParticles
                         cursor={cursorPos}
                         accentColor={profile.metadata?.accentColor || '#8b5cf6'}
@@ -310,7 +358,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
 
                 <div
                     ref={cvRef}
-                    className="bg-white relative"
+                    className="bg-white relative backface-visibility-hidden"
                     style={isMobile ? {
                         width: '794px',
                         minHeight: '1123px',
@@ -325,11 +373,13 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ hideToolbar }) => {
                         minHeight: '1123px',
                         borderRadius: '12px',
                         boxShadow: '0 25px 60px rgba(0, 0, 0, 0.2), 0 15px 30px rgba(99, 102, 241, 0.08)',
-                        transition: 'box-shadow 0.15s ease-out'
+                        transition: 'box-shadow 0.15s ease-out',
+                        zoom: finalZoom,
+                        marginBottom: '100px'
                     }}
-                    onClick={triggerRipple}
+                    onClick={handleRippleClick}
                 >
-                    <DynamicRenderer profile={profile} language={language} />
+                    <CVRenderer language={language} />
 
                     {ripples.map(ripple => (
                         <div

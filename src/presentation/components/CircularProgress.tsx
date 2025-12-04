@@ -8,6 +8,7 @@ interface CircularProgressProps {
     strokeWidth?: number;
     label?: string;
     className?: string;
+    textColor?: string;
 }
 
 /**
@@ -20,7 +21,8 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
     size = 120,
     strokeWidth = 8,
     label = '',
-    className = ''
+    className = '',
+    textColor = 'text-slate-800'
 }) => {
     const radius = (size - strokeWidth) / 2;
     const circumference = radius * 2 * Math.PI;
@@ -36,7 +38,8 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
                     cy={size / 2}
                     r={radius}
                     fill="none"
-                    stroke="#e5e7eb"
+                    stroke="currentColor"
+                    className="text-slate-200/20"
                     strokeWidth={strokeWidth}
                 />
 
@@ -67,7 +70,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
             {/* Center content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <motion.span
-                    className="text-4xl font-bold text-slate-800"
+                    className={`text-4xl font-bold ${textColor}`}
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}

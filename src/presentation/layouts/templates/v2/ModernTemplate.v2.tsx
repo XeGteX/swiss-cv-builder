@@ -13,7 +13,7 @@
 
 import React, { useState } from 'react';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragOverlay } from '@dnd-kit/core';
+import { DndContext, closestCorners, PointerSensor, useSensor, useSensors, DragOverlay } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import {
     useProfile,
@@ -27,6 +27,7 @@ import {
 import { usePagination } from '../../../hooks/usePagination';
 import { SinglePageLayout } from './SinglePageLayout';
 import { CVCardStack } from '../../../components/CVCardStack';
+import { StructurePageGrid } from '../../../features/structure/StructurePageGrid';
 import { DEFAULT_THEME } from '../../../../domain/templates/TemplateEngine';
 import type { TemplateConfig } from '../../../../domain/templates/TemplateEngine';
 
@@ -81,34 +82,46 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
         const activeId = active.id as string;
         const overId = over.id as string;
 
-        // Check if dragging sections (macro level)
-        const sectionIndex = sectionOrder.indexOf(activeId);
-        if (sectionIndex !== -1) {
-            const overSectionIndex = sectionOrder.indexOf(overId);
-            if (overSectionIndex !== -1) {
-                reorderSections(sectionIndex, overSectionIndex);
-                return;
+        // 1. Handle Section Reordering (Prefix: 'section-')
+        if (activeId.startsWith('section-')) {
+            const realActiveId = activeId.replace('section-', '');
+            const realOverId = overId.replace('section-', '');
+
+            const oldIndex = sectionOrder.indexOf(realActiveId);
+            const newIndex = sectionOrder.indexOf(realOverId);
+
+            if (oldIndex !== -1 && newIndex !== -1) {
+                reorderSections(oldIndex, newIndex);
             }
+            return;
         }
 
-        // Check if dragging experiences (meso level)
-        const expIndex = data.experiences.findIndex(exp => exp.id === activeId);
-        if (expIndex !== -1) {
-            const overExpIndex = data.experiences.findIndex(exp => exp.id === overId);
-            if (overExpIndex !== -1) {
-                reorderExperiences(expIndex, overExpIndex);
-                return;
+        // 2. Handle Experience Reordering (Prefix: 'exp-')
+        if (activeId.startsWith('exp-')) {
+            const realActiveId = activeId.replace('exp-', '');
+            const realOverId = overId.replace('exp-', '');
+
+            const oldIndex = data.experiences.findIndex(e => e.id === realActiveId);
+            const newIndex = data.experiences.findIndex(e => e.id === realOverId);
+
+            if (oldIndex !== -1 && newIndex !== -1) {
+                reorderExperiences(oldIndex, newIndex);
             }
+            return;
         }
 
-        // Check if dragging skills (micro level)
-        const skillIndex = data.skills.indexOf(activeId);
-        if (skillIndex !== -1) {
-            const overSkillIndex = data.skills.indexOf(overId);
-            if (overSkillIndex !== -1) {
-                reorderSkills(skillIndex, overSkillIndex);
-                return;
+        // 3. Handle Skill Reordering (Prefix: 'skill-')
+        if (activeId.startsWith('skill-')) {
+            const realActiveId = activeId.replace('skill-', '');
+            const realOverId = overId.replace('skill-', '');
+
+            const oldIndex = data.skills.indexOf(realActiveId);
+            const newIndex = data.skills.indexOf(realOverId);
+
+            if (oldIndex !== -1 && newIndex !== -1) {
+                reorderSkills(oldIndex, newIndex);
             }
+            return;
         }
     };
 
@@ -117,36 +130,53 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
         if (!activeId) return null;
 
         // Section ghost
-        if (sectionOrder.includes(activeId)) {
+        if (activeId.startsWith('section-')) {
+            const realId = activeId.replace('section-', '');
+            // Find icon for this section
+            // We can't easily access the icon here without mapping, but we can show the title
             return (
-                <div className="bg-white/95 backdrop-blur-md shadow-2xl rounded-lg p-4 border-2 border-purple-500 scale-105">
-                    <div className="flex items-center gap-2 text-lg font-bold uppercase">
-                        {activeId.toUpperCase()}
+                <div
+                    className={`
+                        bg-white/95 backdrop-blur-md shadow-2xl rounded-lg p-4 border-2 border-indigo-500 scale-105 cursor-grabbing z-50
+                        ${mode === 'structure' ? 'w-[300px]' : ''}
+                    `}
+                >
+                    <div className="flex items-center gap-2 text-lg font-bold uppercase tracking-wider text-slate-700">
+                        {/* We could add an icon here if we had a map */}
+                        {realId.toUpperCase()}
                     </div>
+                    {mode === 'structure' && (
+                        <div className="mt-2 h-2 w-full bg-slate-100 rounded overflow-hidden">
+                            <div className="h-full bg-indigo-500/30 w-2/3 animate-pulse" />
+                        </div>
+                    )}
                 </div>
             );
         }
 
         // Experience ghost
-        const exp = data.experiences.find(e => e.id === activeId);
-        if (exp) {
-            return (
-                <div className="bg-white/95 backdrop-blur-md shadow-2xl rounded-lg p-4 border-2 border-purple-500 scale-105 max-w-md">
-                    <h4 className="font-bold text-base mb-1">{exp.role}</h4>
-                    <strong className="text-sm">{exp.company}</strong>
-                </div>
-            );
+        if (activeId.startsWith('exp-')) {
+            const realId = activeId.replace('exp-', '');
+            const exp = data.experiences.find(e => e.id === realId);
+            if (exp) {
+                return (
+                    <div className="bg-white/95 backdrop-blur-md shadow-2xl rounded-lg p-4 border-2 border-purple-500 scale-105 max-w-md cursor-grabbing z-50">
+                        <h4 className="font-bold text-base mb-1 text-slate-800">{exp.role}</h4>
+                        <strong className="text-sm text-purple-600">{exp.company}</strong>
+                    </div>
+                );
+            }
         }
 
         // Skill ghost
-        const skill = data.skills.find(s => s === activeId);
-        if (skill) {
+        if (activeId.startsWith('skill-')) {
+            const realId = activeId.replace('skill-', '');
             return (
                 <span
-                    className="text-xs px-3 py-1.5 rounded-full font-medium text-white shadow-2xl scale-110"
+                    className="text-xs px-3 py-1.5 rounded-full font-medium text-white shadow-2xl scale-110 cursor-grabbing z-50"
                     style={{ backgroundColor: data.metadata.accentColor || config.colors.primary }}
                 >
-                    {skill}
+                    {realId}
                 </span>
             );
         }
@@ -157,12 +187,15 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
     return (
         <DndContext
             sensors={sensors}
-            collisionDetection={closestCenter}
+            collisionDetection={closestCorners} // CHANGED: Better for variable sizes
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
             {/* CRITICAL FIX: Wrap ALL pages with ONE SortableContext for sections */}
-            <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
+            <SortableContext
+                items={sectionOrder.map(id => `section-${id}`)} // NAMESPACED IDs
+                strategy={verticalListSortingStrategy}
+            >
                 {/* MULTI-PAGE RENDERING - Mode-aware with Card Stack */}
                 {mode === 'modele' ? (
                     // MODE MODÈLE: Single page only (no stack)
@@ -179,8 +212,17 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
                             />
                         ))}
                     </div>
+                ) : mode === 'structure' ? (
+                    // MODE STRUCTURE: Smart Grid Layout (Apple Style)
+                    <StructurePageGrid
+                        pages={pages}
+                        data={data}
+                        mode={mode}
+                        config={config}
+                        language={language}
+                    />
                 ) : (
-                    // MODE ÉDITION & STRUCTURE: Premium Card Stack
+                    // MODE ÉDITION: Premium Card Stack
                     <CVCardStack
                         pages={pages.map((page) => (
                             <SinglePageLayout

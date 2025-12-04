@@ -114,10 +114,10 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
 
             case 'experience':
                 return data.experiences.length > 0 ? (
-                    <SortableContext items={data.experiences.map(e => e.id)} strategy={verticalListSortingStrategy}>
+                    <SortableContext items={data.experiences.map(e => `exp-${e.id}`)} strategy={verticalListSortingStrategy}>
                         <div className="space-y-5">
                             {data.experiences.map((exp, index) => (
-                                <SortableItem key={exp.id} id={exp.id} mode={mode}>
+                                <SortableItem key={exp.id} id={`exp-${exp.id}`} mode={mode}>
                                     <div className="relative pl-4 border-l-2" style={{ borderColor: effectiveConfig.colors.primary }}>
                                         <EditableField
                                             path={`experiences.${index}.role`}
@@ -156,7 +156,7 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
 
                                         {exp.tasks && exp.tasks.length > 0 && (
                                             <ul className="list-disc list-inside text-sm text-slate-700 space-y-1 ml-1">
-                                                {exp.tasks.map((task, taskIndex) => (
+                                                {exp.tasks.map((_, taskIndex) => (
                                                     <EditableField
                                                         key={taskIndex}
                                                         path={`experiences.${index}.tasks.${taskIndex}`}
@@ -222,10 +222,10 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
 
             case 'skills':
                 return data.skills.length > 0 ? (
-                    <SortableContext items={data.skills} strategy={rectSortingStrategy}>
+                    <SortableContext items={data.skills.map(s => `skill-${s}`)} strategy={rectSortingStrategy}>
                         <div className="flex flex-wrap gap-2">
                             {data.skills.map((skill, index) => (
-                                <SortableItem key={skill} id={skill} mode={mode}>
+                                <SortableItem key={skill} id={`skill-${skill}`} mode={mode}>
                                     <EditableField
                                         path={`skills.${index}`}
                                         label={`Skill ${index + 1}`}
@@ -248,7 +248,7 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
             case 'languages':
                 return data.languages.length > 0 ? (
                     <div className="space-y-2">
-                        {data.languages.map((lang, index) => (
+                        {data.languages.map((_, index) => (
                             <div key={index} className="flex justify-between items-center">
                                 <EditableField
                                     path={`languages.${index}.name`}
@@ -281,7 +281,7 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
 
     return (
         <div
-            className={`bg-white shadow-2xl text-slate-800 font-${data.metadata.fontFamily} ${densityStyles.textBase} print:shadow-none print:m-0 print:h-full print:w-full overflow-hidden relative mx-auto box-border break-words rounded-lg`}
+            className={`bg-white shadow-2xl text-slate-800 font-${data.metadata.fontFamily} ${densityStyles.textBase} print:shadow-none print:m-0 print:h-full print:w-full relative mx-auto box-border break-words rounded-lg`}
             style={{
                 width: '210mm',
                 minHeight: '297mm',
@@ -432,7 +432,7 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
                     return (
                         <SortableSection
                             key={sectionId}
-                            id={sectionId}
+                            id={`section-${sectionId}`} // NAMESPACED ID
                             mode={mode}
                             header={
                                 <h3 className="text-lg font-bold uppercase tracking-wide mb-3 pb-2 border-b-2 flex items-center gap-2" style={{ borderColor: effectiveConfig.colors.primary }}>

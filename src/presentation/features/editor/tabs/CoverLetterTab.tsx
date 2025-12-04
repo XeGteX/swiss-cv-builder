@@ -21,6 +21,10 @@ export const CoverLetterTab: React.FC = () => {
     const { addToast } = useToastStore();
     const { isAuthenticated } = useAuthStore();
 
+    if (!profile || !profile.personal) {
+        return <div className="p-4 text-slate-400">Chargement...</div>;
+    }
+
     // View State: 'list' | 'editor'
     const [view, setView] = useState<'list' | 'editor'>('list');
     const [activeLetter, setActiveLetter] = useState<Letter | null>(null);
@@ -218,57 +222,57 @@ export const CoverLetterTab: React.FC = () => {
     // --- Render ---
     if (view === 'list') {
         return (
-            <div className="h-full flex flex-col bg-slate-50">
-                <div className="p-4 border-b border-slate-200 bg-white flex justify-between items-center">
-                    <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                        <Lucide.FileText size={18} className="text-indigo-600" />
+            <div className="h-full flex flex-col bg-transparent">
+                <div className="p-4 border-b border-white/10 bg-transparent flex justify-between items-center">
+                    <h3 className="font-bold text-slate-200 flex items-center gap-2">
+                        <Lucide.FileText size={18} className="text-brand-400" />
                         {commonTxt.tabs.letter}
                     </h3>
-                    <Button size="sm" onClick={() => openEditor()} leftIcon={<Lucide.Plus size={14} />}>
+                    <Button size="sm" onClick={() => openEditor()} leftIcon={<Lucide.Plus size={14} />} className="bg-brand-600 hover:bg-brand-700 text-white">
                         {txt.newLetter}
                     </Button>
                 </div>
                 <div className="p-4 space-y-3 overflow-y-auto flex-1 pb-20">
                     {!profile.letters || profile.letters.length === 0 ? (
-                        <div className="text-center py-12 px-4 text-slate-500 flex flex-col items-center justify-center h-full">
-                            <div className="bg-indigo-50 p-4 rounded-full mb-4">
-                                <Lucide.PenTool size={32} className="text-indigo-600" />
+                        <div className="text-center py-12 px-4 text-slate-400 flex flex-col items-center justify-center h-full">
+                            <div className="bg-white/5 p-4 rounded-full mb-4 border border-white/10">
+                                <Lucide.PenTool size={32} className="text-brand-400" />
                             </div>
-                            <h4 className="text-lg font-bold text-slate-800 mb-2">{txt.emptyState}</h4>
-                            <p className="text-sm text-slate-500 mb-6 max-w-xs mx-auto">
+                            <h4 className="text-lg font-bold text-slate-200 mb-2">{txt.emptyState}</h4>
+                            <p className="text-sm text-slate-400 mb-6 max-w-xs mx-auto">
                                 Create a tailored cover letter for your next job application in seconds.
                             </p>
-                            <Button onClick={() => openEditor()} leftIcon={<Lucide.Plus size={16} />}>
+                            <Button onClick={() => openEditor()} leftIcon={<Lucide.Plus size={16} />} className="bg-brand-600 hover:bg-brand-700 text-white">
                                 {txt.startNew}
                             </Button>
                         </div>
                     ) : (
                         profile.letters.map(letter => (
-                            <div key={letter.id} className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow group">
+                            <div key={letter.id} className="glass-card p-4 rounded-lg group">
                                 <div className="flex justify-between items-start mb-2">
                                     <div>
-                                        <h4 className="font-bold text-slate-800">{letter.title}</h4>
-                                        <p className="text-xs text-slate-500">
+                                        <h4 className="font-bold text-slate-200">{letter.title}</h4>
+                                        <p className="text-xs text-slate-400">
                                             {new Date(letter.lastUpdated).toLocaleDateString()}
                                         </p>
                                     </div>
                                     <div className="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => openEditor(letter)} className="p-1.5 text-slate-400 hover:text-indigo-600 rounded hover:bg-indigo-50" title={txt.edit}>
+                                        <button onClick={() => openEditor(letter)} className="p-1.5 text-slate-400 hover:text-brand-400 rounded hover:bg-white/5" title={txt.edit}>
                                             <Lucide.Edit3 size={14} />
                                         </button>
-                                        <button onClick={() => handleDownload(letter)} className="p-1.5 text-slate-400 hover:text-green-600 rounded hover:bg-green-50" title={commonTxt.download}>
+                                        <button onClick={() => handleDownload(letter)} className="p-1.5 text-slate-400 hover:text-green-400 rounded hover:bg-white/5" title={commonTxt.download}>
                                             <Lucide.Download size={14} />
                                         </button>
-                                        <button onClick={() => handleDelete(letter.id)} className="p-1.5 text-slate-400 hover:text-red-600 rounded hover:bg-red-50" title={txt.delete}>
+                                        <button onClick={() => handleDelete(letter.id)} className="p-1.5 text-slate-400 hover:text-red-400 rounded hover:bg-white/5" title={txt.delete}>
                                             <Lucide.Trash2 size={14} />
                                         </button>
                                     </div>
                                 </div>
-                                <p className="text-xs text-slate-600 line-clamp-2 font-serif italic">
+                                <p className="text-xs text-slate-300 line-clamp-2 font-serif italic">
                                     {letter.content.substring(0, 100)}...
                                 </p>
-                                <div className="mt-2 pt-2 border-t border-slate-100 flex justify-end">
-                                    <button onClick={() => handleOptimize(letter)} className="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1">
+                                <div className="mt-2 pt-2 border-t border-white/10 flex justify-end">
+                                    <button onClick={() => handleOptimize(letter)} className="text-xs text-brand-400 hover:text-brand-300 font-medium flex items-center gap-1">
                                         <Lucide.Sparkles size={12} />
                                         {txt.optimize}
                                     </button>
@@ -282,28 +286,28 @@ export const CoverLetterTab: React.FC = () => {
     }
 
     return (
-        <div className="h-full flex flex-col bg-slate-50">
+        <div className="h-full flex flex-col bg-transparent">
             {/* Header */}
-            <div className="p-3 border-b border-slate-200 bg-white flex justify-between items-center">
-                <button onClick={() => setView('list')} className="text-slate-500 hover:text-slate-800 flex items-center gap-1 text-sm font-medium">
+            <div className="p-3 border-b border-white/10 bg-transparent flex justify-between items-center">
+                <button onClick={() => setView('list')} className="text-slate-400 hover:text-white flex items-center gap-1 text-sm font-medium">
                     <Lucide.ChevronLeft size={14} />
                     {txt.back}
                 </button>
-                <div className="flex bg-slate-100 p-1 rounded-lg">
+                <div className="flex bg-white/5 p-1 rounded-lg border border-white/10">
                     <button
                         onClick={() => setMode('offline')}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-md flex items-center gap-1.5 transition-all ${mode === 'offline' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-md flex items-center gap-1.5 transition-all ${mode === 'offline' ? 'bg-white/10 text-brand-300 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
                     >
                         <Lucide.WifiOff size={12} /> {txt.offline}
                     </button>
                     <button
                         onClick={() => setMode('online')}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-md flex items-center gap-1.5 transition-all ${mode === 'online' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-md flex items-center gap-1.5 transition-all ${mode === 'online' ? 'bg-white/10 text-emerald-400 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
                     >
                         <Lucide.Wifi size={12} /> {txt.online}
                     </button>
                 </div>
-                <Button size="sm" onClick={() => handleSave(false)} disabled={isSaving}>
+                <Button size="sm" onClick={() => handleSave(false)} disabled={isSaving} className="bg-brand-600 hover:bg-brand-700 text-white">
                     {isSaving ? 'Saving...' : txt.save}
                 </Button>
             </div>
@@ -312,20 +316,20 @@ export const CoverLetterTab: React.FC = () => {
                 {/* Inputs */}
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">{txt.jobTitle}</label>
+                        <label className="block text-xs font-semibold text-slate-300 mb-1">{txt.jobTitle}</label>
                         <input
                             type="text"
-                            className="w-full p-2 border border-slate-200 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                            className="glass-input w-full p-2 rounded text-sm outline-none"
                             value={jobTitle}
                             onChange={e => setJobTitle(e.target.value)}
                             placeholder="e.g. Software Engineer"
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">{txt.company}</label>
+                        <label className="block text-xs font-semibold text-slate-300 mb-1">{txt.company}</label>
                         <input
                             type="text"
-                            className="w-full p-2 border border-slate-200 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                            className="glass-input w-full p-2 rounded text-sm outline-none"
                             value={company}
                             onChange={e => setCompany(e.target.value)}
                             placeholder="e.g. Tech Corp"
@@ -335,17 +339,17 @@ export const CoverLetterTab: React.FC = () => {
 
                 {/* Language Selector */}
                 <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs font-medium text-slate-600">{txt.targetLang}:</span>
+                    <span className="text-xs font-medium text-slate-400">{txt.targetLang}:</span>
                     <div className="flex gap-1">
                         <button
                             onClick={() => setTargetLang('fr')}
-                            className={`px-2 py-1 text-xs rounded border ${targetLang === 'fr' ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-white border-slate-200 text-slate-600'}`}
+                            className={`px-2 py-1 text-xs rounded border ${targetLang === 'fr' ? 'bg-brand-900/50 border-brand-500/50 text-brand-300' : 'bg-white/5 border-white/10 text-slate-400'}`}
                         >
                             FR
                         </button>
                         <button
                             onClick={() => setTargetLang('en')}
-                            className={`px-2 py-1 text-xs rounded border ${targetLang === 'en' ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-white border-slate-200 text-slate-600'}`}
+                            className={`px-2 py-1 text-xs rounded border ${targetLang === 'en' ? 'bg-brand-900/50 border-brand-500/50 text-brand-300' : 'bg-white/5 border-white/10 text-slate-400'}`}
                         >
                             EN
                         </button>
@@ -354,18 +358,18 @@ export const CoverLetterTab: React.FC = () => {
 
                 {/* Generator Controls */}
                 {mode === 'online' ? (
-                    <Card className="p-3 bg-emerald-50/50 border-emerald-100">
+                    <Card className="p-3 bg-emerald-900/20 border-emerald-500/30">
                         {isAuthenticated && usage && (
                             <div className="mb-3 text-xs">
                                 <div className="flex justify-between items-center mb-1">
-                                    <span className="font-medium text-emerald-800">
+                                    <span className="font-medium text-emerald-400">
                                         {usage.isPro ? 'Pro Plan: Unlimited' : `Free Quota: ${usage.usage} / ${usage.limit}`}
                                     </span>
                                 </div>
                                 {!usage.isPro && typeof usage.limit === 'number' && (
-                                    <div className="w-full bg-emerald-200 rounded-full h-1.5">
+                                    <div className="w-full bg-emerald-900/50 rounded-full h-1.5">
                                         <div
-                                            className={`h-1.5 rounded-full ${usage.usage >= usage.limit ? 'bg-red-500' : 'bg-emerald-600'}`}
+                                            className={`h-1.5 rounded-full ${usage.usage >= usage.limit ? 'bg-red-500' : 'bg-emerald-500'}`}
                                             style={{ width: `${Math.min((usage.usage / usage.limit) * 100, 100)}%` }}
                                         />
                                     </div>
@@ -378,7 +382,7 @@ export const CoverLetterTab: React.FC = () => {
                                     type="password"
                                     value={apiKey}
                                     onChange={(e) => setApiKey(e.target.value)}
-                                    className="flex-1 p-2 border border-emerald-200 rounded text-xs bg-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                                    className="flex-1 p-2 border border-emerald-500/30 rounded text-xs bg-black/20 text-emerald-100 focus:ring-2 focus:ring-emerald-500 outline-none placeholder:text-emerald-700"
                                     placeholder="Gemini API Key (sk-...)"
                                 />
                             )}
@@ -399,7 +403,7 @@ export const CoverLetterTab: React.FC = () => {
                 ) : (
                     <Button
                         onClick={generateOffline}
-                        className="w-full"
+                        className="w-full bg-brand-600 hover:bg-brand-700 text-white"
                         leftIcon={<Lucide.Sparkles size={16} />}
                     >
                         {txt.generate}
@@ -409,7 +413,7 @@ export const CoverLetterTab: React.FC = () => {
                 {/* Editor */}
                 <div className="relative">
                     <textarea
-                        className="w-full h-96 p-4 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none leading-relaxed font-serif text-slate-700 resize-none"
+                        className="glass-input w-full h-96 p-4 text-sm rounded-lg outline-none leading-relaxed font-serif text-slate-200 resize-none"
                         value={editorContent}
                         onChange={(e) => setEditorContent(e.target.value)}
                         placeholder={txt.placeholder}

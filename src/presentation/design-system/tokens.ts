@@ -17,6 +17,9 @@ export const GlassStyles = {
     base: "bg-white/95 backdrop-blur-xl border border-white/20 shadow-lg",
     elevated: "bg-white/90 backdrop-blur-md border border-white/10 shadow-xl",
     overlay: "bg-white/80 backdrop-blur-sm border border-white/5 shadow-2xl",
+    // New Unified Glass Experience Tokens
+    panel: "bg-slate-900/60 backdrop-blur-md border-r border-white/10 shadow-2xl", // Darker for Sidebar contrast
+    card: "bg-slate-800/40 backdrop-blur-lg border border-white/10 shadow-xl hover:bg-slate-800/50 transition-all", // Darker for Cards
 } as const;
 
 /**

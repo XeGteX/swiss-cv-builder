@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { useMode, useSetMode } from '../../../application/store/v2';
 import type { CVMode } from '../../../application/store/v2';
+import { GlassStyles } from '../../design-system/tokens';
 
 interface NavItem {
     id: string;
@@ -148,7 +149,7 @@ export const SmartSidebar: React.FC = () => {
             initial={{ width: 80 }}
             animate={{ width: isExpanded ? 280 : 80 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="h-screen bg-white/95 backdrop-blur-xl border-r border-slate-100 shadow-xl flex flex-col py-6 sticky top-0 z-50"
+            className={`h-screen flex flex-col py-6 sticky top-0 z-50 ${GlassStyles.panel}`}
         >
             {/* Logo */}
             <div className="px-6 mb-8">
@@ -222,7 +223,7 @@ export const SmartSidebar: React.FC = () => {
                                     transition-all duration-200 group
                                     ${active
                                             ? 'bg-gradient-to-r ' + item.gradient + ' text-white shadow-lg'
-                                            : 'text-slate-600 hover:bg-slate-100/80'
+                                            : 'text-slate-400 hover:bg-white/10 hover:text-white'
                                         }
                                 `}
                                     whileHover={{ scale: 1.02, x: 2 }}
@@ -249,10 +250,10 @@ export const SmartSidebar: React.FC = () => {
                                                 exit={{ opacity: 0, x: -10 }}
                                                 transition={{ duration: 0.2, delay: 0.05 }}
                                             >
-                                                <div className={`font-semibold text-sm ${active ? 'text-white' : 'text-slate-700'}`}>
+                                                <div className={`font-semibold text-sm ${active ? 'text-white' : 'text-slate-200 group-hover:text-white'}`}>
                                                     {item.label}
                                                 </div>
-                                                <div className={`text-xs ${active ? 'text-white/80' : 'text-slate-500'}`}>
+                                                <div className={`text-xs ${active ? 'text-white/80' : 'text-slate-400 group-hover:text-slate-300'}`}>
                                                     {item.description}
                                                 </div>
                                             </motion.div>

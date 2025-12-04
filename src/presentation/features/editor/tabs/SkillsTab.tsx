@@ -9,6 +9,10 @@ import { Plus, X } from 'lucide-react';
 export const SkillsTab: React.FC = () => {
     const profile = useCVStoreV2((state) => state.profile);
     const updateField = useCVStoreV2((state) => state.updateField);
+
+    if (!profile || !profile.skills) {
+        return <div className="p-4 text-slate-400">Chargement...</div>;
+    }
     const [newSkill, setNewSkill] = useState('');
 
     const addSkill = () => {
@@ -31,8 +35,8 @@ export const SkillsTab: React.FC = () => {
 
     return (
         <div className="space-y-6">
-            <Card>
-                <h3 className="text-sm font-bold text-slate-700 mb-4">Compétences Techniques</h3>
+            <Card variant="glass">
+                <h3 className="text-sm font-bold text-slate-200 mb-4">Compétences Techniques</h3>
 
                 <div className="flex gap-2 mb-4">
                     <Input
@@ -40,8 +44,9 @@ export const SkillsTab: React.FC = () => {
                         onChange={(e) => setNewSkill(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="Ex: React, TypeScript, Gestion de projet..."
+                        variant="glass"
                     />
-                    <Button onClick={addSkill} leftIcon={<Plus size={16} />}>
+                    <Button onClick={addSkill} leftIcon={<Plus size={16} />} className="bg-brand-600 hover:bg-brand-700 text-white">
                         Ajouter
                     </Button>
                 </div>
@@ -50,12 +55,12 @@ export const SkillsTab: React.FC = () => {
                     {profile.skills.map((skill, index) => (
                         <div
                             key={index}
-                            className="bg-slate-100 text-slate-700 text-sm px-3 py-1 rounded-full flex items-center gap-2"
+                            className="bg-white/10 border border-white/10 text-slate-200 text-sm px-3 py-1 rounded-full flex items-center gap-2"
                         >
                             {skill}
                             <button
                                 onClick={() => removeSkill(index)}
-                                className="text-slate-400 hover:text-red-500"
+                                className="text-slate-400 hover:text-red-400"
                             >
                                 <X size={14} />
                             </button>
@@ -64,10 +69,10 @@ export const SkillsTab: React.FC = () => {
                 </div>
             </Card>
 
-            <Card>
-                <h3 className="text-sm font-bold text-slate-700 mb-4">Langues</h3>
+            <Card variant="glass">
+                <h3 className="text-sm font-bold text-slate-200 mb-4">Langues</h3>
                 {/* Languages editing */}
-                <p className="text-xs text-slate-500 italic">
+                <p className="text-xs text-slate-400 italic">
                     L'édition des langues sera améliorée dans la prochaine version.
                     Pour l'instant, utilisez l'onglet IA pour générer une structure complète.
                 </p>

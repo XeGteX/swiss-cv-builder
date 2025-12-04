@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { cn } from './Button'; // Reusing cn utility
+import { cn } from './Button';
 
 interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
     label?: string;
@@ -8,15 +7,17 @@ interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, '
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     debounceTime?: number;
     maxLength?: number;
+    variant?: 'default' | 'glass';
+    required?: boolean;
+    icon?: React.ReactNode;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-    ({ className, label, error, id, value, onChange, debounceTime = 300, maxLength, ...props }, ref) => {
+    ({ className, label, error, id, value, onChange, debounceTime = 300, maxLength, variant = 'default', required, icon, ...props }, ref) => {
         const inputId = id || React.useId();
         const [localValue, setLocalValue] = useState<string | number | readonly string[] | undefined>(value);
         const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-        // Sync local value when prop value changes (e.g. from store updates or initial load)
         useEffect(() => {
             setLocalValue(value);
         }, [value]);
@@ -38,33 +39,53 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         const currentLength = typeof localValue === 'string' ? localValue.length : 0;
         const isNearLimit = maxLength && currentLength > maxLength * 0.9;
 
+        const variants = {
+            default: "bg-white border-surface-300 text-surface-900 focus:border-brand-500 focus:ring-brand-500",
+            glass: "glass-input"
+        };
+
         return (
             <div className="w-full space-y-1.5">
                 <div className="flex justify-between items-baseline">
                     {label && (
-                        <label htmlFor={inputId} className="block text-xs font-semibold text-slate-600">
-                            {label}
+                        <label htmlFor={inputId} className={cn(
+                            "block text-xs font-semibold ml-1",
+                            variant === 'glass' ? "text-slate-300" : "text-surface-700"
+                        )}>
+                            {label} {required && <span className="text-red-500">*</span>}
                         </label>
                     )}
                     {maxLength && (
-                        <span className={cn("text-[10px] font-medium", isNearLimit ? "text-amber-600" : "text-slate-400")}>
+                        <span className={cn("text-[10px] font-medium", isNearLimit ? "text-amber-600" : (variant === 'glass' ? "text-surface-400" : "text-surface-400"))}>
                             {currentLength}/{maxLength}
                         </span>
                     )}
                 </div>
-                <input
-                    id={inputId}
-                    ref={ref}
-                    value={localValue}
-                    onChange={handleChange}
-                    maxLength={maxLength}
-                    className={cn(
-                        'flex h-9 w-full rounded-md border border-slate-300 bg-white px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50',
-                        error && 'border-red-500 focus-visible:ring-red-500',
-                        className
+                <div className="relative">
+                    {icon && (
+                        <div className={cn(
+                            "absolute left-3 top-1/2 -translate-y-1/2",
+                            variant === 'glass' ? "text-surface-400" : "text-surface-400"
+                        )}>
+                            {icon}
+                        </div>
                     )}
-                    {...props}
-                />
+                    <input
+                        id={inputId}
+                        ref={ref}
+                        value={localValue}
+                        onChange={handleChange}
+                        maxLength={maxLength}
+                        className={cn(
+                            "w-full rounded-lg px-3 py-2 text-sm outline-none transition-all duration-200",
+                            icon ? "pl-10" : "",
+                            variants[variant],
+                            error ? "border-red-500 focus:border-red-500 focus:ring-red-500" : "",
+                            className
+                        )}
+                        {...props}
+                    />
+                </div>
                 {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
             </div>
         );

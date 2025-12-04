@@ -11,8 +11,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Check, ArrowLeft, X, ZoomIn } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useCVStoreV2, useSetMode } from '../../../application/store/v2';
+import { useSettingsStore } from '../../../application/store/settings-store';
 import { ModernTemplateV2 } from '../../layouts/templates/v2/ModernTemplate.v2';
 import { ClassicTemplate } from '../../layouts/templates/v2/ClassicTemplate';
 import { CreativeTemplate } from '../../layouts/templates/v2/CreativeTemplate';
@@ -96,6 +97,7 @@ export const TemplateGallery: React.FC = () => {
     const navigate = useNavigate();
     const updateField = useCVStoreV2((state) => state.updateField);
     const setMode = useSetMode();
+    const { setThemeColor } = useSettingsStore();
 
     // Initialize with a safe default to avoid hydration mismatch, then update
     const [windowHeight, setWindowHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 800);
@@ -107,6 +109,17 @@ export const TemplateGallery: React.FC = () => {
         handleResize();
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    // Sync global theme with current template
+    useEffect(() => {
+        const colorMap: Record<string, string> = {
+            'modern': 'blue',
+            'classic': 'slate',
+            'creative': 'purple',
+            'executive': 'amber'
+        };
+        setThemeColor(colorMap[TEMPLATES[currentIndex].id] || 'blue');
+    }, [currentIndex, setThemeColor]);
 
     // Calculate exact scale to fit 85vh (center) or 70vh (side)
     // 297mm is approx 1123px at 96dpi
@@ -126,10 +139,18 @@ export const TemplateGallery: React.FC = () => {
 
     const handleExit = () => navigate('/');
 
+    const [searchParams] = useSearchParams(); // Import useSearchParams
+    const returnTo = searchParams.get('returnTo');
+
     const handleSelect = () => {
         updateField('metadata.templateId', currentTemplate.id);
-        setMode('edition');
-        navigate('/');
+
+        if (returnTo) {
+            navigate(returnTo);
+        } else {
+            setMode('edition');
+            navigate('/');
+        }
     };
 
     const handleZoomOpen = () => setIsZoomOpen(true);
@@ -149,25 +170,11 @@ export const TemplateGallery: React.FC = () => {
     return (
         <>
             <motion.div
-                className={`h-screen bg-gradient-to-br ${currentTemplate.bgGradient} flex flex-col overflow-hidden relative`}
+                className="h-screen flex flex-col overflow-hidden relative"
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8 }}
             >
-                {/* Background orbs */}
-                <motion.div
-                    key={`orb-1-${currentIndex}`}
-                    className={`absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br ${currentTemplate.gradient} rounded-full blur-3xl opacity-20`}
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 0.2 }}
-                    transition={{ duration: 1 }}
-                />
-                <motion.div
-                    key={`orb-2-${currentIndex}`}
-                    className={`absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr ${currentTemplate.gradient} rounded-full blur-3xl opacity-15`}
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 0.15 }}
-                    transition={{ duration: 1, delay: 0.2 }}
-                />
+                {/* Background handled globally by AppShell/ImmersiveBackground */}
 
                 {/* Exit Button */}
                 <motion.button

@@ -14,7 +14,7 @@ import { GlassStyles } from '../../design-system/tokens';
 import { useSettingsStore } from '../../../application/store/settings-store';
 import { useTranslation } from '../../hooks/useTranslation';
 
-export const EditorSidebar: React.FC = () => {
+export const EditorSidebar: React.FC = React.memo(() => {
     const { activeTab, setActiveTab } = useUIStore();
     const { isMobileMode } = useSettingsStore();
     const { t } = useTranslation();
@@ -31,11 +31,10 @@ export const EditorSidebar: React.FC = () => {
     ] as const;
 
     return (
-        <div className={cn("flex flex-col h-full w-full lg:min-w-[550px] lg:max-w-[650px] shrink-0", GlassStyles.base)}>
+        <div className={cn("flex flex-col h-full w-full lg:min-w-[450px] lg:max-w-[550px] shrink-0 text-slate-100 rounded-xl border border-white/10 overflow-hidden", GlassStyles.panel)}>
             {/* Tabs Header - Grid layout, no horizontal scroll */}
             <div className={cn(
-                "grid grid-cols-3 gap-1 border-b border-slate-100 sticky top-0 z-10 p-2",
-                GlassStyles.elevated,
+                "grid grid-cols-3 gap-1 border-b border-white/10 sticky top-0 z-10 p-2 bg-slate-900/80 backdrop-blur-md",
                 isMobileMode ? "grid-cols-2" : ""
             )}>
                 {/* Wizard button removed - now in SmartSidebar (Option A) */}
@@ -49,8 +48,8 @@ export const EditorSidebar: React.FC = () => {
                             className={cn(
                                 'flex flex-col items-center gap-1.5 py-2.5 px-2 rounded-lg text-[11px] font-medium transition-all duration-200',
                                 isActive
-                                    ? 'text-white bg-gradient-to-br from-indigo-600 to-purple-600 shadow-md scale-105'
-                                    : 'text-slate-600 bg-white hover:bg-slate-50 hover:text-slate-900 hover:shadow-sm'
+                                    ? 'text-white bg-white/10 shadow-lg scale-105 border border-white/20'
+                                    : 'text-slate-400 hover:bg-white/5 hover:text-white hover:shadow-sm'
                             )}
                         >
                             <Icon size={isMobileMode ? 20 : 18} />
@@ -61,7 +60,7 @@ export const EditorSidebar: React.FC = () => {
             </div>
 
             {/* Tab Content */}
-            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-slate-50/50">
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-transparent">
                 {activeTab === 'personal' && <PersonalTab />}
                 {activeTab === 'experience' && <ExperienceTab />}
                 {activeTab === 'education' && <EducationTab />}
@@ -73,4 +72,4 @@ export const EditorSidebar: React.FC = () => {
             </div>
         </div>
     );
-};
+});
