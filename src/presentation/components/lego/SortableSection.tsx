@@ -1,14 +1,15 @@
 /**
- * TELEKINESIS - Sortable Section with Strict Header-Only Drag Handle
+ * REFACTORED v3 - Drop Indicator with Magnetic Snap
  * 
- * CRITICAL: Listeners applied ONLY to header, prevents drag conflicts
- * with nested sortable items. Body remains interaction-free.
+ * NEW FEATURES:
+ * - Visual drop line indicator showing exactly where item will land
+ * - Entire card is drop zone (pointer-events fix)
+ * - Clear magnetic snap effect
  */
 
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { motion } from 'framer-motion';
 import { GripVertical } from 'lucide-react';
 import type { CVMode } from '../../../application/store/v2/cv-store-v2.types';
 
@@ -31,17 +32,22 @@ export const SortableSection: React.FC<SortableSectionProps> = ({
         attributes,
         listeners,
         setNodeRef,
+        setActivatorNodeRef,
         transform,
         transition,
-        isDragging
+        isDragging,
+        isOver,
+        isSorting,
+        overIndex,
+        index
     } = useSortable({ id });
 
     const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
+        transform: CSS.Translate.toString(transform),
+        transition: transition || undefined,
     };
 
-    // In write mode, render normally without drag functionality
+    // Edition mode - normal rendering
     if (mode === 'edition') {
         return (
             <div className={className}>
@@ -51,54 +57,95 @@ export const SortableSection: React.FC<SortableSectionProps> = ({
         );
     }
 
-    // In structure mode, enable section-level drag with STRICT header-only handle
+    // Calculate if we should show the drop indicator
+    const showDropIndicator = mode === 'structure' && isOver && !isDragging;
+
+    // Structure mode with full drag & drop
     return (
-        <motion.div
-            ref={setNodeRef}  // Container ref for positioning
-            style={style}
-            className={`
-                ${className}
-                ${isDragging ? 'opacity-50 z-50' : ''}
-                ${mode === 'structure' ? 'border-2 border-dashed border-indigo-300/50 rounded-lg p-4 mb-4' : ''}
-                ${mode === 'structure' ? 'hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/20' : ''}
-                ${mode === 'structure' ? 'bg-white/50' : ''}
-                transition-all duration-200
-            `}
-            whileHover={mode === 'structure' ? { scale: 1.01 } : {}}
-        >
-            {/* DRAG HANDLE - Header ONLY (strict separation) WITH GRIP ICON */}
-            <div
-                className={`
-                    ${mode === 'structure' ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}
-                    ${mode === 'structure' ? 'hover:bg-indigo-50/50 rounded-md px-2 -mx-2' : ''}
-                    transition-colors duration-150
-                    flex items-center gap-2
-                `}
-                {...attributes}  // ONLY on header
-                {...listeners}   // ONLY on header
-            >
-                {/* Grip Icon (Visual Affordance) */}
-                {mode === 'structure' && (
-                    <GripVertical
-                        size={20}
-                        className="text-indigo-400 flex-shrink-0 opacity-60 group-hover:opacity-100"
-                    />
-                )}
-
-                <div className="flex-1">
-                    {header}
+        <div className="relative">
+            {/* DROP INDICATOR - Shows ABOVE when hovering */}
+            {showDropIndicator && (
+                <div className="absolute -top-3 left-0 right-0 z-50 flex items-center justify-center">
+                    <div className="w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent rounded-full animate-pulse shadow-lg shadow-indigo-500/50" />
+                    <div className="absolute left-1/2 -translate-x-1/2 -top-2 px-3 py-1 bg-indigo-500 text-white text-xs font-bold rounded-full shadow-lg">
+                        Placer ici
+                    </div>
                 </div>
-            </div>
-
-            {/* BODY - NO drag listeners, completely inert for parent drag */}
-            <div className="cursor-auto">
-                {children}
-            </div>
-
-            {/* Glow effect in structure mode */}
-            {mode === 'structure' && (
-                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-indigo-500/10 to-purple-500/10 opacity-0 hover:opacity-100 transition-opacity pointer-events-none" />
             )}
-        </motion.div>
+
+            <div
+                ref={setNodeRef}
+                style={style}
+                className={`
+                    relative
+                    ${className}
+                    ${isDragging ? 'opacity-20 scale-95' : 'opacity-100 scale-100'}
+                    ${isOver && !isDragging ? 'scale-102 -translate-y-2' : ''}
+                    ${mode === 'structure' ? 'border-2 border-dashed border-indigo-300/50 rounded-lg p-4 mb-6' : ''}
+                    ${mode === 'structure' ? 'hover:border-indigo-400 hover:shadow-lg hover:shadow-indigo-500/20' : ''}
+                    ${mode === 'structure' ? 'bg-white/80 backdrop-blur-sm' : ''}
+                    transition-all duration-300 ease-out
+                `}
+            >
+                {/* DRAG HANDLE - Initiates drag */}
+                <div
+                    ref={setActivatorNodeRef}
+                    className={`
+                        ${mode === 'structure' ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}
+                        ${mode === 'structure' ? 'hover:bg-indigo-50 rounded-md p-2 -m-2 mb-2' : ''}
+                        transition-all duration-200
+                        flex items-center gap-3
+                        relative z-10
+                    `}
+                    {...attributes}
+                    {...listeners}
+                    onMouseDown={(e) => {
+                        if (mode === 'structure') {
+                            e.stopPropagation();
+                        }
+                    }}
+                >
+                    {mode === 'structure' && (
+                        <div className="flex items-center gap-1">
+                            <GripVertical
+                                size={20}
+                                className="text-indigo-500 opacity-70 hover:opacity-100 transition-opacity"
+                                strokeWidth={2.5}
+                            />
+                            <div className="flex flex-col gap-1">
+                                <div className="w-1 h-1 bg-indigo-400 rounded-full" />
+                                <div className="w-1 h-1 bg-indigo-400 rounded-full" />
+                                <div className="w-1 h-1 bg-indigo-400 rounded-full" />
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="flex-1 font-medium">
+                        {header}
+                    </div>
+
+                    {mode === 'structure' && (
+                        <div className="text-xs text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                            Glisser
+                        </div>
+                    )}
+                </div>
+
+                {/* BODY - pointer-events disabled in structure mode for full drop zone */}
+                <div
+                    className={`
+                        mt-2
+                        ${mode === 'structure' ? 'pointer-events-none select-none' : ''}
+                    `}
+                >
+                    {children}
+                </div>
+
+                {/* Glow effect when hovering */}
+                {mode === 'structure' && isOver && !isDragging && (
+                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-indigo-500/10 to-purple-500/10 pointer-events-none" />
+                )}
+            </div>
+        </div>
     );
 };

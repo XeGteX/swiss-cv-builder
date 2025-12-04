@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragOverlay } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import {
     useProfile,
     useMode,
@@ -49,11 +50,12 @@ export const ClassicTemplate: React.FC<ClassicTemplateProps> = ({
     // Drag state
     const [activeId, setActiveId] = useState<string | null>(null);
 
-    // Configure drag sensors
+    // Configure drag sensors - OPTIMIZED for reliable bidirectional DnD
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 8,
+                distance: 1,      // 1px for immediate response
+                tolerance: 5,     // 5px tolerance for reliable drops
             },
         })
     );
@@ -146,42 +148,45 @@ export const ClassicTemplate: React.FC<ClassicTemplateProps> = ({
     return (
         <DndContext
             sensors={sensors}
-            collisionDetection={closestCenter}
+            collisionDetection={closestCenter}  // Better for vertical lists
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
-            {/* MULTI-PAGE RENDERING - Mode-aware with Card Stack */}
-            {mode === 'modele' ? (
-                // MODE MODÈLE: Single page only (no stack)
-                <div className="h-full w-full space-y-10">
-                    {pages.slice(0, 1).map((page, index) => (
-                        <ClassicLayout
-                            key={index}
-                            pageIndex={page.pageIndex}
-                            sectionIds={page.sections}
-                            data={data}
-                            mode={mode}
-                            config={config}
-                            language={language}
-                        />
-                    ))}
-                </div>
-            ) : (
-                // MODE ÉDITION & STRUCTURE: Premium Card Stack
-                <CVCardStack
-                    pages={pages.map((page, index) => (
-                        <ClassicLayout
-                            key={index}
-                            pageIndex={page.pageIndex}
-                            sectionIds={page.sections}
-                            data={data}
-                            mode={mode}
-                            config={config}
-                            language={language}
-                        />
-                    ))}
-                />
-            )}
+            {/* CRITICAL FIX: Wrap ALL pages with ONE SortableContext for sections */}
+            <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
+                {/* MULTI-PAGE RENDERING - Mode-aware with Card Stack */}
+                {mode === 'modele' ? (
+                    // MODE MODÈLE: Single page only (no stack)
+                    <div className="h-full w-full space-y-10">
+                        {pages.slice(0, 1).map((page) => (
+                            <ClassicLayout
+                                key={`page-${page.pageIndex}`}  // STABLE ID, not index
+                                pageIndex={page.pageIndex}
+                                sectionIds={page.sections}
+                                data={data}
+                                mode={mode}
+                                config={config}
+                                language={language}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    // MODE ÉDITION & STRUCTURE: Premium Card Stack
+                    <CVCardStack
+                        pages={pages.map((page) => (
+                            <ClassicLayout
+                                key={`page-${page.pageIndex}`}  // STABLE ID, not index
+                                pageIndex={page.pageIndex}
+                                sectionIds={page.sections}
+                                data={data}
+                                mode={mode}
+                                config={config}
+                                language={language}
+                            />
+                        ))}
+                    />
+                )}
+            </SortableContext>
 
             {/* DRAG OVERLAY - Visual Ghost Feedback */}
             <DragOverlay>

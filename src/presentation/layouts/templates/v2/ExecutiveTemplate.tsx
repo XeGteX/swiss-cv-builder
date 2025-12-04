@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragOverlay } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import {
     useProfile,
     useMode,
@@ -45,10 +46,12 @@ export const ExecutiveTemplate: React.FC<ExecutiveTemplateProps> = ({
     const pages = usePagination(data, sectionOrder);
     const [activeId, setActiveId] = useState<string | null>(null);
 
+    // Configure drag sensors - OPTIMIZED for reliable bidirectional DnD
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 8,
+                distance: 1,
+                tolerance: 5,
             },
         })
     );
@@ -136,35 +139,38 @@ export const ExecutiveTemplate: React.FC<ExecutiveTemplateProps> = ({
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
-            {mode === 'modele' ? (
-                <div className="h-full w-full space-y-10">
-                    {pages.slice(0, 1).map((page, index) => (
-                        <ExecutiveLayout
-                            key={index}
-                            pageIndex={page.pageIndex}
-                            sectionIds={page.sections}
-                            data={data}
-                            mode={mode}
-                            config={config}
-                            language={language}
-                        />
-                    ))}
-                </div>
-            ) : (
-                <CVCardStack
-                    pages={pages.map((page, index) => (
-                        <ExecutiveLayout
-                            key={index}
-                            pageIndex={page.pageIndex}
-                            sectionIds={page.sections}
-                            data={data}
-                            mode={mode}
-                            config={config}
-                            language={language}
-                        />
-                    ))}
-                />
-            )}
+            {/* CRITICAL FIX: Wrap ALL pages with ONE SortableContext for sections */}
+            <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
+                {mode === 'modele' ? (
+                    <div className="h-full w-full space-y-10">
+                        {pages.slice(0, 1).map((page) => (
+                            <ExecutiveLayout
+                                key={`page-${page.pageIndex}`}
+                                pageIndex={page.pageIndex}
+                                sectionIds={page.sections}
+                                data={data}
+                                mode={mode}
+                                config={config}
+                                language={language}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <CVCardStack
+                        pages={pages.map((page) => (
+                            <ExecutiveLayout
+                                key={`page-${page.pageIndex}`}
+                                pageIndex={page.pageIndex}
+                                sectionIds={page.sections}
+                                data={data}
+                                mode={mode}
+                                config={config}
+                                language={language}
+                            />
+                        ))}
+                    />
+                )}
+            </SortableContext>
             <DragOverlay>
                 {renderDragOverlay()}
             </DragOverlay>

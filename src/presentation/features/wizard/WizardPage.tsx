@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 import { useCVStore } from '../../../application/store/cv-store';
@@ -22,6 +22,14 @@ export const WizardPage: React.FC = () => {
     const { profile } = useCVStore();
     const { language } = useSettingsStore();
     const [isDownloading, setIsDownloading] = useState(false);
+
+    // Auto-redirect to template gallery when reaching template step
+    useEffect(() => {
+        if (step === 'template') {
+            // Navigate to REAL template gallery (not the old modele mode)
+            navigate('/templates');
+        }
+    }, [step, navigate]);
 
     const handleDownload = async () => {
         try {
@@ -89,16 +97,9 @@ export const WizardPage: React.FC = () => {
     };
 
     const isStepValid = () => {
-        switch (step) {
-            case 'identity':
-                return !!profile.personal.firstName && !!profile.personal.lastName;
-            case 'experience':
-                return true;
-            case 'template':
-                return true;
-            default:
-                return true;
-        }
+        // Relaxed validation - allow progression even if fields are empty
+        // User can fill them later in the builder
+        return true;
     };
 
     return (

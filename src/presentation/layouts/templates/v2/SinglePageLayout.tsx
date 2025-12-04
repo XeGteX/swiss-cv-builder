@@ -422,31 +422,30 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
 
             {/* MAIN CONTENT - Filtered Sections */}
             <div className="px-10 py-8 print:py-8">
-                <SortableContext items={sectionIds} strategy={verticalListSortingStrategy}>
-                    {sectionIds.map(sectionId => {
-                        const content = renderSectionContent(sectionId);
-                        if (!content) return null;
+                {/* Sections - NO SortableContext here, it's at Template level */}
+                {sectionIds.map(sectionId => {
+                    const content = renderSectionContent(sectionId);
+                    if (!content) return null;
 
-                        const meta = sectionMeta[sectionId as keyof typeof sectionMeta];
+                    const meta = sectionMeta[sectionId as keyof typeof sectionMeta];
 
-                        return (
-                            <SortableSection
-                                key={sectionId}
-                                id={sectionId}
-                                mode={mode}
-                                header={
-                                    <h3 className="text-lg font-bold uppercase tracking-wide mb-3 pb-2 border-b-2 flex items-center gap-2" style={{ borderColor: effectiveConfig.colors.primary }}>
-                                        {meta.icon}
-                                        {meta.title}
-                                    </h3>
-                                }
-                                className={densityStyles.sectionGap}
-                            >
-                                {content}
-                            </SortableSection>
-                        );
-                    })}
-                </SortableContext>
+                    return (
+                        <SortableSection
+                            key={sectionId}
+                            id={sectionId}
+                            mode={mode}
+                            header={
+                                <h3 className="text-lg font-bold uppercase tracking-wide mb-3 pb-2 border-b-2 flex items-center gap-2" style={{ borderColor: effectiveConfig.colors.primary }}>
+                                    {meta.icon}
+                                    {meta.title}
+                                </h3>
+                            }
+                            className={densityStyles.sectionGap}
+                        >
+                            {content}
+                        </SortableSection>
+                    );
+                })}
             </div>
         </div>
     );

@@ -283,27 +283,26 @@ export const ExecutiveLayout: React.FC<ExecutiveLayoutProps> = ({
 
             {/* Content */}
             <div className="px-10 pb-10 space-y-10">
-                <SortableContext items={sectionIds} strategy={verticalListSortingStrategy}>
-                    {sectionIds.map((sectionId) => (
-                        <SortableSection
-                            key={sectionId}
-                            id={sectionId}
-                            mode={mode}
-                            header={
-                                <div className="flex items-center gap-4 mb-6">
-                                    <h3 className="text-xl font-serif font-bold text-slate-900 uppercase tracking-widest">
-                                        {sectionMeta[sectionId as keyof typeof sectionMeta]?.title || sectionId}
-                                    </h3>
-                                    <div className="flex-1 h-px bg-slate-200"></div>
-                                </div>
-                            }
-                        >
-                            <section>
-                                {renderSectionContent(sectionId)}
-                            </section>
-                        </SortableSection>
-                    ))}
-                </SortableContext>
+                {/* Sections - NO SortableContext here, it's at Template level */}
+                {sectionIds.map((sectionId) => (
+                    <SortableSection
+                        key={sectionId}
+                        id={sectionId}
+                        mode={mode}
+                        header={
+                            <div className="flex items-center gap-4 mb-6">
+                                <h3 className="text-xl font-serif font-bold text-slate-900 uppercase tracking-widest">
+                                    {sectionMeta[sectionId as keyof typeof sectionMeta]?.title || sectionId}
+                                </h3>
+                                <div className="flex-1 h-px bg-slate-200"></div>
+                            </div>
+                        }
+                    >
+                        <section>
+                            {renderSectionContent(sectionId)}
+                        </section>
+                    </SortableSection>
+                ))}
             </div>
         </div>
     );

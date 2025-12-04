@@ -282,26 +282,25 @@ export const ClassicLayout: React.FC<ClassicLayoutProps> = ({
 
             {/* Content */}
             <div className="space-y-8">
-                <SortableContext items={sectionIds} strategy={verticalListSortingStrategy}>
-                    {sectionIds.map((sectionId) => (
-                        <SortableSection
-                            key={sectionId}
-                            id={sectionId}
-                            mode={mode}
-                            header={
-                                <div className="flex items-center gap-3 mb-4 border-b border-gray-300 pb-1">
-                                    <h3 className="text-lg font-serif font-bold text-gray-900 uppercase tracking-widest">
-                                        {sectionMeta[sectionId as keyof typeof sectionMeta]?.title || sectionId}
-                                    </h3>
-                                </div>
-                            }
-                        >
-                            <section className="mb-6">
-                                {renderSectionContent(sectionId)}
-                            </section>
-                        </SortableSection>
-                    ))}
-                </SortableContext>
+                {/* Sections - NO SortableContext here, it's at Template level */}
+                {sectionIds.map((sectionId) => (
+                    <SortableSection
+                        key={sectionId}
+                        id={sectionId}
+                        mode={mode}
+                        header={
+                            <div className="flex items-center gap-3 mb-4 border-b border-gray-300 pb-1">
+                                <h3 className="text-lg font-serif font-bold text-gray-900 uppercase tracking-widest">
+                                    {sectionMeta[sectionId as keyof typeof sectionMeta]?.title || sectionId}
+                                </h3>
+                            </div>
+                        }
+                    >
+                        <section className="mb-6">
+                            {renderSectionContent(sectionId)}
+                        </section>
+                    </SortableSection>
+                ))}
             </div>
         </div>
     );
