@@ -42,8 +42,21 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
         const handleAiImprove = async () => {
             if (!localValue || typeof localValue !== 'string') return;
 
+            // GATE: Check AI trial status
+            const { useGate } = await import('../../../application/hooks/useGate');
+            const gate = useGate();
+            const { allowed, triggerUpsell } = gate.checkGate('AI_GENERATION');
+
+            if (!allowed) {
+                triggerUpsell();
+                return;
+            }
+
             setIsImproving(true);
             try {
+                // Consume AI trial BEFORE making the request
+                gate.consumeAITrial();
+
                 // Dynamic import to avoid circular dependencies or server-side issues
                 const { geminiService } = await import('../../../application/services/ai/GeminiService');
                 const improvedText = await geminiService.improveText(localValue, label || 'CV Section');

@@ -191,8 +191,8 @@ export const SmartSidebar: React.FC = () => {
                 </AnimatePresence>
             </div>
 
-            {/* Navigation Items */}
-            <nav className="relative mt-4 px-3 space-y-1 flex-1">
+            {/* Navigation Items - Scrollable on small screens */}
+            <nav className="relative mt-4 px-3 space-y-1 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 scrollbar-track-transparent">
                 {NAV_ITEMS.map((item, index) => {
                     const Icon = item.icon;
                     const active = isActive(item);

@@ -4,14 +4,16 @@ import { useCVStoreV2 } from '../../../../application/store/v2';
 import { Input } from '../../../design-system/atoms/Input';
 import { TextArea } from '../../../design-system/atoms/TextArea';
 import { SectionHeader } from '../../../design-system/molecules/SectionHeader';
-import { User, Palette } from 'lucide-react';
+import { User, Palette, Sparkles } from 'lucide-react';
 import { Card } from '../../../design-system/atoms/Card';
+import { useToastStore } from '../../../../application/store/toast-store';
 import { useTranslation } from '../../../hooks/useTranslation';
 
 export const PersonalTab: React.FC = () => {
     const profile = useCVStoreV2((state) => state.profile);
     const updateField = useCVStoreV2((state) => state.updateField);
     const { t } = useTranslation();
+    const { addToast } = useToastStore();
 
     if (!profile || !profile.personal || !profile.metadata) {
         return <div className="p-4 text-slate-400">Chargement du profil...</div>;
@@ -109,6 +111,15 @@ export const PersonalTab: React.FC = () => {
                         onChange={handlePhotoUpload}
                         className="file:text-white file:bg-white/10 file:border-0 file:rounded-md file:px-2 file:py-1 file:mr-2 hover:file:bg-white/20"
                     />
+
+                    {/* Upscale Photo Button */}
+                    <button
+                        onClick={() => addToast('🚀 Upscale IA - Coming Soon!', 'info')}
+                        className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-lg transition-colors"
+                    >
+                        <Sparkles size={14} />
+                        Améliorer Photo (IA)
+                    </button>
 
                     <div className="bg-white/5 p-4 rounded-lg border border-white/10 space-y-3">
                         <p className="text-xs text-white font-bold flex items-center gap-1">

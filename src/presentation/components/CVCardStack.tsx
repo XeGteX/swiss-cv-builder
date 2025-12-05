@@ -8,19 +8,22 @@
  * - Proper z-index stacking (no transparency bleed)
  * - Glass morphism + depth shadows
  * - Independent scroll container
+ * - Mobile cross-page drag navigation (EdgeDropZones)
  */
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { EdgeDropZones } from './EdgeDropZones';
 
 interface CVCardStackProps {
     pages: React.ReactNode[];
+    isDragging?: boolean; // From parent DndContext
 }
 
 
 
-export const CVCardStack: React.FC<CVCardStackProps> = ({ pages }) => {
+export const CVCardStack: React.FC<CVCardStackProps> = ({ pages, isDragging = false }) => {
     const [activePage, setActivePage] = useState(0);
 
 
@@ -61,6 +64,15 @@ export const CVCardStack: React.FC<CVCardStackProps> = ({ pages }) => {
 
     return (
         <>
+            {/* Mobile Cross-Page Drag Navigation */}
+            <EdgeDropZones
+                isDragging={isDragging}
+                onPreviousPage={handlePrevious}
+                onNextPage={handleNext}
+                canGoPrevious={activePage > 0}
+                canGoNext={activePage < pages.length - 1}
+            />
+
             {/* Zoom controls handled by parent */}
 
 

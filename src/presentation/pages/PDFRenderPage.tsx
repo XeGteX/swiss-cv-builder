@@ -1,15 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import ModernTemplate from '../layouts/templates/ModernTemplate';
-import type { CVProfile } from '../../domain/entities/cv';
-
 /**
  * PDFRenderPage - Standalone page for PDF generation
  * Displays ONLY the CV template without any UI chrome
  * Used by Puppeteer to capture pixel-perfect PDF
+ * 
+ * Route: /pdf-render/:id?template=modern
  */
+
+import React, { useEffect, useState } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
+import type { CVProfile } from '../../domain/entities/cv';
+
+// Template imports (V2 templates for consistency)
+import ModernTemplateV2 from '../layouts/templates/v2/ModernTemplate.v2';
+import { ClassicTemplate } from '../layouts/templates/v2/ClassicTemplate';
+import { CreativeTemplate } from '../layouts/templates/v2/CreativeTemplate';
+import { ExecutiveTemplate } from '../layouts/templates/v2/ExecutiveTemplate';
+
+// Template Registry - Maps template IDs to components
+const TEMPLATE_REGISTRY: Record<string, React.ComponentType<any>> = {
+    modern: ModernTemplateV2,
+    classic: ClassicTemplate,
+    creative: CreativeTemplate,
+    executive: ExecutiveTemplate,
+};
+
 const PDFRenderPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
+    const [searchParams] = useSearchParams();
+    const templateId = searchParams.get('template') || 'modern';
+
     const [profile, setProfile] = useState<CVProfile | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -17,7 +36,7 @@ const PDFRenderPage: React.FC = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                console.log(`[PDFRenderPage] Fetching profile ${id}`);
+                console.log(`[PDFRenderPage] Fetching profile ${id} with template ${templateId}`);
                 const response = await fetch(`http://localhost:3000/api/puppeteer-pdf/profile/${id}`);
 
                 if (!response.ok) {
@@ -38,7 +57,10 @@ const PDFRenderPage: React.FC = () => {
         if (id) {
             fetchProfile();
         }
-    }, [id]);
+    }, [id, templateId]);
+
+    // Get template component from registry
+    const TemplateComponent = TEMPLATE_REGISTRY[templateId] || TEMPLATE_REGISTRY.modern;
 
     if (loading) {
         return (
@@ -72,20 +94,19 @@ const PDFRenderPage: React.FC = () => {
     // Render the CV template in print-optimized mode
     return (
         <div
+            id="cv-template"
             style={{
-                width: '100%',
-                minHeight: '100vh',
+                width: '210mm',
+                minHeight: '297mm',
                 margin: 0,
                 padding: 0,
-                background: 'white'
+                background: 'white',
+                overflow: 'hidden'
             }}
         >
-            <ModernTemplate
-                data={profile}
-                densityStyles={{}}
-                accentColor={profile.metadata?.accentColor || '#6366f1'}
-                fontFamily={profile.metadata?.fontFamily || 'sans'}
-                language="en"
+            <TemplateComponent
+                language="fr"
+                forceMode="modele"
             />
         </div>
     );

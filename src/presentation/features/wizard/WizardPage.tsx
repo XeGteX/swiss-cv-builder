@@ -43,11 +43,27 @@ export const WizardPage: React.FC = () => {
     }, [step, navigate]);
 
     const handleDownload = async () => {
+        // GATE: Check for premium template
+        // "modern" template (Modern Swiss) is premium
+        const premiumTemplates = ['modern'];
+        const currentTemplate = profile.metadata?.templateId || 'classic';
+
+        if (premiumTemplates.includes(currentTemplate)) {
+            const { useGate } = await import('../../../application/hooks/useGate');
+            const gate = useGate();
+            const { allowed, triggerUpsell } = gate.checkGate('PREMIUM_TEMPLATE');
+
+            if (!allowed) {
+                triggerUpsell();
+                return;
+            }
+        }
+
         try {
             setIsDownloading(true);
 
-            // Call server-side PDF generation API DIRECTLY (bypass Vite proxy for large bodies)
-            const response = await fetch('http://localhost:3000/api/pdf/generate-pdf', {
+            // Call Puppeteer PDF API for pixel-perfect rendering
+            const response = await fetch('http://localhost:3000/api/puppeteer-pdf/generate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -231,7 +247,7 @@ export const WizardPage: React.FC = () => {
                     {step === 'download' ? (
                         <Button
                             onClick={handleDownload}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20"
+                            className="bg-primary-600 hover:bg-primary-700 text-white shadow-lg shadow-primary-500/20"
                             rightIcon={<Download size={16} />}
                             isLoading={isDownloading}
                         >

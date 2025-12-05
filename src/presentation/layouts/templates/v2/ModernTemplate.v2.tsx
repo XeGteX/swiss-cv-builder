@@ -57,12 +57,11 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
     // Drag state
     const [activeId, setActiveId] = useState<string | null>(null);
 
-    // Configure drag sensors - OPTIMIZED for reliable bidirectional DnD
+    // Configure drag sensors - OPTIMIZED for desktop + mobile
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 1,
-                tolerance: 5,
+                distance: 8, // Increased for mobile stability
             },
         })
     );
@@ -235,6 +234,7 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
                                 language={language}
                             />
                         ))}
+                        isDragging={!!activeId}
                     />
                 )}
             </SortableContext>

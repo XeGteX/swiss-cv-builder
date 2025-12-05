@@ -32,7 +32,7 @@ interface Template {
 const TEMPLATES: Template[] = [
     {
         id: 'modern',
-        name: 'Modern Pro',
+        name: 'Modern Swiss',
         description: 'Design moderne avec sections colorées',
         preview: ModernTemplateV2 as React.ComponentType<{ language?: 'en' | 'fr'; forceMode?: 'modele' }>,
         gradient: 'from-blue-600 to-cyan-600',

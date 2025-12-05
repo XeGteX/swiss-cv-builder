@@ -31,7 +31,7 @@ export const CoverLetterTab: React.FC = () => {
 
     // Editor State
     const [mode, setMode] = useState<'offline' | 'online'>('offline');
-    const [apiKey, setApiKey] = useState('');
+    // API key removed - now using import.meta.env.VITE_GEMINI_API_KEY
     const [isOnlineLoading, setIsOnlineLoading] = useState(false);
     const [targetLang, setTargetLang] = useState<'fr' | 'en'>(language);
     const [usage, setUsage] = useState<{ usage: number, limit: number | string, isPro: boolean } | null>(null);
@@ -175,8 +175,10 @@ export const CoverLetterTab: React.FC = () => {
 
     // --- Generators ---
     const generateOnline = async () => {
-        if (!isAuthenticated && !apiKey) {
-            addToast(commonTxt.aiSection.errorApiKey, 'error');
+        // Use environment variable for API key
+        const envApiKey = import.meta.env.VITE_GEMINI_API_KEY;
+        if (!isAuthenticated && !envApiKey) {
+            addToast('Clé API manquante. Ajoutez VITE_GEMINI_API_KEY dans .env', 'error');
             return;
         }
         setIsOnlineLoading(true);
@@ -185,7 +187,7 @@ export const CoverLetterTab: React.FC = () => {
             if (isAuthenticated) {
                 client = new BackendAIClient();
             } else {
-                client = new GeminiClient(apiKey);
+                client = new GeminiClient(envApiKey);
             }
             const service = new AIService(client);
             const contextProfile = { ...profile };
@@ -376,29 +378,19 @@ export const CoverLetterTab: React.FC = () => {
                                 )}
                             </div>
                         )}
-                        <div className="flex gap-2">
-                            {!isAuthenticated && (
-                                <input
-                                    type="password"
-                                    value={apiKey}
-                                    onChange={(e) => setApiKey(e.target.value)}
-                                    className="flex-1 p-2 border border-emerald-500/30 rounded text-xs bg-black/20 text-emerald-100 focus:ring-2 focus:ring-emerald-500 outline-none placeholder:text-emerald-700"
-                                    placeholder="Gemini API Key (sk-...)"
-                                />
-                            )}
-                            <Button
-                                size="sm"
-                                onClick={generateOnline}
-                                isLoading={isOnlineLoading}
-                                className={`bg-emerald-600 hover:bg-emerald-700 text-white ${isAuthenticated ? 'w-full' : 'shrink-0'}`}
-                                leftIcon={<Lucide.Sparkles size={14} />}
-                                disabled={isAuthenticated && !usage?.isPro && typeof usage?.limit === 'number' && usage.usage >= usage.limit}
-                            >
-                                {isAuthenticated && !usage?.isPro && typeof usage?.limit === 'number' && usage.usage >= usage.limit
-                                    ? 'Quota Exceeded'
-                                    : txt.generate}
-                            </Button>
-                        </div>
+                        {/* API input removed - uses VITE_GEMINI_API_KEY env variable */}
+                        <Button
+                            size="sm"
+                            onClick={generateOnline}
+                            isLoading={isOnlineLoading}
+                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                            leftIcon={<Lucide.Sparkles size={14} />}
+                            disabled={isAuthenticated && !usage?.isPro && typeof usage?.limit === 'number' && usage.usage >= usage.limit}
+                        >
+                            {isAuthenticated && !usage?.isPro && typeof usage?.limit === 'number' && usage.usage >= usage.limit
+                                ? 'Quota Exceeded'
+                                : txt.generate}
+                        </Button>
                     </Card>
                 ) : (
                     <Button

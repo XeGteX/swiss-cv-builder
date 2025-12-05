@@ -14,22 +14,25 @@ import { PreviewPane } from '../features/preview/PreviewPane';
 import { AtlasStatus } from '../components/AtlasStatus';
 import { EditorSidebar } from '../features/editor/EditorSidebar';
 import { MainLayout } from '../layouts/MainLayout';
-import { useMode, useSetMode } from '../../application/store/v2';
+import { useMode, useSetMode, useCVStoreV2 } from '../../application/store/v2';
 import { useAuthStore } from '../../application/store/auth-store';
 import { FocusModeToggle } from '../features/preview/FocusModeToggle';
 import { AuthModal } from '../features/auth/AuthModal';
 import { UserDropdown } from '../features/auth/UserDropdown';
 import { SettingsModal } from '../features/settings/SettingsModal';
-import { ZoomIn, ZoomOut, Layout, Edit3, User, Settings } from 'lucide-react';
+import { ZoomIn, ZoomOut, Layout, Edit3, User, Settings, Download, FileJson } from 'lucide-react';
 
 export const CVPageV2: React.FC = () => {
     const mode = useMode();
     const setMode = useSetMode();
+    const profile = useCVStoreV2((state) => state.profile);
     const { isAuthenticated } = useAuthStore();
     const [isFocusMode, setIsFocusMode] = useState(false);
     const [zoom, setZoom] = useState(1);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+    const [showDownloadMenu, setShowDownloadMenu] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
     const previewContainerRef = React.useRef<HTMLDivElement>(null);
 
     // Auto-Zoom Logic: Fit to width when sidebar opens or resizes
@@ -142,6 +145,71 @@ export const CVPageV2: React.FC = () => {
                         </div>
 
                         <div className="flex items-center gap-3">
+                            {/* Download Dropdown */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+                                    className={`p-2 rounded-lg transition-colors ${isDownloading ? 'animate-pulse bg-primary-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/10'}`}
+                                    title="Télécharger"
+                                    disabled={isDownloading}
+                                >
+                                    <Download size={18} />
+                                </button>
+                                {showDownloadMenu && (
+                                    <div className="absolute right-0 top-full mt-2 w-48 bg-slate-900 border border-white/10 rounded-lg shadow-xl z-50 overflow-hidden">
+                                        <button
+                                            onClick={async () => {
+                                                setShowDownloadMenu(false);
+                                                setIsDownloading(true);
+                                                try {
+                                                    const response = await fetch('http://localhost:3000/api/puppeteer-pdf/generate', {
+                                                        method: 'POST',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({ profile, language: 'fr' }),
+                                                    });
+                                                    if (response.ok) {
+                                                        const blob = await response.blob();
+                                                        const url = URL.createObjectURL(blob);
+                                                        const link = document.createElement('a');
+                                                        link.href = url;
+                                                        link.download = `cv-${profile?.personal?.lastName || 'export'}.pdf`;
+                                                        link.click();
+                                                        URL.revokeObjectURL(url);
+                                                    } else {
+                                                        console.error('PDF generation failed:', response.status);
+                                                    }
+                                                } catch (e) {
+                                                    console.error('PDF download failed', e);
+                                                } finally {
+                                                    setIsDownloading(false);
+                                                }
+                                            }}
+                                            className="w-full px-4 py-2.5 text-left text-sm text-slate-200 hover:bg-white/10 flex items-center gap-3"
+                                        >
+                                            <Download size={16} className="text-primary-400" />
+                                            PDF (Puppeteer)
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setShowDownloadMenu(false);
+                                                const data = JSON.stringify(profile, null, 2);
+                                                const blob = new Blob([data], { type: 'application/json' });
+                                                const url = URL.createObjectURL(blob);
+                                                const link = document.createElement('a');
+                                                link.href = url;
+                                                link.download = `cv-${profile?.personal?.lastName || 'data'}.json`;
+                                                link.click();
+                                                URL.revokeObjectURL(url);
+                                            }}
+                                            className="w-full px-4 py-2.5 text-left text-sm text-slate-200 hover:bg-white/10 flex items-center gap-3 border-t border-white/10"
+                                        >
+                                            <FileJson size={16} className="text-amber-400" />
+                                            JSON (Données)
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
                             {/* Settings Button */}
                             <button
                                 onClick={() => setIsSettingsModalOpen(true)}
