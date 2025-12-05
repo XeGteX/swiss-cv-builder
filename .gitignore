@@ -24,4 +24,10 @@ dist-ssr
 *.sln
 *.sw?
 
+# Environment variables (AJOUTE ÇA)
+.env
+.env.development
+.env.test
+.env.production
+
 /src/generated/prisma

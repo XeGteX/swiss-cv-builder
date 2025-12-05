@@ -9,6 +9,37 @@ import { PathUtils } from '../../../domain/cv/v2/path-utils';
 import type { CVProfile } from '../../../domain/cv/v2/types';
 
 // ============================================================================
+// UUID POLYFILL (for mobile browsers that don't support crypto.randomUUID)
+// ============================================================================
+
+/**
+ * Generate a UUID v4
+ * Uses crypto.randomUUID if available, otherwise falls back to a polyfill
+ */
+function generateUUID(): string {
+    // Try native crypto.randomUUID first (modern browsers)
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+    }
+
+    // Fallback for older browsers (including older mobile Safari)
+    if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+            const r = crypto.getRandomValues(new Uint8Array(1))[0] % 16;
+            const v = c === 'x' ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+        });
+    }
+
+    // Last resort fallback (Math.random - not cryptographically secure but works)
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+}
+
+// ============================================================================
 // ARRAY OPERATIONS
 // ============================================================================
 
@@ -17,7 +48,7 @@ import type { CVProfile } from '../../../domain/cv/v2/types';
  */
 export function addExperience(profile: CVProfile): CVProfile {
     const newExperience = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         role: '',
         company: '',
         dates: '',
@@ -39,7 +70,7 @@ export function removeExperience(profile: CVProfile, id: string): CVProfile {
  */
 export function addEducation(profile: CVProfile): CVProfile {
     const newEducation = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         degree: '',
         school: '',
         year: ''
@@ -151,7 +182,7 @@ export function reorderSections(
  */
 export function getInitialProfile(): CVProfile {
     return {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         lastUpdated: Date.now(),
         personal: {
             firstName: 'Jean',
@@ -169,7 +200,7 @@ export function getInitialProfile(): CVProfile {
         summary: 'Ingénieur logiciel passionné avec plus de 8 ans d\'expérience dans le développement d\'applications web modernes et scalables. Expert en React, TypeScript et architecture cloud. Capacité démontrée à diriger des équipes techniques et à livrer des solutions innovantes répondant aux besoins métier complexes.',
         experiences: [
             {
-                id: crypto.randomUUID(),
+                id: generateUUID(),
                 role: 'Architecte Logiciel Senior',
                 company: 'TechCorp Suisse SA',
                 dates: '2020 - Présent',
@@ -182,7 +213,7 @@ export function getInitialProfile(): CVProfile {
                 ]
             },
             {
-                id: crypto.randomUUID(),
+                id: generateUUID(),
                 role: 'Développeur Full-Stack',
                 company: 'SwissBank Digital',
                 dates: '2017 - 2020',
@@ -197,14 +228,14 @@ export function getInitialProfile(): CVProfile {
         ],
         educations: [
             {
-                id: crypto.randomUUID(),
+                id: generateUUID(),
                 degree: 'Master en Informatique',
                 school: 'EPFL - École Polytechnique Fédérale de Lausanne',
                 year: '2017',
                 description: 'Spécialisation en systèmes distribués et intelligence artificielle'
             },
             {
-                id: crypto.randomUUID(),
+                id: generateUUID(),
                 degree: 'Bachelor en Informatique',
                 school: 'Université de Genève',
                 year: '2015',

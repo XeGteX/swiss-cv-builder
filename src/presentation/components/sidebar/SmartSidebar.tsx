@@ -2,21 +2,16 @@
  * SMART SIDEBAR - Ultra-Modern Collapsible Navigation
  * 
  * Premium sidebar with glass morphism, smooth animations, and mode-aware routing.
- * Surpasses the basic template with advanced interactions and visual polish.
  * 
  * Features:
- * - Collapsed: 80px width (icons only)
- * - Expanded: 280px width (icons + labels)
+ * - Mobile: Hidden by default, hamburger menu toggle, overlay drawer
+ * - Desktop Collapsed: 80px width (icons only)
+ * - Desktop Expanded: 280px width (icons + labels)
  * - Spring-based animations (framer-motion)
  * - Glass morphism backdrop
- * - Gradient hover effects
- * - Mode-aware active states
- * - Tooltip fallback for accessib
-
-ility
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -26,11 +21,14 @@ import {
     Palette,
     Sparkles,
     Settings,
-    Wand2
+    Wand2,
+    Menu,
+    X
 } from 'lucide-react';
 import { useMode, useSetMode } from '../../../application/store/v2';
 import type { CVMode } from '../../../application/store/v2';
 import { GlassStyles } from '../../design-system/tokens';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 interface NavItem {
     id: string;
@@ -115,22 +113,39 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export const SmartSidebar: React.FC = () => {
+    const isMobile = useIsMobile();
     const [isExpanded, setExpanded] = useState(false);
+    const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [hoveredItem, setHoveredItem] = useState<string | null>(null);
     const navigate = useNavigate();
     const location = useLocation();
     const currentMode = useMode();
     const setMode = useSetMode();
 
+    // Close mobile menu on route change
+    useEffect(() => {
+        setMobileMenuOpen(false);
+    }, [location.pathname]);
+
+    // Close mobile menu on escape key
+    useEffect(() => {
+        const handleEscape = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setMobileMenuOpen(false);
+        };
+        window.addEventListener('keydown', handleEscape);
+        return () => window.removeEventListener('keydown', handleEscape);
+    }, []);
+
     const handleItemClick = (item: NavItem) => {
         if (item.action === 'openSettings') {
-            // Dispatch custom event for SettingsModal
             window.dispatchEvent(new CustomEvent('OPEN_SETTINGS_MODAL'));
         } else if (item.path) {
             navigate(item.path);
         } else if (item.mode) {
             setMode(item.mode);
         }
+        // Close mobile menu after clicking
+        if (isMobile) setMobileMenuOpen(false);
     };
 
     const isActive = (item: NavItem): boolean => {
@@ -143,9 +158,123 @@ export const SmartSidebar: React.FC = () => {
         return false;
     };
 
-    // Check if we're on templates page
     const isOnTemplatesPage = location.pathname === '/templates';
 
+    // ═══════════════════════════════════════════════════════════════════
+    // MOBILE: Hamburger Menu + Overlay Drawer
+    // ═══════════════════════════════════════════════════════════════════
+    if (isMobile) {
+        return (
+            <>
+                {/* Hamburger Button - Fixed top-left */}
+                <button
+                    onClick={() => setMobileMenuOpen(true)}
+                    className="fixed top-4 left-4 z-50 p-3 bg-slate-900/80 backdrop-blur-lg rounded-xl border border-white/10 text-white shadow-xl"
+                    aria-label="Open menu"
+                >
+                    <Menu size={24} />
+                </button>
+
+                {/* Overlay backdrop */}
+                <AnimatePresence>
+                    {isMobileMenuOpen && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+                            onClick={() => setMobileMenuOpen(false)}
+                        />
+                    )}
+                </AnimatePresence>
+
+                {/* Mobile Drawer */}
+                <AnimatePresence>
+                    {isMobileMenuOpen && (
+                        <motion.div
+                            initial={{ x: '-100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '-100%' }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                            className={`fixed top-0 left-0 h-full w-72 z-50 flex flex-col pt-6 pb-6 ${GlassStyles.panel}`}
+                        >
+                            {/* Header with Close Button */}
+                            <div className="px-6 mb-6 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
+                                        CV
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-xl bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                                            Nexal
+                                        </span>
+                                        <span className="text-xs text-slate-400">AI-Powered</span>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                                    aria-label="Close menu"
+                                >
+                                    <X size={24} />
+                                </button>
+                            </div>
+
+                            {/* Navigation Items */}
+                            <nav className="px-3 space-y-1 flex-1 overflow-y-auto">
+                                {NAV_ITEMS.map((item, index) => {
+                                    const Icon = item.icon;
+                                    const active = isActive(item);
+                                    const prevItem = index > 0 ? NAV_ITEMS[index - 1] : null;
+                                    const showSeparator = prevItem && prevItem.section !== item.section;
+
+                                    if (isOnTemplatesPage && item.section === 'tools') return null;
+
+                                    return (
+                                        <React.Fragment key={item.id}>
+                                            {showSeparator && (
+                                                <div className="py-3">
+                                                    <div className="h-px bg-gradient-to-r from-transparent via-slate-500 to-transparent" />
+                                                    <div className="mt-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase px-4">
+                                                        {item.section === 'tools' ? 'Outils CV' : ''}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <button
+                                                onClick={() => handleItemClick(item)}
+                                                className={`
+                                                    w-full flex items-center gap-4 px-4 py-3.5 rounded-xl
+                                                    transition-all duration-200
+                                                    ${active
+                                                        ? 'bg-gradient-to-r ' + item.gradient + ' text-white shadow-lg'
+                                                        : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                                                    }
+                                                `}
+                                            >
+                                                <Icon size={22} strokeWidth={active ? 2.5 : 2} />
+                                                <div className="flex-1 text-left">
+                                                    <div className="font-semibold text-sm">{item.label}</div>
+                                                    <div className={`text-xs ${active ? 'text-white/80' : 'text-slate-400'}`}>
+                                                        {item.description}
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        </React.Fragment>
+                                    );
+                                })}
+                            </nav>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </>
+        );
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // DESKTOP: Normal Sidebar with Hover Expand
+    // ═══════════════════════════════════════════════════════════════════
     return (
         <motion.div
             onMouseEnter={() => setExpanded(true)}
@@ -153,7 +282,7 @@ export const SmartSidebar: React.FC = () => {
             initial={{ width: 80 }}
             animate={{ width: isExpanded ? 280 : 80 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className={`h-screen flex flex-col pt-10 pb-6 sticky top-0 z-50 ${GlassStyles.panel}`}
+            className={`h-screen flex flex-col pt-10 pb-6 sticky top-0 left-0 z-50 ${GlassStyles.panel}`}
         >
             {/* Logo */}
             <div className="px-6 mb-8">
@@ -191,7 +320,7 @@ export const SmartSidebar: React.FC = () => {
                 </AnimatePresence>
             </div>
 
-            {/* Navigation Items - Scrollable on small screens */}
+            {/* Navigation Items */}
             <nav className="relative mt-4 px-3 space-y-1 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 scrollbar-track-transparent">
                 {NAV_ITEMS.map((item, index) => {
                     const Icon = item.icon;
@@ -201,7 +330,6 @@ export const SmartSidebar: React.FC = () => {
 
                     return (
                         <React.Fragment key={item.id}>
-                            {/* Section Separator */}
                             {showSeparator && (
                                 <div className="py-3">
                                     <div className="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
@@ -216,7 +344,6 @@ export const SmartSidebar: React.FC = () => {
                                 </div>
                             )}
 
-                            {/* Hide CV tools when on templates page */}
                             {isOnTemplatesPage && item.section === 'tools' ? null : (
                                 <motion.button
                                     onClick={() => handleItemClick(item)}
@@ -233,7 +360,6 @@ export const SmartSidebar: React.FC = () => {
                                     whileHover={{ scale: 1.02, x: 2 }}
                                     whileTap={{ scale: 0.98 }}
                                 >
-                                    {/* Icon */}
                                     <motion.div
                                         className="flex-shrink-0"
                                         animate={{
@@ -244,7 +370,6 @@ export const SmartSidebar: React.FC = () => {
                                         <Icon size={22} strokeWidth={active ? 2.5 : 2} />
                                     </motion.div>
 
-                                    {/* Label (visible when expanded) */}
                                     <AnimatePresence>
                                         {isExpanded && (
                                             <motion.div
@@ -264,7 +389,6 @@ export const SmartSidebar: React.FC = () => {
                                         )}
                                     </AnimatePresence>
 
-                                    {/* Active Indicator */}
                                     {active && (
                                         <motion.div
                                             className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-l-full"
@@ -273,7 +397,6 @@ export const SmartSidebar: React.FC = () => {
                                         />
                                     )}
 
-                                    {/* Tooltip for collapsed state */}
                                     {!isExpanded && hoveredItem === item.id && (
                                         <motion.div
                                             className="absolute left-full ml-4 px-3 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg shadow-xl pointer-events-none whitespace-nowrap z-50"
@@ -294,3 +417,4 @@ export const SmartSidebar: React.FC = () => {
         </motion.div>
     );
 };
+

@@ -1,5 +1,20 @@
 import type { CVProfile } from '../../src/domain/entities/cv';
 import { v4 as uuidv4 } from 'uuid';
+import * as fs from 'fs';
+
+// Debug log file path
+const DEBUG_LOG = './pdf-store-debug.log';
+
+function debugLog(message: string) {
+    const timestamp = new Date().toISOString();
+    const logLine = `[${timestamp}] ${message}\n`;
+    console.log(`[PDFStore-DEBUG] ${message}`);
+    try {
+        fs.appendFileSync(DEBUG_LOG, logLine);
+    } catch (e) {
+        // Ignore write errors
+    }
+}
 
 /**
  * Temporary in-memory storage for CV profiles during PDF generation
@@ -12,6 +27,7 @@ class PDFStore {
     constructor() {
         // Start cleanup task every 10 seconds
         this.cleanupInterval = setInterval(() => this.cleanup(), 10000);
+        debugLog('PDFStore instance created - cleanup interval started');
     }
 
     /**
@@ -23,7 +39,7 @@ class PDFStore {
             profile,
             timestamp: Date.now()
         });
-        console.log(`[PDFStore] Stored profile ${id} (total: ${this.profiles.size})`);
+        debugLog(`STORE: id=${id}, size=${this.profiles.size}, profile.firstName=${profile.personal?.firstName || 'N/A'}`);
         return id;
     }
 
@@ -31,12 +47,15 @@ class PDFStore {
      * Retrieve a CV profile by ID
      */
     get(id: string): CVProfile | null {
+        debugLog(`GET: id=${id}, allIds=[${[...this.profiles.keys()].join(', ') || 'NONE'}], size=${this.profiles.size}`);
+
         const entry = this.profiles.get(id);
         if (!entry) {
-            console.log(`[PDFStore] Profile ${id} not found`);
+            debugLog(`GET FAILED: id=${id} NOT FOUND`);
             return null;
         }
-        console.log(`[PDFStore] Retrieved profile ${id}`);
+        const age = Date.now() - entry.timestamp;
+        debugLog(`GET SUCCESS: id=${id}, age=${age}ms`);
         return entry.profile;
     }
 

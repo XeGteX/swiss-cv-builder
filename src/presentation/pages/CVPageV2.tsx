@@ -21,8 +21,10 @@ import { AuthModal } from '../features/auth/AuthModal';
 import { UserDropdown } from '../features/auth/UserDropdown';
 import { SettingsModal } from '../features/settings/SettingsModal';
 import { ZoomIn, ZoomOut, Layout, Edit3, User, Settings, Download, FileJson } from 'lucide-react';
+import { useIsMobile } from '../hooks/useMediaQuery';
 
 export const CVPageV2: React.FC = () => {
+    const isMobile = useIsMobile();
     const mode = useMode();
     const setMode = useSetMode();
     const profile = useCVStoreV2((state) => state.profile);
@@ -119,27 +121,30 @@ export const CVPageV2: React.FC = () => {
             <div className="h-full flex flex-col bg-transparent">
                 {/* Top Bar - Hidden in Focus Mode */}
                 {!isFocusMode && (
-                    <div className="shrink-0 p-4 flex items-center justify-between bg-transparent border-b border-white/10">
-                        <div className="flex items-center gap-4">
-                            <AtlasStatus />
+                    <div className={`shrink-0 p-4 flex items-center justify-between bg-transparent border-b border-white/10 ${isMobile ? 'pl-16' : ''}`}>
+                        <div className="flex items-center gap-2 md:gap-4">
+                            {/* AtlasStatus - Hidden on mobile */}
+                            <div className="hidden md:block">
+                                <AtlasStatus />
+                            </div>
 
                             {/* Mode Switcher (Top Bar) */}
                             <div className="flex bg-slate-900/50 rounded-lg p-1 border border-white/10">
                                 <button
                                     onClick={() => setMode('edition')}
-                                    className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 transition-all ${mode === 'edition' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                                    className={`px-2 md:px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1 md:gap-2 transition-all ${mode === 'edition' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
                                         }`}
                                 >
                                     <Edit3 size={14} />
-                                    Édition
+                                    <span className="hidden sm:inline">Édition</span>
                                 </button>
                                 <button
                                     onClick={() => setMode('structure')}
-                                    className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 transition-all ${mode === 'structure' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                                    className={`px-2 md:px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1 md:gap-2 transition-all ${mode === 'structure' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
                                         }`}
                                 >
                                     <Layout size={14} />
-                                    Structure
+                                    <span className="hidden sm:inline">Structure</span>
                                 </button>
                             </div>
                         </div>
@@ -232,8 +237,8 @@ export const CVPageV2: React.FC = () => {
                                 </button>
                             )}
 
-                            {/* Zoom Controls */}
-                            <div className="flex items-center gap-2 bg-slate-900/50 rounded-lg p-1 border border-white/10">
+                            {/* Zoom Controls - Hidden on very small screens */}
+                            <div className="hidden sm:flex items-center gap-2 bg-slate-900/50 rounded-lg p-1 border border-white/10">
                                 <button onClick={handleZoomOut} className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded">
                                     <ZoomOut size={16} />
                                 </button>
@@ -245,8 +250,8 @@ export const CVPageV2: React.FC = () => {
                                 </button>
                             </div>
 
-                            {/* Focus Mode Toggle (Only in Edition) */}
-                            {mode === 'edition' && (
+                            {/* Focus Mode Toggle (Only in Edition on Desktop) */}
+                            {mode === 'edition' && !isMobile && (
                                 <FocusModeToggle
                                     isFocusMode={isFocusMode}
                                     toggleFocusMode={() => setIsFocusMode(!isFocusMode)}
@@ -258,9 +263,9 @@ export const CVPageV2: React.FC = () => {
 
                 {/* Main Content Area - INDEPENDENT BLOCKS */}
                 <div className="flex-1 overflow-hidden min-h-0">
-                    <div className="h-full flex gap-4 p-4">
-                        {/* Editor Sidebar - INDEPENDENT SCROLL - Hidden in Focus Mode */}
-                        {mode === 'edition' && !isFocusMode && (
+                    <div className="h-full flex gap-4 p-2 md:p-4">
+                        {/* Editor Sidebar - Hidden on mobile and in Focus Mode */}
+                        {mode === 'edition' && !isFocusMode && !isMobile && (
                             <div className="shrink-0 h-full overflow-hidden">
                                 <EditorSidebar />
                             </div>

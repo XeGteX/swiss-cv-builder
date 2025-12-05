@@ -31,7 +31,10 @@ router.post('/generate', async (req, res) => {
 
         try {
             // Generate PDF using Puppeteer (navigates to real React page)
-            const pdfBuffer = await PuppeteerPDFService.generatePDF(profileId);
+            const result = await PuppeteerPDFService.generatePDF({
+                profileId,
+                templateId: profile.metadata?.templateId || 'modern'
+            });
 
             // Generate filename
             const lastName = profile.personal?.lastName || 'Resume';
@@ -41,12 +44,12 @@ router.post('/generate', async (req, res) => {
             // Set headers for PDF download
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-            res.setHeader('Content-Length', pdfBuffer.length.toString());
+            res.setHeader('Content-Length', result.buffer.length.toString());
 
             // Send PDF
-            res.send(pdfBuffer);
+            res.send(result.buffer);
 
-            console.log(`[Puppeteer PDF] ✅ PDF generated successfully: ${filename} (${pdfBuffer.length} bytes)`);
+            console.log(`[Puppeteer PDF] ✅ PDF generated successfully: ${filename} (${result.buffer.length} bytes) in ${result.generationTime}ms`);
         } finally {
             // Clean up stored profile
             pdfStore.delete(profileId);

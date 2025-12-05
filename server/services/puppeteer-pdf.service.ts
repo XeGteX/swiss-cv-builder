@@ -123,6 +123,31 @@ export class PuppeteerPDFService {
 
             this.log('✅', 'DOM', 'CV template container found');
 
+            // Wait for ACTUAL CV CONTENT (not loading message)
+            // Check that the content doesn't contain loading/error states
+            await page.waitForFunction(
+                () => {
+                    const container = document.querySelector('#cv-template');
+                    if (!container) return false;
+
+                    const text = container.textContent || '';
+                    // Check for loading/error states
+                    if (text.includes('Loading CV...')) return false;
+                    if (text.includes('Waiting for profile')) return false;
+                    if (text.includes('Error:')) return false;
+
+                    // Check for actual CV content - look for common CV elements
+                    // The template should have section headers or content
+                    const hasContent = container.querySelectorAll('[class*="section"], h1, h2, h3').length > 0
+                        || text.length > 200; // Fallback: has substantial text
+
+                    return hasContent;
+                },
+                { timeout: 15000, polling: 500 }
+            );
+
+            this.log('✅', 'CONTENT', 'CV template content rendered');
+
             // Wait for ALL fonts to load (critical for icons & typography)
             await page.evaluate(() => document.fonts.ready);
 
@@ -177,7 +202,22 @@ export class PuppeteerPDFService {
                 try {
                     const url = page.url();
                     this.log('🔍', 'DEBUG', `Failed at URL: ${url}`);
-                } catch { }
+
+                    // Capture screenshot to see what went wrong
+                    const screenshotPath = `./pdf-error-${Date.now()}.png`;
+                    await page.screenshot({ path: screenshotPath, fullPage: true });
+                    this.log('📸', 'DEBUG', `Error screenshot saved to: ${screenshotPath}`);
+
+                    // Get page content for debugging
+                    const content = await page.content();
+                    this.log('📄', 'DEBUG', `Page content (first 500 chars): ${content.substring(0, 500)}`);
+
+                    // Check for specific error states
+                    const bodyText = await page.evaluate(() => document.body?.innerText || 'EMPTY');
+                    this.log('📝', 'DEBUG', `Body text: ${bodyText.substring(0, 200)}`);
+                } catch (debugError) {
+                    this.log('⚠️', 'DEBUG', `Debug capture failed: ${debugError}`);
+                }
             }
 
             throw new Error(`PDF Generation failed: ${error.message}`);
