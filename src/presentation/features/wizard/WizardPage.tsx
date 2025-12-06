@@ -130,15 +130,17 @@ export const WizardPage: React.FC = () => {
 
     return (
         <div className="h-screen bg-transparent flex flex-col overflow-hidden">
-            {/* Header */}
-            <div className="bg-transparent border-b border-white/10 px-6 py-4 flex justify-between items-center sticky top-0 z-50 backdrop-blur-sm shrink-0">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white font-bold shadow-lg shadow-brand-500/20">
+            {/* Header - LIQUID GLASS PREMIUM */}
+            <div className="relative border-b border-white/10 px-6 py-4 flex justify-between items-center sticky top-0 z-50 shrink-0" style={{ background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.10) 50%, rgba(168, 85, 247, 0.15) 100%)' }}>
+                {/* Subtle glow line at top */}
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-500/50 via-violet-500/70 to-purple-500/50" />
+                <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 bg-gradient-to-br from-violet-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-violet-500/30">
                         CV
                     </div>
-                    <span className="font-bold text-slate-200">{t('wizard.title')}</span>
+                    <span className="font-bold text-white text-lg">Wizard</span>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="text-slate-400 hover:text-white hover:bg-white/5">
+                <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="text-slate-300 hover:text-white hover:bg-white/10 rounded-xl">
                     {t('wizard.actions.exit')}
                 </Button>
             </div>
@@ -179,10 +181,10 @@ export const WizardPage: React.FC = () => {
 
             {/* Content - Mobile touch scrolling enabled */}
             <div
-                className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar"
+                className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar overscroll-none"
                 style={{
                     WebkitOverflowScrolling: 'touch',
-                    contain: 'content' // Prevent layout shifts
+                    /* REMOVED: contain: 'content' - causes gray block visual artifacts on mobile */
                 }}
             >
                 <div className="max-w-3xl mx-auto p-6 pb-24">
@@ -244,10 +246,12 @@ export const WizardPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Footer Actions */}
-            <div className="bg-transparent border-t border-white/10 p-4 sticky bottom-0 z-50 backdrop-blur-md">
-                <div className="max-w-3xl mx-auto flex justify-between items-center">
-                    <Button variant="secondary" onClick={handleBack} leftIcon={<ChevronLeft size={16} />} className="bg-white/5 hover:bg-white/10 text-slate-300 border-white/10">
+            {/* Footer Actions - LIQUID GLASS PREMIUM */}
+            <div className="relative border-t border-white/10 p-4 sticky bottom-0 z-50 shrink-0" style={{ background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.10) 50%, rgba(168, 85, 247, 0.15) 100%)' }}>
+                {/* Subtle glow line at top */}
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-500/50 via-violet-500/70 to-purple-500/50" />
+                <div className="max-w-3xl mx-auto flex justify-between items-center gap-4">
+                    <Button variant="secondary" onClick={handleBack} leftIcon={<ChevronLeft size={16} />} className="bg-white/10 hover:bg-white/20 text-white border-white/20 rounded-xl">
                         {currentStepIndex === 0 ? t('wizard.actions.exit') : t('wizard.actions.back')}
                     </Button>
 

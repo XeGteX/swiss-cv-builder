@@ -8,9 +8,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Sparkles } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useIsMobile } from '../hooks/useMediaQuery';
 import { TemplateCarousel3D } from '../components/templates/TemplateCarousel3D';
+import { TemplateGallery } from '../features/templates/TemplateGallery';
 
 const templates = [
     { id: 'modern', name: 'Modern', description: 'Design épuré et contemporain', category: 'Populaire' },
@@ -71,58 +72,39 @@ const TemplatesPage: React.FC = () => {
                         </p>
                     </motion.div>
 
-                    {/* Mobile: 3D Carousel / Desktop: Grid */}
+                    {/* Mobile: 3D Carousel / Desktop: Full Gallery */}
                     {isMobile && !showGrid ? (
                         <TemplateCarousel3D
                             onSelectTemplate={handleSelectTemplate}
                             onShowGrid={() => setShowGrid(true)}
                         />
-                    ) : (
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    ) : isMobile && showGrid ? (
+                        // Mobile grid fallback
+                        <div className="grid grid-cols-2 gap-4">
                             {templates.map((template, idx) => (
                                 <motion.div
                                     key={template.id}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: idx * 0.1 }}
-                                    className="group relative bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden hover:border-purple-500/50 transition-all"
+                                    onClick={() => handleSelectTemplate(template.id)}
+                                    className="relative bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden active:scale-95 transition-transform"
                                 >
-                                    {/* Preview placeholder */}
-                                    <div className="aspect-[3/4] bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
-                                        <div className="w-3/4 space-y-3 p-6">
-                                            <div className="h-6 bg-gray-700 rounded w-2/3" />
-                                            <div className="h-4 bg-gray-700/60 rounded w-1/2" />
-                                            <div className="space-y-2 mt-6">
-                                                {[80, 65, 90, 55].map((w, i) => (
-                                                    <div key={i} className="h-2 bg-gray-700/40 rounded" style={{ width: `${w}%` }} />
-                                                ))}
-                                            </div>
+                                    <div className="aspect-[3/4] bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center p-4">
+                                        <div className="w-full space-y-2">
+                                            <div className="h-4 bg-gray-700 rounded w-2/3" />
+                                            <div className="h-2 bg-gray-700/60 rounded w-1/2" />
                                         </div>
                                     </div>
-
-                                    {/* Info */}
-                                    <div className="p-6">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <h3 className="text-lg font-semibold">{template.name}</h3>
-                                            <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full">{template.category}</span>
-                                        </div>
-                                        <p className="text-gray-400 text-sm">{template.description}</p>
-                                    </div>
-
-                                    {/* Hover overlay */}
-                                    <div className="absolute inset-0 bg-purple-600/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <motion.button
-                                            onClick={() => handleSelectTemplate(template.id)}
-                                            whileHover={{ scale: 1.05 }}
-                                            className="px-6 py-3 bg-white text-purple-600 rounded-xl font-semibold flex items-center gap-2"
-                                        >
-                                            <Sparkles className="w-4 h-4" />
-                                            Utiliser ce template
-                                        </motion.button>
+                                    <div className="p-3">
+                                        <h3 className="text-sm font-semibold">{template.name}</h3>
                                     </div>
                                 </motion.div>
                             ))}
                         </div>
+                    ) : (
+                        // Desktop: Use full TemplateGallery with real CV previews
+                        <TemplateGallery />
                     )}
 
                     {/* Mobile: Button to switch back to carousel */}

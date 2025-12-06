@@ -20,7 +20,7 @@ import { FocusModeToggle } from '../features/preview/FocusModeToggle';
 import { AuthModal } from '../features/auth/AuthModal';
 import { UserDropdown } from '../features/auth/UserDropdown';
 import { SettingsModal } from '../features/settings/SettingsModal';
-import { ZoomIn, ZoomOut, Layout, Edit3, User, Settings, Download, FileJson } from 'lucide-react';
+import { ZoomIn, ZoomOut, Layout, Edit3, User, Settings, Download, FileJson, Eye } from 'lucide-react';
 import { useIsMobile } from '../hooks/useMediaQuery';
 
 export const CVPageV2: React.FC = () => {
@@ -139,12 +139,13 @@ export const CVPageV2: React.FC = () => {
                                     <span className="hidden sm:inline">Édition</span>
                                 </button>
                                 <button
-                                    onClick={() => setMode('structure')}
-                                    className={`px-2 md:px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1 md:gap-2 transition-all ${mode === 'structure' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
-                                        }`}
+                                    disabled
+                                    className="px-2 md:px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1 md:gap-2 text-slate-500 cursor-not-allowed opacity-60 relative"
+                                    title="Bientôt disponible"
                                 >
                                     <Layout size={14} />
                                     <span className="hidden sm:inline">Structure</span>
+                                    <span className="absolute -top-1 -right-1 px-1 py-0.5 bg-amber-500/80 text-[8px] text-white rounded font-bold">SOON</span>
                                 </button>
                             </div>
                         </div>
@@ -224,6 +225,17 @@ export const CVPageV2: React.FC = () => {
                                 <Settings size={18} />
                             </button>
 
+                            {/* SCV Preview Button - BETA */}
+                            <button
+                                onClick={() => window.location.href = '/interactive'}
+                                className="relative flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-violet-600/20 to-purple-600/20 hover:from-violet-600/30 hover:to-purple-600/30 border border-violet-500/40 rounded-lg text-violet-300 hover:text-white transition-all group"
+                                title="Aperçu SCV .nex"
+                            >
+                                <Eye size={16} />
+                                <span className="hidden md:inline text-xs font-medium">Aperçu SCV</span>
+                                <span className="absolute -top-1 -right-1 px-1 py-0.5 bg-amber-500 text-[8px] font-bold text-white rounded">BETA</span>
+                            </button>
+
                             {/* Account Button / UserDropdown */}
                             {isAuthenticated ? (
                                 <UserDropdown onOpenSettings={() => setIsSettingsModalOpen(true)} />
@@ -279,13 +291,13 @@ export const CVPageV2: React.FC = () => {
                             <div
                                 id="cv-scroll-container"
                                 tabIndex={0}
-                                className="w-full h-full overflow-y-scroll overflow-x-hidden visible-scrollbar focus:outline-none"
+                                className="w-full h-full overflow-y-auto overflow-x-hidden visible-scrollbar focus:outline-none"
                                 style={{
                                     display: 'flex',
                                     justifyContent: 'center',
-                                    alignItems: 'flex-start',
-                                    paddingTop: isMobile ? '60px' : '16px', // More padding top on mobile for visual centering
-                                    paddingBottom: isMobile ? '100px' : '32px' // Space for MobileBottomNav on mobile
+                                    alignItems: isMobile ? 'center' : 'flex-start', // CENTER on mobile, start on desktop
+                                    paddingTop: isMobile ? '20px' : '16px', // Less padding on mobile for centering
+                                    paddingBottom: isMobile ? '120px' : '32px' // Space for MobileBottomNav on mobile
                                 }}
                                 onKeyDown={(e) => {
                                     const container = e.currentTarget;

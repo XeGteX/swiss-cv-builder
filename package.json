@@ -23,6 +23,7 @@
     "@google/genai": "^1.31.0",
     "@prisma/client": "5.22.0",
     "@react-pdf/renderer": "^4.3.1",
+    "@supabase/supabase-js": "^2.86.2",
     "@types/lodash": "^4.17.21",
     "autoprefixer": "^10.4.22",
     "bcrypt": "^6.0.0",

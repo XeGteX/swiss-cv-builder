@@ -68,7 +68,8 @@ function App() {
                 <Route path="/templates" element={<TemplateGallery />} />
                 <Route path="/gallery" element={<VirtualTemplateGallery />} />
                 <Route path="/admin" element={<AdminDashboard />} />
-                {/* Hidden R&D Route - Access via /sandbox */}
+                {/* SCV .nex Viewer - Interactive Resume */}
+                <Route path="/interactive" element={<InteractiveResume />} />
                 <Route path="/sandbox" element={<InteractiveResume />} />
                 {/* PDF Render Route for Puppeteer - Do NOT add AppShell chrome */}
                 <Route path="/pdf-render/:id" element={<PDFRenderPage />} />
