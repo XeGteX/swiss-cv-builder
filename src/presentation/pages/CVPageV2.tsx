@@ -284,8 +284,8 @@ export const CVPageV2: React.FC = () => {
                                     display: 'flex',
                                     justifyContent: 'center',
                                     alignItems: 'flex-start',
-                                    paddingTop: '0',
-                                    paddingBottom: '0'
+                                    paddingTop: isMobile ? '60px' : '16px', // More padding top on mobile for visual centering
+                                    paddingBottom: isMobile ? '100px' : '32px' // Space for MobileBottomNav on mobile
                                 }}
                                 onKeyDown={(e) => {
                                     const container = e.currentTarget;

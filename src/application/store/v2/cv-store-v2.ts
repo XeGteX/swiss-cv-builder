@@ -131,6 +131,12 @@ export const useCVStoreV2 = create<CVStoreV2State>()(
                         }), false, `telekinesis:reorderSkills:${startIndex}→${endIndex}`);
                     },
 
+                    reorderEducations: (startIndex, endIndex) => {
+                        set((state) => ({
+                            profile: helpers.reorderEducations(state.profile, startIndex, endIndex)
+                        }), false, `telekinesis:reorderEducations:${startIndex}→${endIndex}`);
+                    },
+
                     reorderSections: (startIndex, endIndex) => {
                         set((state) => ({
                             sectionOrder: helpers.reorderSections(state.sectionOrder, startIndex, endIndex)
@@ -288,6 +294,7 @@ export const useArrayActions = () => useCVStoreV2((state) => ({
  */
 export const useReorderActions = () => useCVStoreV2((state) => ({
     reorderExperiences: state.reorderExperiences,
+    reorderEducations: state.reorderEducations,
     reorderSkills: state.reorderSkills,
     reorderSections: state.reorderSections
 }));

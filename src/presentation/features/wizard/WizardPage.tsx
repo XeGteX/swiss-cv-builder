@@ -129,9 +129,9 @@ export const WizardPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-transparent flex flex-col">
+        <div className="h-screen bg-transparent flex flex-col overflow-hidden">
             {/* Header */}
-            <div className="bg-transparent border-b border-white/10 px-6 py-4 flex justify-between items-center sticky top-0 z-50 backdrop-blur-sm">
+            <div className="bg-transparent border-b border-white/10 px-6 py-4 flex justify-between items-center sticky top-0 z-50 backdrop-blur-sm shrink-0">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white font-bold shadow-lg shadow-brand-500/20">
                         CV
@@ -143,14 +143,14 @@ export const WizardPage: React.FC = () => {
                 </Button>
             </div>
 
-            {/* Progress Bar */}
-            <div className="bg-transparent border-b border-white/10 px-6 py-4">
+            {/* Progress Bar - Fixed alignment */}
+            <div className="bg-transparent border-b border-white/10 px-4 sm:px-6 py-4 shrink-0">
                 <div className="max-w-3xl mx-auto">
                     <div className="flex justify-between relative">
-                        {/* Line */}
-                        <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white/10 -z-10" />
+                        {/* Line - now properly centered with icon circles, z-0 to be behind icons */}
+                        <div className="absolute top-4 left-0 w-full h-0.5 bg-white/10 z-0" />
                         <div
-                            className="absolute top-1/2 left-0 h-0.5 bg-brand-500 -z-10 transition-all duration-500"
+                            className="absolute top-4 left-0 h-0.5 bg-brand-500 transition-all duration-500 z-0"
                             style={{ width: `${(currentStepIndex / (steps.length - 1)) * 100}%` }}
                         />
 
@@ -159,7 +159,7 @@ export const WizardPage: React.FC = () => {
                             const isCompleted = idx < currentStepIndex;
 
                             return (
-                                <div key={s.id} className="flex flex-col items-center gap-2 bg-transparent px-2 pt-3">
+                                <div key={s.id} className="flex flex-col items-center gap-2 bg-transparent px-1 sm:px-2 relative z-10">
                                     <div
                                         className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 border-2 ${isActive ? 'bg-brand-600 border-brand-400 text-white scale-110 shadow-lg shadow-brand-500/30' :
                                             isCompleted ? 'bg-emerald-500 border-emerald-400 text-white' : 'bg-slate-900/50 border-slate-700 text-slate-500'
@@ -167,7 +167,7 @@ export const WizardPage: React.FC = () => {
                                     >
                                         {isCompleted ? <Check size={16} /> : s.icon}
                                     </div>
-                                    <span className={`text-xs font-medium transition-colors ${isActive ? 'text-brand-400' : 'text-slate-500'}`}>
+                                    <span className={`text-[10px] sm:text-xs font-medium transition-colors text-center ${isActive ? 'text-brand-400' : 'text-slate-500'}`}>
                                         {s.label}
                                     </span>
                                 </div>
@@ -177,16 +177,23 @@ export const WizardPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
+            {/* Content - Mobile touch scrolling enabled */}
+            <div
+                className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar"
+                style={{
+                    WebkitOverflowScrolling: 'touch',
+                    contain: 'content' // Prevent layout shifts
+                }}
+            >
                 <div className="max-w-3xl mx-auto p-6 pb-24">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={step}
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            transition={{ duration: 0.2 }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                            style={{ willChange: 'opacity' }}
                         >
                             {step === 'identity' && (
                                 <div className="glass-card p-6 rounded-xl">

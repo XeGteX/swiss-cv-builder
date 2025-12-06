@@ -125,10 +125,10 @@ export function EditableField<T = string>({
 
         e.stopPropagation();
 
-        // Calculate position for overlay
+        // Calculate position - use center of element for better positioning
         const rect = e.currentTarget.getBoundingClientRect();
         setEditorPosition({
-            x: rect.left,
+            x: rect.left + rect.width / 2,  // Center of element
             y: rect.bottom + 8
         });
 

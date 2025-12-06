@@ -289,8 +289,24 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
             className="flex flex-col bg-transparent will-change-transform"
             onDoubleClick={(e) => {
                 if (!isMobile) {
+                    // Handle photo zone clicks
                     handlePhotoClick(e);
-                    handleInlineDoubleClick(e);
+
+                    // EVENT DELEGATION FIX: Handle EditableField double-clicks
+                    // transform: scale() can interfere with native events, so we use delegation
+                    const target = e.target as HTMLElement;
+                    const editableWrapper = target.closest('[title="Double-click to edit"]') as HTMLElement;
+                    if (editableWrapper) {
+                        // Re-dispatch the event to the EditableField wrapper
+                        const syntheticEvent = new MouseEvent('dblclick', {
+                            bubbles: true,
+                            cancelable: true,
+                            view: window,
+                            clientX: e.clientX,
+                            clientY: e.clientY
+                        });
+                        editableWrapper.dispatchEvent(syntheticEvent);
+                    }
                 }
             }}
             onTouchStart={handleTouchStart}

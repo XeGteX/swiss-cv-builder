@@ -12,6 +12,7 @@ import { WizardPage } from './presentation/features/wizard/WizardPage';
 import { AdminDashboard } from './presentation/features/admin/AdminDashboard';
 import { CVPageV2 } from './presentation/pages/CVPageV2';
 import { TemplateGallery } from './presentation/features/templates/TemplateGallery';
+import { VirtualTemplateGallery } from './presentation/features/templates/VirtualTemplateGallery';
 import { InteractiveResume } from './presentation/features/interactive-resume/InteractiveResume';
 import { useAuthStore } from './application/store/auth-store';
 import { useCVStore } from './application/store/cv-store';
@@ -19,6 +20,16 @@ import { initializeLayouts } from './presentation/layouts';
 import { ErrorBoundary } from './presentation/components/ErrorBoundary';
 import { AppShell } from './presentation/layouts/AppShell';
 import PDFRenderPage from './presentation/pages/PDFRenderPage';
+import { LandingPage } from './presentation/pages/LandingPage';
+
+// Footer link pages
+import TemplatesPage from './presentation/pages/TemplatesPage';
+import ExemplesPage from './presentation/pages/ExemplesPage';
+import BlogPage from './presentation/pages/BlogPage';
+import GuideCVPage from './presentation/pages/GuideCVPage';
+import ConfidentialitePage from './presentation/pages/ConfidentialitePage';
+import CGUPage from './presentation/pages/CGUPage';
+import ContactPage from './presentation/pages/ContactPage';
 
 function App() {
   const { checkAuth } = useAuthStore();
@@ -33,26 +44,44 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
-        <AppShell>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/labs" element={<LabsDashboard />} />
-            <Route path="/wizard" element={<WizardPage />} />
-            <Route path="/templates" element={<TemplateGallery />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            {/* Hidden R&D Route - Access via /sandbox */}
-            <Route path="/sandbox" element={<InteractiveResume />} />
-            {/* PDF Render Route for Puppeteer - Do NOT add AppShell chrome */}
-            <Route path="/pdf-render/:id" element={<PDFRenderPage />} />
-            <Route path="/" element={<CVPageV2 />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-          <ToastContainer />
-          <SubscriptionModal />
-          <SmartReviewToast />
-          <ShareModal />
-        </AppShell>
+        <Routes>
+          {/* Landing Page - Outside AppShell for full scroll */}
+          <Route path="/landing" element={<LandingPage />} />
+
+          {/* Footer link pages - Outside AppShell for full scroll */}
+          <Route path="/templates" element={<TemplatesPage />} />
+          <Route path="/exemples" element={<ExemplesPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/guide-cv" element={<GuideCVPage />} />
+          <Route path="/confidentialite" element={<ConfidentialitePage />} />
+          <Route path="/cgu" element={<CGUPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+
+          {/* All other routes wrapped in AppShell */}
+          <Route path="/*" element={
+            <AppShell>
+              <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/labs" element={<LabsDashboard />} />
+                <Route path="/wizard" element={<WizardPage />} />
+                <Route path="/templates" element={<TemplateGallery />} />
+                <Route path="/gallery" element={<VirtualTemplateGallery />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                {/* Hidden R&D Route - Access via /sandbox */}
+                <Route path="/sandbox" element={<InteractiveResume />} />
+                {/* PDF Render Route for Puppeteer - Do NOT add AppShell chrome */}
+                <Route path="/pdf-render/:id" element={<PDFRenderPage />} />
+                <Route path="/" element={<CVPageV2 />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+              <ToastContainer />
+              <SubscriptionModal />
+              <SmartReviewToast />
+              <ShareModal />
+            </AppShell>
+          } />
+        </Routes>
       </BrowserRouter>
     </ErrorBoundary>
   );

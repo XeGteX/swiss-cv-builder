@@ -140,6 +140,24 @@ export function reorderExperiences(
 }
 
 /**
+ * Reorder educations array (drag & drop)
+ */
+export function reorderEducations(
+    profile: CVProfile,
+    startIndex: number,
+    endIndex: number
+): CVProfile {
+    const newEducations = [...profile.educations];
+    const [removed] = newEducations.splice(startIndex, 1);
+    newEducations.splice(endIndex, 0, removed);
+
+    return {
+        ...profile,
+        educations: newEducations
+    };
+}
+
+/**
  * Reorder skills array (drag & drop)
  */
 export function reorderSkills(

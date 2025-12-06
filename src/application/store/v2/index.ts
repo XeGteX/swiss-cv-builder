@@ -23,6 +23,7 @@ export {
 // Convenience hooks for Telekinesis
 export const useSectionOrder = () => _useCVStoreV2((state) => state.sectionOrder);
 export const useReorderExperiences = () => _useCVStoreV2((state) => state.reorderExperiences);
+export const useReorderEducations = () => _useCVStoreV2((state) => state.reorderEducations);
 export const useReorderSkills = () => _useCVStoreV2((state) => state.reorderSkills);
 export const useReorderSections = () => _useCVStoreV2((state) => state.reorderSections);
 

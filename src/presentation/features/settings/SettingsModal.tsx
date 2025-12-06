@@ -49,7 +49,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         loadDemoOnStartup, toggleDemoOnStartup,
         storageMode, setStorageMode
     } = useSettingsStore();
-    const { isAuthenticated, user } = useAuthStore();
+    const { isAuthenticated } = useAuthStore();
     const loadDemoProfile = useCVStore(state => state.loadDemoProfile);
 
     if (!isOpen) return null;
@@ -132,7 +132,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                 </div>
 
                                 {/* Content */}
-                                <div className="flex-1 overflow-y-auto p-6">
+                                <div className="flex-1 overflow-y-auto p-6 pb-20">
                                     <AnimatePresence mode="wait">
                                         <motion.div
                                             key={activeTab}

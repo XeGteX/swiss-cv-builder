@@ -1,11 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInlineEditor } from '../../hooks/useInlineEditor';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 export const InlineEditorOverlay: React.FC = () => {
     const { state, closeEditor, confirm } = useInlineEditor();
     const inputRef = useRef<HTMLInputElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const isMobile = useIsMobile();
 
     const isMultiline = state.value && state.value.length > 50;
 
@@ -34,19 +36,58 @@ export const InlineEditorOverlay: React.FC = () => {
 
     if (!state.isOpen || !state.meta) return null;
 
+    // On mobile: center at bottom of screen (above MobileBottomNav)
+    // On desktop: use calculated position, but clamp to viewport
+    const getPositionStyle = () => {
+        if (isMobile) {
+            // Fixed position at bottom center
+            return {
+                left: '50%',
+                bottom: '100px', // Above MobileBottomNav
+                transform: 'translateX(-50%)',
+                maxWidth: 'calc(100vw - 32px)',
+                width: '100%'
+            };
+        }
+
+        // Desktop: use position but clamp to viewport
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const editorWidth = 400;
+        const editorHeight = 200;
+
+        let x = state.position.x;
+        let y = state.position.y;
+
+        // Clamp X to viewport
+        if (x + editorWidth > viewportWidth - 20) {
+            x = viewportWidth - editorWidth - 20;
+        }
+        if (x < 20) x = 20;
+
+        // Clamp Y to viewport
+        if (y + editorHeight > viewportHeight - 20) {
+            y = viewportHeight - editorHeight - 20;
+        }
+        if (y < 20) y = 20;
+
+        return {
+            left: `${x}px`,
+            top: `${y}px`,
+            maxWidth: '500px'
+        };
+    };
+
     return (
         <AnimatePresence>
             <motion.div
-                initial={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: isMobile ? 20 : -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="fixed z-50"
-                style={{
-                    left: state.position.x,
-                    top: state.position.y
-                }}
+                exit={{ opacity: 0, y: isMobile ? 20 : -10 }}
+                className="fixed z-[100]"
+                style={getPositionStyle()}
             >
-                <div className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-lg shadow-2xl p-4 min-w-[300px] max-w-[500px]">
+                <div className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-lg shadow-2xl p-4 min-w-[300px]">
                     <div className="text-xs font-bold mb-2 uppercase tracking-wide opacity-90">
                         {state.meta.label}
                     </div>

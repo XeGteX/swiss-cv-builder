@@ -22,7 +22,7 @@ export const LanguageEditor: React.FC = () => {
     const profile = useCVStoreV2((state) => state.profile);
     const updateField = useCVStoreV2((state) => state.updateField);
     const addLanguage = useCVStoreV2((state) => state.addLanguage);
-    const removeLanguage = useCVStoreV2((state) => state.removeLanguage);
+    // removeLanguage is available but not used in current UI
 
     const [newLanguage, setNewLanguage] = useState('');
     const [newLevel, setNewLevel] = useState('fluent');
@@ -58,35 +58,38 @@ export const LanguageEditor: React.FC = () => {
 
     return (
         <div className="space-y-4">
-            {/* Add Language Form */}
-            <div className="flex gap-2">
-                <div className="flex-1">
-                    <Input
-                        value={newLanguage}
-                        onChange={(e) => setNewLanguage(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Ex: Français, Anglais, Allemand..."
-                        variant="glass"
-                    />
+            {/* Add Language Form - Stacked on mobile */}
+            <div className="flex flex-col gap-3">
+                {/* Language input - full width */}
+                <Input
+                    value={newLanguage}
+                    onChange={(e) => setNewLanguage(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Ex: Français, Anglais, Allemand..."
+                    variant="glass"
+                    className="w-full"
+                />
+                {/* Level + Button row */}
+                <div className="flex gap-2">
+                    <select
+                        value={newLevel}
+                        onChange={(e) => setNewLevel(e.target.value)}
+                        className="flex-1 glass-input px-3 py-2.5 rounded-lg text-sm bg-slate-900/50 text-slate-200 border border-white/10 focus:border-brand-500 outline-none min-w-0"
+                    >
+                        {PROFICIENCY_LEVELS.map((level) => (
+                            <option key={level.value} value={level.value} className="bg-slate-900">
+                                {level.label}
+                            </option>
+                        ))}
+                    </select>
+                    <Button
+                        onClick={handleAdd}
+                        leftIcon={<Plus size={16} />}
+                        className="bg-brand-600 hover:bg-brand-700 text-white shrink-0 whitespace-nowrap"
+                    >
+                        Ajouter
+                    </Button>
                 </div>
-                <select
-                    value={newLevel}
-                    onChange={(e) => setNewLevel(e.target.value)}
-                    className="glass-input px-3 py-2 rounded-lg text-sm bg-slate-900/50 text-slate-200 border border-white/10 focus:border-brand-500 outline-none"
-                >
-                    {PROFICIENCY_LEVELS.map((level) => (
-                        <option key={level.value} value={level.value} className="bg-slate-900">
-                            {level.label}
-                        </option>
-                    ))}
-                </select>
-                <Button
-                    onClick={handleAdd}
-                    leftIcon={<Plus size={16} />}
-                    className="bg-brand-600 hover:bg-brand-700 text-white shrink-0"
-                >
-                    Ajouter
-                </Button>
             </div>
 
             {/* Languages List */}

@@ -16,8 +16,30 @@ import { useCVStoreV2, useSetMode } from '../../../application/store/v2';
 import { useSettingsStore } from '../../../application/store/settings-store';
 import { ModernTemplateV2 } from '../../layouts/templates/v2/ModernTemplate.v2';
 import { ClassicTemplate } from '../../layouts/templates/v2/ClassicTemplate';
-import { CreativeTemplate } from '../../layouts/templates/v2/CreativeTemplate';
 import { ExecutiveTemplate } from '../../layouts/templates/v2/ExecutiveTemplate';
+
+// ATS-First Templates
+import { ATSClassicTemplate } from '../../cv-templates/templates/ATSClassicTemplate';
+import { ATSModernTemplate } from '../../cv-templates/templates/ATSModernTemplate';
+import { ATSMinimalTemplate } from '../../cv-templates/templates/ATSMinimalTemplate';
+
+// Business Templates
+import { SwissExecutiveTemplate } from '../../cv-templates/templates/SwissExecutiveTemplate';
+import { ConsultantTemplate } from '../../cv-templates/templates/ConsultantTemplate';
+import { BankerTemplate } from '../../cv-templates/templates/BankerTemplate';
+import { LegalTemplate } from '../../cv-templates/templates/LegalTemplate';
+
+// Creative & Tech Templates
+import { CreativePortfolioTemplate } from '../../cv-templates/templates/CreativePortfolioTemplate';
+import { DevStackTemplate } from '../../cv-templates/templates/DevStackTemplate';
+import { StartupFounderTemplate } from '../../cv-templates/templates/StartupFounderTemplate';
+
+// Specialized Templates
+import { HealthcareProTemplate } from '../../cv-templates/templates/HealthcareProTemplate';
+import { AcademicCVTemplate } from '../../cv-templates/templates/AcademicCVTemplate';
+
+// Template Configurator
+// Specialized Templates removed - using new 2000 templates system
 
 interface Template {
     id: string;
@@ -26,45 +48,182 @@ interface Template {
     preview: React.ComponentType<{ language?: 'en' | 'fr'; forceMode?: 'modele' }>;
     gradient: string;
     bgGradient: string;
-    primaryColor: string; // For dynamic halo
+    primaryColor: string;
+    isNew?: boolean;
+    isATS?: boolean;
+    category: 'ats' | 'business' | 'creative' | 'tech' | 'specialized' | 'legacy';
 }
 
 const TEMPLATES: Template[] = [
+    // ========== ATS-FIRST ==========
+    {
+        id: 'ats-classic',
+        name: 'ATS Classic',
+        description: '100% ATS compatible - Times New Roman, zero graphics',
+        preview: ATSClassicTemplate as any,
+        gradient: 'from-gray-600 to-gray-800',
+        bgGradient: 'from-gray-950 via-slate-900 to-gray-950',
+        primaryColor: 'rgb(31, 41, 55)',
+        isNew: true,
+        isATS: true,
+        category: 'ats'
+    },
+    {
+        id: 'ats-modern',
+        name: 'ATS Modern',
+        description: 'Clean modern look with ATS optimization',
+        preview: ATSModernTemplate as any,
+        gradient: 'from-blue-500 to-blue-700',
+        bgGradient: 'from-blue-950 via-slate-900 to-blue-950',
+        primaryColor: 'rgb(59, 130, 246)',
+        isNew: true,
+        isATS: true,
+        category: 'ats'
+    },
+    {
+        id: 'ats-minimal',
+        name: 'ATS Minimal',
+        description: 'Ultra-compact for senior profiles',
+        preview: ATSMinimalTemplate as any,
+        gradient: 'from-slate-500 to-slate-700',
+        bgGradient: 'from-slate-950 via-gray-900 to-slate-950',
+        primaryColor: 'rgb(100, 116, 139)',
+        isNew: true,
+        isATS: true,
+        category: 'ats'
+    },
+    // ========== BUSINESS ==========
+    {
+        id: 'swiss-executive',
+        name: 'Swiss Executive',
+        description: 'Elegant serif design for senior management',
+        preview: SwissExecutiveTemplate as any,
+        gradient: 'from-slate-700 to-slate-900',
+        bgGradient: 'from-slate-950 via-slate-900 to-slate-950',
+        primaryColor: 'rgb(30, 58, 95)',
+        isNew: true,
+        category: 'business'
+    },
+    {
+        id: 'consultant',
+        name: 'Consultant Pro',
+        description: 'Structured layout with skills grid',
+        preview: ConsultantTemplate as any,
+        gradient: 'from-teal-500 to-teal-700',
+        bgGradient: 'from-teal-950 via-slate-900 to-teal-950',
+        primaryColor: 'rgb(13, 148, 136)',
+        isNew: true,
+        category: 'business'
+    },
+    {
+        id: 'banker',
+        name: 'Private Banker',
+        description: 'Conservative navy-gold for finance',
+        preview: BankerTemplate as any,
+        gradient: 'from-amber-600 to-amber-800',
+        bgGradient: 'from-amber-950 via-slate-900 to-amber-950',
+        primaryColor: 'rgb(184, 134, 11)',
+        isNew: true,
+        category: 'business'
+    },
+    {
+        id: 'legal',
+        name: 'Legal Counsel',
+        description: 'Ultra-formal for legal professionals',
+        preview: LegalTemplate as any,
+        gradient: 'from-rose-700 to-rose-900',
+        bgGradient: 'from-rose-950 via-slate-900 to-rose-950',
+        primaryColor: 'rgb(124, 45, 18)',
+        isNew: true,
+        category: 'business'
+    },
+    // ========== CREATIVE & TECH ==========
+    {
+        id: 'creative-portfolio',
+        name: 'Creative Portfolio',
+        description: 'Bold gradient design for creatives',
+        preview: CreativePortfolioTemplate as any,
+        gradient: 'from-purple-500 to-pink-500',
+        bgGradient: 'from-purple-950 via-slate-900 to-pink-950',
+        primaryColor: 'rgb(139, 92, 246)',
+        isNew: true,
+        category: 'creative'
+    },
+    {
+        id: 'devstack',
+        name: 'DevStack',
+        description: 'Code-inspired design for developers',
+        preview: DevStackTemplate as any,
+        gradient: 'from-emerald-500 to-cyan-600',
+        bgGradient: 'from-emerald-950 via-slate-900 to-cyan-950',
+        primaryColor: 'rgb(78, 201, 176)',
+        isNew: true,
+        category: 'tech'
+    },
+    {
+        id: 'startup-founder',
+        name: 'Startup Founder',
+        description: 'Bold design for entrepreneurs',
+        preview: StartupFounderTemplate as any,
+        gradient: 'from-orange-500 to-red-500',
+        bgGradient: 'from-orange-950 via-slate-900 to-red-950',
+        primaryColor: 'rgb(249, 115, 22)',
+        isNew: true,
+        category: 'creative'
+    },
+    // ========== SPECIALIZED ==========
+    {
+        id: 'healthcare-pro',
+        name: 'Healthcare Pro',
+        description: 'Clean design for healthcare workers',
+        preview: HealthcareProTemplate as any,
+        gradient: 'from-cyan-500 to-blue-500',
+        bgGradient: 'from-cyan-950 via-slate-900 to-blue-950',
+        primaryColor: 'rgb(8, 145, 178)',
+        isNew: true,
+        category: 'specialized'
+    },
+    {
+        id: 'academic-cv',
+        name: 'Academic CV',
+        description: 'Traditional format for academics',
+        preview: AcademicCVTemplate as any,
+        gradient: 'from-indigo-600 to-blue-700',
+        bgGradient: 'from-indigo-950 via-slate-900 to-blue-950',
+        primaryColor: 'rgb(30, 58, 95)',
+        isNew: true,
+        category: 'specialized'
+    },
+    // ========== LEGACY ==========
     {
         id: 'modern',
         name: 'Modern Swiss',
         description: 'Design moderne avec sections colorées',
-        preview: ModernTemplateV2 as React.ComponentType<{ language?: 'en' | 'fr'; forceMode?: 'modele' }>,
+        preview: ModernTemplateV2 as any,
         gradient: 'from-blue-600 to-cyan-600',
         bgGradient: 'from-blue-950 via-slate-900 to-cyan-950',
-        primaryColor: 'rgb(37, 99, 235)' // blue-600
+        primaryColor: 'rgb(37, 99, 235)',
+        category: 'legacy'
     },
     {
         id: 'classic',
-        name: 'Classic ATS',
-        description: 'Format traditionnel optimisé ATS',
-        preview: ClassicTemplate as React.ComponentType<{ language?: 'en' | 'fr'; forceMode?: 'modele' }>,
+        name: 'Classic',
+        description: 'Format traditionnel',
+        preview: ClassicTemplate as any,
         gradient: 'from-slate-600 to-gray-600',
         bgGradient: 'from-slate-950 via-gray-900 to-slate-950',
-        primaryColor: 'rgb(71, 85, 105)' // slate-600
-    },
-    {
-        id: 'creative',
-        name: 'Creative Bold',
-        description: 'Design audacieux et créatif',
-        preview: CreativeTemplate as React.ComponentType<{ language?: 'en' | 'fr'; forceMode?: 'modele' }>,
-        gradient: 'from-purple-600 to-pink-600',
-        bgGradient: 'from-purple-950 via-slate-900 to-pink-950',
-        primaryColor: 'rgb(147, 51, 234)' // purple-600
+        primaryColor: 'rgb(71, 85, 105)',
+        category: 'legacy'
     },
     {
         id: 'executive',
         name: 'Executive Elite',
         description: 'Template premium pour cadres',
-        preview: ExecutiveTemplate as React.ComponentType<{ language?: 'en' | 'fr'; forceMode?: 'modele' }>,
+        preview: ExecutiveTemplate as any,
         gradient: 'from-amber-600 to-orange-600',
         bgGradient: 'from-amber-950 via-slate-900 to-orange-950',
-        primaryColor: 'rgb(217, 119, 6)' // amber-600
+        primaryColor: 'rgb(217, 119, 6)',
+        category: 'legacy'
     }
 ];
 
@@ -97,7 +256,7 @@ export const TemplateGallery: React.FC = () => {
     const navigate = useNavigate();
     const updateField = useCVStoreV2((state) => state.updateField);
     const setMode = useSetMode();
-    const { setThemeColor } = useSettingsStore();
+    const { setThemeColor, setSelectedTemplate } = useSettingsStore();
 
     // Initialize with a safe default to avoid hydration mismatch, then update
     const [windowHeight, setWindowHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 800);
@@ -143,7 +302,9 @@ export const TemplateGallery: React.FC = () => {
     const returnTo = searchParams.get('returnTo');
 
     const handleSelect = () => {
+        // Update both stores for compatibility
         updateField('metadata.templateId', currentTemplate.id);
+        setSelectedTemplate(currentTemplate.id);
 
         if (returnTo) {
             navigate(returnTo);
@@ -187,6 +348,20 @@ export const TemplateGallery: React.FC = () => {
                     transition={{ delay: 0.3 }}
                 >
                     <ArrowLeft size={24} strokeWidth={2.5} />
+                </motion.button>
+
+                {/* Gallery 2000+ Button */}
+                <motion.button
+                    onClick={() => navigate('/gallery')}
+                    className="absolute top-6 right-6 z-50 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 backdrop-blur-md rounded-full shadow-xl hover:from-purple-500 hover:to-pink-500 transition-all duration-200 text-white border border-white/20 flex items-center gap-2 font-semibold"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                >
+                    <span className="text-lg">🎨</span>
+                    <span>2000+ Templates</span>
                 </motion.button>
 
                 {/* Header - Compact with Glassmorphism */}
@@ -310,24 +485,25 @@ export const TemplateGallery: React.FC = () => {
                                             </motion.div>
                                         )}
 
-                                        {/* A4 Template Wrapper - TRANSPARENT & SHADOWLESS */}
+                                        {/* A4 Template Wrapper - FIRST PAGE ONLY */}
                                         <div
                                             style={{
                                                 width: '210mm',
                                                 height: '297mm',
-                                                backgroundColor: 'transparent', // REMOVED WHITE BG
+                                                maxHeight: '297mm',
+                                                backgroundColor: 'transparent',
                                                 borderRadius: '8px',
                                                 margin: 'auto',
-                                                display: 'flex', // Ensure centering of inner content
-                                                alignItems: 'center',
+                                                display: 'flex',
+                                                alignItems: 'flex-start', // CRITICAL: Align to TOP to show first page
                                                 justifyContent: 'center',
-                                                boxShadow: 'none', // REMOVED SHADOW
+                                                boxShadow: 'none',
+                                                overflow: 'hidden', // CRITICAL: Hide pages 2+
 
                                                 transform: `scale(${isCenter ? centerScale : sideScale})`,
                                                 transformOrigin: 'center center',
                                                 WebkitTransform: `scale(${isCenter ? centerScale : sideScale})`,
                                                 WebkitTransformOrigin: 'center center',
-                                                overflow: 'visible'
                                             }}
                                         >
                                             {/* Render CV Component Directly - Force 'modele' mode to disable animations */}

@@ -142,17 +142,29 @@ export const CreativeTemplate: React.FC<CreativeTemplateProps> = ({
             {/* CRITICAL FIX: Wrap ALL pages with ONE SortableContext for sections */}
             <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
                 {mode === 'modele' ? (
-                    <div className="h-full w-full space-y-10">
-                        {pages.slice(0, 1).map((page) => (
-                            <CreativeLayout
+                    // MODE MODÈLE: ALL PAGES for PDF (with page-break-after for Puppeteer)
+                    <div className="w-full">
+                        {pages.map((page, idx) => (
+                            <div
                                 key={`page-${page.pageIndex}`}
-                                pageIndex={page.pageIndex}
-                                sectionIds={page.sections}
-                                data={data}
-                                mode={mode}
-                                config={config}
-                                language={language}
-                            />
+                                style={{
+                                    width: '210mm',
+                                    height: '297mm',
+                                    maxHeight: '297mm',
+                                    overflow: 'hidden',
+                                    pageBreakAfter: idx < pages.length - 1 ? 'always' : 'auto',
+                                    pageBreakInside: 'avoid'
+                                }}
+                            >
+                                <CreativeLayout
+                                    pageIndex={page.pageIndex}
+                                    sectionIds={page.sections}
+                                    data={data}
+                                    mode={mode}
+                                    config={config}
+                                    language={language}
+                                />
+                            </div>
                         ))}
                     </div>
                 ) : (

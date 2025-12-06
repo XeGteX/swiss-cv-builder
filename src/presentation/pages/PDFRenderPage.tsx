@@ -16,14 +16,49 @@ import { useCVStoreV2 } from '../../application/store/v2';
 // Template imports (V2 templates for consistency)
 import ModernTemplateV2 from '../layouts/templates/v2/ModernTemplate.v2';
 import { ClassicTemplate } from '../layouts/templates/v2/ClassicTemplate';
-import { CreativeTemplate } from '../layouts/templates/v2/CreativeTemplate';
 import { ExecutiveTemplate } from '../layouts/templates/v2/ExecutiveTemplate';
+
+// ATS-First Templates
+import { ATSClassicTemplate } from '../cv-templates/templates/ATSClassicTemplate';
+import { ATSModernTemplate } from '../cv-templates/templates/ATSModernTemplate';
+import { ATSMinimalTemplate } from '../cv-templates/templates/ATSMinimalTemplate';
+
+// Business Templates
+import { SwissExecutiveTemplate } from '../cv-templates/templates/SwissExecutiveTemplate';
+import { ConsultantTemplate } from '../cv-templates/templates/ConsultantTemplate';
+import { BankerTemplate } from '../cv-templates/templates/BankerTemplate';
+import { LegalTemplate } from '../cv-templates/templates/LegalTemplate';
+
+// Creative & Tech Templates
+import { CreativePortfolioTemplate } from '../cv-templates/templates/CreativePortfolioTemplate';
+import { DevStackTemplate } from '../cv-templates/templates/DevStackTemplate';
+import { StartupFounderTemplate } from '../cv-templates/templates/StartupFounderTemplate';
+
+// Specialized Templates
+import { HealthcareProTemplate } from '../cv-templates/templates/HealthcareProTemplate';
+import { AcademicCVTemplate } from '../cv-templates/templates/AcademicCVTemplate';
 
 // Template Registry - Maps template IDs to components
 const TEMPLATE_REGISTRY: Record<string, React.ComponentType<any>> = {
+    // ATS-First
+    'ats-classic': ATSClassicTemplate,
+    'ats-modern': ATSModernTemplate,
+    'ats-minimal': ATSMinimalTemplate,
+    // Business
+    'swiss-executive': SwissExecutiveTemplate,
+    'consultant': ConsultantTemplate,
+    'banker': BankerTemplate,
+    'legal': LegalTemplate,
+    // Creative & Tech
+    'creative-portfolio': CreativePortfolioTemplate,
+    'devstack': DevStackTemplate,
+    'startup-founder': StartupFounderTemplate,
+    // Specialized
+    'healthcare-pro': HealthcareProTemplate,
+    'academic-cv': AcademicCVTemplate,
+    // Legacy
     modern: ModernTemplateV2,
     classic: ClassicTemplate,
-    creative: CreativeTemplate,
     executive: ExecutiveTemplate,
 };
 
@@ -107,19 +142,16 @@ const PDFRenderPage: React.FC = () => {
     // Contents change based on state
     // data-ready attribute tells Puppeteer when template is fully rendered
     const isReady = !loading && !error && hasValidProfile;
-    
+
     return (
         <div
             id="cv-template"
             data-ready={isReady ? 'true' : 'false'}
             data-state={loading ? 'loading' : error ? 'error' : hasValidProfile ? 'ready' : 'waiting'}
             style={{
-                width: '210mm',
-                minHeight: '297mm',
                 margin: 0,
                 padding: 0,
                 background: 'white',
-                overflow: 'hidden'
             }}
         >
             {loading ? (

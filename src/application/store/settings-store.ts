@@ -8,7 +8,8 @@ interface SettingsState {
     language: 'en' | 'fr';
     storageMode: 'local' | 'cloud';
     focusMode: boolean;
-    themeColor: string; // Global theme color for background (e.g., 'blue', 'purple')
+    themeColor: string;
+    selectedTemplateId: string | null;
     setMobileMode: (isMobile: boolean) => void;
     toggleMobileMode: () => void;
     toggleDemoOnStartup: () => void;
@@ -17,6 +18,7 @@ interface SettingsState {
     setFocusMode: (enabled: boolean) => void;
     toggleFocusMode: () => void;
     setThemeColor: (color: string) => void;
+    setSelectedTemplate: (templateId: string) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -27,7 +29,8 @@ export const useSettingsStore = create<SettingsState>()(
             language: 'fr',
             storageMode: 'local',
             focusMode: false,
-            themeColor: 'blue', // Default theme
+            themeColor: 'blue',
+            selectedTemplateId: null,
             setMobileMode: (isMobile) => set({ isMobileMode: isMobile }),
             toggleMobileMode: () => set((state) => ({ isMobileMode: !state.isMobileMode })),
             toggleDemoOnStartup: () => set((state) => ({ loadDemoOnStartup: !state.loadDemoOnStartup })),
@@ -36,6 +39,7 @@ export const useSettingsStore = create<SettingsState>()(
             setFocusMode: (enabled) => set({ focusMode: enabled }),
             toggleFocusMode: () => set((state) => ({ focusMode: !state.focusMode })),
             setThemeColor: (color) => set({ themeColor: color }),
+            setSelectedTemplate: (templateId) => set({ selectedTemplateId: templateId }),
         }),
         {
             name: 'cv-builder-settings',

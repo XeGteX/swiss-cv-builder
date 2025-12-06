@@ -197,18 +197,29 @@ export const ModernTemplateV2: React.FC<ModernTemplateV2Props> = ({
             >
                 {/* MULTI-PAGE RENDERING - Mode-aware with Card Stack */}
                 {mode === 'modele' ? (
-                    // MODE MODÈLE: Single page only (no stack)
-                    <div className="h-full w-full space-y-10">
-                        {pages.slice(0, 1).map((page) => (
-                            <SinglePageLayout
-                                key={`page-${page.pageIndex}`}  // STABLE ID, not index
-                                pageIndex={page.pageIndex}
-                                sectionIds={page.sections}
-                                data={data}
-                                mode={mode}
-                                config={config}
-                                language={language}
-                            />
+                    // MODE MODÈLE: ALL PAGES for PDF (with page-break-after for Puppeteer)
+                    <div className="w-full">
+                        {pages.map((page, idx) => (
+                            <div
+                                key={`page-${page.pageIndex}`}
+                                style={{
+                                    width: '210mm',
+                                    height: '297mm',
+                                    maxHeight: '297mm',
+                                    overflow: 'hidden',
+                                    pageBreakAfter: idx < pages.length - 1 ? 'always' : 'auto',
+                                    pageBreakInside: 'avoid'
+                                }}
+                            >
+                                <SinglePageLayout
+                                    pageIndex={page.pageIndex}
+                                    sectionIds={page.sections}
+                                    data={data}
+                                    mode={mode}
+                                    config={config}
+                                    language={language}
+                                />
+                            </div>
                         ))}
                     </div>
                 ) : mode === 'structure' ? (

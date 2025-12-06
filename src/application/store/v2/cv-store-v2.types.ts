@@ -23,7 +23,7 @@ export interface AtlasState {
 // MODE TYPES (Updated for 3-mode system)
 // ============================================================================
 
-export type CVMode = 'edition' | 'structure' | 'ai';
+export type CVMode = 'edition' | 'structure' | 'ai' | 'modele';
 
 // ============================================================================
 // STORE STATE INTERFACE
@@ -56,6 +56,7 @@ export interface CVStoreV2State {
 
     // TELEKINESIS - Reorder operations
     reorderExperiences: (startIndex: number, endIndex: number) => void;
+    reorderEducations: (startIndex: number, endIndex: number) => void;
     reorderSkills: (startIndex: number, endIndex: number) => void;
     reorderSections: (startIndex: number, endIndex: number) => void;
 
