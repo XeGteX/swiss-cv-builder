@@ -6,7 +6,7 @@
  */
 
 import { useCVStoreV2 } from './cv-store-v2';
-import type { CVProfile, Experience, Education, Language } from '../../../domain/cv/v2/types';
+import type { Experience, Education } from '../../../domain/cv/v2/types';
 import { getValueByPath } from '../../../domain/cv/v2/path-utils';
 
 // ============================================================================

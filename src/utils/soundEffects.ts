@@ -9,26 +9,27 @@ class EmotionalSoundEngine {
     private ctx: AudioContext | null = null;
     private isEnabled: boolean = true;
     private isReady: boolean = false;
+    private initAttempts: number = 0;
 
     constructor() {
         // Try to initialize immediately if possible
         this.tryInit();
 
-        // Also set up interaction listeners as fallback
+        // Set up multiple interaction listeners as fallback
         if (typeof window !== 'undefined') {
-            const events = ['click', 'touchstart', 'keydown', 'scroll'];
+            const events = ['click', 'touchstart', 'touchend', 'mousedown', 'keydown', 'scroll', 'pointerdown'];
             const initOnInteraction = () => {
                 this.tryInit();
-                if (this.isReady) {
+                if (this.isReady && this.initAttempts > 2) {
                     events.forEach(e => document.removeEventListener(e, initOnInteraction));
                 }
             };
-            events.forEach(e => document.addEventListener(e, initOnInteraction, { once: false, passive: true }));
+            events.forEach(e => document.addEventListener(e, initOnInteraction, { passive: true }));
         }
     }
 
     private tryInit() {
-        if (this.isReady) return;
+        this.initAttempts++;
 
         try {
             const AudioContextClass = window.AudioContext ||
@@ -38,16 +39,27 @@ class EmotionalSoundEngine {
                 this.ctx = new AudioContextClass();
             }
 
-            // Resume if suspended
+            // Resume if suspended (critical for mobile)
             if (this.ctx.state === 'suspended') {
                 this.ctx.resume().then(() => {
                     this.isReady = true;
+                    console.log('🔊 Audio context resumed successfully');
                 }).catch(() => { });
             } else if (this.ctx.state === 'running') {
                 this.isReady = true;
             }
         } catch {
             console.warn('Web Audio API not supported');
+        }
+    }
+
+    // Force resume before playing any sound
+    private async ensureReady() {
+        if (this.ctx && this.ctx.state === 'suspended') {
+            try {
+                await this.ctx.resume();
+                this.isReady = true;
+            } catch { }
         }
     }
 
@@ -62,6 +74,7 @@ class EmotionalSoundEngine {
         delay: number = 0
     ) {
         this.tryInit();
+        this.ensureReady(); // Force resume AudioContext
         if (!this.ctx || !this.isEnabled) return null;
 
         try {

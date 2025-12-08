@@ -23,12 +23,12 @@ export const EditorSidebar: React.FC = React.memo(() => {
     const collapseTimeout = useRef<NodeJS.Timeout | null>(null);
 
     const ALL_TABS = [
-        { id: 'personal', label: t('tabs.personal'), icon: User },
-        { id: 'experience', label: t('tabs.experience'), icon: Briefcase },
-        { id: 'education', label: t('tabs.education'), icon: GraduationCap },
-        { id: 'skills', label: t('tabs.skills'), icon: Wrench },
-        { id: 'letter', label: t('tabs.letter'), icon: FileText },
-        { id: 'critic', label: t('tabs.review'), icon: TrendingUp },
+        { id: 'personal', label: t('editor.sidebar.tabs.personal'), icon: User },
+        { id: 'experience', label: t('editor.sidebar.tabs.experience'), icon: Briefcase },
+        { id: 'education', label: t('editor.sidebar.tabs.education'), icon: GraduationCap },
+        { id: 'skills', label: t('editor.sidebar.tabs.skills'), icon: Wrench },
+        { id: 'letter', label: t('editor.sidebar.tabs.letter'), icon: FileText },
+        { id: 'critic', label: t('editor.sidebar.tabs.review'), icon: TrendingUp },
     ] as const;
 
     // Get visible tabs: show 2 by default, expand to all 6 on hover

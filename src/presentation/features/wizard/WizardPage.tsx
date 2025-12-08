@@ -164,7 +164,7 @@ export const WizardPage: React.FC = () => {
                                 <div key={s.id} className="flex flex-col items-center gap-2 bg-transparent px-1 sm:px-2 relative z-10">
                                     <div
                                         className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 border-2 ${isActive ? 'bg-brand-600 border-brand-400 text-white scale-110 shadow-lg shadow-brand-500/30' :
-                                            isCompleted ? 'bg-emerald-500 border-emerald-400 text-white' : 'bg-slate-900/50 border-slate-700 text-slate-500'
+                                            isCompleted ? 'bg-emerald-500 border-emerald-400 text-white' : 'bg-[#0a0a0f] border-slate-700 text-slate-500'
                                             }`}
                                     >
                                         {isCompleted ? <Check size={16} /> : s.icon}
@@ -187,7 +187,7 @@ export const WizardPage: React.FC = () => {
                     /* REMOVED: contain: 'content' - causes gray block visual artifacts on mobile */
                 }}
             >
-                <div className="max-w-3xl mx-auto p-6 pb-24">
+                <div className="max-w-3xl mx-auto p-6 pb-32">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={step}
@@ -246,8 +246,8 @@ export const WizardPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Footer Actions - LIQUID GLASS PREMIUM */}
-            <div className="relative border-t border-white/10 p-4 sticky bottom-0 z-50 shrink-0" style={{ background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.10) 50%, rgba(168, 85, 247, 0.15) 100%)' }}>
+            {/* Footer Actions - FIXED for mobile reliability */}
+            <div className="fixed bottom-0 left-0 right-0 border-t border-white/10 p-4 z-50" style={{ background: 'linear-gradient(135deg, rgba(10, 10, 15, 0.98) 0%, rgba(15, 10, 31, 0.98) 100%)' }}>
                 {/* Subtle glow line at top */}
                 <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-500/50 via-violet-500/70 to-purple-500/50" />
                 <div className="max-w-3xl mx-auto flex justify-between items-center gap-4">

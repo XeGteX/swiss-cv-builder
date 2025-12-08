@@ -9,9 +9,11 @@ import React from 'react';
 import { CloudOff, Check, Loader } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAtlasStatus } from '../../application/store/v2/cv-store-v2';
+import { useTranslation } from '../hooks/useTranslation';
 
 export const AtlasStatus: React.FC = () => {
     const atlas = useAtlasStatus();
+    const { t } = useTranslation();
 
     // Don't show anything in idle state
     if (atlas.syncStatus === 'idle') {
@@ -23,7 +25,7 @@ export const AtlasStatus: React.FC = () => {
             case 'saving':
                 return {
                     icon: Loader,
-                    text: 'Sauvegarde...',
+                    text: t('status.saving'),
                     color: 'text-blue-600',
                     bgColor: 'bg-blue-50',
                     borderColor: 'border-blue-200',
@@ -32,7 +34,7 @@ export const AtlasStatus: React.FC = () => {
             case 'synced':
                 return {
                     icon: Check,
-                    text: 'Enregistré',
+                    text: t('status.saved'),
                     color: 'text-green-600',
                     bgColor: 'bg-green-50',
                     borderColor: 'border-green-200',
@@ -41,7 +43,7 @@ export const AtlasStatus: React.FC = () => {
             case 'error':
                 return {
                     icon: CloudOff,
-                    text: atlas.syncError || 'Hors ligne',
+                    text: atlas.syncError || t('status.offline'),
                     color: 'text-red-600',
                     bgColor: 'bg-red-50',
                     borderColor: 'border-red-200',
@@ -92,7 +94,7 @@ export const AtlasStatus: React.FC = () => {
                 {/* Last sync time (for synced state) */}
                 {atlas.syncStatus === 'synced' && atlas.lastSyncTime && (
                     <span className="text-[10px] text-gray-500 ml-1">
-                        {new Date(atlas.lastSyncTime).toLocaleTimeString('fr-FR', {
+                        {new Date(atlas.lastSyncTime).toLocaleTimeString(undefined, {
                             hour: '2-digit',
                             minute: '2-digit'
                         })}

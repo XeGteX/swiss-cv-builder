@@ -202,8 +202,20 @@ export const CreativeLayout: React.FC<CreativeLayoutProps> = ({
                     <div className="space-y-2">
                         {data.languages.map((lang, index) => (
                             <div key={index} className="flex justify-between items-center border-b border-white/20 pb-1">
-                                <span className="font-medium text-white text-sm">{lang.name}</span>
-                                <span className="text-white/80 text-xs">{lang.level}</span>
+                                <EditableField
+                                    path={`languages.${index}.name`}
+                                    label="Language"
+                                    className="font-medium text-white text-sm"
+                                >
+                                    {(value) => <span>{value}</span>}
+                                </EditableField>
+                                <EditableField
+                                    path={`languages.${index}.level`}
+                                    label="Level"
+                                    className="text-white/80 text-xs"
+                                >
+                                    {(value) => <span>{value}</span>}
+                                </EditableField>
                             </div>
                         ))}
                     </div>

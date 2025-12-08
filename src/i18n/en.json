@@ -1,95 +1,364 @@
-
 {
-    "personal": {
-        "title": "Personal Details",
-        "firstName": "First Name",
-        "lastName": "Last Name",
-        "role": "Job Title",
-        "email": "Email",
-        "phone": "Phone",
-        "address": "Address",
-        "birthDate": "Date of Birth",
-        "nationality": "Nationality",
-        "permit": "Work Permit",
-        "mobility": "Mobility"
-    },
-    "sections": {
-        "summary": "Professional Summary",
-        "experience": "Experience",
-        "education": "Education",
-        "skills": "Skills",
-        "languages": "Languages"
-    },
-    "actions": {
+    "common": {
+        "loading": "Loading...",
         "save": "Save",
-        "download": "Download PDF",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
         "add": "Add",
-        "delete": "Delete"
+        "close": "Close",
+        "confirm": "Confirm",
+        "back": "Back",
+        "next": "Next",
+        "finish": "Finish",
+        "cta": "Create my CV",
+        "ok": "OK",
+        "yes": "Yes",
+        "no": "No",
+        "search": "Search",
+        "filter": "Filter",
+        "share": "Share",
+        "copy": "Copy",
+        "copied": "Copied!",
+        "download": "Download",
+        "upload": "Upload",
+        "preview": "Preview",
+        "error": "Error",
+        "success": "Success",
+        "warning": "Warning",
+        "info": "Information"
     },
-    "settings": {
-        "title": "Settings",
-        "account": "Account",
-        "storage": "Storage",
-        "billing": "Billing",
-        "free": "Free",
-        "pro": "Pro",
-        "displayMode": "Display Mode",
-        "mobileMode": "Mobile",
-        "desktopMode": "Desktop",
-        "mobileDesc": "Preview how your CV looks on mobile devices.",
-        "demoContent": "Demo Content",
-        "loadDemo": "Load demo on startup",
-        "generateDemo": "Generate Demo Profile"
-    },
-    "tabs": {
-        "personal": "Personal",
-        "experience": "Experience",
-        "education": "Education",
-        "skills": "Skills",
-        "letter": "Letter",
-        "ai": "AI",
-        "review": "Review",
+    "nav": {
+        "home": "Home",
+        "templates": "Templates",
+        "editor": "Editor",
+        "wizard": "Wizard",
+        "pricing": "Pricing",
+        "features": "Features",
+        "faq": "FAQ",
+        "contact": "Contact",
+        "login": "Login",
+        "signup": "Sign up",
+        "logout": "Logout",
+        "myAccount": "My Account",
         "settings": "Settings"
     },
-    "critic": {
-        "jobDescription": "Job Description",
-        "pasteJob": "Paste job description here...",
-        "ready": "Ready to Analyze",
-        "intro": "Get a detailed analysis of your CV with improvement suggestions.",
-        "analyzeBtn": "Analyze CV",
-        "analyzing": "Analyzing...",
-        "quality": "CV Quality",
-        "relevance": "Relevance",
-        "addJobDesc": "Add job description to see relevance",
-        "smartKeywords": "Smart Keywords",
-        "smartInsights": "Insights",
-        "impact": "Impact",
-        "suggestions": "Suggestions"
+    "sidebar": {
+        "dashboard": "Dashboard",
+        "wizard": {
+            "description": "Guided assistant - Easiest"
+        },
+        "dashboard.description": "Overview",
+        "templates": {
+            "description": "Template gallery"
+        },
+        "settings": {
+            "description": "Configuration"
+        },
+        "editor": {
+            "description": "Edit mode"
+        },
+        "structure": {
+            "description": "Reorganize sections"
+        },
+        "ai": {
+            "description": "AI optimization"
+        },
+        "cvTools": "CV Tools"
     },
-    "letterGen": {
-        "newLetter": "New Letter",
-        "emptyState": "No letters yet",
-        "edit": "Edit",
-        "delete": "Delete",
-        "optimize": "Optimize",
+    "landing": {
+        "nav": {
+            "features": "Features",
+            "pricing": "Pricing",
+            "faq": "FAQ",
+            "cta": "Create my CV",
+            "viewTemplates": "View templates",
+            "scroll": "Scroll"
+        },
+        "hero": {
+            "badge": "+2,500 CVs created this week",
+            "titleLine1": "Stop searching for",
+            "titleLine2": "a job.",
+            "titleHighlight": "Attract it.",
+            "subtitle": "AI that transforms your career into an interactive experience. Access our exclusive collection of 50 Elite Designs.",
+            "cta": "Create my CV",
+            "ctaSecondary": "View templates",
+            "trusted": "Used by over 10,000 Swiss professionals",
+            "scroll": "Scroll",
+            "poweredBy": "The technology behind hiring at:",
+            "atsCompatible": "ATS Compatible",
+            "aiOptimized": "AI Optimized"
+        },
+        "socialProof": {
+            "title": "They trust us",
+            "companies": "Partner companies"
+        },
+        "problem": {
+            "title": "Why your current CV ends up",
+            "titleHighlight": "in the trash",
+            "subtitle": "These silent mistakes destroy your chances before the interview.",
+            "card1": {
+                "title": "Ignored by ATS",
+                "description": "75% of CVs are rejected before human review."
+            },
+            "card2": {
+                "title": "Amateur Design",
+                "description": "Word and Canva create non-standard designs."
+            },
+            "card3": {
+                "title": "Blank Page",
+                "description": "Hours wasted searching for the right words."
+            }
+        },
+        "process": {
+            "titlePart1": "Your new CV in",
+            "titleHighlight": "15 minutes",
+            "titlePart2": "flat.",
+            "subtitle": "Simple as 1-2-3. No design skills required.",
+            "step1": {
+                "title": "Import",
+                "subtitle": "(PDF/LinkedIn) or Fill in",
+                "description": "Upload your CV or start from scratch."
+            },
+            "step2": {
+                "title": "AI Optimizes",
+                "subtitle": "Automatic rewriting",
+                "description": "NanoBrain reformulates your content."
+            },
+            "step3": {
+                "title": "Export",
+                "subtitle": "& Apply (HD PDF)",
+                "description": "Download or share online."
+            }
+        },
+        "features": {
+            "title": "Features",
+            "ats": {
+                "title": "100% ATS Compatible",
+                "description": "Our CVs pass all automatic sorting systems"
+            },
+            "ai": {
+                "title": "AI Powered",
+                "description": "Smart suggestions to improve your content"
+            },
+            "swiss": {
+                "title": "Swiss Format",
+                "description": "Adapted to Swiss market standards and expectations"
+            },
+            "multilingual": {
+                "title": "Multilingual",
+                "description": "Create your CV in French, German, English and more"
+            }
+        },
+        "pricing": {
+            "title": "Pricing",
+            "titleHighlight": "simple",
+            "subtitle": "Start for free. Scale as you grow.",
+            "popular": "Popular",
+            "sprint": {
+                "name": "Sprint",
+                "description": "For quick testing",
+                "features": [
+                    "1 CV",
+                    "3 templates",
+                    "PDF Export",
+                    "No watermark"
+                ],
+                "cta": "Start free"
+            },
+            "campagne": {
+                "name": "Campaign",
+                "description": "For active job search",
+                "features": [
+                    "Unlimited CVs",
+                    "50 templates",
+                    "Public web link",
+                    "NanoBrain AI",
+                    "Priority support"
+                ],
+                "cta": "Choose Campaign"
+            },
+            "pro": {
+                "name": "Pro",
+                "description": "For recruiters",
+                "features": [
+                    "All Campaign +",
+                    "API access",
+                    "White-label",
+                    "Advanced analytics",
+                    "Dedicated support"
+                ],
+                "cta": "Contact"
+            }
+        },
+        "faq": {
+            "title": "Frequently Asked Questions",
+            "q1": {
+                "question": "Is it compatible with ATS systems?",
+                "answer": "Yes, 100%. Our templates are designed to be perfectly readable by recruitment software (ATS). Your CV will never be automatically rejected."
+            },
+            "q2": {
+                "question": "Can I cancel my subscription?",
+                "answer": "Absolutely. You can cancel at any time from your dashboard. No commitment, no questions asked."
+            },
+            "q3": {
+                "question": "Is my data secure?",
+                "answer": "Your data is encrypted and hosted in Switzerland. We never share it with third parties. You remain the owner of your content."
+            },
+            "q4": {
+                "question": "How does NanoBrain AI work?",
+                "answer": "NanoBrain analyzes your background and suggests professional wording. It optimizes structure and vocabulary to maximize the impact of your CV."
+            },
+            "q5": {
+                "question": "Can I create multiple versions of my CV?",
+                "answer": "With Campaign and Pro plans, you can create unlimited CVs for different positions or sectors."
+            }
+        },
+        "cta": {
+            "title": "Ready to",
+            "titleHighlight": "stand out",
+            "subtitle": "Join the thousands of professionals who have transformed their careers.",
+            "button": "Create my CV for free"
+        },
+        "footer": {
+            "tagline": "The AI-powered CV builder. Made with 💜 in Switzerland.",
+            "product": "Product",
+            "templates": "Templates",
+            "pricing": "Pricing",
+            "examples": "Examples",
+            "resources": "Resources",
+            "blog": "Blog",
+            "guide": "CV Guide",
+            "faq": "FAQ",
+            "legal": "Legal",
+            "privacy": "Privacy",
+            "terms": "Terms",
+            "contact": "Contact",
+            "copyright": "Nexal. All rights reserved."
+        },
+        "scrollytelling": {
+            "stages": [
+                "The Problem",
+                "The Discovery",
+                "The Revelation",
+                "The Choice",
+                "The Triumph"
+            ],
+            "act1": {
+                "label": "The Problem",
+                "rejected": "REJECTED",
+                "title": "75% of CVs are rejected",
+                "subtitle": "before any human review.",
+                "scrollHint": "Keep scrolling to discover the solution..."
+            },
+            "act2": {
+                "label": "The Discovery",
+                "analyzing": "NanoBrain analyzing...",
+                "title": "AI that",
+                "titleHighlight": "understands",
+                "subtitle": "your potential."
+            },
+            "act3": {
+                "label": "The Revelation",
+                "stats": {
+                    "atsScore": "ATS Score",
+                    "keywords": "Keywords",
+                    "impact": "Impact"
+                },
+                "title": "Results",
+                "titleHighlight": "instant"
+            },
+            "act4": {
+                "label": "The Choice",
+                "title": "elite designs.",
+                "subtitle": "Choose the one that suits you."
+            },
+            "act5": {
+                "atsOptimized": "ATS Optimized",
+                "premium": "Premium",
+                "title": "Ready to",
+                "titleHighlight": "impress",
+                "cta": "Create my CV now"
+            }
+        }
+    },
+    "exemples": {
+        "title": "Examples of",
+        "titleHighlight": "Successful CVs",
+        "subtitle": "Get inspired by CVs that helped our users land their dream jobs.",
         "back": "Back",
-        "offline": "Offline",
-        "online": "Online",
-        "jobTitle": "Job Title",
-        "company": "Company",
-        "targetLang": "Target Language",
-        "generate": "Generate",
-        "errorJob": "Job title required",
-        "saved": "Saved",
-        "deleted": "Deleted",
-        "generated": "Generated successfully",
-        "errorGen": "Generation failed",
-        "startNew": "Start a New Letter",
-        "placeholder": "Start typing your letter here, or use the generator above...",
-        "startTyping": "Start typing..."
+        "cta": "Create my CV",
+        "view": "View",
+        "download": "Download",
+        "atsScore": "ATS Score"
+    },
+    "templates": {
+        "title": "CV Templates",
+        "subtitle": "Choose from our collection of ATS-optimized designs",
+        "count": "50+ Professional Templates",
+        "viewAll": "View all templates",
+        "tapToEnlarge": "Tap to enlarge",
+        "use": "Use this template",
+        "filter": {
+            "all": "All",
+            "popular": "Popular",
+            "creative": "Creative",
+            "minimal": "Minimal",
+            "executive": "Executive",
+            "tech": "Tech"
+        },
+        "card": {
+            "select": "Choose this template",
+            "preview": "Preview",
+            "atsCompatible": "ATS Compatible",
+            "popular": "Popular",
+            "new": "New"
+        },
+        "intro": {
+            "title": "Professional Templates",
+            "subtitle": "ATS-optimized designs created by professional designers",
+            "tapToContinue": "Tap to continue"
+        },
+        "gallery": {
+            "title": "Template Gallery",
+            "displayed": "displayed",
+            "back": "Back",
+            "filters": "Filters",
+            "search": "Search",
+            "searchPlaceholder": "Name, style, industry...",
+            "atsMin": "Minimum ATS Score",
+            "found": "templates found",
+            "reset": "Reset filters",
+            "useTemplate": "Use this template",
+            "loadMore": "Load more",
+            "templatesUnit": "templates",
+            "categories": {
+                "ats": "ATS Compatibility",
+                "style": "Style",
+                "industry": "Industry",
+                "experience": "Experience",
+                "feature": "Features",
+                "region": "Region"
+            }
+        },
+        "names": {
+            "chameleon": "🦎 Chameleon Adaptive",
+            "classic": "Swiss Classic",
+            "modern": "Modern Pro",
+            "atsClassic": "ATS Classic",
+            "executive": "Executive Premium"
+        },
+        "descriptions": {
+            "chameleon": "Auto-adapts to cultural norms of each country",
+            "classic": "Clean and professional design",
+            "modern": "Contemporary and elegant design",
+            "atsClassic": "100% ATS compatible",
+            "executive": "Luxurious and sophisticated design"
+        }
     },
     "wizard": {
         "title": "Swiss CV Wizard",
+        "exit": "Exit wizard",
         "steps": {
             "identity": "Identity",
             "experience": "Experience",
@@ -99,18 +368,275 @@
         "headers": {
             "identity": "Who are you?",
             "experience": "Your Experience",
-            "template": "Choose a Look"
+            "template": "Choose a style",
+            "download": "Your CV is ready!"
         },
         "actions": {
-            "exit": "Exit Wizard",
+            "exit": "Exit",
             "back": "Back",
-            "next": "Next Step",
-            "finish": "Finish"
+            "next": "Next step",
+            "finish": "Finish",
+            "download": "Download PDF"
+        }
+    },
+    "editor": {
+        "sidebar": {
+            "tabs": {
+                "personal": "Info",
+                "experience": "Experience",
+                "education": "Education",
+                "skills": "Skills",
+                "languages": "Languages",
+                "letter": "Letter",
+                "ai": "AI",
+                "review": "Review",
+                "settings": "Settings"
+            }
         },
-        "templates": {
-            "modern": "Modern Swiss",
-            "modernDesc": "Clean, professional, and standard-compliant.",
-            "classic": "Classic (Coming Soon)"
+        "inline": {
+            "edit": "Edit",
+            "save": "Save",
+            "cancel": "Cancel",
+            "placeholder": "Enter text...",
+            "aiEnhance": "Enhance with AI"
+        }
+    },
+    "personal": {
+        "title": "Personal Information",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "role": "Job Title",
+        "email": "Email",
+        "phone": "Phone",
+        "address": "Address",
+        "city": "City",
+        "country": "Country",
+        "birthDate": "Birth Date",
+        "nationality": "Nationality",
+        "permit": "Work Permit",
+        "mobility": "Mobility",
+        "linkedin": "LinkedIn",
+        "website": "Website",
+        "photo": "Photo",
+        "enhancePhoto": "Enhance Photo (AI)",
+        "swissInfo": "🇨🇭 Additional Information (Switzerland)",
+        "select": "Select...",
+        "cvColor": "CV Color",
+        "permits": {
+            "b": "Permit B (Residence)",
+            "c": "Permit C (Settlement)",
+            "g": "Permit G (Cross-border)",
+            "l": "Permit L (Short-term)",
+            "swiss": "Swiss Nationality"
+        }
+    },
+    "sections": {
+        "summary": "Professional Summary",
+        "experience": "Work Experience",
+        "education": "Education",
+        "skills": "Skills",
+        "languages": "Languages",
+        "certifications": "Certifications",
+        "projects": "Projects",
+        "interests": "Interests",
+        "references": "References"
+    },
+    "experience": {
+        "add": "Add experience",
+        "company": "Company",
+        "position": "Position",
+        "location": "Location",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "current": "Current position",
+        "description": "Description",
+        "achievements": "Achievements"
+    },
+    "education": {
+        "add": "Add education",
+        "school": "School",
+        "degree": "Degree",
+        "field": "Field of Study",
+        "location": "Location",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "current": "Currently enrolled",
+        "grade": "Grade"
+    },
+    "skills": {
+        "add": "Add skill",
+        "name": "Skill",
+        "level": "Level",
+        "levels": {
+            "beginner": "Beginner",
+            "intermediate": "Intermediate",
+            "advanced": "Advanced",
+            "expert": "Expert"
+        },
+        "categories": {
+            "technical": "Technical",
+            "soft": "Soft Skills",
+            "languages": "Languages",
+            "tools": "Tools"
+        }
+    },
+    "languages": {
+        "add": "Add language",
+        "name": "Language",
+        "level": "Level",
+        "search": "Type to search for a language...",
+        "noResults": "No language found",
+        "levels": {
+            "native": "Native",
+            "c2": "C2 - Mastery",
+            "c1": "C1 - Advanced",
+            "b2": "B2 - Upper Intermediate",
+            "b1": "B1 - Intermediate",
+            "a2": "A2 - Elementary",
+            "a1": "A1 - Beginner"
+        },
+        "empty": {
+            "title": "No languages added",
+            "subtitle": "Start typing to see suggestions"
+        }
+    },
+    "letter": {
+        "title": "Cover Letter",
+        "new": "New Letter",
+        "empty": "No letters yet",
+        "jobTitle": "Job Title",
+        "company": "Company",
+        "targetLang": "Target Language",
+        "generate": "Generate",
+        "optimize": "Optimize",
+        "placeholder": "Start writing your letter here...",
+        "saved": "Saved",
+        "deleted": "Deleted",
+        "generated": "Successfully generated",
+        "errorGen": "Generation failed",
+        "errorJob": "Job title required"
+    },
+    "ai": {
+        "title": "AI Assistant",
+        "enhance": "Enhance",
+        "enhancing": "Enhancing...",
+        "suggestions": "Suggestions",
+        "apply": "Apply",
+        "regenerate": "Regenerate",
+        "center": {
+            "title": "AI Center",
+            "subtitle": "Improve your CV with artificial intelligence"
+        }
+    },
+    "critic": {
+        "title": "CV Analysis",
+        "jobDescription": "Job Description",
+        "pasteJob": "Paste the job description here...",
+        "ready": "Ready to analyze",
+        "intro": "Get a detailed analysis of your CV and improvement suggestions.",
+        "analyzeBtn": "Analyze my CV",
+        "analyzing": "Analyzing...",
+        "quality": "CV Quality",
+        "relevance": "Relevance",
+        "addJobDesc": "Add a job description to see relevance",
+        "smartKeywords": "Smart Keywords",
+        "smartInsights": "Insights",
+        "impact": "Impact",
+        "suggestions": "Suggestions"
+    },
+    "settings": {
+        "title": "Settings",
+        "account": "Account",
+        "storage": "Storage",
+        "billing": "Subscription",
+        "free": "Free",
+        "pro": "Pro",
+        "language": "Interface Language",
+        "displayMode": "Display Mode",
+        "mobileMode": "Mobile",
+        "desktopMode": "Desktop",
+        "mobileDesc": "Preview your CV on mobile.",
+        "darkMode": "Dark Mode",
+        "notifications": "Notifications",
+        "demoContent": "Demo Content",
+        "loadDemo": "Load demo on startup",
+        "generateDemo": "Generate demo profile",
+        "exportData": "Export my data",
+        "deleteAccount": "Delete my account"
+    },
+    "auth": {
+        "login": "Login",
+        "signup": "Sign up",
+        "logout": "Logout",
+        "email": "Email",
+        "password": "Password",
+        "confirmPassword": "Confirm password",
+        "forgotPassword": "Forgot password?",
+        "resetPassword": "Reset password",
+        "noAccount": "Don't have an account?",
+        "hasAccount": "Already have an account?",
+        "orContinueWith": "Or continue with",
+        "google": "Google",
+        "github": "GitHub",
+        "terms": "By signing up, you agree to our terms of service",
+        "loginSuccess": "Login successful",
+        "signupSuccess": "Sign up successful",
+        "loginError": "Login error",
+        "signupError": "Sign up error"
+    },
+    "share": {
+        "title": "Share your CV",
+        "link": "Share link",
+        "copy": "Copy link",
+        "copied": "Link copied!",
+        "email": "Send by email",
+        "linkedin": "Share on LinkedIn",
+        "twitter": "Share on Twitter",
+        "qrCode": "QR Code"
+    },
+    "pdf": {
+        "generating": "Generating PDF...",
+        "ready": "PDF ready",
+        "download": "Download PDF",
+        "error": "Error during generation",
+        "quality": {
+            "high": "High quality",
+            "standard": "Standard",
+            "fast": "Fast"
+        }
+    },
+    "status": {
+        "saved": "Saved",
+        "saving": "Saving...",
+        "unsaved": "Unsaved",
+        "offline": "Offline",
+        "online": "Online",
+        "syncing": "Syncing..."
+    },
+    "errors": {
+        "generic": "An error occurred",
+        "network": "Connection error",
+        "notFound": "Page not found",
+        "unauthorized": "Unauthorized access",
+        "serverError": "Server error",
+        "tryAgain": "Try again",
+        "goHome": "Go home"
+    },
+    "legal": {
+        "privacy": {
+            "title": "Privacy Policy",
+            "lastUpdated": "Last updated"
+        },
+        "terms": {
+            "title": "Terms of Service",
+            "lastUpdated": "Last updated"
+        },
+        "cookies": {
+            "title": "Cookie Policy",
+            "accept": "Accept",
+            "decline": "Decline",
+            "customize": "Customize",
+            "message": "We use cookies to improve your experience."
         }
     }
 }

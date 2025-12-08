@@ -1,100 +1,81 @@
 /**
- * CVRenderer - Unified CV Rendering Component
+ * CV Renderer Component
  * 
- * Supports both:
- * - Legacy templates (from carousel at /templates)
- * - Dynamic templates (from gallery at /gallery using TemplateFactory)
+ * Renders the selected CV template with the current profile data.
+ * Chameleon Mode - Only premium templates
  */
 
-import React from 'react';
-import { useProfile } from '../../application/store/v2';
-import { useSettingsStore } from '../../application/store/settings-store';
-import { DynamicTemplate } from '../cv-templates/factory/DynamicTemplateRenderer';
-import { TEMPLATE_BY_ID, CURATED_TEMPLATES } from '../cv-templates/factory/TemplateFactory';
+import React, { useMemo } from 'react';
+import { useProfile, useTemplateId } from '../../application/store/v2';
 
-// Legacy Templates (from carousel)
-import { ModernTemplateV2 } from '../layouts/templates/v2/ModernTemplate.v2';
-import { ClassicTemplate } from '../layouts/templates/v2/ClassicTemplate';
-import { ExecutiveTemplate } from '../layouts/templates/v2/ExecutiveTemplate';
-import { ATSClassicTemplate } from '../cv-templates/templates/ATSClassicTemplate';
-import { ATSModernTemplate } from '../cv-templates/templates/ATSModernTemplate';
-import { ATSMinimalTemplate } from '../cv-templates/templates/ATSMinimalTemplate';
-import { SwissExecutiveTemplate } from '../cv-templates/templates/SwissExecutiveTemplate';
-import { ConsultantTemplate } from '../cv-templates/templates/ConsultantTemplate';
-import { BankerTemplate } from '../cv-templates/templates/BankerTemplate';
-import { LegalTemplate } from '../cv-templates/templates/LegalTemplate';
-import { CreativePortfolioTemplate } from '../cv-templates/templates/CreativePortfolioTemplate';
-import { DevStackTemplate } from '../cv-templates/templates/DevStackTemplate';
-import { StartupFounderTemplate } from '../cv-templates/templates/StartupFounderTemplate';
-import { HealthcareProTemplate } from '../cv-templates/templates/HealthcareProTemplate';
-import { AcademicCVTemplate } from '../cv-templates/templates/AcademicCVTemplate';
+// Premium Templates Only
+import { ChameleonTemplate } from '../cv-templates/templates/ChameleonTemplate';
+import { TemplateHarvard } from '../cv-templates/templates/TemplateHarvard';
+import { TemplateSilicon } from '../cv-templates/templates/TemplateSilicon';
+import { TemplateExecutive as TemplateExecutiveNew } from '../cv-templates/templates/TemplateExecutiveNew';
 
 export interface CVRendererProps {
     language?: 'en' | 'fr';
     forceMode?: 'modele' | 'edition' | 'structure';
+    className?: string;
+    forceTemplateId?: string;
 }
 
-// Legacy template ID to Component mapping
-const LEGACY_TEMPLATES: Record<string, React.ComponentType<{ language?: 'en' | 'fr'; forceMode?: 'modele' | 'edition' | 'structure' }>> = {
-    // ATS Templates
-    'ats-classic': ATSClassicTemplate,
-    'ats-modern': ATSModernTemplate,
-    'ats-minimal': ATSMinimalTemplate,
+/**
+ * Template mapping - Chameleon Mode (only premium)
+ */
+const TEMPLATES: Record<string, React.ComponentType<any>> = {
+    // Chameleon (default)
+    'chameleon': ChameleonTemplate,
 
-    // Business Templates
-    'swiss-executive': SwissExecutiveTemplate,
-    'consultant': ConsultantTemplate,
-    'banker': BankerTemplate,
-    'legal': LegalTemplate,
+    // Premium Templates
+    'harvard': TemplateHarvard,
+    'silicon': TemplateSilicon,
+    'executive-new': TemplateExecutiveNew,
 
-    // Creative & Tech
-    'creative-portfolio': CreativePortfolioTemplate,
-    'devstack': DevStackTemplate,
-    'startup-founder': StartupFounderTemplate,
-
-    // Specialized
-    'healthcare-pro': HealthcareProTemplate,
-    'academic-cv': AcademicCVTemplate,
-
-    // Legacy core templates
-    'modern': ModernTemplateV2,
-    'classic': ClassicTemplate,
-    'executive': ExecutiveTemplate,
+    // Legacy fallbacks (redirect to Chameleon)
+    'modern': ChameleonTemplate,
+    'classic': ChameleonTemplate,
+    'executive': ChameleonTemplate,
+    'ats-classic': ChameleonTemplate,
+    'ats-modern': ChameleonTemplate,
+    'ats-minimal': ChameleonTemplate
 };
 
 export const CVRenderer: React.FC<CVRendererProps> = React.memo(({
-    language = 'fr',
-    forceMode
+    language,
+    forceMode,
+    className,
+    forceTemplateId
 }) => {
     const profile = useProfile();
-    const { selectedTemplateId } = useSettingsStore();
+    const storeTemplateId = useTemplateId();
 
-    if (!profile || !profile.metadata) {
-        return null;
+    const templateId = forceTemplateId || storeTemplateId || 'chameleon';
+
+    const TemplateComponent = useMemo(() => {
+        return TEMPLATES[templateId] || ChameleonTemplate;
+    }, [templateId]);
+
+    if (!profile) {
+        return (
+            <div className="flex items-center justify-center h-full text-gray-400">
+                <p>Chargement du profil...</p>
+            </div>
+        );
     }
 
-    // Get template from store or profile metadata
-    const templateId = selectedTemplateId || profile.metadata?.templateId || 'modern';
-
-    // 1. First check if it's a legacy template (from carousel)
-    const LegacyComponent = LEGACY_TEMPLATES[templateId];
-    if (LegacyComponent) {
-        return <LegacyComponent language={language} forceMode={forceMode} />;
-    }
-
-    // 2. Then check if it's a curated dynamic template (from gallery)
-    const curatedTemplate = TEMPLATE_BY_ID.get(templateId);
-    if (curatedTemplate) {
-        return <DynamicTemplate config={curatedTemplate} forceMode={forceMode} />;
-    }
-
-    // 3. Fallback: use first curated template
-    if (CURATED_TEMPLATES.length > 0) {
-        return <DynamicTemplate config={CURATED_TEMPLATES[0]} forceMode={forceMode} />;
-    }
-
-    // 4. Ultimate fallback to Modern
-    return <ModernTemplateV2 language={language} />;
+    return (
+        <div className={`cv-renderer ${className || ''}`} data-template={templateId}>
+            <TemplateComponent
+                profile={profile}
+                language={language}
+                forceMode={forceMode}
+            />
+        </div>
+    );
 });
 
 CVRenderer.displayName = 'CVRenderer';
+
+export default CVRenderer;

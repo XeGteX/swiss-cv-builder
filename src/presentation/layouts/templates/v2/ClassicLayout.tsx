@@ -53,7 +53,6 @@ export const ClassicLayout: React.FC<ClassicLayoutProps> = ({
 
     const cssVars = TemplateEngine.generateStyles(effectiveConfig);
     const txt = t[language];
-    const updateField = useUpdateField();
 
     // Section metadata
     const sectionMeta = {
@@ -201,10 +200,22 @@ export const ClassicLayout: React.FC<ClassicLayoutProps> = ({
             case 'languages':
                 return (
                     <div className="grid grid-cols-2 gap-4">
-                        {data.languages.map((lang, index) => (
+                        {data.languages.map((_lang, index) => (
                             <div key={index} className="flex justify-between items-center border-b border-gray-200 pb-1">
-                                <span className="font-medium text-gray-800 text-sm">{lang.name}</span>
-                                <span className="text-gray-600 text-sm">{lang.level}</span>
+                                <EditableField
+                                    path={`languages.${index}.name`}
+                                    label="Language"
+                                    className="font-medium text-gray-800 text-sm"
+                                >
+                                    {(value) => <span>{value}</span>}
+                                </EditableField>
+                                <EditableField
+                                    path={`languages.${index}.level`}
+                                    label="Level"
+                                    className="text-gray-600 text-sm"
+                                >
+                                    {(value) => <span>{value}</span>}
+                                </EditableField>
                             </div>
                         ))}
                     </div>

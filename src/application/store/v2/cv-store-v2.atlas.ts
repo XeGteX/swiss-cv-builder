@@ -5,15 +5,6 @@
  * Extracted from cv-store-v2.ts to respect 400-line limit.
  */
 
-// Type declaration for NodeJS timer (browser-compatible)
-declare global {
-    // eslint-disable-next-line @typescript-eslint/no-namespace
-    namespace NodeJS {
-        type Timeout = ReturnType<typeof setTimeout>;
-    }
-}
-
-
 import type { CVProfile } from '../../../domain/cv/v2/types';
 import type { SyncStatus } from './cv-store-v2.types';
 
@@ -27,9 +18,7 @@ import type { SyncStatus } from './cv-store-v2.types';
  * - Google Docs-style auto-save
  */
 export class AtlasSyncService {
-    private debounceTimer: NodeJS.Timeout | null = null;
-    private retryCount = 0;
-    private readonly MAX_RETRIES = 3;
+    private debounceTimer: ReturnType<typeof setTimeout> | null = null;
     private readonly DEBOUNCE_MS = 1000;
 
     /**

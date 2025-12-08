@@ -6,15 +6,17 @@ import { TextArea } from '../../../design-system/atoms/TextArea';
 import { Button } from '../../../design-system/atoms/Button';
 import { Card } from '../../../design-system/atoms/Card';
 import { Plus, Trash2 } from 'lucide-react';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 export const ExperienceTab: React.FC = () => {
+    const { t } = useTranslation();
     const profile = useCVStoreV2((state) => state.profile);
     const addExperience = useCVStoreV2((state) => state.addExperience);
     const removeExperience = useCVStoreV2((state) => state.removeExperience);
     const updateField = useCVStoreV2((state) => state.updateField);
 
     if (!profile || !profile.experiences) {
-        return <div className="p-4 text-slate-400">Chargement...</div>;
+        return <div className="p-4 text-slate-400">{t('common.loading')}</div>;
     }
 
     const handleTaskChange = (expIndex: number, taskIndex: number, value: string) => {
@@ -44,12 +46,12 @@ export const ExperienceTab: React.FC = () => {
                     </button>
 
                     <h4 className="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">
-                        Expérience {index + 1}
+                        {t('sections.experience')} {index + 1}
                     </h4>
 
                     <div className="space-y-3">
                         <Input
-                            label="Poste"
+                            label={t('experience.position')}
                             value={exp.role}
                             onChange={(e) => updateField(`experiences.${index}.role`, e.target.value)}
                             className="font-semibold"
@@ -59,7 +61,7 @@ export const ExperienceTab: React.FC = () => {
                         />
                         <div className="grid grid-cols-2 gap-3">
                             <Input
-                                label="Entreprise"
+                                label={t('experience.company')}
                                 value={exp.company}
                                 onChange={(e) => updateField(`experiences.${index}.company`, e.target.value)}
                                 maxLength={100}
@@ -67,7 +69,7 @@ export const ExperienceTab: React.FC = () => {
                                 variant="glass"
                             />
                             <Input
-                                label="Dates"
+                                label={t('experience.startDate')}
                                 value={exp.dates}
                                 onChange={(e) => updateField(`experiences.${index}.dates`, e.target.value)}
                                 variant="glass"
@@ -75,7 +77,7 @@ export const ExperienceTab: React.FC = () => {
                         </div>
 
                         <div className="pt-2">
-                            <label className="block text-xs font-semibold text-slate-400 mb-2">Tâches & Réalisations</label>
+                            <label className="block text-xs font-semibold text-slate-400 mb-2">{t('experience.achievements')}</label>
                             <div className="space-y-2">
                                 {exp.tasks.map((task, i) => (
                                     <div key={i} className="flex gap-2">
@@ -86,7 +88,7 @@ export const ExperienceTab: React.FC = () => {
                                             maxLength={300}
                                             debounceTime={300}
                                             enableAI={true}
-                                            label={`Tâche ${i + 1}`}
+                                            label={`${t('experience.description')} ${i + 1}`}
                                             variant="glass"
                                         />
                                         <button
@@ -104,7 +106,7 @@ export const ExperienceTab: React.FC = () => {
                                     leftIcon={<Plus size={14} />}
                                     className="text-brand-400 hover:text-brand-300 hover:bg-white/5"
                                 >
-                                    Ajouter une tâche
+                                    {t('common.add')}
                                 </Button>
                             </div>
                         </div>
@@ -118,7 +120,7 @@ export const ExperienceTab: React.FC = () => {
                 onClick={addExperience}
                 leftIcon={<Plus size={16} />}
             >
-                Ajouter une expérience
+                {t('experience.add')}
             </Button>
         </div>
     );

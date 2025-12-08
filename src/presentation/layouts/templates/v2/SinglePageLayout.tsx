@@ -17,9 +17,10 @@ import {
 import { EditableField, EditableEmail, EditablePhone } from '../../../components/atomic-editor/EditableField';
 import { EditableImage } from '../../../components/atomic-editor/EditableImage';
 import { useUpdateField } from '../../../../application/store/v2';
+import { useDebugStore } from '../../../../application/store/debug-store';
 import { SortableItem } from '../../../components/lego/SortableItem';
 import { SortableSection } from '../../../components/lego/SortableSection';
-import { t } from '../../../../data/translations';
+// Section titles are hardcoded to prevent crashes with unsupported languages
 import { TemplateEngine, DEFAULT_THEME } from '../../../../domain/templates/TemplateEngine';
 import type { TemplateConfig } from '../../../../domain/templates/TemplateEngine';
 import type { CVProfile } from '../../../../domain/cv/v2/types';
@@ -55,6 +56,9 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
         }
     }), [config, data.metadata]);
 
+    // Debug mode subscription for forcing re-renders
+    const isDebugMode = useDebugStore(s => s.isDebugMode);
+
     const cssVars = TemplateEngine.generateStyles(effectiveConfig);
 
     const adjustColor = (color: string, amount: number) => {
@@ -67,7 +71,14 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
         background: `linear-gradient(135deg, ${effectiveConfig.colors.primary}, ${adjustColor(effectiveConfig.colors.primary, -60)})`,
     };
 
-    const txt = t[language];
+    // Safe section titles
+    const sectionTitles = {
+        summary: 'PROFIL',
+        experience: 'EXPÉRIENCE PROFESSIONNELLE',
+        education: 'FORMATION',
+        skills: 'COMPÉTENCES',
+        languages: 'LANGUES',
+    };
     const density = data.metadata.density;
 
     const densityStyles = {
@@ -85,11 +96,11 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
 
     // Section metadata
     const sectionMeta = {
-        summary: { title: 'PROFIL', icon: <User size={18} style={{ color: effectiveConfig.colors.primary }} /> },
-        experience: { title: txt.experience.toUpperCase(), icon: <Briefcase size={18} style={{ color: effectiveConfig.colors.primary }} /> },
-        education: { title: txt.education.toUpperCase(), icon: <GraduationCap size={18} style={{ color: effectiveConfig.colors.primary }} /> },
-        skills: { title: 'COMPÉTENCES', icon: <Award size={18} style={{ color: effectiveConfig.colors.primary }} /> },
-        languages: { title: 'LANGUES', icon: <Globe size={18} style={{ color: effectiveConfig.colors.primary }} /> },
+        summary: { title: sectionTitles.summary, icon: <User size={18} style={{ color: effectiveConfig.colors.primary }} /> },
+        experience: { title: sectionTitles.experience, icon: <Briefcase size={18} style={{ color: effectiveConfig.colors.primary }} /> },
+        education: { title: sectionTitles.education, icon: <GraduationCap size={18} style={{ color: effectiveConfig.colors.primary }} /> },
+        skills: { title: sectionTitles.skills, icon: <Award size={18} style={{ color: effectiveConfig.colors.primary }} /> },
+        languages: { title: sectionTitles.languages, icon: <Globe size={18} style={{ color: effectiveConfig.colors.primary }} /> },
     };
 
     // Render section content
@@ -225,7 +236,7 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
                     <SortableContext items={data.skills.map(s => `skill-${s}`)} strategy={rectSortingStrategy}>
                         <div className="flex flex-wrap gap-2">
                             {data.skills.map((skill, index) => (
-                                <SortableItem key={skill} id={`skill-${skill}`} mode={mode}>
+                                <SortableItem key={`${skill}-${isDebugMode}`} id={`skill-${skill}`} mode={mode}>
                                     <EditableField
                                         path={`skills.${index}`}
                                         label={`Skill ${index + 1}`}

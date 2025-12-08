@@ -19,6 +19,7 @@ import {
 import { useSettingsStore } from '../../../application/store/settings-store';
 import { useAuthStore } from '../../../application/store/auth-store';
 import { useCVStore } from '../../../application/store/cv-store';
+import { RegionSelector } from '../../components/region/RegionSelector';
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -64,27 +65,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+                        className="fixed inset-0 z-50 bg-[#0a0a0f]/95 backdrop-blur-md"
                         onClick={onClose}
                     />
 
-                    {/* Modal */}
+                    {/* Modal - Positioned in safe zone on mobile */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+                        className="fixed top-[60px] bottom-[80px] md:top-0 md:bottom-0 left-0 right-0 z-50 flex items-start md:items-center justify-center p-2 md:p-4 pointer-events-none overflow-hidden"
                     >
                         <div
-                            className="relative w-full max-w-2xl pointer-events-auto"
+                            className="relative w-full max-w-2xl pointer-events-auto h-full md:h-auto md:my-auto flex flex-col"
                             onClick={e => e.stopPropagation()}
                         >
-                            {/* Glow effect */}
-                            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl blur-xl opacity-30" />
+                            {/* Glow effect - hidden on mobile for performance */}
+                            <div className="hidden md:block absolute -inset-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl blur-xl opacity-30" />
 
-                            {/* Main container */}
-                            <div className="relative bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
+                            {/* Main container - fits safe zone on mobile */}
+                            <div className="relative bg-[#0f0a1f] border border-purple-500/20 rounded-2xl shadow-2xl overflow-hidden h-full md:h-auto md:max-h-[85vh] flex flex-col">
                                 {/* Decorative header gradient */}
                                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
 
@@ -198,7 +199,7 @@ const GeneralTab: React.FC<GeneralTabProps> = ({
                 title="Langue"
                 description="Choisissez la langue de l'interface"
             >
-                <div className="flex gap-3">
+                <div className="grid grid-cols-2 gap-3">
                     <ToggleButton
                         active={language === 'fr'}
                         onClick={() => setLanguage('fr')}
@@ -322,6 +323,15 @@ const DisplayTab: React.FC<DisplayTabProps> = ({ isMobileMode, setMobileMode }) 
                         icon={<Sun size={16} />}
                     />
                 </div>
+            </SettingsSection>
+
+            {/* Region Selector - Chameleon Architecture */}
+            <SettingsSection
+                icon={<Globe size={18} />}
+                title="Région cible du CV"
+                description="Adapte automatiquement le format et contenu selon les normes locales"
+            >
+                <RegionSelector variant="dropdown" />
             </SettingsSection>
         </div>
     );

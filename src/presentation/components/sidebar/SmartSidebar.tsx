@@ -11,7 +11,7 @@
  * - Glass morphism backdrop
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -27,6 +27,7 @@ import { useMode, useSetMode } from '../../../application/store/v2';
 import type { CVMode } from '../../../application/store/v2';
 import { GlassStyles } from '../../design-system/tokens';
 import { useIsMobile } from '../../hooks/useMediaQuery';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface NavItem {
     id: string;
@@ -40,75 +41,7 @@ interface NavItem {
     section: 'pages' | 'tools' | 'quickaccess';
 }
 
-const NAV_ITEMS: NavItem[] = [
-    // ═══════ QUICK ACCESS (Most Important) ═══════
-    {
-        id: 'wizard',
-        label: 'Wizard',
-        icon: Wand2,
-        path: '/wizard',
-        gradient: 'from-indigo-500 to-blue-500',
-        description: 'Assistant guidé - Le plus facile',
-        section: 'quickaccess'
-    },
 
-    // ═══════ PAGES ═══════
-    {
-        id: 'dashboard',
-        label: 'Dashboard',
-        icon: LayoutDashboard,
-        path: '/',
-        gradient: 'from-blue-500 to-cyan-500',
-        description: 'Vue d\'ensemble',
-        section: 'pages'
-    },
-    {
-        id: 'templates',
-        label: 'Templates',
-        icon: Palette,
-        path: '/templates',
-        gradient: 'from-purple-500 to-pink-500',
-        description: 'Galerie de modèles',
-        section: 'pages'
-    },
-    {
-        id: 'settings',
-        label: 'Paramètres',
-        icon: Settings,
-        action: 'openSettings',
-        gradient: 'from-slate-500 to-gray-500',
-        description: 'Configuration',
-        section: 'pages'
-    },
-
-    {
-        id: 'editor',
-        label: 'Éditeur',
-        icon: Edit3,
-        mode: 'edition',
-        gradient: 'from-green-500 to-emerald-500',
-        description: 'Mode édition',
-        section: 'tools'
-    },
-    {
-        id: 'structure',
-        label: 'Structure',
-        icon: Box,
-        mode: 'structure',
-        gradient: 'from-violet-500 to-purple-500',
-        description: 'Réorganiser les sections',
-        section: 'tools'
-    },
-    {
-        id: 'ai',
-        label: 'IA',
-        icon: Sparkles,
-        mode: 'ai',
-        gradient: 'from-amber-500 to-orange-500',
-        description: 'Optimisation intelligente',
-        section: 'tools'
-    }
-];
 
 export const SmartSidebar: React.FC = () => {
     const isMobile = useIsMobile();
@@ -118,10 +51,84 @@ export const SmartSidebar: React.FC = () => {
     const location = useLocation();
     const currentMode = useMode();
     const setMode = useSetMode();
+    const { t } = useTranslation();
+
+    // NAV_ITEMS with translations
+    const NAV_ITEMS: NavItem[] = [
+        // Quick Access
+        {
+            id: 'wizard',
+            label: 'Wizard',
+            icon: Wand2,
+            path: '/wizard',
+            gradient: 'from-indigo-500 to-blue-500',
+            description: t('sidebar.wizard.description') as string,
+            section: 'quickaccess'
+        },
+        // Pages
+        {
+            id: 'dashboard',
+            label: t('sidebar.dashboard') as string,
+            icon: LayoutDashboard,
+            path: '/',
+            gradient: 'from-blue-500 to-cyan-500',
+            description: t('sidebar.dashboard.description') as string,
+            section: 'pages'
+        },
+        {
+            id: 'templates',
+            label: t('nav.templates') as string,
+            icon: Palette,
+            path: '/templates',
+            gradient: 'from-purple-500 to-pink-500',
+            description: t('sidebar.templates.description') as string,
+            section: 'pages'
+        },
+        {
+            id: 'settings',
+            label: t('nav.settings') as string,
+            icon: Settings,
+            path: undefined,
+            action: 'openSettings',
+            gradient: 'from-slate-500 to-gray-500',
+            description: t('sidebar.settings.description') as string,
+            section: 'pages'
+        },
+        // Tools
+        {
+            id: 'editor',
+            label: t('nav.editor') as string,
+            icon: Edit3,
+            mode: 'edition',
+            gradient: 'from-green-500 to-emerald-500',
+            description: t('sidebar.editor.description') as string,
+            section: 'tools'
+        },
+        {
+            id: 'structure',
+            label: 'Structure',
+            icon: Box,
+            mode: 'structure',
+            gradient: 'from-violet-500 to-purple-500',
+            description: t('sidebar.structure.description') as string,
+            section: 'tools'
+        },
+        {
+            id: 'ai',
+            label: 'Smart AI Hub',
+            icon: Sparkles,
+            action: 'openAIHub',
+            gradient: 'from-amber-500 to-orange-500',
+            description: 'Optimisation IA de votre CV',
+            section: 'tools'
+        }
+    ];
 
     const handleItemClick = (item: NavItem) => {
         if (item.action === 'openSettings') {
             window.dispatchEvent(new CustomEvent('OPEN_SETTINGS_MODAL'));
+        } else if (item.action === 'openAIHub') {
+            window.dispatchEvent(new CustomEvent('OPEN_AI_HUB'));
         } else if (item.path) {
             navigate(item.path);
         } else if (item.mode) {

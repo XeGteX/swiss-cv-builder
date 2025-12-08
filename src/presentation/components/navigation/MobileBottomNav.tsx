@@ -69,7 +69,7 @@ export const MobileBottomNav: React.FC = () => {
     const drawerItems = [
         { id: 'download', label: 'Télécharger PDF', icon: Download, action: () => window.dispatchEvent(new CustomEvent('download-pdf')) },
         { id: 'settings', label: 'Paramètres', icon: Settings, action: () => window.dispatchEvent(new CustomEvent('OPEN_SETTINGS_MODAL')) },
-        { id: 'account', label: 'Mon Compte', icon: User, action: () => { navigate('/'); /* TODO: Add account page */ } },
+        { id: 'account', label: 'Mon Compte', icon: User, action: () => window.dispatchEvent(new CustomEvent('OPEN_AUTH_MODAL')) },
         { id: 'review', label: 'Revue du CV', icon: Star, action: () => { setMode('structure'); navigate('/'); } },
         { id: 'letter', label: 'Lettre de motivation', icon: FileText, action: () => { navigate('/'); /* TODO: Add cover letter page */ } },
     ];
@@ -82,8 +82,8 @@ export const MobileBottomNav: React.FC = () => {
                 animate={{ y: 0 }}
                 className="md:hidden fixed bottom-0 left-0 right-0 z-50"
             >
-                {/* Glassmorphism background */}
-                <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl border-t border-white/10" />
+                {/* Glassmorphism background - matches top bar */}
+                <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-xl border-t border-white/10" />
 
                 {/* Safe area padding for notched devices */}
                 <div className="relative flex items-center justify-around h-20 px-2 pb-safe">
@@ -137,37 +137,48 @@ export const MobileBottomNav: React.FC = () => {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setDrawerOpen(false)}
-                            className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+                            className="md:hidden fixed inset-0 bg-[#0a0a0f]/95 backdrop-blur-md z-40"
                         />
 
                         {/* Drawer */}
                         <motion.div
-                            initial={{ y: '100%' }}
-                            animate={{ y: 0 }}
-                            exit={{ y: '100%' }}
-                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                            className="md:hidden fixed bottom-20 left-4 right-4 z-50"
+                            initial={{ y: '100%', opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: '100%', opacity: 0 }}
+                            transition={{
+                                type: 'spring',
+                                damping: 30,
+                                stiffness: 400,
+                                opacity: { duration: 0.15 }
+                            }}
+                            className="md:hidden fixed bottom-20 left-0 right-0 z-50 px-4"
                         >
-                            <div className="bg-slate-900/95 backdrop-blur-2xl rounded-3xl border border-white/10 p-4 shadow-2xl">
+                            <div className="bg-[#0f0a1f] rounded-3xl border border-purple-500/20 p-5 shadow-2xl mx-auto max-w-md">
                                 {/* Drawer Handle */}
-                                <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
+                                <div className="w-12 h-1.5 bg-white/30 rounded-full mx-auto mb-5" />
 
-                                {/* Drawer Items */}
-                                <div className="space-y-1">
-                                    {drawerItems.map((item) => (
+                                {/* Drawer Items - Centered */}
+                                <div className="space-y-2">
+                                    {drawerItems.map((item, index) => (
                                         <motion.button
                                             key={item.id}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: index * 0.05 }}
                                             onClick={() => {
                                                 item.action();
                                                 setDrawerOpen(false);
                                             }}
-                                            whileTap={{ scale: 0.98 }}
-                                            className="w-full flex items-center gap-4 p-4 rounded-2xl text-left hover:bg-white/5 transition-colors group"
+                                            whileTap={{ scale: 0.97, x: 5 }}
+                                            className="w-full flex items-center gap-4 p-4 rounded-2xl text-left hover:bg-white/5 active:bg-purple-500/10 transition-colors group"
                                         >
-                                            <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-purple-400 group-hover:bg-purple-500/20 transition-colors">
-                                                <item.icon size={20} />
-                                            </div>
-                                            <span className="text-white font-medium">{item.label}</span>
+                                            <motion.div
+                                                className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500/20 to-violet-500/20 flex items-center justify-center text-purple-400 group-hover:from-purple-500/30 group-hover:to-violet-500/30 transition-all"
+                                                whileHover={{ rotate: 5, scale: 1.05 }}
+                                            >
+                                                <item.icon size={22} />
+                                            </motion.div>
+                                            <span className="text-white font-medium text-base">{item.label}</span>
                                         </motion.button>
                                     ))}
                                 </div>

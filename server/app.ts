@@ -17,6 +17,8 @@ import webhookRoutes from './routes/webhook';
 import pdfRoutes from './routes/pdf';
 import puppeteerPdfRoutes from './routes/puppeteer-pdf';
 import systemRoutes from './routes/system.routes';
+import pantheonRoutes from './routes/pantheon';
+import omniscientRoutes from './routes/omniscient';
 
 import rateLimit from 'express-rate-limit';
 
@@ -73,6 +75,8 @@ app.use('/api/ai', aiLimiter, aiRoutes);
 app.use('/api/pdf', pdfRoutes);
 app.use('/api/puppeteer-pdf', puppeteerPdfRoutes);
 app.use('/api/system', systemRoutes);
+app.use('/api/pantheon', aiLimiter, pantheonRoutes);
+app.use('/api/omniscient', aiLimiter, omniscientRoutes);
 
 import { MonitorService } from './services/monitor-service';
 

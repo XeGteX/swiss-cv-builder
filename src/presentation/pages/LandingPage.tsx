@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useSoundEffects } from '../../utils/soundEffects';
 import { useLocalizedPrices } from '../../utils/priceLocalization';
+import { useTranslation } from '../hooks/useTranslation';
 
 // ============================================================================
 // ANIMATION VARIANTS
@@ -44,15 +45,8 @@ const staggerContainer = {
 
 const FloatingNav: React.FC = () => {
     const navigate = useNavigate();
-    const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    // Removed sound from nav - only used in scrollytelling
-
-    useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 100);
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    const { t } = useTranslation();
 
     const handleNavClick = (href: string) => {
         setMobileMenuOpen(false);
@@ -69,8 +63,7 @@ const FloatingNav: React.FC = () => {
             <motion.nav
                 initial={{ y: -100 }}
                 animate={{ y: 0 }}
-                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-[#0a0a0f]/90 backdrop-blur-lg border-b border-white/5' : 'bg-transparent'
-                    }`}
+                className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0f]/95 backdrop-blur-lg border-b border-white/5"
             >
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
                     <a href="/landing" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -80,9 +73,9 @@ const FloatingNav: React.FC = () => {
 
                     {/* Desktop menu */}
                     <div className="hidden md:flex items-center gap-8 text-sm text-gray-400">
-                        <button onClick={() => handleNavClick('#features')} className="hover:text-white transition-colors">Fonctionnalités</button>
-                        <button onClick={() => handleNavClick('#pricing')} className="hover:text-white transition-colors">Tarifs</button>
-                        <button onClick={() => handleNavClick('#faq')} className="hover:text-white transition-colors">FAQ</button>
+                        <button onClick={() => handleNavClick('#features')} className="hover:text-white transition-colors">{t('landing.nav.features')}</button>
+                        <button onClick={() => handleNavClick('#pricing')} className="hover:text-white transition-colors">{t('landing.nav.pricing')}</button>
+                        <button onClick={() => handleNavClick('#faq')} className="hover:text-white transition-colors">{t('landing.nav.faq')}</button>
                     </div>
 
                     <div className="flex items-center gap-3">
@@ -92,7 +85,7 @@ const FloatingNav: React.FC = () => {
                             whileTap={{ scale: 0.95 }}
                             className="hidden sm:block px-5 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white text-sm font-medium transition-colors"
                         >
-                            Créer mon CV
+                            {t('landing.nav.cta')}
                         </motion.button>
 
                         {/* Animated Hamburger Menu Button */}
@@ -137,55 +130,66 @@ const FloatingNav: React.FC = () => {
                 </div>
             </motion.nav>
 
-            {/* Mobile menu overlay - Glassmorphism Style */}
+            {/* Mobile menu overlay - Full Screen Professional Design */}
             <AnimatePresence>
                 {mobileMenuOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        className="fixed inset-0 z-40 md:hidden bg-slate-950/95"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="fixed inset-0 z-40 md:hidden bg-[#0a0a0f]"
                         style={{ touchAction: 'none' }}
-                        onTouchMove={(e) => e.preventDefault()}
                     >
+                        {/* Full opaque background */}
+                        <div className="absolute inset-0 bg-[#0a0a0f]" />
 
-                        {/* Menu content */}
-                        <div className="relative h-full pt-24 px-6 flex flex-col">
-                            {/* Glassmorphism card */}
-                            <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 shadow-2xl">
-                                <div className="flex flex-col gap-2">
-                                    <button
-                                        onClick={() => handleNavClick('#features')}
-                                        className="text-lg text-white/90 hover:text-white hover:bg-white/10 py-4 px-4 rounded-2xl text-left transition-all flex items-center gap-3"
+                        {/* Subtle gradient accent */}
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[300px] bg-purple-600/10 rounded-full blur-[100px]" />
+
+                        {/* Menu content - vertically centered */}
+                        <div className="relative h-full flex flex-col items-center justify-center px-8">
+                            {/* Navigation Links */}
+                            <nav className="w-full max-w-sm space-y-2 mb-12">
+                                {[
+                                    { label: t('landing.nav.features'), href: '#features' },
+                                    { label: t('landing.nav.pricing'), href: '#pricing' },
+                                    { label: t('landing.nav.faq'), href: '#faq' },
+                                ].map((item, idx) => (
+                                    <motion.button
+                                        key={item.href}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.1 + idx * 0.05 }}
+                                        onClick={() => handleNavClick(item.href)}
+                                        className="w-full text-center text-2xl font-semibold text-white/90 hover:text-white py-5 border-b border-white/5 transition-colors"
                                     >
-                                        <span className="w-2 h-2 bg-purple-500 rounded-full" />
-                                        Fonctionnalités
-                                    </button>
-                                    <button
-                                        onClick={() => handleNavClick('#pricing')}
-                                        className="text-lg text-white/90 hover:text-white hover:bg-white/10 py-4 px-4 rounded-2xl text-left transition-all flex items-center gap-3"
-                                    >
-                                        <span className="w-2 h-2 bg-purple-500 rounded-full" />
-                                        Tarifs
-                                    </button>
-                                    <button
-                                        onClick={() => handleNavClick('#faq')}
-                                        className="text-lg text-white/90 hover:text-white hover:bg-white/10 py-4 px-4 rounded-2xl text-left transition-all flex items-center gap-3"
-                                    >
-                                        <span className="w-2 h-2 bg-purple-500 rounded-full" />
-                                        FAQ
-                                    </button>
-                                </div>
-                            </div>
+                                        {item.label}
+                                    </motion.button>
+                                ))}
+                            </nav>
 
                             {/* CTA Button */}
                             <motion.button
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3 }}
                                 onClick={() => { setMobileMenuOpen(false); navigate('/wizard'); }}
                                 whileTap={{ scale: 0.98 }}
-                                className="mt-6 w-full py-4 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 rounded-2xl text-white font-semibold text-lg shadow-lg shadow-purple-500/25"
+                                className="w-full max-w-sm py-4 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 rounded-2xl text-white font-bold text-lg shadow-lg shadow-purple-500/30"
                             >
-                                Créer mon CV
+                                {t('landing.nav.cta')} →
+                            </motion.button>
+
+                            {/* Secondary link */}
+                            <motion.button
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.4 }}
+                                onClick={() => { setMobileMenuOpen(false); navigate('/templates'); }}
+                                className="mt-4 text-sm text-gray-500 hover:text-purple-400 transition-colors"
+                            >
+                                {t('landing.nav.viewTemplates')}
                             </motion.button>
                         </div>
                     </motion.div>
@@ -314,6 +318,7 @@ const HeroSection: React.FC = () => {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true });
     const { playClick } = useSoundEffects();
+    const { t } = useTranslation();
 
     return (
         <section ref={ref} className="min-h-screen flex items-center pt-16 sm:pt-20 pb-20 sm:pb-32 px-4 sm:px-6 relative overflow-hidden">
@@ -332,22 +337,21 @@ const HeroSection: React.FC = () => {
                         {/* Badge */}
                         <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-purple-500/10 border border-purple-500/20 mt-4 mb-4 sm:mt-0 sm:mb-6">
                             <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400" />
-                            <span className="text-xs sm:text-sm text-purple-300">+2,500 CV créés cette semaine</span>
+                            <span className="text-xs sm:text-sm text-purple-300">{t('landing.hero.badge')}</span>
                         </motion.div>
 
                         {/* H1 */}
                         <motion.h1 variants={fadeInUp} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4 sm:mb-6">
-                            Ne cherchez plus<br />
-                            un travail.<br />
+                            {t('landing.hero.titleLine1')}<br />
+                            {t('landing.hero.titleLine2')}<br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-violet-500">
-                                Attirez-le.
+                                {t('landing.hero.titleHighlight')}
                             </span>
                         </motion.h1>
 
                         {/* Subtitle */}
                         <motion.p variants={fadeInUp} className="text-base sm:text-lg text-gray-400 mb-6 sm:mb-8 max-w-lg leading-relaxed">
-                            L'IA qui transforme votre parcours en une <span className="text-white">expérience interactive</span>.
-                            Accédez à notre collection exclusive de <span className="text-purple-400 font-semibold">50 Designs d'Élite</span>.
+                            {t('landing.hero.subtitle')}
                         </motion.p>
 
                         {/* CTAs */}
@@ -358,7 +362,7 @@ const HeroSection: React.FC = () => {
                                 whileTap={{ scale: 0.98 }}
                                 className="px-6 sm:px-8 py-3 sm:py-4 bg-purple-600 hover:bg-purple-500 rounded-xl text-white font-semibold text-base sm:text-lg flex items-center justify-center gap-2 transition-colors"
                             >
-                                Créer mon CV
+                                {t('landing.hero.cta')}
                                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                             </motion.button>
                             <motion.button
@@ -367,7 +371,7 @@ const HeroSection: React.FC = () => {
                                 whileTap={{ scale: 0.98 }}
                                 className="px-6 sm:px-8 py-3 sm:py-4 border border-gray-700 hover:border-purple-500/50 rounded-xl text-white font-medium text-base sm:text-lg transition-colors"
                             >
-                                Voir les modèles
+                                {t('landing.hero.ctaSecondary')}
                             </motion.button>
                         </motion.div>
                     </motion.div>
@@ -425,7 +429,7 @@ const HeroSection: React.FC = () => {
                                 transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
                                 className="absolute -top-4 right-1/4 px-3 py-1.5 bg-green-500 text-white text-xs font-bold rounded-full shadow-lg flex items-center gap-1"
                             >
-                                <Shield className="w-3 h-3" /> ATS Compatible
+                                <Shield className="w-3 h-3" /> {t('landing.hero.atsCompatible')}
                             </motion.div>
                         </motion.div>
                         <motion.div
@@ -438,7 +442,7 @@ const HeroSection: React.FC = () => {
                                 transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
                                 className="absolute -bottom-2 left-4 px-3 py-1.5 bg-purple-600 text-white text-xs font-bold rounded-full shadow-lg flex items-center gap-1"
                             >
-                                <Sparkles className="w-3 h-3" /> IA Optimisé
+                                <Sparkles className="w-3 h-3" /> {t('landing.hero.aiOptimized')}
                             </motion.div>
                         </motion.div>
                     </motion.div>
@@ -458,6 +462,7 @@ const HeroSection: React.FC = () => {
 const SocialProof: React.FC = () => {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: '-50px' });
+    const { t } = useTranslation();
     // Removed playCrackle sound per user request
 
     const logos = [
@@ -472,7 +477,7 @@ const SocialProof: React.FC = () => {
         <section ref={ref} className="py-8 sm:py-12 bg-gradient-to-b from-[#0a0a0f] to-[#0d0d14]">
             <div className="max-w-5xl mx-auto px-4 sm:px-6">
                 <p className="text-center text-xs text-gray-500 mb-6 sm:mb-8 uppercase tracking-[0.2em]">
-                    La technologie derrière les recrutements chez :
+                    {t('landing.hero.poweredBy')}
                 </p>
                 <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-10 md:gap-16">
                     {logos.map((logo, idx) => (
@@ -517,31 +522,29 @@ const SocialProof: React.FC = () => {
 const ProblemSection: React.FC = () => {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: '-100px' });
+    const { t } = useTranslation();
 
     const pains = [
         {
             icon: Shield,
             iconBg: 'bg-red-500/20',
             iconColor: 'text-red-400',
-            title: 'Ignoré par les ATS',
-            description: '75% des CV sont rejetés avant lecture humaine.',
-            highlight: '75%'
+            title: t('landing.problem.card1.title'),
+            description: t('landing.problem.card1.description')
         },
         {
             icon: Palette,
             iconBg: 'bg-orange-500/20',
             iconColor: 'text-orange-400',
-            title: 'Design Amateur',
-            description: 'Word et Canva créent des designs non-standards.',
-            highlight: 'Canva'
+            title: t('landing.problem.card2.title'),
+            description: t('landing.problem.card2.description')
         },
         {
             icon: Brain,
             iconBg: 'bg-yellow-500/20',
             iconColor: 'text-yellow-400',
-            title: 'Page Blanche',
-            description: 'Des heures perdues à chercher les mots.',
-            highlight: 'Heures'
+            title: t('landing.problem.card3.title'),
+            description: t('landing.problem.card3.description')
         }
     ];
 
@@ -555,10 +558,10 @@ const ProblemSection: React.FC = () => {
                     className="text-center mb-16"
                 >
                     <motion.h2 variants={fadeInUp} className="text-3xl lg:text-4xl font-bold text-white mb-4">
-                        Pourquoi votre CV actuel finit <span className="text-red-400">à la poubelle</span>.
+                        {t('landing.problem.title')} <span className="text-red-400">{t('landing.problem.titleHighlight')}</span>.
                     </motion.h2>
                     <motion.p variants={fadeInUp} className="text-gray-400 max-w-xl mx-auto">
-                        Ces erreurs silencieuses détruisent vos chances avant même l'entretien.
+                        {t('landing.problem.subtitle')}
                     </motion.p>
                 </motion.div>
 
@@ -614,6 +617,7 @@ const ProcessSection: React.FC = () => {
         target: containerRef,
         offset: ["start end", "end start"]
     });
+    const { t } = useTranslation();
     // Removed playZap sound per user request
 
     // Scroll-based animation progress for the timeline - trigger a bit later
@@ -623,23 +627,23 @@ const ProcessSection: React.FC = () => {
     const steps = [
         {
             icon: Upload,
-            title: 'Importez',
-            subtitle: '(PDF/LinkedIn) ou Remplissez',
-            description: 'Uploadez votre CV ou partez de zéro.',
+            title: t('landing.process.step1.title'),
+            subtitle: t('landing.process.step1.subtitle'),
+            description: t('landing.process.step1.description'),
             color: 'from-blue-500 to-cyan-500'
         },
         {
             icon: Zap,
-            title: "L'IA Optimise",
-            subtitle: 'Réécriture automatique',
-            description: 'NanoBrain reformule votre contenu.',
+            title: t('landing.process.step2.title'),
+            subtitle: t('landing.process.step2.subtitle'),
+            description: t('landing.process.step2.description'),
             color: 'from-purple-500 to-violet-600'
         },
         {
             icon: Rocket,
-            title: 'Exportez',
-            subtitle: '& Postulez (PDF HD)',
-            description: 'Téléchargez ou partagez en ligne.',
+            title: t('landing.process.step3.title'),
+            subtitle: t('landing.process.step3.subtitle'),
+            description: t('landing.process.step3.description'),
             color: 'from-green-500 to-emerald-500'
         }
     ];
@@ -660,7 +664,7 @@ const ProcessSection: React.FC = () => {
                         variants={fadeInUp}
                         className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4 flex items-center justify-center flex-wrap gap-2"
                     >
-                        Votre nouveau CV en
+                        {t('landing.process.titlePart1')}
                         <motion.span
                             className="text-purple-400 inline-flex items-center gap-1"
                             animate={isInView ? {
@@ -669,12 +673,12 @@ const ProcessSection: React.FC = () => {
                             transition={{ duration: 0.5, repeat: 2 }}
                         >
                             <Zap className="w-5 h-5 sm:w-6 sm:h-6" />
-                            15 minutes
+                            {t('landing.process.titleHighlight')}
                         </motion.span>
-                        chrono.
+                        {t('landing.process.titlePart2')}
                     </motion.h2>
                     <motion.p variants={fadeInUp} className="text-sm sm:text-base text-gray-400">
-                        Simple comme 1-2-3. Aucune compétence design requise.
+                        {t('landing.process.subtitle')}
                     </motion.p>
                 </motion.div>
 
@@ -838,6 +842,7 @@ const ProcessSection: React.FC = () => {
 const ScrollytellingSection: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const { scrollYProgress } = useScroll({
         target: containerRef,
         offset: ['start start', 'end end']
@@ -879,7 +884,7 @@ const ScrollytellingSection: React.FC = () => {
 
     // Calculate current stage for StageIndicator with sounds
     const [currentStage, setCurrentStage] = useState(0);
-    const stageNames = ['Le problème', 'La découverte', 'La révélation', 'Le choix', 'Le triomphe'];
+    const stageNames = t('landing.scrollytelling.stages') as string[];
     const lastStageRef = useRef(0);
     const { playTransition, playTriumph } = useSoundEffects();
 
@@ -953,7 +958,7 @@ const ScrollytellingSection: React.FC = () => {
                             animate={{ opacity: 0.5 }}
                             className="text-xs sm:text-sm uppercase tracking-[0.3em] text-gray-500 mb-4 sm:mb-8"
                         >
-                            Le problème
+                            {t('landing.scrollytelling.act1.label')}
                         </motion.p>
 
                         <div className="relative mb-6 sm:mb-12">
@@ -984,18 +989,18 @@ const ScrollytellingSection: React.FC = () => {
                                     className="absolute -top-2 sm:-top-4 -right-2 sm:-right-4 bg-red-500/90 text-white px-2 sm:px-4 py-1 sm:py-2 rounded font-bold text-xs sm:text-sm shadow-lg"
                                     style={{ transform: 'rotate(-15deg)' }}
                                 >
-                                    REJETÉ
+                                    {t('landing.scrollytelling.act1.rejected')}
                                 </motion.div>
                             </motion.div>
                         </div>
 
                         <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center mb-3 sm:mb-4 leading-tight">
-                            75% des CV sont rejetés<br />
-                            <span className="text-gray-500">avant toute lecture humaine.</span>
+                            {t('landing.scrollytelling.act1.title')}<br />
+                            <span className="text-gray-500">{t('landing.scrollytelling.act1.subtitle')}</span>
                         </h2>
 
                         <p className="text-gray-500 text-sm sm:text-base md:text-lg text-center">
-                            Continuez à scroller pour découvrir la solution...
+                            {t('landing.scrollytelling.act1.scrollHint')}
                         </p>
                     </motion.div>
 
@@ -1009,7 +1014,7 @@ const ScrollytellingSection: React.FC = () => {
                         <motion.p
                             className="text-sm uppercase tracking-[0.3em] text-purple-400 mb-8"
                         >
-                            La découverte
+                            {t('landing.scrollytelling.act2.label')}
                         </motion.p>
 
                         <div className="relative mb-12">
@@ -1055,13 +1060,13 @@ const ScrollytellingSection: React.FC = () => {
                                 className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-purple-600 text-white px-6 py-3 rounded-full font-semibold flex items-center gap-2"
                             >
                                 <Brain className="w-5 h-5" />
-                                NanoBrain analyse...
+                                {t('landing.scrollytelling.act2.analyzing')}
                             </motion.div>
                         </div>
 
                         <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-4 mt-8">
-                            L'IA qui <span className="text-purple-400">comprend</span><br />
-                            votre potentiel.
+                            {t('landing.scrollytelling.act2.title')} <span className="text-purple-400">{t('landing.scrollytelling.act2.titleHighlight')}</span><br />
+                            {t('landing.scrollytelling.act2.subtitle')}
                         </h2>
                     </motion.div>
 
@@ -1075,17 +1080,17 @@ const ScrollytellingSection: React.FC = () => {
                         <motion.p
                             className="text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] text-green-400 mb-6 sm:mb-12"
                         >
-                            La révélation
+                            {t('landing.scrollytelling.act3.label')}
                         </motion.p>
 
                         <div className="grid grid-cols-3 gap-3 sm:gap-6 md:gap-12 mb-6 sm:mb-12 w-full max-w-md sm:max-w-lg">
                             {[
-                                { label: 'Score ATS', before: '23%', after: '97%', color: 'text-green-400' },
-                                { label: 'Mots-clés', before: '4', after: '18', color: 'text-purple-400' },
-                                { label: 'Impact', before: '2/10', after: '9/10', color: 'text-cyan-400' },
+                                { label: t('landing.scrollytelling.act3.stats.atsScore'), before: '23%', after: '97%', color: 'text-green-400' },
+                                { label: t('landing.scrollytelling.act3.stats.keywords'), before: '4', after: '18', color: 'text-purple-400' },
+                                { label: t('landing.scrollytelling.act3.stats.impact'), before: '2/10', after: '9/10', color: 'text-cyan-400' },
                             ].map((stat, idx) => (
                                 <motion.div
-                                    key={stat.label}
+                                    key={stat.label as string}
                                     initial={{ opacity: 0, y: 30 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     transition={{ delay: idx * 0.15 }}
@@ -1111,7 +1116,7 @@ const ScrollytellingSection: React.FC = () => {
                         </div>
 
                         <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center">
-                            Résultats <span className="text-green-400">instantanés</span>.
+                            {t('landing.scrollytelling.act3.title')} <span className="text-green-400">{t('landing.scrollytelling.act3.titleHighlight')}</span>.
                         </h2>
                     </motion.div>
 
@@ -1125,7 +1130,7 @@ const ScrollytellingSection: React.FC = () => {
                         <motion.p
                             className="text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gray-400 mb-4 sm:mb-8"
                         >
-                            Le choix
+                            {t('landing.scrollytelling.act4.label')}
                         </motion.p>
 
                         <div className="flex items-end gap-2 sm:gap-4 md:gap-6 mb-6 sm:mb-12" style={{ perspective: '1000px' }}>
@@ -1169,10 +1174,10 @@ const ScrollytellingSection: React.FC = () => {
                         </div>
 
                         <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center mb-2 sm:mb-4">
-                            <span className="text-purple-400">50</span> designs d'élite.
+                            <span className="text-purple-400">50</span> {t('landing.scrollytelling.act4.title')}
                         </h2>
                         <p className="text-gray-500 text-sm sm:text-base md:text-lg text-center">
-                            Choisissez celui qui vous ressemble.
+                            {t('landing.scrollytelling.act4.subtitle')}
                         </p>
                     </motion.div>
 
@@ -1260,7 +1265,7 @@ const ScrollytellingSection: React.FC = () => {
                                 className="absolute -top-5 -right-5 px-4 py-2 bg-green-500 text-white text-sm font-bold rounded-full shadow-xl flex items-center gap-1.5"
                             >
                                 <Shield className="w-4 h-4" />
-                                ATS Optimisé
+                                {t('landing.scrollytelling.act5.atsOptimized')}
                             </motion.div>
 
                             <motion.div
@@ -1269,7 +1274,7 @@ const ScrollytellingSection: React.FC = () => {
                                 className="absolute -bottom-5 -left-5 px-4 py-2 bg-purple-600 text-white text-sm font-bold rounded-full shadow-xl flex items-center gap-1.5"
                             >
                                 <Sparkles className="w-4 h-4" />
-                                Premium
+                                {t('landing.scrollytelling.act5.premium')}
                             </motion.div>
                         </motion.div>
 
@@ -1278,7 +1283,7 @@ const ScrollytellingSection: React.FC = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             className="text-4xl md:text-5xl font-bold text-white text-center mb-6"
                         >
-                            Prêt à <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400">impressionner</span>.
+                            {t('landing.scrollytelling.act5.title')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400">{t('landing.scrollytelling.act5.titleHighlight')}</span>.
                         </motion.h2>
 
                         <motion.button
@@ -1288,7 +1293,7 @@ const ScrollytellingSection: React.FC = () => {
                             className="px-10 py-5 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 rounded-2xl text-white font-semibold text-xl flex items-center gap-3 shadow-2xl shadow-purple-500/30"
                         >
                             <Sparkles className="w-6 h-6" />
-                            Créer mon CV maintenant
+                            {t('landing.scrollytelling.act5.cta')}
                             <ArrowRight className="w-6 h-6" />
                         </motion.button>
                     </motion.div>
@@ -1307,33 +1312,34 @@ const PricingSection: React.FC = () => {
     const isInView = useInView(ref, { once: true, margin: '-100px' });
     const navigate = useNavigate();
     const { prices, formatPrice } = useLocalizedPrices();
+    const { t } = useTranslation();
 
     const plans = [
         {
-            name: 'Sprint',
+            name: t('landing.pricing.sprint.name'),
             price: prices.free,
             period: '',
-            description: 'Pour tester rapidement',
-            features: ['1 CV', '3 templates', 'Export PDF', 'Pas de filigrane'],
-            cta: 'Commencer gratuit',
+            description: t('landing.pricing.sprint.description'),
+            features: t('landing.pricing.sprint.features') as unknown as string[],
+            cta: t('landing.pricing.sprint.cta'),
             popular: false
         },
         {
-            name: 'Campagne',
+            name: t('landing.pricing.campagne.name'),
             price: formatPrice(prices.monthly),
             period: prices.period,
-            description: 'Pour une recherche active',
-            features: ['CV illimités', '50 templates', 'Lien web public', 'IA NanoBrain', 'Support prioritaire'],
-            cta: 'Choisir Campagne',
+            description: t('landing.pricing.campagne.description'),
+            features: t('landing.pricing.campagne.features') as unknown as string[],
+            cta: t('landing.pricing.campagne.cta'),
             popular: true
         },
         {
-            name: 'Pro',
+            name: t('landing.pricing.pro.name'),
             price: formatPrice(prices.monthlyPro),
             period: prices.period,
-            description: 'Pour les recruteurs',
-            features: ['Tout Campagne +', 'API access', 'White-label', 'Analytics avancés', 'Support dédié'],
-            cta: 'Contacter',
+            description: t('landing.pricing.pro.description'),
+            features: t('landing.pricing.pro.features') as unknown as string[],
+            cta: t('landing.pricing.pro.cta'),
             popular: false
         }
     ];
@@ -1348,10 +1354,10 @@ const PricingSection: React.FC = () => {
                     className="text-center mb-16"
                 >
                     <motion.h2 variants={fadeInUp} className="text-3xl lg:text-4xl font-bold text-white mb-4">
-                        Tarifs <span className="text-purple-400">simples</span>
+                        {t('landing.pricing.title')} <span className="text-purple-400">{t('landing.pricing.titleHighlight')}</span>
                     </motion.h2>
                     <motion.p variants={fadeInUp} className="text-gray-400">
-                        Commencez gratuitement. Évoluez selon vos besoins.
+                        {t('landing.pricing.subtitle')}
                     </motion.p>
                 </motion.div>
 
@@ -1363,7 +1369,7 @@ const PricingSection: React.FC = () => {
                 >
                     {plans.map((plan) => (
                         <motion.div
-                            key={plan.name}
+                            key={plan.name as string}
                             variants={fadeInUp}
                             className={`relative p-8 rounded-2xl ${plan.popular
                                 ? 'bg-gradient-to-b from-purple-900/40 to-purple-950/40 border-2 border-purple-500 shadow-[0_0_40px_rgba(139,92,246,0.2)]'
@@ -1372,7 +1378,7 @@ const PricingSection: React.FC = () => {
                         >
                             {plan.popular && (
                                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-purple-600 rounded-full text-white text-xs font-bold uppercase tracking-wide">
-                                    Populaire
+                                    {t('landing.pricing.popular')}
                                 </div>
                             )}
 
@@ -1417,27 +1423,28 @@ const FAQSection: React.FC = () => {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: '-100px' });
     const [openIndex, setOpenIndex] = useState<number | null>(0);
+    const { t } = useTranslation();
 
     const faqs = [
         {
-            question: 'Est-ce compatible avec les systèmes ATS ?',
-            answer: 'Oui, 100%. Nos modèles sont conçus pour être parfaitement lisibles par les logiciels de recrutement (ATS). Votre CV ne sera jamais rejeté automatiquement.'
+            question: t('landing.faq.q1.question'),
+            answer: t('landing.faq.q1.answer')
         },
         {
-            question: 'Puis-je annuler mon abonnement ?',
-            answer: 'Absolument. Vous pouvez annuler à tout moment depuis votre tableau de bord. Aucun engagement, aucune question posée.'
+            question: t('landing.faq.q2.question'),
+            answer: t('landing.faq.q2.answer')
         },
         {
-            question: 'Mes données sont-elles sécurisées ?',
-            answer: 'Vos données sont cryptées et hébergées en Suisse. Nous ne les partageons jamais avec des tiers. Vous restez propriétaire de votre contenu.'
+            question: t('landing.faq.q3.question'),
+            answer: t('landing.faq.q3.answer')
         },
         {
-            question: 'Comment fonctionne l\'IA NanoBrain ?',
-            answer: 'NanoBrain analyse votre parcours et suggère des formulations professionnelles. Elle optimise la structure et le vocabulaire pour maximiser l\'impact de votre CV.'
+            question: t('landing.faq.q4.question'),
+            answer: t('landing.faq.q4.answer')
         },
         {
-            question: 'Puis-je créer plusieurs versions de mon CV ?',
-            answer: 'Avec les plans Campagne et Pro, vous pouvez créer un nombre illimité de CV pour différents postes ou secteurs.'
+            question: t('landing.faq.q5.question'),
+            answer: t('landing.faq.q5.answer')
         }
     ];
 
@@ -1451,7 +1458,7 @@ const FAQSection: React.FC = () => {
                     className="text-center mb-12"
                 >
                     <motion.h2 variants={fadeInUp} className="text-3xl lg:text-4xl font-bold text-white mb-4">
-                        Questions fréquentes
+                        {t('landing.faq.title')}
                     </motion.h2>
                 </motion.div>
 
@@ -1504,6 +1511,7 @@ const FinalCTA: React.FC = () => {
     const navigate = useNavigate();
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true });
+    const { t } = useTranslation();
 
     return (
         <section ref={ref} className="py-24 px-6">
@@ -1514,10 +1522,10 @@ const FinalCTA: React.FC = () => {
             >
                 <div className="p-12 rounded-3xl bg-gradient-to-b from-purple-900/30 to-purple-950/30 border border-purple-500/30">
                     <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-                        Prêt à vous <span className="text-purple-400">démarquer</span> ?
+                        {t('landing.cta.title')} <span className="text-purple-400">{t('landing.cta.titleHighlight')}</span> ?
                     </h2>
                     <p className="text-gray-400 mb-8">
-                        Rejoignez les milliers de professionnels qui ont transformé leur carrière.
+                        {t('landing.cta.subtitle')}
                     </p>
                     <motion.button
                         onClick={() => navigate('/wizard')}
@@ -1526,7 +1534,7 @@ const FinalCTA: React.FC = () => {
                         className="px-8 py-4 bg-purple-600 hover:bg-purple-500 rounded-xl text-white font-semibold text-lg flex items-center gap-2 mx-auto transition-colors"
                     >
                         <Sparkles className="w-5 h-5" />
-                        Créer mon CV gratuitement
+                        {t('landing.cta.button')}
                         <ArrowRight className="w-5 h-5" />
                     </motion.button>
                 </div>
@@ -1541,6 +1549,7 @@ const FinalCTA: React.FC = () => {
 
 const Footer: React.FC = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     return (
         <footer className="border-t border-gray-800 py-12 px-6">
@@ -1553,43 +1562,43 @@ const Footer: React.FC = () => {
                             <span className="text-white font-bold text-lg">Nexal</span>
                         </a>
                         <p className="text-gray-500 text-sm">
-                            L'outil de création de CV propulsé par l'IA. Made with 💜 in Switzerland.
+                            {t('landing.footer.tagline')}
                         </p>
                     </div>
 
                     {/* Produit Links */}
                     <div>
-                        <h4 className="text-white font-semibold mb-4">Produit</h4>
+                        <h4 className="text-white font-semibold mb-4">{t('landing.footer.product')}</h4>
                         <ul className="space-y-2 text-sm text-gray-400">
-                            <li><button onClick={() => navigate('/templates')} className="hover:text-purple-400 transition-colors">Templates</button></li>
-                            <li><a href="#pricing" className="hover:text-purple-400 transition-colors">Tarifs</a></li>
-                            <li><button onClick={() => navigate('/exemples')} className="hover:text-purple-400 transition-colors">Exemples</button></li>
+                            <li><button onClick={() => navigate('/templates')} className="hover:text-purple-400 transition-colors">{t('landing.footer.templates')}</button></li>
+                            <li><a href="#pricing" className="hover:text-purple-400 transition-colors">{t('landing.footer.pricing')}</a></li>
+                            <li><button onClick={() => navigate('/exemples')} className="hover:text-purple-400 transition-colors">{t('landing.footer.examples')}</button></li>
                         </ul>
                     </div>
 
                     {/* Ressources Links */}
                     <div>
-                        <h4 className="text-white font-semibold mb-4">Ressources</h4>
+                        <h4 className="text-white font-semibold mb-4">{t('landing.footer.resources')}</h4>
                         <ul className="space-y-2 text-sm text-gray-400">
-                            <li><button onClick={() => navigate('/blog')} className="hover:text-purple-400 transition-colors">Blog</button></li>
-                            <li><button onClick={() => navigate('/guide-cv')} className="hover:text-purple-400 transition-colors">Guide CV</button></li>
-                            <li><a href="#faq" className="hover:text-purple-400 transition-colors">FAQ</a></li>
+                            <li><button onClick={() => navigate('/blog')} className="hover:text-purple-400 transition-colors">{t('landing.footer.blog')}</button></li>
+                            <li><button onClick={() => navigate('/guide-cv')} className="hover:text-purple-400 transition-colors">{t('landing.footer.guide')}</button></li>
+                            <li><a href="#faq" className="hover:text-purple-400 transition-colors">{t('landing.footer.faq')}</a></li>
                         </ul>
                     </div>
 
                     {/* Legal Links */}
                     <div>
-                        <h4 className="text-white font-semibold mb-4">Légal</h4>
+                        <h4 className="text-white font-semibold mb-4">{t('landing.footer.legal')}</h4>
                         <ul className="space-y-2 text-sm text-gray-400">
-                            <li><button onClick={() => navigate('/confidentialite')} className="hover:text-purple-400 transition-colors">Confidentialité</button></li>
-                            <li><button onClick={() => navigate('/cgu')} className="hover:text-purple-400 transition-colors">CGU</button></li>
-                            <li><button onClick={() => navigate('/contact')} className="hover:text-purple-400 transition-colors">Contact</button></li>
+                            <li><button onClick={() => navigate('/confidentialite')} className="hover:text-purple-400 transition-colors">{t('landing.footer.privacy')}</button></li>
+                            <li><button onClick={() => navigate('/cgu')} className="hover:text-purple-400 transition-colors">{t('landing.footer.terms')}</button></li>
+                            <li><button onClick={() => navigate('/contact')} className="hover:text-purple-400 transition-colors">{t('landing.footer.contact')}</button></li>
                         </ul>
                     </div>
                 </div>
 
                 <div className="border-t border-gray-800 pt-8 text-center text-sm text-gray-500">
-                    © {new Date().getFullYear()} Nexal. Tous droits réservés.
+                    © {new Date().getFullYear()} {t('landing.footer.copyright')}
                 </div>
             </div>
         </footer>

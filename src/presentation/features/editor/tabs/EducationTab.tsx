@@ -5,15 +5,17 @@ import { Input } from '../../../design-system/atoms/Input';
 import { Button } from '../../../design-system/atoms/Button';
 import { Card } from '../../../design-system/atoms/Card';
 import { Plus, Trash2 } from 'lucide-react';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 export const EducationTab: React.FC = () => {
+    const { t } = useTranslation();
     const profile = useCVStoreV2((state) => state.profile);
     const addEducation = useCVStoreV2((state) => state.addEducation);
     const removeEducation = useCVStoreV2((state) => state.removeEducation);
     const updateField = useCVStoreV2((state) => state.updateField);
 
     if (!profile || !profile.educations) {
-        return <div className="p-4 text-slate-400">Chargement...</div>;
+        return <div className="p-4 text-slate-400">{t('common.loading')}</div>;
     }
 
     return (
@@ -28,12 +30,12 @@ export const EducationTab: React.FC = () => {
                     </button>
 
                     <h4 className="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">
-                        Formation {index + 1}
+                        {t('sections.education')} {index + 1}
                     </h4>
 
                     <div className="space-y-3">
                         <Input
-                            label="Diplôme"
+                            label={t('education.degree')}
                             value={edu.degree}
                             onChange={(e) => updateField(`educations.${index}.degree`, e.target.value)}
                             className="font-semibold"
@@ -43,7 +45,7 @@ export const EducationTab: React.FC = () => {
                         />
                         <div className="grid grid-cols-2 gap-3">
                             <Input
-                                label="École / Université"
+                                label={t('education.school')}
                                 value={edu.school}
                                 onChange={(e) => updateField(`educations.${index}.school`, e.target.value)}
                                 maxLength={100}
@@ -51,7 +53,7 @@ export const EducationTab: React.FC = () => {
                                 variant="glass"
                             />
                             <Input
-                                label="Année"
+                                label={t('education.endDate')}
                                 value={edu.year}
                                 onChange={(e) => updateField(`educations.${index}.year`, e.target.value)}
                                 variant="glass"
@@ -67,7 +69,7 @@ export const EducationTab: React.FC = () => {
                 onClick={addEducation}
                 leftIcon={<Plus size={16} />}
             >
-                Ajouter une formation
+                {t('education.add')}
             </Button>
         </div>
     );

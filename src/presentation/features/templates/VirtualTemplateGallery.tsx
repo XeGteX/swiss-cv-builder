@@ -21,6 +21,7 @@ import {
     type TagCategory
 } from '../../cv-templates/factory/TemplateFactory';
 import { DynamicTemplate } from '../../cv-templates/factory/DynamicTemplateRenderer';
+import { useTranslation } from '../../hooks/useTranslation';
 
 // ============================================================================
 // CONSTANTS
@@ -271,6 +272,7 @@ interface FilterSidebarProps {
     filters: FilterState;
     onFilterChange: (filters: FilterState) => void;
     resultCount: number;
+    t: (key: string) => string | string[];
 }
 
 interface FilterState {
@@ -285,7 +287,8 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
     onClose,
     filters,
     onFilterChange,
-    resultCount
+    resultCount,
+    t
 }) => {
     const tagsByCategory = useMemo(() => {
         const grouped: Record<TagCategory, typeof PREDEFINED_TAGS> = {
@@ -375,13 +378,13 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                         fontSize: '14px',
                         fontWeight: 600
                     }}>
-                        {resultCount.toLocaleString()} templates trouvés
+                        {resultCount.toLocaleString()} {t('templates.gallery.found')}
                     </div>
 
                     {/* Search */}
                     <div style={{ marginBottom: '24px' }}>
                         <label style={{ color: 'rgba(255,255,255,0.7)', fontSize: '12px', marginBottom: '8px', display: 'block' }}>
-                            Recherche
+                            {t('templates.gallery.search')}
                         </label>
                         <div style={{ position: 'relative' }}>
                             <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.5)' }} />
@@ -389,7 +392,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                                 type="text"
                                 value={filters.search}
                                 onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
-                                placeholder="Nom, style, industrie..."
+                                placeholder={t('templates.gallery.searchPlaceholder') as string}
                                 style={{
                                     width: '100%',
                                     padding: '10px 12px 10px 40px',
@@ -406,7 +409,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                     {/* ATS Score Slider */}
                     <div style={{ marginBottom: '24px' }}>
                         <label style={{ color: 'rgba(255,255,255,0.7)', fontSize: '12px', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                            <span>Score ATS minimum</span>
+                            <span>{t('templates.gallery.atsMin')}</span>
                             <span style={{ color: '#22c55e' }}>{filters.atsMin}%</span>
                         </label>
                         <input
@@ -431,12 +434,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                                 textTransform: 'uppercase',
                                 letterSpacing: '1px'
                             }}>
-                                {category === 'ats' ? 'Compatibilité ATS' :
-                                    category === 'style' ? 'Style' :
-                                        category === 'industry' ? 'Secteur' :
-                                            category === 'experience' ? 'Expérience' :
-                                                category === 'feature' ? 'Fonctionnalités' :
-                                                    'Région'}
+                                {t(`templates.gallery.categories.${category}`)}
                             </label>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                                 {tags.map(tag => (
@@ -467,7 +465,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                             marginTop: '16px'
                         }}
                     >
-                        Réinitialiser les filtres
+                        {t('templates.gallery.reset')}
                     </button>
                 </motion.div>
             )}
@@ -482,6 +480,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
 export const VirtualTemplateGallery: React.FC = () => {
     const navigate = useNavigate();
     const { setSelectedTemplate } = useSettingsStore();
+    const { t } = useTranslation();
 
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [filterOpen, setFilterOpen] = useState(true);
@@ -543,6 +542,7 @@ export const VirtualTemplateGallery: React.FC = () => {
                 filters={filters}
                 onFilterChange={setFilters}
                 resultCount={filteredTemplates.length}
+                t={t}
             />
 
             {/* Main Content */}
@@ -577,7 +577,7 @@ export const VirtualTemplateGallery: React.FC = () => {
                             }}
                         >
                             <ChevronLeft size={18} />
-                            Retour
+                            {t('templates.gallery.back')}
                         </button>
 
                         {!filterOpen && (
@@ -596,7 +596,7 @@ export const VirtualTemplateGallery: React.FC = () => {
                                 }}
                             >
                                 <Filter size={18} />
-                                Filtres
+                                {t('templates.gallery.filters')}
                             </button>
                         )}
 
@@ -606,14 +606,14 @@ export const VirtualTemplateGallery: React.FC = () => {
                             fontWeight: 700,
                             margin: 0
                         }}>
-                            Galerie de Templates
+                            {t('templates.gallery.title')}
                             <span style={{
                                 fontSize: '14px',
                                 color: 'rgba(255,255,255,0.5)',
                                 fontWeight: 400,
                                 marginLeft: '12px'
                             }}>
-                                {displayedTemplates.length} / {filteredTemplates.length.toLocaleString()} affichés
+                                {displayedTemplates.length} / {filteredTemplates.length.toLocaleString()} {t('templates.gallery.displayed')}
                             </span>
                         </h1>
                     </div>
@@ -636,7 +636,7 @@ export const VirtualTemplateGallery: React.FC = () => {
                             }}
                         >
                             <Check size={18} />
-                            Utiliser ce template
+                            {t('templates.gallery.useTemplate')}
                         </button>
                     )}
                 </div>
@@ -690,7 +690,7 @@ export const VirtualTemplateGallery: React.FC = () => {
                                 }}
                             >
                                 <ChevronDown size={20} />
-                                Charger plus ({Math.min(ITEMS_PER_PAGE, filteredTemplates.length - visibleCount)} templates)
+                                {t('templates.gallery.loadMore')} ({Math.min(ITEMS_PER_PAGE, filteredTemplates.length - visibleCount)} {t('templates.gallery.templatesUnit')})
                             </button>
                         </div>
                     )}

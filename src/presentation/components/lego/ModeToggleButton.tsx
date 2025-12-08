@@ -43,7 +43,12 @@ export const ModeToggleButton: React.FC = () => {
             gradient: DesignTokens.gradients.info, // Blue for structure
             ring: 'ring-4 ring-blue-300'
         },
-
+        modele: {
+            icon: Box,
+            label: '🎨 Modèle',
+            gradient: DesignTokens.gradients.brand, // Purple for templates
+            ring: 'ring-4 ring-purple-300'
+        },
         ai: {
             icon: Edit3,
             label: '✨ IA',

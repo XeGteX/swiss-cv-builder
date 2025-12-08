@@ -1,15 +1,11 @@
 /**
- * CV Engine v2 - Editor Overlay
- * 
- * Floating editor UI that appears when editing a field.
- * Features: auto-focus, keyboard shortcuts, validation feedback, AI enhancement.
+ * Editor Overlay - Compact popup positioned near click
+ * Used by EditableField component
  */
-
-import React, { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Sparkles, Loader } from 'lucide-react';
-import type { ValidationRule, ValidationResult } from './validators';
-import { validateField } from './validators';
+import React, { useRef, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Check, Wand2 } from 'lucide-react';
 
 interface EditorOverlayProps {
     isOpen: boolean;
@@ -18,40 +14,33 @@ interface EditorOverlayProps {
     label: string;
     placeholder?: string;
     multiline?: boolean;
-    validation?: ValidationRule;
+    validation?: any;
     aiEnabled?: boolean;
     onSave: (value: string) => void;
     onCancel: () => void;
-    onAIEnhance?: (currentValue: string) => Promise<string>;
+    onAIEnhance?: (value: string) => Promise<string>;
 }
 
 export const EditorOverlay: React.FC<EditorOverlayProps> = ({
     isOpen,
     position,
-    value: initialValue,
+    value,
     label,
     placeholder,
-    multiline = false,
-    validation,
-    aiEnabled = false,
+    multiline,
+    aiEnabled,
     onSave,
     onCancel,
     onAIEnhance
 }) => {
-    const [value, setValue] = useState(initialValue);
-    const [validationResult, setValidationResult] = useState<ValidationResult>({ isValid: true });
-    const [isEnhancing, setIsEnhancing] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const [localValue, setLocalValue] = useState(value);
+    const [isEnhancing, setIsEnhancing] = useState(false);
 
-    // Update value when initialValue changes
-    useEffect(() => {
-        setValue(initialValue);
-    }, [initialValue]);
-
-    // Auto-focus and select text when opened
     useEffect(() => {
         if (isOpen) {
+            setLocalValue(value);
             setTimeout(() => {
                 if (multiline) {
                     textareaRef.current?.focus();
@@ -60,191 +49,165 @@ export const EditorOverlay: React.FC<EditorOverlayProps> = ({
                     inputRef.current?.focus();
                     inputRef.current?.select();
                 }
-            }, 50);
+            }, 100);
         }
-    }, [isOpen, multiline]);
+    }, [isOpen, value, multiline]);
 
-    // Validate on change
-    useEffect(() => {
-        if (validation) {
-            const result = validateField(value, validation);
-            setValidationResult(result);
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Escape') {
+            onCancel();
+        } else if (e.key === 'Enter' && !e.shiftKey && !multiline) {
+            e.preventDefault();
+            onSave(localValue);
         }
-    }, [value, validation]);
-
-    const handleSave = () => {
-        if (validation) {
-            const result = validateField(value, validation);
-            if (!result.isValid) {
-                setValidationResult(result);
-                return;
-            }
-        }
-        onSave(value);
     };
 
     const handleAIEnhance = async () => {
-        if (!onAIEnhance || !value.trim()) return;
-
+        if (!onAIEnhance || isEnhancing) return;
         setIsEnhancing(true);
         try {
-            const enhanced = await onAIEnhance(value);
-            setValue(enhanced);
-        } catch (error) {
-            console.error('AI Enhancement failed:', error);
-            // Optionally show error toast
+            const enhanced = await onAIEnhance(localValue);
+            setLocalValue(enhanced);
+        } catch (e) {
+            console.error('AI enhance failed:', e);
         } finally {
             setIsEnhancing(false);
         }
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Escape') {
-            onCancel();
-        } else if (e.key === 'Enter' && !multiline && !e.shiftKey) {
-            e.preventDefault();
-            handleSave();
-        } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-            // Ctrl+Enter in textarea = save
-            e.preventDefault();
-            handleSave();
-        }
-    };
-
     if (!isOpen) return null;
 
-    // Calculate position - center the overlay on the click point, keep in viewport
-    const overlayWidth = 380;
-    const overlayHeight = multiline ? 280 : 180;
+    // Calculate position near click, clamped to viewport
+    const getPositionStyle = (): React.CSSProperties => {
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const isMobile = viewportWidth < 768;
+        const popupWidth = isMobile ? 240 : 260;
+        const popupHeight = multiline ? 150 : 100;
 
-    // Center horizontally on click position, but keep within viewport
-    let left = position.x - overlayWidth / 2;
-    left = Math.max(10, Math.min(left, window.innerWidth - overlayWidth - 10));
+        let x = position.x - popupWidth / 2;
+        let y = position.y + 10;
 
-    // Position below the element, but flip above if near bottom
-    let top = position.y;
-    if (position.y + overlayHeight > window.innerHeight - 20) {
-        // Flip to above the element if not enough space below
-        top = Math.max(10, position.y - overlayHeight - 50);
-    }
+        // Clamp X
+        if (x + popupWidth > viewportWidth - 16) {
+            x = viewportWidth - popupWidth - 16;
+        }
+        if (x < 16) x = 16;
 
-    return (
+        // Clamp Y - if below viewport, show above
+        if (y + popupHeight > viewportHeight - (isMobile ? 100 : 20)) {
+            y = position.y - popupHeight - 10;
+        }
+        if (y < 60) y = 60;
+
+        return {
+            position: 'fixed',
+            left: `${x}px`,
+            top: `${y}px`,
+            width: `${popupWidth}px`,
+            zIndex: 9999
+        };
+    };
+
+    const modal = (
         <AnimatePresence>
-            <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ duration: 0.15, ease: 'easeOut' }}
-                className="fixed z-[9999]"
-                style={{
-                    left: left,
-                    top: top
-                }}
-            >
-                <div className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-lg shadow-2xl p-4 min-w-[320px] max-w-[500px]">
-                    {/* Label */}
-                    <div className="text-xs font-bold mb-2 uppercase tracking-wide opacity-90 flex items-center justify-between">
-                        <span>{label}</span>
-                        {aiEnabled && multiline && (
-                            <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded flex items-center gap-1">
-                                <Sparkles size={10} />
-                                AI Ready
-                            </span>
-                        )}
-                    </div>
+            {isOpen && (
+                <>
+                    {/* Backdrop - semi transparent */}
+                    <motion.div
+                        key="backdrop"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/30 z-[9998]"
+                        onClick={onCancel}
+                    />
 
-                    {/* Input / Textarea */}
-                    {multiline ? (
-                        <textarea
-                            ref={textareaRef}
-                            value={value}
-                            onChange={(e) => setValue(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            placeholder={placeholder}
-                            rows={4}
-                            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/40 font-medium resize-none"
-                            disabled={isEnhancing}
-                        />
-                    ) : (
-                        <input
-                            ref={inputRef}
-                            type="text"
-                            value={value}
-                            onChange={(e) => setValue(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            placeholder={placeholder}
-                            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/40 font-medium"
-                            disabled={isEnhancing}
-                        />
-                    )}
+                    {/* Compact popup near click */}
+                    <motion.div
+                        key="popup"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ type: 'spring', damping: 30, stiffness: 500 }}
+                        style={getPositionStyle()}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-slate-200">
+                            {/* Compact header */}
+                            <div className="bg-gradient-to-r from-indigo-500 to-purple-500 px-2 py-1.5 flex items-center justify-between">
+                                <span className="font-medium text-white text-xs truncate">
+                                    {label}
+                                </span>
+                                <button
+                                    onClick={onCancel}
+                                    className="p-1 hover:bg-white/20 rounded transition-colors"
+                                >
+                                    <X size={14} className="text-white" />
+                                </button>
+                            </div>
 
-                    {/* Validation Error */}
-                    {!validationResult.isValid && validationResult.error && (
-                        <div className="mt-2 text-xs bg-red-500/20 border border-red-500/40 rounded px-2 py-1">
-                            ⚠️ {validationResult.error}
+                            {/* Compact content */}
+                            <div className="p-2">
+                                {multiline ? (
+                                    <textarea
+                                        ref={textareaRef}
+                                        value={localValue}
+                                        onChange={(e) => setLocalValue(e.target.value)}
+                                        onKeyDown={handleKeyDown}
+                                        placeholder={placeholder}
+                                        rows={3}
+                                        className="w-full px-2 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-400 resize-none"
+                                    />
+                                ) : (
+                                    <input
+                                        ref={inputRef}
+                                        type="text"
+                                        value={localValue}
+                                        onChange={(e) => setLocalValue(e.target.value)}
+                                        onKeyDown={handleKeyDown}
+                                        placeholder={placeholder}
+                                        className="w-full px-2 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-400"
+                                    />
+                                )}
+
+                                {/* Compact actions */}
+                                <div className="flex items-center justify-between mt-2 gap-2">
+                                    {aiEnabled && onAIEnhance ? (
+                                        <button
+                                            onClick={handleAIEnhance}
+                                            disabled={isEnhancing}
+                                            className="flex items-center gap-1 px-2 py-1 text-xs bg-amber-500 text-white rounded-lg hover:bg-amber-400 disabled:opacity-50"
+                                        >
+                                            <Wand2 size={12} className={isEnhancing ? 'animate-spin' : ''} />
+                                            IA
+                                        </button>
+                                    ) : (
+                                        <div />
+                                    )}
+                                    <div className="flex items-center gap-1">
+                                        <button
+                                            onClick={onCancel}
+                                            className="px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 rounded-lg"
+                                        >
+                                            Annuler
+                                        </button>
+                                        <button
+                                            onClick={() => onSave(localValue)}
+                                            className="flex items-center gap-1 px-3 py-1 text-xs bg-indigo-500 text-white rounded-lg hover:bg-indigo-400"
+                                        >
+                                            <Check size={12} />
+                                            OK
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    )}
-
-                    {/* AI Enhancement Button */}
-                    {aiEnabled && multiline && onAIEnhance && (
-                        <button
-                            onClick={handleAIEnhance}
-                            disabled={isEnhancing || !value.trim()}
-                            className="mt-2 w-full px-3 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 rounded text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-                        >
-                            {isEnhancing ? (
-                                <>
-                                    <Loader className="animate-spin" size={14} />
-                                    NanoBrain réfléchit...
-                                </>
-                            ) : (
-                                <>
-                                    <Sparkles size={14} />
-                                    Améliorer avec l'IA
-                                </>
-                            )}
-                        </button>
-                    )}
-
-                    {/* Actions */}
-                    <div className="flex items-center justify-between mt-3 gap-2">
-                        {/* Keyboard hints */}
-                        <div className="text-xs opacity-75 flex items-center gap-1">
-                            <kbd className="bg-white/20 px-2 py-1 rounded text-[10px]">
-                                {multiline ? 'Ctrl+Enter' : 'Enter'}
-                            </kbd>
-                            <span>save</span>
-                            <kbd className="bg-white/20 px-2 py-1 rounded text-[10px] ml-2">Esc</kbd>
-                            <span>cancel</span>
-                        </div>
-
-                        {/* Buttons */}
-                        <div className="flex gap-2">
-                            <button
-                                onClick={onCancel}
-                                disabled={isEnhancing}
-                                className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded text-xs transition-colors disabled:opacity-50"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleSave}
-                                disabled={!validationResult.isValid || isEnhancing}
-                                className="px-3 py-1 bg-white text-purple-600 hover:bg-white/90 rounded text-xs font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                Save
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Required indicator */}
-                    {validation?.required && (
-                        <div className="mt-2 text-[10px] opacity-70">
-                            * Required field
-                        </div>
-                    )}
-                </div>
-            </motion.div>
+                    </motion.div>
+                </>
+            )}
         </AnimatePresence>
     );
+
+    return createPortal(modal, document.body);
 };

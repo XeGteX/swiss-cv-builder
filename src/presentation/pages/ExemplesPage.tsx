@@ -6,6 +6,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download, Eye } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
 
 const exemples = [
     { id: 1, name: 'Marie Dupont', role: 'Product Manager', company: 'Ex-Google', score: 97 },
@@ -18,6 +19,7 @@ const exemples = [
 
 const ExemplesPage: React.FC = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     return (
         <div className="min-h-screen bg-[#0a0a0f] text-white">
@@ -26,14 +28,14 @@ const ExemplesPage: React.FC = () => {
                 <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                     <button onClick={() => navigate('/landing')} className="flex items-center gap-2 text-gray-400 hover:text-white">
                         <ArrowLeft className="w-4 h-4" />
-                        Retour
+                        {t('exemples.back')}
                     </button>
                     <a href="/landing" className="flex items-center gap-2">
                         <img src="/nexal-logo.png" alt="Nexal" className="w-8 h-8 rounded-lg" />
                         <span className="font-bold">Nexal</span>
                     </a>
                     <motion.button onClick={() => navigate('/wizard')} whileHover={{ scale: 1.05 }} className="px-5 py-2 bg-purple-600 rounded-lg text-sm font-medium">
-                        Créer mon CV
+                        {t('exemples.cta')}
                     </motion.button>
                 </div>
             </header>
@@ -43,10 +45,10 @@ const ExemplesPage: React.FC = () => {
                 <div className="max-w-6xl mx-auto">
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
                         <h1 className="text-4xl lg:text-5xl font-bold mb-4">
-                            Exemples de <span className="text-purple-400">CV Réussis</span>
+                            {t('exemples.title')} <span className="text-purple-400">{t('exemples.titleHighlight')}</span>
                         </h1>
                         <p className="text-gray-400 max-w-2xl mx-auto">
-                            Inspirez-vous des CV qui ont aidé nos utilisateurs à décrocher leurs jobs de rêve.
+                            {t('exemples.subtitle')}
                         </p>
                     </motion.div>
 
@@ -77,17 +79,17 @@ const ExemplesPage: React.FC = () => {
                                     </div>
                                     <div className="text-right">
                                         <div className="text-2xl font-bold text-green-400">{exemple.score}%</div>
-                                        <div className="text-xs text-gray-500">Score ATS</div>
+                                        <div className="text-xs text-gray-500">{t('exemples.atsScore')}</div>
                                     </div>
                                 </div>
 
                                 {/* Actions */}
                                 <div className="flex gap-2">
                                     <button className="flex-1 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm flex items-center justify-center gap-2">
-                                        <Eye className="w-4 h-4" /> Voir
+                                        <Eye className="w-4 h-4" /> {t('exemples.view')}
                                     </button>
                                     <button className="flex-1 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm flex items-center justify-center gap-2">
-                                        <Download className="w-4 h-4" /> Télécharger
+                                        <Download className="w-4 h-4" /> {t('exemples.download')}
                                     </button>
                                 </div>
                             </motion.div>

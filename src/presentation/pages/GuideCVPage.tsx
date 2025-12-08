@@ -6,6 +6,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen, CheckCircle, AlertTriangle, Lightbulb } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
 
 const sections = [
     {
@@ -59,6 +60,7 @@ const sections = [
 
 const GuideCVPage: React.FC = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     return (
         <div className="min-h-screen bg-[#0a0a0f] text-white">
@@ -67,14 +69,14 @@ const GuideCVPage: React.FC = () => {
                 <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                     <button onClick={() => navigate('/landing')} className="flex items-center gap-2 text-gray-400 hover:text-white">
                         <ArrowLeft className="w-4 h-4" />
-                        Retour
+                        {t('common.back')}
                     </button>
                     <a href="/landing" className="flex items-center gap-2">
                         <img src="/nexal-logo.png" alt="Nexal" className="w-8 h-8 rounded-lg" />
                         <span className="font-bold">Nexal</span>
                     </a>
                     <motion.button onClick={() => navigate('/wizard')} whileHover={{ scale: 1.05 }} className="px-5 py-2 bg-purple-600 rounded-lg text-sm font-medium">
-                        Créer mon CV
+                        {t('common.cta')}
                     </motion.button>
                 </div>
             </header>

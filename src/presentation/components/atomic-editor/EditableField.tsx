@@ -12,10 +12,11 @@
  * </EditableField>
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useFieldValue, useUpdateField, useMode } from '../../../application/store/v2';
 import { useSettingsStore } from '../../../application/store/settings-store';
+import { useDebugStore, getSeverityColor } from '../../../application/store/debug-store';
 import { EditorOverlay } from './EditorOverlay';
 import type { ValidationRule } from './validators';
 
@@ -105,6 +106,37 @@ export function EditableField<T = string>({
 
     // Block editing on templates page
     const isOnTemplatesPage = location.pathname === '/templates';
+
+    // Debug mode - get issues for this field with stable reference
+    const isDebugMode = useDebugStore(s => s.isDebugMode);
+    const allIssues = useDebugStore(s => s.issues);
+
+    const issues = useMemo(() => {
+        if (!isDebugMode) return [];
+        const matched = allIssues.filter(i => i.field === path || i.field.startsWith(path + '.'));
+        // Log ALL fields when debug mode is active to trace rendering
+        if (isDebugMode && matched.length > 0) {
+            console.log(`[EditableField] ✅ path="${path}" MATCHED ${matched.length} issue(s)`);
+        }
+        return matched;
+    }, [isDebugMode, allIssues, path]);
+
+    // Debug: Log when skills EditableField renders
+    React.useEffect(() => {
+        if (path.startsWith('skills.') && isDebugMode) {
+            console.log(`[EditableField] 🔄 RENDER: path="${path}" isDebugMode=${isDebugMode} issues=${allIssues.filter(i => i.field === path).length}`);
+        }
+    }, [path, isDebugMode, allIssues]);
+
+    const hasIssues = issues.length > 0;
+    const highestSeverity = useMemo(() => {
+        if (!hasIssues) return null;
+        return issues.reduce<'critical' | 'warning' | 'improvement' | 'info'>((acc, i) => {
+            const order = { critical: 4, warning: 3, improvement: 2, info: 1 };
+            return order[i.severity] > order[acc] ? i.severity : acc;
+        }, 'info');
+    }, [issues, hasIssues]);
+    const issueColors = highestSeverity ? getSeverityColor(highestSeverity) : null;
 
     // ========================================
     // HANDLERS
@@ -197,7 +229,12 @@ export function EditableField<T = string>({
                     ${!disabled && !isOnTemplatesPage ? 'hover:outline hover:outline-2 hover:outline-purple-400/40 hover:outline-offset-2 hover:bg-purple-50/30 hover:rounded' : ''}
                     ${isEmpty ? 'min-h-[1.5em] min-w-[80px]' : ''}
                 `}
-                title={!disabled && !isOnTemplatesPage ? 'Double-click to edit' : undefined}
+                style={hasIssues && issueColors ? {
+                    boxShadow: `inset 0 0 0 2px ${issueColors.border}`,
+                    borderRadius: '2px',
+                    backgroundColor: issueColors.bg,
+                } : undefined}
+                title={hasIssues ? issues[0].message : (!disabled && !isOnTemplatesPage ? 'Double-click to edit' : undefined)}
             >
                 {isEmpty ? (
                     <span className="text-gray-400 italic text-sm">

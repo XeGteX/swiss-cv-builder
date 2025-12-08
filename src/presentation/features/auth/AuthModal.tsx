@@ -138,27 +138,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+                        className="fixed inset-0 z-50 bg-[#0a0a0f]/95 backdrop-blur-md"
                         onClick={onClose}
                     />
 
-                    {/* Modal */}
+                    {/* Modal - Centered with bottom space for mobile nav */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 pb-24 md:pb-4 pointer-events-none"
                     >
                         <div
                             className="relative w-full max-w-md pointer-events-auto"
                             onClick={e => e.stopPropagation()}
                         >
-                            {/* Glow effect */}
-                            <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-600 rounded-3xl blur-xl opacity-40 animate-pulse" />
+                            {/* Glow effect - hidden on mobile for performance */}
+                            <div className="hidden md:block absolute -inset-1 bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-600 rounded-3xl blur-xl opacity-40 animate-pulse" />
 
-                            {/* Main container */}
-                            <div className="relative bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+                            {/* Main container - scrollable with smaller max height on mobile */}
+                            <div className="relative bg-[#0f0a1f] border border-purple-500/20 rounded-2xl shadow-2xl overflow-hidden max-h-[70vh] md:max-h-[80vh] overflow-y-auto">
                                 {/* Decorative header gradient */}
                                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-indigo-500 to-cyan-500" />
 
@@ -170,17 +170,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                                     <X size={20} />
                                 </button>
 
-                                {/* Content */}
-                                <div className="p-8">
-                                    {/* Header */}
-                                    <div className="text-center mb-8">
+                                {/* Content - Compact on mobile */}
+                                <div className="p-5 md:p-8">
+                                    {/* Header - Smaller on mobile */}
+                                    <div className="text-center mb-4 md:mb-6">
                                         <motion.div
                                             initial={{ scale: 0 }}
                                             animate={{ scale: 1 }}
                                             transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
-                                            className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl shadow-lg shadow-purple-500/30 mb-4"
+                                            className="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl md:rounded-2xl shadow-lg shadow-purple-500/30 mb-3"
                                         >
-                                            <Shield className="text-white" size={32} />
+                                            <Shield className="text-white" size={24} />
                                         </motion.div>
 
                                         <AnimatePresence mode="wait">
@@ -191,7 +191,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                                                 exit={{ opacity: 0, y: -10 }}
                                                 transition={{ duration: 0.2 }}
                                             >
-                                                <h2 className="text-2xl font-bold text-white mb-2">
+                                                <h2 className="text-xl md:text-2xl font-bold text-white mb-1">
                                                     {mode === 'login' ? 'Connexion' : 'Inscription'}
                                                 </h2>
                                                 <p className="text-slate-400 text-sm">
@@ -382,7 +382,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                                             <div className="w-full border-t border-white/10" />
                                         </div>
                                         <div className="relative flex justify-center">
-                                            <span className="px-3 bg-slate-900/90 text-slate-500 text-xs">ou</span>
+                                            <span className="px-3 bg-[#0f0a1f] text-slate-500 text-xs">ou</span>
                                         </div>
                                     </div>
 

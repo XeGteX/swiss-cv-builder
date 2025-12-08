@@ -166,19 +166,37 @@ export const SettingsTab: React.FC = () => {
 
             <div className="p-4 bg-white rounded-lg border border-slate-200 shadow-sm">
                 <h3 className="text-sm font-medium text-slate-700 mb-3">Language</h3>
-                <div className="flex gap-4">
-                    <Button
-                        variant={language === 'fr' ? 'primary' : 'outline'}
+                <div className="grid grid-cols-3 gap-2">
+                    <button
                         onClick={() => setLanguage('fr')}
+                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${language === 'fr'
+                                ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                                : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                            }`}
                     >
-                        Français
-                    </Button>
-                    <Button
-                        variant={language === 'en' ? 'primary' : 'outline'}
+                        <span className="text-xl">🇫🇷</span>
+                        <span className="font-medium text-sm">FR</span>
+                    </button>
+                    <button
+                        onClick={() => setLanguage('de')}
+                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${language === 'de'
+                                ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                                : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                            }`}
+                    >
+                        <span className="text-xl">🇩🇪</span>
+                        <span className="font-medium text-sm">DE</span>
+                    </button>
+                    <button
                         onClick={() => setLanguage('en')}
+                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${language === 'en'
+                                ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                                : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                            }`}
                     >
-                        English
-                    </Button>
+                        <span className="text-xl">🇬🇧</span>
+                        <span className="font-medium text-sm">EN</span>
+                    </button>
                 </div>
             </div>
         </div>

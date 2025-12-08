@@ -24,6 +24,7 @@ import {
     MapPin, Mail, Linkedin, Loader2, Upload
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 // ===================== TYPES =====================
 interface ProofItem {
@@ -362,11 +363,13 @@ const ProofHub: React.FC<ProofHubProps> = ({ experience, isOpen }) => {
 
 // ===================== RECRUITER BRIDGE DOCK =====================
 const RecruiterBridgeDock: React.FC = () => {
+    const isMobile = useIsMobile();
+
     const actions = [
-        { icon: <Download size={18} />, label: 'Export PDF', sublabel: 'ATS Compatible', color: 'from-blue-500 to-cyan-500' },
-        { icon: <Calendar size={18} />, label: 'Réserver', sublabel: 'Entretien', color: 'from-emerald-500 to-teal-500' },
-        { icon: <Link2 size={18} />, label: 'Blockchain', sublabel: 'Vérifié ✓', color: 'from-violet-500 to-purple-500' },
-        { icon: <Linkedin size={18} />, label: 'LinkedIn', sublabel: 'Profil', color: 'from-blue-600 to-blue-500' },
+        { icon: <Download size={isMobile ? 14 : 18} />, label: 'PDF', sublabel: 'ATS', color: 'from-blue-500 to-cyan-500' },
+        { icon: <Calendar size={isMobile ? 14 : 18} />, label: 'RDV', sublabel: 'Entretien', color: 'from-emerald-500 to-teal-500' },
+        { icon: <Link2 size={isMobile ? 14 : 18} />, label: 'Certif', sublabel: 'Vérifié ✓', color: 'from-violet-500 to-purple-500' },
+        { icon: <Linkedin size={isMobile ? 14 : 18} />, label: 'LinkedIn', sublabel: 'Profil', color: 'from-blue-600 to-blue-500' },
     ];
 
     return (
@@ -374,31 +377,22 @@ const RecruiterBridgeDock: React.FC = () => {
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+            className={`fixed ${isMobile ? 'bottom-4 left-2 right-2' : 'bottom-6 left-1/2 -translate-x-1/2'} z-50`}
         >
             {/* Glassmorphism container */}
-            <div className="flex items-center gap-2 p-2 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-black/50">
+            <div className={`flex items-center justify-center gap-1 md:gap-2 ${isMobile ? 'p-1.5' : 'p-2'} bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-black/50`}>
                 {actions.map((action, idx) => (
                     <motion.button
                         key={idx}
-                        whileHover={{ scale: 1.05, y: -5 }}
+                        whileHover={isMobile ? {} : { scale: 1.05, y: -5 }}
                         whileTap={{ scale: 0.95 }}
-                        className="group relative flex flex-col items-center p-3 rounded-xl hover:bg-white/5 transition-colors"
+                        className={`group relative flex flex-col items-center ${isMobile ? 'p-2' : 'p-3'} rounded-xl hover:bg-white/5 transition-colors flex-1`}
                     >
-                        <div className={`p-2.5 bg-gradient-to-br ${action.color} rounded-xl mb-1 group-hover:shadow-lg transition-shadow`}>
+                        <div className={`${isMobile ? 'p-1.5' : 'p-2.5'} bg-gradient-to-br ${action.color} rounded-xl mb-1 group-hover:shadow-lg transition-shadow`}>
                             {action.icon}
                         </div>
-                        <span className="text-[10px] font-medium text-white">{action.label}</span>
-                        <span className="text-[8px] text-slate-500">{action.sublabel}</span>
-
-                        {/* Tooltip on hover */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            whileHover={{ opacity: 1, y: 0 }}
-                            className="absolute -top-8 px-2 py-1 bg-slate-800 border border-white/10 rounded text-[10px] text-white whitespace-nowrap pointer-events-none"
-                        >
-                            {action.label}
-                        </motion.div>
+                        <span className={`${isMobile ? 'text-[8px]' : 'text-[10px]'} font-medium text-white`}>{action.label}</span>
+                        {!isMobile && <span className="text-[8px] text-slate-500">{action.sublabel}</span>}
                     </motion.button>
                 ))}
             </div>
@@ -410,8 +404,9 @@ const RecruiterBridgeDock: React.FC = () => {
 export const InteractiveResume: React.FC = () => {
     const navigate = useNavigate();
     const containerRef = useRef<HTMLDivElement>(null);
-    const { profile } = useCVStore();
+    const { profile, updatePersonal } = useCVStore();
     const [expandedExp, setExpandedExp] = useState<number | null>(null);
+    const isMobile = useIsMobile();
 
     // Parallax
     const { scrollYProgress } = useScroll({ container: containerRef });
@@ -421,6 +416,11 @@ export const InteractiveResume: React.FC = () => {
         setExpandedExp(expandedExp === idx ? null : idx);
     };
 
+    // Save avatar URL to store
+    const handleAvatarChange = (url: string) => {
+        updatePersonal({ photoUrl: url });
+    };
+
     return (
         <div className="h-screen w-full flex flex-col overflow-hidden">
             <AuroraBackground />
@@ -428,27 +428,31 @@ export const InteractiveResume: React.FC = () => {
             {/* ===== IDENTITY HEADER ===== */}
             <motion.header
                 style={{ opacity: headerOpacity }}
-                className="relative z-20 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-black/20 backdrop-blur-sm"
+                className={`relative z-20 flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-white/5 bg-black/20 backdrop-blur-sm ${isMobile ? 'flex-wrap gap-2' : ''}`}
             >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 md:gap-4">
                     <button
                         onClick={() => navigate('/')}
                         className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors"
                     >
-                        <ArrowLeft size={20} />
+                        <ArrowLeft size={isMobile ? 18 : 20} />
                     </button>
                     <NexBadge />
-                    <div className="h-4 w-px bg-white/20" />
-                    <span className="text-xs text-slate-500 font-mono">SCV Protocol v1.0</span>
+                    {!isMobile && (
+                        <>
+                            <div className="h-4 w-px bg-white/20" />
+                            <span className="text-xs text-slate-500 font-mono">SCV Protocol v1.0</span>
+                        </>
+                    )}
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                     <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="px-3 py-1.5 bg-violet-600 hover:bg-violet-500 rounded-lg text-xs font-semibold text-white transition-colors"
+                        className={`px-2 md:px-3 py-1.5 bg-violet-600 hover:bg-violet-500 rounded-lg text-[10px] md:text-xs font-semibold text-white transition-colors ${isMobile ? 'hidden' : ''}`}
                     >
-                        Ouvrir le fichier .nex
+                        Ouvrir .nex
                     </motion.button>
                 </div>
             </motion.header>
@@ -458,20 +462,23 @@ export const InteractiveResume: React.FC = () => {
                 ref={containerRef}
                 className="relative flex-1 overflow-y-auto custom-scrollbar z-10"
             >
-                <div className="max-w-4xl mx-auto py-12 px-6 pb-32">
+                <div className={`max-w-4xl mx-auto py-8 md:py-12 px-4 md:px-6 ${isMobile ? 'pb-40' : 'pb-32'}`}>
 
                     {/* ===== HERO SECTION ===== */}
                     <motion.section
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
-                        className="flex items-center gap-8 mb-16"
+                        className={`flex ${isMobile ? 'flex-col items-center text-center' : 'items-center'} gap-6 md:gap-8 mb-12 md:mb-16`}
                     >
-                        <AvatarVideoCircle photoUrl={profile.personal?.photoUrl} />
+                        <AvatarVideoCircle
+                            photoUrl={profile.personal?.photoUrl}
+                            onAvatarChange={handleAvatarChange}
+                        />
 
-                        <div className="flex-1">
+                        <div className={`${isMobile ? '' : 'flex-1'}`}>
                             <motion.h1
-                                className="text-4xl font-black text-white mb-2"
+                                className={`${isMobile ? 'text-2xl' : 'text-4xl'} font-black text-white mb-2`}
                                 animate={{
                                     backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
                                 }}

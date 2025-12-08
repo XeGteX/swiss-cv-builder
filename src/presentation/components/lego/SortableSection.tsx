@@ -37,9 +37,9 @@ export const SortableSection: React.FC<SortableSectionProps> = ({
         transition,
         isDragging,
         isOver,
-        isSorting,
-        overIndex,
-        index
+        isSorting: _isSorting,
+        overIndex: _overIndex,
+        index: _index
     } = useSortable({ id });
 
     const style = {

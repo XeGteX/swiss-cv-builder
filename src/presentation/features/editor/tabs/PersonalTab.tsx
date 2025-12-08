@@ -1,10 +1,10 @@
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { useCVStoreV2 } from '../../../../application/store/v2';
 import { Input } from '../../../design-system/atoms/Input';
 import { TextArea } from '../../../design-system/atoms/TextArea';
 import { SectionHeader } from '../../../design-system/molecules/SectionHeader';
-import { User, Palette, Sparkles } from 'lucide-react';
+import { User, Palette, Sparkles, Plus, Camera, X } from 'lucide-react';
 import { Card } from '../../../design-system/atoms/Card';
 import { useToastStore } from '../../../../application/store/toast-store';
 import { useTranslation } from '../../../hooks/useTranslation';
@@ -14,9 +14,10 @@ export const PersonalTab: React.FC = () => {
     const updateField = useCVStoreV2((state) => state.updateField);
     const { t } = useTranslation();
     const { addToast } = useToastStore();
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     if (!profile || !profile.personal || !profile.metadata) {
-        return <div className="p-4 text-slate-400">Chargement du profil...</div>;
+        return <div className="p-4 text-slate-400">{t('common.loading')}</div>;
     }
 
     const { personal, metadata } = profile;
@@ -103,27 +104,76 @@ export const PersonalTab: React.FC = () => {
                 />
 
                 <div className="space-y-4">
-                    <Input
-                        variant="glass"
-                        label="Photo"
-                        type="file"
-                        accept="image/*"
-                        onChange={handlePhotoUpload}
-                        className="file:text-white file:bg-white/10 file:border-0 file:rounded-md file:px-2 file:py-1 file:mr-2 hover:file:bg-white/20"
-                    />
+                    {/* 📸 PHOTO UPLOAD - PROMINENT DESIGN */}
+                    <div className="flex flex-col items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-white/10">
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handlePhotoUpload}
+                            className="hidden"
+                        />
 
-                    {/* Upscale Photo Button */}
-                    <button
-                        onClick={() => addToast('🚀 Upscale IA - Coming Soon!', 'info')}
-                        className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-lg transition-colors"
-                    >
-                        <Sparkles size={14} />
-                        Améliorer Photo (IA)
-                    </button>
+                        {personal.photoUrl ? (
+                            /* Photo exists - Show Avatar with Edit/Delete */
+                            <div className="relative group">
+                                <div className="w-24 h-24 rounded-full overflow-hidden ring-4 ring-purple-500/30 shadow-lg shadow-purple-500/20">
+                                    <img
+                                        src={personal.photoUrl}
+                                        alt="Photo CV"
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                                {/* Overlay on hover */}
+                                <div className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                                        title="Modifier"
+                                    >
+                                        <Camera size={16} className="text-white" />
+                                    </button>
+                                    <button
+                                        onClick={() => updateField('personal.photoUrl', '')}
+                                        className="p-2 rounded-full bg-red-500/40 hover:bg-red-500/60 transition-colors"
+                                        title="Supprimer"
+                                    >
+                                        <X size={16} className="text-white" />
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            /* No photo - Show Add Photo Box */
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                className="w-24 h-24 rounded-xl border-2 border-dashed border-purple-500/50 hover:border-purple-400 bg-purple-500/10 hover:bg-purple-500/20 transition-all flex flex-col items-center justify-center gap-2 group"
+                            >
+                                <div className="w-10 h-10 rounded-full bg-purple-500/30 group-hover:bg-purple-500/50 flex items-center justify-center transition-colors">
+                                    <Plus size={24} className="text-purple-300 group-hover:text-white transition-colors" />
+                                </div>
+                                <span className="text-xs text-purple-300 group-hover:text-white transition-colors">Photo</span>
+                            </button>
+                        )}
+
+                        <p className="text-xs text-slate-400 text-center">
+                            {personal.photoUrl ? 'Survolez pour modifier' : 'JPG, PNG • Max 2MB'}
+                        </p>
+
+                        {/* Upscale Photo Button */}
+                        {personal.photoUrl && (
+                            <button
+                                onClick={() => addToast('🚀 Upscale IA - Coming Soon!', 'info')}
+                                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-lg transition-colors"
+                            >
+                                <Sparkles size={12} />
+                                {t('personal.enhancePhoto')}
+                            </button>
+                        )}
+                    </div>
 
                     <div className="bg-white/5 p-4 rounded-lg border border-white/10 space-y-3">
                         <p className="text-xs text-white font-bold flex items-center gap-1">
-                            🇨🇭 Informations Complémentaires (Suisse)
+                            {t('personal.swissInfo')}
                         </p>
                         <Input
                             variant="glass"
@@ -146,12 +196,12 @@ export const PersonalTab: React.FC = () => {
                                 value={personal.permit || ''}
                                 onChange={(e) => updateField('personal.permit', e.target.value)}
                             >
-                                <option value="" className="bg-slate-900">Sélectionner...</option>
-                                <option value="Permis B" className="bg-slate-900">Permis B (Séjour)</option>
-                                <option value="Permis C" className="bg-slate-900">Permis C (Établissement)</option>
-                                <option value="Permis G" className="bg-slate-900">Permis G (Frontalier)</option>
-                                <option value="Permis L" className="bg-slate-900">Permis L (Courte durée)</option>
-                                <option value="Suisse" className="bg-slate-900">Nationalité Suisse</option>
+                                <option value="" className="bg-slate-900">{t('personal.select')}</option>
+                                <option value="Permis B" className="bg-slate-900">{t('personal.permits.b')}</option>
+                                <option value="Permis C" className="bg-slate-900">{t('personal.permits.c')}</option>
+                                <option value="Permis G" className="bg-slate-900">{t('personal.permits.g')}</option>
+                                <option value="Permis L" className="bg-slate-900">{t('personal.permits.l')}</option>
+                                <option value="Suisse" className="bg-slate-900">{t('personal.permits.swiss')}</option>
                             </select>
                         </div>
                     </div>

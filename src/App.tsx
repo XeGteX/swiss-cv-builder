@@ -30,6 +30,13 @@ import GuideCVPage from './presentation/pages/GuideCVPage';
 import ConfidentialitePage from './presentation/pages/ConfidentialitePage';
 import CGUPage from './presentation/pages/CGUPage';
 import ContactPage from './presentation/pages/ContactPage';
+import MentionsLegalesPage from './presentation/pages/MentionsLegalesPage';
+
+// Region Context for Chameleon Templates
+import { RegionProvider } from './presentation/contexts/RegionContext';
+
+// Debug Mode
+import { DebugBar } from './presentation/features/debug';
 
 function App() {
   const { checkAuth } = useAuthStore();
@@ -43,47 +50,52 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <BrowserRouter>
-        <Routes>
-          {/* Landing Page - Outside AppShell for full scroll */}
-          <Route path="/landing" element={<LandingPage />} />
+      <RegionProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Landing Page - Outside AppShell for full scroll */}
+            <Route path="/landing" element={<LandingPage />} />
 
-          {/* Footer link pages - Outside AppShell for full scroll */}
-          <Route path="/templates" element={<TemplatesPage />} />
-          <Route path="/exemples" element={<ExemplesPage />} />
-          <Route path="/blog" element={<BlogPage />} />
-          <Route path="/guide-cv" element={<GuideCVPage />} />
-          <Route path="/confidentialite" element={<ConfidentialitePage />} />
-          <Route path="/cgu" element={<CGUPage />} />
-          <Route path="/contact" element={<ContactPage />} />
+            {/* Footer link pages - Outside AppShell for full scroll */}
+            <Route path="/templates" element={<TemplatesPage />} />
+            <Route path="/exemples" element={<ExemplesPage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/guide-cv" element={<GuideCVPage />} />
+            <Route path="/confidentialite" element={<ConfidentialitePage />} />
+            <Route path="/cgu" element={<CGUPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
 
-          {/* All other routes wrapped in AppShell */}
-          <Route path="/*" element={
-            <AppShell>
-              <Routes>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/labs" element={<LabsDashboard />} />
-                <Route path="/wizard" element={<WizardPage />} />
-                <Route path="/templates" element={<TemplateGallery />} />
-                <Route path="/gallery" element={<VirtualTemplateGallery />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                {/* SCV .nex Viewer - Interactive Resume */}
-                <Route path="/interactive" element={<InteractiveResume />} />
-                <Route path="/sandbox" element={<InteractiveResume />} />
-                {/* PDF Render Route for Puppeteer - Do NOT add AppShell chrome */}
-                <Route path="/pdf-render/:id" element={<PDFRenderPage />} />
-                <Route path="/" element={<CVPageV2 />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-              <ToastContainer />
-              <SubscriptionModal />
-              <SmartReviewToast />
-              <ShareModal />
-            </AppShell>
-          } />
-        </Routes>
-      </BrowserRouter>
+            {/* All other routes wrapped in AppShell */}
+            <Route path="/*" element={
+              <AppShell>
+                <Routes>
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/labs" element={<LabsDashboard />} />
+                  <Route path="/wizard" element={<WizardPage />} />
+                  <Route path="/templates" element={<TemplateGallery />} />
+                  <Route path="/gallery" element={<VirtualTemplateGallery />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  {/* SCV .nex Viewer - Interactive Resume */}
+                  <Route path="/interactive" element={<InteractiveResume />} />
+                  <Route path="/sandbox" element={<InteractiveResume />} />
+                  {/* PDF Render Route for Puppeteer - Do NOT add AppShell chrome */}
+                  <Route path="/pdf-render/:id" element={<PDFRenderPage />} />
+                  <Route path="/" element={<CVPageV2 />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+                <ToastContainer />
+                <SubscriptionModal />
+                <SmartReviewToast />
+                <ShareModal />
+              </AppShell>
+            } />
+          </Routes>
+          {/* DebugBar - Global floating component */}
+          <DebugBar />
+        </BrowserRouter>
+      </RegionProvider>
     </ErrorBoundary>
   );
 }

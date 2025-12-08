@@ -65,7 +65,7 @@ export const LoginPage: React.FC = () => {
             },
         };
 
-        const blob = await InfinityService.generatePdfBlob(dummyProfile);
+        const blob = await InfinityService.generateBlob(dummyProfile);
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;

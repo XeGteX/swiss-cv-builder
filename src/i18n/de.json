@@ -1,0 +1,640 @@
+{
+    "common": {
+        "loading": "Laden...",
+        "save": "Speichern",
+        "cancel": "Abbrechen",
+        "delete": "Löschen",
+        "edit": "Bearbeiten",
+        "add": "Hinzufügen",
+        "close": "Schliessen",
+        "confirm": "Bestätigen",
+        "back": "Zurück",
+        "next": "Weiter",
+        "finish": "Fertig",
+        "cta": "Lebenslauf erstellen",
+        "ok": "OK",
+        "yes": "Ja",
+        "no": "Nein",
+        "search": "Suchen",
+        "filter": "Filtern",
+        "share": "Teilen",
+        "copy": "Kopieren",
+        "copied": "Kopiert!",
+        "download": "Herunterladen",
+        "upload": "Hochladen",
+        "preview": "Vorschau",
+        "error": "Fehler",
+        "success": "Erfolg",
+        "warning": "Warnung",
+        "info": "Information"
+    },
+    "nav": {
+        "home": "Startseite",
+        "templates": "Vorlagen",
+        "editor": "Editor",
+        "wizard": "Assistent",
+        "pricing": "Preise",
+        "features": "Funktionen",
+        "faq": "FAQ",
+        "contact": "Kontakt",
+        "login": "Anmelden",
+        "signup": "Registrieren",
+        "logout": "Abmelden",
+        "myAccount": "Mein Konto",
+        "settings": "Einstellungen"
+    },
+    "sidebar": {
+        "dashboard": "Dashboard",
+        "wizard": {
+            "description": "Geführter Assistent - Am einfachsten"
+        },
+        "dashboard.description": "Übersicht",
+        "templates": {
+            "description": "Vorlagengalerie"
+        },
+        "settings": {
+            "description": "Konfiguration"
+        },
+        "editor": {
+            "description": "Bearbeitungsmodus"
+        },
+        "structure": {
+            "description": "Abschnitte neu ordnen"
+        },
+        "ai": {
+            "description": "KI-Optimierung"
+        },
+        "cvTools": "Lebenslauf-Tools"
+    },
+    "landing": {
+        "nav": {
+            "features": "Funktionen",
+            "pricing": "Preise",
+            "faq": "FAQ",
+            "cta": "Lebenslauf erstellen",
+            "viewTemplates": "Vorlagen ansehen",
+            "scroll": "Scrollen"
+        },
+        "hero": {
+            "badge": "+2.500 Lebensläufe diese Woche erstellt",
+            "titleLine1": "Suchen Sie nicht mehr",
+            "titleLine2": "nach einem Job.",
+            "titleHighlight": "Ziehen Sie ihn an.",
+            "subtitle": "KI, die Ihre Karriere in ein interaktives Erlebnis verwandelt. Zugang zu unserer exklusiven Sammlung von 50 Elite-Designs.",
+            "cta": "Meinen Lebenslauf erstellen",
+            "ctaSecondary": "Vorlagen ansehen",
+            "trusted": "Von über 10.000 Schweizer Fachleuten genutzt",
+            "scroll": "Scrollen",
+            "poweredBy": "Die Technologie hinter den Einstellungen bei:",
+            "atsCompatible": "ATS-kompatibel",
+            "aiOptimized": "KI-optimiert"
+        },
+        "socialProof": {
+            "title": "Sie vertrauen uns",
+            "companies": "Partnerunternehmen"
+        },
+        "problem": {
+            "title": "Warum Ihr aktueller Lebenslauf",
+            "titleHighlight": "im Müll landet",
+            "subtitle": "Diese stillen Fehler zerstören Ihre Chancen vor dem Vorstellungsgespräch.",
+            "card1": {
+                "title": "Von ATS ignoriert",
+                "description": "75% der Lebensläufe werden vor der menschlichen Prüfung abgelehnt."
+            },
+            "card2": {
+                "title": "Amateurdesign",
+                "description": "Word und Canva erstellen nicht-standardmässige Designs."
+            },
+            "card3": {
+                "title": "Leere Seite",
+                "description": "Stunden verschwendet auf der Suche nach den richtigen Worten."
+            }
+        },
+        "process": {
+            "titlePart1": "Ihr neuer Lebenslauf in",
+            "titleHighlight": "15 Minuten",
+            "titlePart2": "fertig.",
+            "subtitle": "Einfach wie 1-2-3. Keine Design-Kenntnisse erforderlich.",
+            "step1": {
+                "title": "Importieren",
+                "subtitle": "(PDF/LinkedIn) oder Ausfüllen",
+                "description": "Laden Sie Ihren Lebenslauf hoch oder starten Sie von Null."
+            },
+            "step2": {
+                "title": "KI optimiert",
+                "subtitle": "Automatisches Umschreiben",
+                "description": "NanoBrain formuliert Ihren Inhalt um."
+            },
+            "step3": {
+                "title": "Exportieren",
+                "subtitle": "& Bewerben (HD PDF)",
+                "description": "Herunterladen oder online teilen."
+            }
+        },
+        "features": {
+            "title": "Funktionen",
+            "ats": {
+                "title": "100% ATS-kompatibel",
+                "description": "Unsere Lebensläufe bestehen alle automatischen Sortiersysteme"
+            },
+            "ai": {
+                "title": "KI-gesteuert",
+                "description": "Intelligente Vorschläge zur Verbesserung Ihrer Inhalte"
+            },
+            "swiss": {
+                "title": "Schweizer Format",
+                "description": "Angepasst an die Standards und Erwartungen des Schweizer Marktes"
+            },
+            "multilingual": {
+                "title": "Mehrsprachig",
+                "description": "Erstellen Sie Ihren Lebenslauf auf Französisch, Deutsch, Englisch und mehr"
+            }
+        },
+        "pricing": {
+            "title": "Preise",
+            "titleHighlight": "einfach",
+            "subtitle": "Kostenlos starten. Wachsen Sie nach Bedarf.",
+            "popular": "Beliebt",
+            "sprint": {
+                "name": "Sprint",
+                "description": "Zum schnellen Testen",
+                "features": [
+                    "1 Lebenslauf",
+                    "3 Vorlagen",
+                    "PDF-Export",
+                    "Kein Wasserzeichen"
+                ],
+                "cta": "Kostenlos starten"
+            },
+            "campagne": {
+                "name": "Kampagne",
+                "description": "Für aktive Jobsuche",
+                "features": [
+                    "Unbegrenzte Lebensläufe",
+                    "50 Vorlagen",
+                    "Öffentlicher Weblink",
+                    "NanoBrain KI",
+                    "Prioritäts-Support"
+                ],
+                "cta": "Kampagne wählen"
+            },
+            "pro": {
+                "name": "Pro",
+                "description": "Für Recruiter",
+                "features": [
+                    "Alles von Kampagne +",
+                    "API-Zugang",
+                    "White-Label",
+                    "Erweiterte Analysen",
+                    "Dedizierter Support"
+                ],
+                "cta": "Kontakt"
+            }
+        },
+        "faq": {
+            "title": "Häufig gestellte Fragen",
+            "q1": {
+                "question": "Ist es mit ATS-Systemen kompatibel?",
+                "answer": "Ja, 100%. Unsere Vorlagen sind so konzipiert, dass sie von Rekrutierungssoftware (ATS) perfekt lesbar sind. Ihr Lebenslauf wird nie automatisch abgelehnt."
+            },
+            "q2": {
+                "question": "Kann ich mein Abonnement kündigen?",
+                "answer": "Absolut. Sie können jederzeit über Ihr Dashboard kündigen. Keine Verpflichtung, keine Fragen."
+            },
+            "q3": {
+                "question": "Sind meine Daten sicher?",
+                "answer": "Ihre Daten werden verschlüsselt und in der Schweiz gehostet. Wir teilen sie nie mit Dritten. Sie bleiben Eigentümer Ihrer Inhalte."
+            },
+            "q4": {
+                "question": "Wie funktioniert NanoBrain KI?",
+                "answer": "NanoBrain analysiert Ihren Hintergrund und schlägt professionelle Formulierungen vor. Es optimiert Struktur und Vokabular, um die Wirkung Ihres Lebenslaufs zu maximieren."
+            },
+            "q5": {
+                "question": "Kann ich mehrere Versionen meines Lebenslaufs erstellen?",
+                "answer": "Mit Kampagne- und Pro-Plänen können Sie unbegrenzt Lebensläufe für verschiedene Positionen oder Branchen erstellen."
+            }
+        },
+        "cta": {
+            "title": "Bereit sich",
+            "titleHighlight": "abzuheben",
+            "subtitle": "Schliessen Sie sich den Tausenden von Fachleuten an, die ihre Karriere verändert haben.",
+            "button": "Meinen Lebenslauf kostenlos erstellen"
+        },
+        "footer": {
+            "tagline": "Der KI-gestützte Lebenslauf-Builder. Made with 💜 in Switzerland.",
+            "product": "Produkt",
+            "templates": "Vorlagen",
+            "pricing": "Preise",
+            "examples": "Beispiele",
+            "resources": "Ressourcen",
+            "blog": "Blog",
+            "guide": "Lebenslauf-Guide",
+            "faq": "FAQ",
+            "legal": "Rechtliches",
+            "privacy": "Datenschutz",
+            "terms": "AGB",
+            "contact": "Kontakt",
+            "copyright": "Nexal. Alle Rechte vorbehalten."
+        },
+        "scrollytelling": {
+            "stages": [
+                "Das Problem",
+                "Die Entdeckung",
+                "Die Enthüllung",
+                "Die Wahl",
+                "Der Triumph"
+            ],
+            "act1": {
+                "label": "Das Problem",
+                "rejected": "ABGELEHNT",
+                "title": "75% der Lebensläufe werden abgelehnt",
+                "subtitle": "bevor sie von Menschen gelesen werden.",
+                "scrollHint": "Scrollen Sie weiter, um die Lösung zu entdecken..."
+            },
+            "act2": {
+                "label": "Die Entdeckung",
+                "analyzing": "NanoBrain analysiert...",
+                "title": "KI, die",
+                "titleHighlight": "versteht",
+                "subtitle": "Ihr Potenzial."
+            },
+            "act3": {
+                "label": "Die Enthüllung",
+                "stats": {
+                    "atsScore": "ATS-Score",
+                    "keywords": "Schlüsselwörter",
+                    "impact": "Wirkung"
+                },
+                "title": "Ergebnisse",
+                "titleHighlight": "sofort"
+            },
+            "act4": {
+                "label": "Die Wahl",
+                "title": "Elite-Designs.",
+                "subtitle": "Wählen Sie das, das zu Ihnen passt."
+            },
+            "act5": {
+                "atsOptimized": "ATS-optimiert",
+                "premium": "Premium",
+                "title": "Bereit zu",
+                "titleHighlight": "beeindrucken",
+                "cta": "Jetzt meinen Lebenslauf erstellen"
+            }
+        }
+    },
+    "exemples": {
+        "title": "Beispiele für",
+        "titleHighlight": "erfolgreiche Lebensläufe",
+        "subtitle": "Lassen Sie sich von Lebensläufen inspirieren, die unseren Nutzern geholfen haben, ihre Traumjobs zu bekommen.",
+        "back": "Zurück",
+        "cta": "Lebenslauf erstellen",
+        "view": "Ansehen",
+        "download": "Herunterladen",
+        "atsScore": "ATS-Score"
+    },
+    "templates": {
+        "title": "Lebenslauf-Vorlagen",
+        "subtitle": "Wählen Sie aus unserer Sammlung von ATS-optimierten Designs",
+        "count": "50+ Professionelle Vorlagen",
+        "viewAll": "Alle Vorlagen anzeigen",
+        "tapToEnlarge": "Tippen zum Vergrössern",
+        "use": "Diese Vorlage verwenden",
+        "filter": {
+            "all": "Alle",
+            "popular": "Beliebt",
+            "creative": "Kreativ",
+            "minimal": "Minimalistisch",
+            "executive": "Executive",
+            "tech": "Tech"
+        },
+        "card": {
+            "select": "Diese Vorlage wählen",
+            "preview": "Vorschau",
+            "atsCompatible": "ATS-kompatibel",
+            "popular": "Beliebt",
+            "new": "Neu"
+        },
+        "intro": {
+            "title": "Professionelle Vorlagen",
+            "subtitle": "ATS-optimierte Designs von professionellen Designern erstellt",
+            "tapToContinue": "Tippen zum Fortfahren"
+        },
+        "gallery": {
+            "title": "Vorlagen-Galerie",
+            "displayed": "angezeigt",
+            "back": "Zurück",
+            "filters": "Filter",
+            "search": "Suche",
+            "searchPlaceholder": "Name, Stil, Branche...",
+            "atsMin": "Mindest-ATS-Score",
+            "found": "Vorlagen gefunden",
+            "reset": "Filter zurücksetzen",
+            "useTemplate": "Diese Vorlage verwenden",
+            "loadMore": "Mehr laden",
+            "templatesUnit": "Vorlagen",
+            "categories": {
+                "ats": "ATS-Kompatibilität",
+                "style": "Stil",
+                "industry": "Branche",
+                "experience": "Erfahrung",
+                "feature": "Funktionen",
+                "region": "Region"
+            }
+        },
+        "names": {
+            "classic": "Schweizer Klassiker",
+            "modern": "Modern Pro",
+            "atsClassic": "ATS Klassisch",
+            "executive": "Executive Premium"
+        },
+        "descriptions": {
+            "classic": "Klares und professionelles Design",
+            "modern": "Zeitgenössisches und elegantes Design",
+            "atsClassic": "100% ATS-kompatibel",
+            "executive": "Luxuriöses und anspruchsvolles Design"
+        }
+    },
+    "wizard": {
+        "title": "Schweizer Lebenslauf-Assistent",
+        "exit": "Assistent beenden",
+        "steps": {
+            "identity": "Identität",
+            "experience": "Erfahrung",
+            "template": "Vorlage",
+            "download": "Herunterladen"
+        },
+        "headers": {
+            "identity": "Wer sind Sie?",
+            "experience": "Ihre Erfahrung",
+            "template": "Wählen Sie einen Stil",
+            "download": "Ihr Lebenslauf ist fertig!"
+        },
+        "actions": {
+            "exit": "Beenden",
+            "back": "Zurück",
+            "next": "Nächster Schritt",
+            "finish": "Fertig",
+            "download": "PDF herunterladen"
+        }
+    },
+    "editor": {
+        "sidebar": {
+            "tabs": {
+                "personal": "Info",
+                "experience": "Erfahrung",
+                "education": "Ausbildung",
+                "skills": "Fähigkeiten",
+                "languages": "Sprachen",
+                "letter": "Brief",
+                "ai": "KI",
+                "review": "Überprüfung",
+                "settings": "Einstellungen"
+            }
+        },
+        "inline": {
+            "edit": "Bearbeiten",
+            "save": "Speichern",
+            "cancel": "Abbrechen",
+            "placeholder": "Text eingeben...",
+            "aiEnhance": "Mit KI verbessern"
+        }
+    },
+    "personal": {
+        "title": "Persönliche Informationen",
+        "firstName": "Vorname",
+        "lastName": "Nachname",
+        "role": "Berufsbezeichnung",
+        "email": "E-Mail",
+        "phone": "Telefon",
+        "address": "Adresse",
+        "city": "Stadt",
+        "country": "Land",
+        "birthDate": "Geburtsdatum",
+        "nationality": "Nationalität",
+        "permit": "Arbeitsbewilligung",
+        "mobility": "Mobilität",
+        "linkedin": "LinkedIn",
+        "website": "Webseite",
+        "photo": "Foto",
+        "enhancePhoto": "Foto verbessern (KI)",
+        "swissInfo": "🇨🇭 Zusätzliche Informationen (Schweiz)",
+        "select": "Auswählen...",
+        "cvColor": "Lebenslauf-Farbe",
+        "permits": {
+            "b": "Ausweis B (Aufenthalt)",
+            "c": "Ausweis C (Niederlassung)",
+            "g": "Ausweis G (Grenzgänger)",
+            "l": "Ausweis L (Kurzaufenthalt)",
+            "swiss": "Schweizer Staatsbürgerschaft"
+        }
+    },
+    "sections": {
+        "summary": "Berufliches Profil",
+        "experience": "Berufserfahrung",
+        "education": "Ausbildung",
+        "skills": "Fähigkeiten",
+        "languages": "Sprachen",
+        "certifications": "Zertifizierungen",
+        "projects": "Projekte",
+        "interests": "Interessen",
+        "references": "Referenzen"
+    },
+    "experience": {
+        "add": "Erfahrung hinzufügen",
+        "company": "Unternehmen",
+        "position": "Position",
+        "location": "Ort",
+        "startDate": "Startdatum",
+        "endDate": "Enddatum",
+        "current": "Aktuelle Position",
+        "description": "Beschreibung",
+        "achievements": "Erfolge"
+    },
+    "education": {
+        "add": "Ausbildung hinzufügen",
+        "school": "Schule",
+        "degree": "Abschluss",
+        "field": "Fachgebiet",
+        "location": "Ort",
+        "startDate": "Startdatum",
+        "endDate": "Enddatum",
+        "current": "Aktuell eingeschrieben",
+        "grade": "Note"
+    },
+    "skills": {
+        "add": "Fähigkeit hinzufügen",
+        "name": "Fähigkeit",
+        "level": "Niveau",
+        "levels": {
+            "beginner": "Anfänger",
+            "intermediate": "Mittelstufe",
+            "advanced": "Fortgeschritten",
+            "expert": "Experte"
+        },
+        "categories": {
+            "technical": "Technisch",
+            "soft": "Soft Skills",
+            "languages": "Sprachen",
+            "tools": "Werkzeuge"
+        }
+    },
+    "languages": {
+        "add": "Sprache hinzufügen",
+        "name": "Sprache",
+        "level": "Niveau",
+        "search": "Tippen Sie, um eine Sprache zu suchen...",
+        "noResults": "Keine Sprache gefunden",
+        "levels": {
+            "native": "Muttersprache",
+            "c2": "C2 - Beherrschung",
+            "c1": "C1 - Fortgeschritten",
+            "b2": "B2 - Selbstständig",
+            "b1": "B1 - Mittelstufe",
+            "a2": "A2 - Grundlagen",
+            "a1": "A1 - Anfänger"
+        },
+        "empty": {
+            "title": "Keine Sprachen hinzugefügt",
+            "subtitle": "Beginnen Sie zu tippen, um Vorschläge zu sehen"
+        }
+    },
+    "letter": {
+        "title": "Anschreiben",
+        "new": "Neues Schreiben",
+        "empty": "Noch keine Briefe",
+        "jobTitle": "Stellenbezeichnung",
+        "company": "Unternehmen",
+        "targetLang": "Zielsprache",
+        "generate": "Generieren",
+        "optimize": "Optimieren",
+        "placeholder": "Beginnen Sie hier Ihr Anschreiben zu schreiben...",
+        "saved": "Gespeichert",
+        "deleted": "Gelöscht",
+        "generated": "Erfolgreich generiert",
+        "errorGen": "Generierung fehlgeschlagen",
+        "errorJob": "Stellenbezeichnung erforderlich"
+    },
+    "ai": {
+        "title": "KI-Assistent",
+        "enhance": "Verbessern",
+        "enhancing": "Wird verbessert...",
+        "suggestions": "Vorschläge",
+        "apply": "Anwenden",
+        "regenerate": "Neu generieren",
+        "center": {
+            "title": "KI-Zentrum",
+            "subtitle": "Verbessern Sie Ihren Lebenslauf mit künstlicher Intelligenz"
+        }
+    },
+    "critic": {
+        "title": "Lebenslauf-Analyse",
+        "jobDescription": "Stellenbeschreibung",
+        "pasteJob": "Fügen Sie hier die Stellenbeschreibung ein...",
+        "ready": "Bereit zur Analyse",
+        "intro": "Erhalten Sie eine detaillierte Analyse Ihres Lebenslaufs und Verbesserungsvorschläge.",
+        "analyzeBtn": "Meinen Lebenslauf analysieren",
+        "analyzing": "Analyse läuft...",
+        "quality": "Lebenslauf-Qualität",
+        "relevance": "Relevanz",
+        "addJobDesc": "Fügen Sie eine Stellenbeschreibung hinzu, um die Relevanz zu sehen",
+        "smartKeywords": "Intelligente Schlüsselwörter",
+        "smartInsights": "Einblicke",
+        "impact": "Wirkung",
+        "suggestions": "Vorschläge"
+    },
+    "settings": {
+        "title": "Einstellungen",
+        "account": "Konto",
+        "storage": "Speicher",
+        "billing": "Abonnement",
+        "free": "Kostenlos",
+        "pro": "Pro",
+        "language": "Oberflächensprache",
+        "displayMode": "Anzeigemodus",
+        "mobileMode": "Mobil",
+        "desktopMode": "Desktop",
+        "mobileDesc": "Vorschau Ihres Lebenslaufs auf dem Handy.",
+        "darkMode": "Dunkelmodus",
+        "notifications": "Benachrichtigungen",
+        "demoContent": "Demo-Inhalt",
+        "loadDemo": "Demo beim Start laden",
+        "generateDemo": "Demo-Profil generieren",
+        "exportData": "Meine Daten exportieren",
+        "deleteAccount": "Mein Konto löschen"
+    },
+    "auth": {
+        "login": "Anmelden",
+        "signup": "Registrieren",
+        "logout": "Abmelden",
+        "email": "E-Mail",
+        "password": "Passwort",
+        "confirmPassword": "Passwort bestätigen",
+        "forgotPassword": "Passwort vergessen?",
+        "resetPassword": "Passwort zurücksetzen",
+        "noAccount": "Kein Konto?",
+        "hasAccount": "Bereits ein Konto?",
+        "orContinueWith": "Oder fortfahren mit",
+        "google": "Google",
+        "github": "GitHub",
+        "terms": "Mit der Registrierung akzeptieren Sie unsere Nutzungsbedingungen",
+        "loginSuccess": "Anmeldung erfolgreich",
+        "signupSuccess": "Registrierung erfolgreich",
+        "loginError": "Anmeldefehler",
+        "signupError": "Registrierungsfehler"
+    },
+    "share": {
+        "title": "Ihren Lebenslauf teilen",
+        "link": "Freigabelink",
+        "copy": "Link kopieren",
+        "copied": "Link kopiert!",
+        "email": "Per E-Mail senden",
+        "linkedin": "Auf LinkedIn teilen",
+        "twitter": "Auf Twitter teilen",
+        "qrCode": "QR-Code"
+    },
+    "pdf": {
+        "generating": "PDF wird generiert...",
+        "ready": "PDF bereit",
+        "download": "PDF herunterladen",
+        "error": "Fehler bei der Generierung",
+        "quality": {
+            "high": "Hohe Qualität",
+            "standard": "Standard",
+            "fast": "Schnell"
+        }
+    },
+    "status": {
+        "saved": "Gespeichert",
+        "saving": "Wird gespeichert...",
+        "unsaved": "Nicht gespeichert",
+        "offline": "Offline",
+        "online": "Online",
+        "syncing": "Synchronisierung..."
+    },
+    "errors": {
+        "generic": "Ein Fehler ist aufgetreten",
+        "network": "Verbindungsfehler",
+        "notFound": "Seite nicht gefunden",
+        "unauthorized": "Zugriff verweigert",
+        "serverError": "Serverfehler",
+        "tryAgain": "Erneut versuchen",
+        "goHome": "Zur Startseite"
+    },
+    "legal": {
+        "privacy": {
+            "title": "Datenschutzerklärung",
+            "lastUpdated": "Zuletzt aktualisiert"
+        },
+        "terms": {
+            "title": "Nutzungsbedingungen",
+            "lastUpdated": "Zuletzt aktualisiert"
+        },
+        "cookies": {
+            "title": "Cookie-Richtlinie",
+            "accept": "Akzeptieren",
+            "decline": "Ablehnen",
+            "customize": "Anpassen",
+            "message": "Wir verwenden Cookies, um Ihre Erfahrung zu verbessern."
+        }
+    }
+}

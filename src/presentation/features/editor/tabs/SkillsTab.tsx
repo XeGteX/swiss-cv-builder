@@ -6,13 +6,15 @@ import { Button } from '../../../design-system/atoms/Button';
 import { Card } from '../../../design-system/atoms/Card';
 import { Plus, X } from 'lucide-react';
 import { LanguageEditor } from '../components/LanguageEditor';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 export const SkillsTab: React.FC = () => {
+    const { t } = useTranslation();
     const profile = useCVStoreV2((state) => state.profile);
     const updateField = useCVStoreV2((state) => state.updateField);
 
     if (!profile || !profile.skills) {
-        return <div className="p-4 text-slate-400">Chargement...</div>;
+        return <div className="p-4 text-slate-400">{t('common.loading')}</div>;
     }
     const [newSkill, setNewSkill] = useState('');
 
@@ -37,18 +39,18 @@ export const SkillsTab: React.FC = () => {
     return (
         <div className="space-y-6">
             <Card variant="glass">
-                <h3 className="text-sm font-bold text-slate-200 mb-4">Compétences Techniques</h3>
+                <h3 className="text-sm font-bold text-slate-200 mb-4">{t('sections.skills')}</h3>
 
                 <div className="flex gap-2 mb-4">
                     <Input
                         value={newSkill}
                         onChange={(e) => setNewSkill(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="Ex: React, TypeScript, Gestion de projet..."
+                        placeholder="React, TypeScript, ..."
                         variant="glass"
                     />
                     <Button onClick={addSkill} leftIcon={<Plus size={16} />} className="bg-brand-600 hover:bg-brand-700 text-white">
-                        Ajouter
+                        {t('common.add')}
                     </Button>
                 </div>
 
@@ -71,7 +73,7 @@ export const SkillsTab: React.FC = () => {
             </Card>
 
             <Card variant="glass">
-                <h3 className="text-sm font-bold text-slate-200 mb-4">Langues</h3>
+                <h3 className="text-sm font-bold text-slate-200 mb-4">{t('sections.languages')}</h3>
                 <LanguageEditor />
             </Card>
         </div>

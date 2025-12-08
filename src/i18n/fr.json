@@ -1,95 +1,364 @@
-
 {
-    "personal": {
-        "title": "Informations Personnelles",
-        "firstName": "Prénom",
-        "lastName": "Nom",
-        "role": "Titre du poste",
-        "email": "Email",
-        "phone": "Téléphone",
-        "address": "Adresse",
-        "birthDate": "Date de naissance",
-        "nationality": "Nationalité",
-        "permit": "Permis de travail",
-        "mobility": "Mobilité"
-    },
-    "sections": {
-        "summary": "Résumé Professionnel",
-        "experience": "Expérience",
-        "education": "Formation",
-        "skills": "Compétences",
-        "languages": "Langues"
-    },
-    "actions": {
-        "save": "Sauvegarder",
-        "download": "Télécharger PDF",
-        "add": "Ajouter",
-        "delete": "Supprimer"
-    },
-    "settings": {
-        "title": "Paramètres",
-        "account": "Compte",
-        "storage": "Stockage",
-        "billing": "Abonnement",
-        "free": "Gratuit",
-        "pro": "Pro",
-        "displayMode": "Mode d'affichage",
-        "mobileMode": "Mobile",
-        "desktopMode": "Bureau",
-        "mobileDesc": "Prévisualisez votre CV sur mobile.",
-        "demoContent": "Contenu de démo",
-        "loadDemo": "Charger la démo au démarrage",
-        "generateDemo": "Générer un profil de démo"
-    },
-    "tabs": {
-        "personal": "Infos",
-        "experience": "Expérience",
-        "education": "Formation",
-        "skills": "Compétences",
-        "letter": "Lettre",
-        "ai": "IA",
-        "review": "Revue",
-        "settings": "Réglages"
-    },
-    "critic": {
-        "jobDescription": "Description du poste",
-        "pasteJob": "Collez la description du poste ici...",
-        "ready": "Prêt à analyser",
-        "intro": "Obtenez une analyse détaillée de votre CV et des suggestions d'amélioration.",
-        "analyzeBtn": "Analyser mon CV",
-        "analyzing": "Analyse en cours...",
-        "quality": "Qualité du CV",
-        "relevance": "Pertinence",
-        "addJobDesc": "Ajoutez une description de poste pour voir la pertinence",
-        "smartKeywords": "Mots-clés Intelligents",
-        "smartInsights": "Insights",
-        "impact": "Impact",
-        "suggestions": "Suggestions"
-    },
-    "letterGen": {
-        "newLetter": "Nouvelle Lettre",
-        "emptyState": "Aucune lettre pour le moment",
-        "edit": "Éditer",
+    "common": {
+        "loading": "Chargement...",
+        "save": "Enregistrer",
+        "cancel": "Annuler",
         "delete": "Supprimer",
-        "optimize": "Optimiser",
+        "edit": "Modifier",
+        "add": "Ajouter",
+        "close": "Fermer",
+        "confirm": "Confirmer",
         "back": "Retour",
-        "offline": "Hors ligne",
-        "online": "En ligne",
-        "jobTitle": "Intitulé du poste",
-        "company": "Entreprise",
-        "targetLang": "Langue cible",
-        "generate": "Générer",
-        "errorJob": "Titre du poste requis",
-        "saved": "Sauvegardé",
-        "deleted": "Supprimé",
-        "generated": "Généré avec succès",
-        "errorGen": "Échec de la génération",
-        "startNew": "Commencer une nouvelle lettre",
-        "placeholder": "Commencez à rédiger votre lettre ici, ou utilisez le générateur ci-dessus...",
-        "startTyping": "Commencez à écrire..."
+        "next": "Suivant",
+        "finish": "Terminer",
+        "cta": "Créer mon CV",
+        "ok": "OK",
+        "yes": "Oui",
+        "no": "Non",
+        "search": "Rechercher",
+        "filter": "Filtrer",
+        "share": "Partager",
+        "copy": "Copier",
+        "copied": "Copié !",
+        "download": "Télécharger",
+        "upload": "Téléverser",
+        "preview": "Aperçu",
+        "error": "Erreur",
+        "success": "Succès",
+        "warning": "Attention",
+        "info": "Information"
+    },
+    "nav": {
+        "home": "Accueil",
+        "templates": "Modèles",
+        "editor": "Éditeur",
+        "wizard": "Assistant",
+        "pricing": "Tarifs",
+        "features": "Fonctionnalités",
+        "faq": "FAQ",
+        "contact": "Contact",
+        "login": "Connexion",
+        "signup": "Inscription",
+        "logout": "Déconnexion",
+        "myAccount": "Mon compte",
+        "settings": "Paramètres"
+    },
+    "sidebar": {
+        "dashboard": "Dashboard",
+        "wizard": {
+            "description": "Assistant guidé - Le plus facile"
+        },
+        "dashboard.description": "Vue d'ensemble",
+        "templates": {
+            "description": "Galerie de modèles"
+        },
+        "settings": {
+            "description": "Configuration"
+        },
+        "editor": {
+            "description": "Mode édition"
+        },
+        "structure": {
+            "description": "Réorganiser les sections"
+        },
+        "ai": {
+            "description": "Optimisation IA"
+        },
+        "cvTools": "Outils CV"
+    },
+    "landing": {
+        "nav": {
+            "features": "Fonctionnalités",
+            "pricing": "Tarifs",
+            "faq": "FAQ",
+            "cta": "Créer mon CV",
+            "viewTemplates": "Voir les modèles",
+            "scroll": "Scroll"
+        },
+        "hero": {
+            "badge": "+2,500 CV créés cette semaine",
+            "titleLine1": "Ne cherchez plus",
+            "titleLine2": "un travail.",
+            "titleHighlight": "Attirez-le.",
+            "subtitle": "L'IA qui transforme votre parcours en une expérience interactive. Accédez à notre collection exclusive de 50 Designs d'Élite.",
+            "cta": "Créer mon CV",
+            "ctaSecondary": "Voir les modèles",
+            "trusted": "Utilisé par plus de 10 000 professionnels suisses",
+            "scroll": "Scroll",
+            "poweredBy": "La technologie derrière les recrutements chez :",
+            "atsCompatible": "ATS Compatible",
+            "aiOptimized": "IA Optimisé"
+        },
+        "socialProof": {
+            "title": "Ils nous font confiance",
+            "companies": "Entreprises partenaires"
+        },
+        "problem": {
+            "title": "Pourquoi votre CV actuel finit",
+            "titleHighlight": "à la poubelle",
+            "subtitle": "Ces erreurs silencieuses détruisent vos chances avant même l'entretien.",
+            "card1": {
+                "title": "Ignoré par les ATS",
+                "description": "75% des CV sont rejetés avant lecture humaine."
+            },
+            "card2": {
+                "title": "Design Amateur",
+                "description": "Word et Canva créent des designs non-standards."
+            },
+            "card3": {
+                "title": "Page Blanche",
+                "description": "Des heures perdues à chercher les mots."
+            }
+        },
+        "process": {
+            "titlePart1": "Votre nouveau CV en",
+            "titleHighlight": "15 minutes",
+            "titlePart2": "chrono.",
+            "subtitle": "Simple comme 1-2-3. Aucune compétence design requise.",
+            "step1": {
+                "title": "Importez",
+                "subtitle": "(PDF/LinkedIn) ou Remplissez",
+                "description": "Uploadez votre CV ou partez de zéro."
+            },
+            "step2": {
+                "title": "L'IA Optimise",
+                "subtitle": "Réécriture automatique",
+                "description": "NanoBrain reformule votre contenu."
+            },
+            "step3": {
+                "title": "Exportez",
+                "subtitle": "& Postulez (PDF HD)",
+                "description": "Téléchargez ou partagez en ligne."
+            }
+        },
+        "features": {
+            "title": "Fonctionnalités",
+            "ats": {
+                "title": "100% Compatible ATS",
+                "description": "Nos CV passent tous les systèmes de tri automatique"
+            },
+            "ai": {
+                "title": "Propulsé par l'IA",
+                "description": "Suggestions intelligentes pour améliorer votre contenu"
+            },
+            "swiss": {
+                "title": "Format Suisse",
+                "description": "Adapté aux normes et attentes du marché suisse"
+            },
+            "multilingual": {
+                "title": "Multilingue",
+                "description": "Créez votre CV en français, allemand, anglais et plus"
+            }
+        },
+        "pricing": {
+            "title": "Tarifs",
+            "titleHighlight": "simples",
+            "subtitle": "Commencez gratuitement. Évoluez selon vos besoins.",
+            "popular": "Populaire",
+            "sprint": {
+                "name": "Sprint",
+                "description": "Pour tester rapidement",
+                "features": [
+                    "1 CV",
+                    "3 templates",
+                    "Export PDF",
+                    "Pas de filigrane"
+                ],
+                "cta": "Commencer gratuit"
+            },
+            "campagne": {
+                "name": "Campagne",
+                "description": "Pour une recherche active",
+                "features": [
+                    "CV illimités",
+                    "50 templates",
+                    "Lien web public",
+                    "IA NanoBrain",
+                    "Support prioritaire"
+                ],
+                "cta": "Choisir Campagne"
+            },
+            "pro": {
+                "name": "Pro",
+                "description": "Pour les recruteurs",
+                "features": [
+                    "Tout Campagne +",
+                    "API access",
+                    "White-label",
+                    "Analytics avancés",
+                    "Support dédié"
+                ],
+                "cta": "Contacter"
+            }
+        },
+        "faq": {
+            "title": "Questions fréquentes",
+            "q1": {
+                "question": "Est-ce compatible avec les systèmes ATS ?",
+                "answer": "Oui, 100%. Nos modèles sont conçus pour être parfaitement lisibles par les logiciels de recrutement (ATS). Votre CV ne sera jamais rejeté automatiquement."
+            },
+            "q2": {
+                "question": "Puis-je annuler mon abonnement ?",
+                "answer": "Absolument. Vous pouvez annuler à tout moment depuis votre tableau de bord. Aucun engagement, aucune question posée."
+            },
+            "q3": {
+                "question": "Mes données sont-elles sécurisées ?",
+                "answer": "Vos données sont cryptées et hébergées en Suisse. Nous ne les partageons jamais avec des tiers. Vous restez propriétaire de votre contenu."
+            },
+            "q4": {
+                "question": "Comment fonctionne l'IA NanoBrain ?",
+                "answer": "NanoBrain analyse votre parcours et suggère des formulations professionnelles. Elle optimise la structure et le vocabulaire pour maximiser l'impact de votre CV."
+            },
+            "q5": {
+                "question": "Puis-je créer plusieurs versions de mon CV ?",
+                "answer": "Avec les plans Campagne et Pro, vous pouvez créer un nombre illimité de CV pour différents postes ou secteurs."
+            }
+        },
+        "cta": {
+            "title": "Prêt à vous",
+            "titleHighlight": "démarquer",
+            "subtitle": "Rejoignez les milliers de professionnels qui ont transformé leur carrière.",
+            "button": "Créer mon CV gratuitement"
+        },
+        "footer": {
+            "tagline": "L'outil de création de CV propulsé par l'IA. Made with 💜 in Switzerland.",
+            "product": "Produit",
+            "templates": "Templates",
+            "pricing": "Tarifs",
+            "examples": "Exemples",
+            "resources": "Ressources",
+            "blog": "Blog",
+            "guide": "Guide CV",
+            "faq": "FAQ",
+            "legal": "Légal",
+            "privacy": "Confidentialité",
+            "terms": "CGU",
+            "contact": "Contact",
+            "copyright": "Nexal. Tous droits réservés."
+        },
+        "scrollytelling": {
+            "stages": [
+                "Le problème",
+                "La découverte",
+                "La révélation",
+                "Le choix",
+                "Le triomphe"
+            ],
+            "act1": {
+                "label": "Le problème",
+                "rejected": "REJETÉ",
+                "title": "75% des CV sont rejetés",
+                "subtitle": "avant toute lecture humaine.",
+                "scrollHint": "Continuez à scroller pour découvrir la solution..."
+            },
+            "act2": {
+                "label": "La découverte",
+                "analyzing": "NanoBrain analyse...",
+                "title": "L'IA qui",
+                "titleHighlight": "comprend",
+                "subtitle": "votre potentiel."
+            },
+            "act3": {
+                "label": "La révélation",
+                "stats": {
+                    "atsScore": "Score ATS",
+                    "keywords": "Mots-clés",
+                    "impact": "Impact"
+                },
+                "title": "Résultats",
+                "titleHighlight": "instantanés"
+            },
+            "act4": {
+                "label": "Le choix",
+                "title": "designs d'élite.",
+                "subtitle": "Choisissez celui qui vous ressemble."
+            },
+            "act5": {
+                "atsOptimized": "ATS Optimisé",
+                "premium": "Premium",
+                "title": "Prêt à",
+                "titleHighlight": "impressionner",
+                "cta": "Créer mon CV maintenant"
+            }
+        }
+    },
+    "exemples": {
+        "title": "Exemples de",
+        "titleHighlight": "CV Réussis",
+        "subtitle": "Inspirez-vous des CV qui ont aidé nos utilisateurs à décrocher leurs jobs de rêve.",
+        "back": "Retour",
+        "cta": "Créer mon CV",
+        "view": "Voir",
+        "download": "Télécharger",
+        "atsScore": "Score ATS"
+    },
+    "templates": {
+        "title": "Modèles de CV",
+        "subtitle": "Choisissez parmi notre collection de designs optimisés ATS",
+        "count": "50+ Modèles Professionnels",
+        "viewAll": "Voir tous nos templates",
+        "tapToEnlarge": "Appuyez pour agrandir",
+        "use": "Utiliser ce modèle",
+        "filter": {
+            "all": "Tous",
+            "popular": "Populaires",
+            "creative": "Créatifs",
+            "minimal": "Minimalistes",
+            "executive": "Executive",
+            "tech": "Tech"
+        },
+        "card": {
+            "select": "Choisir ce modèle",
+            "preview": "Aperçu",
+            "atsCompatible": "Compatible ATS",
+            "popular": "Populaire",
+            "new": "Nouveau"
+        },
+        "intro": {
+            "title": "Modèles Professionnels",
+            "subtitle": "Designs optimisés ATS créés par des designers professionnels",
+            "tapToContinue": "Appuyez pour continuer"
+        },
+        "gallery": {
+            "title": "Galerie de Templates",
+            "displayed": "affichés",
+            "back": "Retour",
+            "filters": "Filtres",
+            "search": "Recherche",
+            "searchPlaceholder": "Nom, style, industrie...",
+            "atsMin": "Score ATS minimum",
+            "found": "templates trouvés",
+            "reset": "Réinitialiser les filtres",
+            "useTemplate": "Utiliser ce template",
+            "loadMore": "Charger plus",
+            "templatesUnit": "templates",
+            "categories": {
+                "ats": "Compatibilité ATS",
+                "style": "Style",
+                "industry": "Secteur",
+                "experience": "Expérience",
+                "feature": "Fonctionnalités",
+                "region": "Région"
+            }
+        },
+        "names": {
+            "chameleon": "🦎 Caméléon Adaptatif",
+            "classic": "Classique Suisse",
+            "modern": "Modern Pro",
+            "atsClassic": "ATS Classic",
+            "executive": "Executive Premium"
+        },
+        "descriptions": {
+            "chameleon": "S'adapte automatiquement aux normes de chaque pays",
+            "classic": "Design épuré et professionnel",
+            "modern": "Design contemporain et élégant",
+            "atsClassic": "100% compatible ATS",
+            "executive": "Design luxueux et sophistiqué"
+        }
     },
     "wizard": {
         "title": "Assistant CV Suisse",
+        "exit": "Quitter l'assistant",
         "steps": {
             "identity": "Identité",
             "experience": "Expérience",
@@ -99,18 +368,275 @@
         "headers": {
             "identity": "Qui êtes-vous ?",
             "experience": "Votre Expérience",
-            "template": "Choisissez un style"
+            "template": "Choisissez un style",
+            "download": "Votre CV est prêt !"
         },
         "actions": {
-            "exit": "Quitter l'assistant",
+            "exit": "Quitter",
             "back": "Retour",
-            "next": "Étape Suivante",
-            "finish": "Terminer"
+            "next": "Étape suivante",
+            "finish": "Terminer",
+            "download": "Télécharger PDF"
+        }
+    },
+    "editor": {
+        "sidebar": {
+            "tabs": {
+                "personal": "Info",
+                "experience": "Expérience",
+                "education": "Formation",
+                "skills": "Compétences",
+                "languages": "Langues",
+                "letter": "Lettre",
+                "ai": "IA",
+                "review": "Revue",
+                "settings": "Paramètres"
+            }
         },
-        "templates": {
-            "modern": "Suisse Moderne",
-            "modernDesc": "Propre, professionnel et conforme aux normes.",
-            "classic": "Classique (Bientôt)"
+        "inline": {
+            "edit": "Modifier",
+            "save": "Enregistrer",
+            "cancel": "Annuler",
+            "placeholder": "Saisissez le texte...",
+            "aiEnhance": "Améliorer avec l'IA"
+        }
+    },
+    "personal": {
+        "title": "Informations Personnelles",
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "role": "Titre du poste",
+        "email": "Email",
+        "phone": "Téléphone",
+        "address": "Adresse",
+        "city": "Ville",
+        "country": "Pays",
+        "birthDate": "Date de naissance",
+        "nationality": "Nationalité",
+        "permit": "Permis de travail",
+        "mobility": "Mobilité",
+        "linkedin": "LinkedIn",
+        "website": "Site web",
+        "photo": "Photo",
+        "enhancePhoto": "Améliorer Photo (IA)",
+        "swissInfo": "🇨🇭 Informations Complémentaires (Suisse)",
+        "select": "Sélectionner...",
+        "cvColor": "Couleur du CV",
+        "permits": {
+            "b": "Permis B (Séjour)",
+            "c": "Permis C (Établissement)",
+            "g": "Permis G (Frontalier)",
+            "l": "Permis L (Courte durée)",
+            "swiss": "Nationalité Suisse"
+        }
+    },
+    "sections": {
+        "summary": "Profil Professionnel",
+        "experience": "Expérience Professionnelle",
+        "education": "Formation",
+        "skills": "Compétences",
+        "languages": "Langues",
+        "certifications": "Certifications",
+        "projects": "Projets",
+        "interests": "Centres d'intérêt",
+        "references": "Références"
+    },
+    "experience": {
+        "add": "Ajouter une expérience",
+        "company": "Entreprise",
+        "position": "Poste",
+        "location": "Lieu",
+        "startDate": "Date de début",
+        "endDate": "Date de fin",
+        "current": "Poste actuel",
+        "description": "Description",
+        "achievements": "Réalisations"
+    },
+    "education": {
+        "add": "Ajouter une formation",
+        "school": "Établissement",
+        "degree": "Diplôme",
+        "field": "Domaine d'études",
+        "location": "Lieu",
+        "startDate": "Date de début",
+        "endDate": "Date de fin",
+        "current": "En cours",
+        "grade": "Mention"
+    },
+    "skills": {
+        "add": "Ajouter une compétence",
+        "name": "Compétence",
+        "level": "Niveau",
+        "levels": {
+            "beginner": "Débutant",
+            "intermediate": "Intermédiaire",
+            "advanced": "Avancé",
+            "expert": "Expert"
+        },
+        "categories": {
+            "technical": "Techniques",
+            "soft": "Soft Skills",
+            "languages": "Langues",
+            "tools": "Outils"
+        }
+    },
+    "languages": {
+        "add": "Ajouter une langue",
+        "name": "Langue",
+        "level": "Niveau",
+        "search": "Tapez pour rechercher une langue...",
+        "noResults": "Aucune langue trouvée",
+        "levels": {
+            "native": "Langue maternelle",
+            "c2": "C2 - Maîtrise",
+            "c1": "C1 - Avancé",
+            "b2": "B2 - Intermédiaire supérieur",
+            "b1": "B1 - Intermédiaire",
+            "a2": "A2 - Élémentaire",
+            "a1": "A1 - Débutant"
+        },
+        "empty": {
+            "title": "Aucune langue ajoutée",
+            "subtitle": "Commencez à taper pour voir les suggestions"
+        }
+    },
+    "letter": {
+        "title": "Lettre de Motivation",
+        "new": "Nouvelle Lettre",
+        "empty": "Aucune lettre encore",
+        "jobTitle": "Titre du poste",
+        "company": "Entreprise",
+        "targetLang": "Langue cible",
+        "generate": "Générer",
+        "optimize": "Optimiser",
+        "placeholder": "Commencez à écrire votre lettre ici...",
+        "saved": "Enregistrée",
+        "deleted": "Supprimée",
+        "generated": "Générée avec succès",
+        "errorGen": "Échec de la génération",
+        "errorJob": "Titre du poste requis"
+    },
+    "ai": {
+        "title": "Assistant IA",
+        "enhance": "Améliorer",
+        "enhancing": "Amélioration en cours...",
+        "suggestions": "Suggestions",
+        "apply": "Appliquer",
+        "regenerate": "Régénérer",
+        "center": {
+            "title": "Centre IA",
+            "subtitle": "Améliorez votre CV avec l'intelligence artificielle"
+        }
+    },
+    "critic": {
+        "title": "Analyse du CV",
+        "jobDescription": "Description du poste",
+        "pasteJob": "Collez ici la description du poste...",
+        "ready": "Prêt à analyser",
+        "intro": "Obtenez une analyse détaillée de votre CV et des suggestions d'amélioration.",
+        "analyzeBtn": "Analyser mon CV",
+        "analyzing": "Analyse en cours...",
+        "quality": "Qualité du CV",
+        "relevance": "Pertinence",
+        "addJobDesc": "Ajoutez une description de poste pour voir la pertinence",
+        "smartKeywords": "Mots-clés intelligents",
+        "smartInsights": "Insights",
+        "impact": "Impact",
+        "suggestions": "Suggestions"
+    },
+    "settings": {
+        "title": "Paramètres",
+        "account": "Compte",
+        "storage": "Stockage",
+        "billing": "Abonnement",
+        "free": "Gratuit",
+        "pro": "Pro",
+        "language": "Langue de l'interface",
+        "displayMode": "Mode d'affichage",
+        "mobileMode": "Mobile",
+        "desktopMode": "Bureau",
+        "mobileDesc": "Prévisualisez votre CV sur mobile.",
+        "darkMode": "Mode sombre",
+        "notifications": "Notifications",
+        "demoContent": "Contenu démo",
+        "loadDemo": "Charger démo au démarrage",
+        "generateDemo": "Générer profil démo",
+        "exportData": "Exporter mes données",
+        "deleteAccount": "Supprimer mon compte"
+    },
+    "auth": {
+        "login": "Connexion",
+        "signup": "Inscription",
+        "logout": "Déconnexion",
+        "email": "Email",
+        "password": "Mot de passe",
+        "confirmPassword": "Confirmer le mot de passe",
+        "forgotPassword": "Mot de passe oublié ?",
+        "resetPassword": "Réinitialiser le mot de passe",
+        "noAccount": "Pas de compte ?",
+        "hasAccount": "Déjà un compte ?",
+        "orContinueWith": "Ou continuer avec",
+        "google": "Google",
+        "github": "GitHub",
+        "terms": "En vous inscrivant, vous acceptez nos conditions d'utilisation",
+        "loginSuccess": "Connexion réussie",
+        "signupSuccess": "Inscription réussie",
+        "loginError": "Erreur de connexion",
+        "signupError": "Erreur d'inscription"
+    },
+    "share": {
+        "title": "Partager votre CV",
+        "link": "Lien de partage",
+        "copy": "Copier le lien",
+        "copied": "Lien copié !",
+        "email": "Envoyer par email",
+        "linkedin": "Partager sur LinkedIn",
+        "twitter": "Partager sur Twitter",
+        "qrCode": "QR Code"
+    },
+    "pdf": {
+        "generating": "Génération du PDF...",
+        "ready": "PDF prêt",
+        "download": "Télécharger PDF",
+        "error": "Erreur lors de la génération",
+        "quality": {
+            "high": "Haute qualité",
+            "standard": "Standard",
+            "fast": "Rapide"
+        }
+    },
+    "status": {
+        "saved": "Enregistré",
+        "saving": "Enregistrement...",
+        "unsaved": "Non enregistré",
+        "offline": "Hors ligne",
+        "online": "En ligne",
+        "syncing": "Synchronisation..."
+    },
+    "errors": {
+        "generic": "Une erreur est survenue",
+        "network": "Erreur de connexion",
+        "notFound": "Page non trouvée",
+        "unauthorized": "Accès non autorisé",
+        "serverError": "Erreur serveur",
+        "tryAgain": "Réessayer",
+        "goHome": "Retour à l'accueil"
+    },
+    "legal": {
+        "privacy": {
+            "title": "Politique de Confidentialité",
+            "lastUpdated": "Dernière mise à jour"
+        },
+        "terms": {
+            "title": "Conditions d'Utilisation",
+            "lastUpdated": "Dernière mise à jour"
+        },
+        "cookies": {
+            "title": "Politique des Cookies",
+            "accept": "Accepter",
+            "decline": "Refuser",
+            "customize": "Personnaliser",
+            "message": "Nous utilisons des cookies pour améliorer votre expérience."
         }
     }
 }

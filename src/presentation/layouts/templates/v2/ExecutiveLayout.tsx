@@ -207,6 +207,30 @@ export const ExecutiveLayout: React.FC<ExecutiveLayoutProps> = ({
                     </div>
                 );
 
+            case 'languages':
+                return (
+                    <div className="grid grid-cols-2 gap-4">
+                        {data.languages.map((lang, index) => (
+                            <div key={index} className="flex justify-between items-center border-b border-slate-200 pb-2">
+                                <EditableField
+                                    path={`languages.${index}.name`}
+                                    label="Language"
+                                    className="font-semibold text-slate-800 text-sm"
+                                >
+                                    {(value) => <span>{value}</span>}
+                                </EditableField>
+                                <EditableField
+                                    path={`languages.${index}.level`}
+                                    label="Level"
+                                    className="text-amber-600 text-sm font-medium"
+                                >
+                                    {(value) => <span>{value}</span>}
+                                </EditableField>
+                            </div>
+                        ))}
+                    </div>
+                );
+
             default:
                 return null;
         }

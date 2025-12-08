@@ -29,7 +29,7 @@ export const DraggableBlock: React.FC<DraggableBlockProps> = ({
     index,
     type,
     children,
-    onReorder
+    onReorder: _onReorder
 }) => {
     const mode = useMode();
     const [isDragging, setIsDragging] = useState(false);

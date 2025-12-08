@@ -8,7 +8,7 @@ import { Button } from '../../design-system/atoms/Button';
 import { Download, Loader2 } from 'lucide-react';
 import { t } from '../../../data/translations';
 import { usePageDetection } from '../../hooks/usePageDetection';
-import { useInlineEditor } from '../../hooks/useInlineEditor';
+import { useInlineEditorStore } from '../../../application/store/inline-editor-store';
 import { useRippleEffect } from '../../hooks/useRippleEffect';
 import { InlineEditorOverlay } from '../editor/InlineEditorOverlay';
 import { MagicParticles } from '../editor/MagicParticles';
@@ -85,8 +85,8 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
     }, []);
 
     usePageDetection(cvRef, [profile]);
-    const { openEditor } = useInlineEditor();
-    const { ripples, triggerRipple, removeRipple } = useRippleEffect();
+    const { openEditor } = useInlineEditorStore();
+    const { ripples, triggerRippleAt, removeRipple } = useRippleEffect();
 
     const txt = t[language];
 
@@ -145,35 +145,19 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
         }
     };
 
-    // MAGIC INLINE EDITING - Double-click handler
+    // INLINE EDITING - Double-click handler
     const handleInlineDoubleClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
         const target = e.target as HTMLElement;
         const editableEl = target.closest('[data-inline-edit]') as HTMLElement;
 
         if (!editableEl) return;
 
-        const fieldKey = editableEl.getAttribute('data-inline-edit') || '';
-        const label = editableEl.getAttribute('data-inline-label') || '';
-        const required = editableEl.getAttribute('data-inline-required') === 'true';
-        const removable = editableEl.getAttribute('data-inline-removable') === 'true';
-        const placeholderLabel = editableEl.getAttribute('data-inline-placeholder') || '';
-        const removeWarning = editableEl.getAttribute('data-inline-remove-warning') || '';
+        const fieldPath = editableEl.getAttribute('data-inline-edit') || '';
+        const label = editableEl.getAttribute('data-inline-label') || fieldPath.split('.').pop() || 'Edit';
         const currentValue = editableEl.textContent || '';
 
-        const rect = editableEl.getBoundingClientRect();
-        const position = {
-            x: rect.left,
-            y: rect.bottom + 8
-        };
-
-        openEditor({
-            fieldKey,
-            label,
-            required,
-            removable,
-            placeholderLabel,
-            removeWarning
-        }, currentValue, position);
+        // Open editor near click position
+        openEditor(fieldPath, label, currentValue, { x: e.clientX, y: e.clientY });
     }, [openEditor]);
 
     // Mobile pinch zoom helpers
@@ -208,6 +192,16 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
         }
     }, []);
 
+    // Pan position limits to prevent losing the CV
+    const MAX_PAN_X = 300;
+    const MIN_PAN_Y = -200;
+    const MAX_PAN_Y = 400;
+
+    const clampPan = (x: number, y: number) => ({
+        x: Math.max(-MAX_PAN_X, Math.min(MAX_PAN_X, x)),
+        y: Math.max(MIN_PAN_Y, Math.min(MAX_PAN_Y, y))
+    });
+
     const handleTouchMove = useCallback((e: React.TouchEvent) => {
         if (isInteracting) {
             e.preventDefault();
@@ -222,10 +216,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
             const deltaX = midpoint.x - zoomCenter.x;
             const deltaY = midpoint.y - zoomCenter.y;
 
-            setPanPosition(prev => ({
-                x: prev.x + deltaX * 0.5,
-                y: prev.y + deltaY * 0.5
-            }));
+            setPanPosition(prev => clampPan(prev.x + deltaX * 0.5, prev.y + deltaY * 0.5));
 
             setMobileZoom(newZoom);
             setInitialDistance(currentDistance);
@@ -234,10 +225,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
             const deltaX = e.touches[0].clientX - lastTouchPos.x;
             const deltaY = e.touches[0].clientY - lastTouchPos.y;
 
-            setPanPosition(prev => ({
-                x: prev.x + deltaX,
-                y: prev.y + deltaY
-            }));
+            setPanPosition(prev => clampPan(prev.x + deltaX, prev.y + deltaY));
 
             setLastTouchPos({
                 x: e.touches[0].clientX,
@@ -275,12 +263,28 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
         return () => window.removeEventListener('TRIGGER_PDF_DOWNLOAD', onTrigger);
     }, [profile, language]);
 
+    // Mobile scale - reduced for smaller phones (iPhone etc)
     const mobileScale = isMobile
-        ? Math.min((window.innerWidth * 0.92) / 794, (window.innerHeight * 0.85) / 1123)
+        ? Math.min((window.innerWidth * 0.85) / 794, (window.innerHeight * 0.70) / 1123)
         : 1;
 
+    // Handle ripple click - calculate position relative to CV container, accounting for scale transform
     const handleRippleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        triggerRipple(e.currentTarget);
+        if (!cvRef.current) return;
+
+        const cvRect = cvRef.current.getBoundingClientRect();
+
+        // Use the correct scale factor based on mode
+        // Mobile uses mobileScale * mobileZoom, desktop uses the scale prop
+        const currentScale = isMobile ? mobileScale * mobileZoom : scale;
+
+        // Convert screen coords to CV-relative coords (accounting for scale)
+        // getBoundingClientRect() returns the TRANSFORMED (scaled) rectangle
+        // So we need to divide by scale to get the original coords within the unscaled element
+        const relativeX = (e.clientX - cvRect.left) / currentScale;
+        const relativeY = (e.clientY - cvRect.top) / currentScale;
+
+        triggerRippleAt(relativeX, relativeY);
     };
 
     return (
@@ -288,16 +292,21 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
             ref={containerRef}
             className="flex flex-col bg-transparent will-change-transform"
             onDoubleClick={(e) => {
-                if (!isMobile) {
-                    // Handle photo zone clicks
-                    handlePhotoClick(e);
+                // Handle photo zone clicks
+                handlePhotoClick(e);
 
-                    // EVENT DELEGATION FIX: Handle EditableField double-clicks
-                    // transform: scale() can interfere with native events, so we use delegation
-                    const target = e.target as HTMLElement;
+                // Handle inline edit elements
+                const target = e.target as HTMLElement;
+                const inlineEditEl = target.closest('[data-inline-edit]');
+                if (inlineEditEl) {
+                    handleInlineDoubleClick(e);
+                    return;
+                }
+
+                // Legacy: EVENT DELEGATION FIX for EditableField double-clicks
+                if (!isMobile) {
                     const editableWrapper = target.closest('[title="Double-click to edit"]') as HTMLElement;
                     if (editableWrapper) {
-                        // Re-dispatch the event to the EditableField wrapper
                         const syntheticEvent = new MouseEvent('dblclick', {
                             bubbles: true,
                             cancelable: true,
@@ -313,7 +322,6 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
             style={isMobile ? {
-                overflow: 'hidden',
                 touchAction: 'none',
                 userSelect: 'none'
             } : {}}
@@ -369,7 +377,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
                         borderRadius: '8px',
                         boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2), 0 10px 30px rgba(99, 102, 241, 0.1)',
                         transform: `scale(${mobileScale * mobileZoom}) translate(${panPosition.x / mobileScale / mobileZoom}px, ${panPosition.y / mobileScale / mobileZoom}px)`,
-                        transformOrigin: 'center center',
+                        transformOrigin: 'top center',
                         transition: isInteracting ? 'none' : 'transform 0.2s ease-out',
                         willChange: isInteracting ? 'transform' : 'auto'
                     } : {
