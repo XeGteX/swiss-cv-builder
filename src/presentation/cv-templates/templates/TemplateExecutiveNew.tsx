@@ -92,7 +92,7 @@ const ExecutiveHeader: React.FC<{ personal: CVProfile['personal']; colors: typeo
 // ============================================================================
 
 const ExecutiveSummary: React.FC<{ colors: typeof VARIANTS.board }> = ({ colors }) => (
-    <section className="mb-8">
+    <section id="section-summary" className="mb-8">
         <h2 className="text-lg font-bold uppercase tracking-wider mb-4 pb-2 border-b-2 text-center" style={{ color: colors.primary, borderColor: colors.border }}>
             Executive Profile
         </h2>
@@ -105,7 +105,7 @@ const ExecutiveSummary: React.FC<{ colors: typeof VARIANTS.board }> = ({ colors 
 const ExecutiveExperience: React.FC<{ experiences: CVProfile['experiences']; colors: typeof VARIANTS.board }> = ({ experiences, colors }) => {
     if (!experiences?.length) return null;
     return (
-        <section className="mb-8">
+        <section id="section-experience" className="mb-8">
             <h2 className="text-lg font-bold uppercase tracking-wider mb-4 pb-2 border-b-2 text-center" style={{ color: colors.primary, borderColor: colors.border }}>
                 Professional Experience
             </h2>
@@ -144,7 +144,7 @@ const ExecutiveExperience: React.FC<{ experiences: CVProfile['experiences']; col
 const ExecutiveEducation: React.FC<{ educations: CVProfile['educations']; colors: typeof VARIANTS.board }> = ({ educations, colors }) => {
     if (!educations?.length) return null;
     return (
-        <section className="mb-8">
+        <section id="section-education" className="mb-8">
             <h2 className="text-lg font-bold uppercase tracking-wider mb-4 pb-2 border-b-2 text-center" style={{ color: colors.primary, borderColor: colors.border }}>
                 Education
             </h2>
@@ -172,7 +172,7 @@ const ExecutiveEducation: React.FC<{ educations: CVProfile['educations']; colors
 const ExecutiveSkillsAndLanguages: React.FC<{ skills: CVProfile['skills']; languages: CVProfile['languages']; colors: typeof VARIANTS.board }> = ({ skills, languages, colors }) => {
     if (!skills?.length && !languages?.length) return null;
     return (
-        <section className="mb-8">
+        <section id="section-skills" className="mb-8">
             <h2 className="text-lg font-bold uppercase tracking-wider mb-4 pb-2 border-b-2 text-center" style={{ color: colors.primary, borderColor: colors.border }}>
                 Core Competencies
             </h2>
@@ -181,8 +181,12 @@ const ExecutiveSkillsAndLanguages: React.FC<{ skills: CVProfile['skills']; langu
                     <div>
                         <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: colors.accent }}>Expertise</h3>
                         <div className="flex flex-wrap gap-2">
-                            {skills.map((skill, idx) => (
-                                <span key={idx} className="px-3 py-1 text-sm rounded-full border" style={{ borderColor: colors.accent, color: colors.primary }}>{skill}</span>
+                            {skills.map((_skill, idx) => (
+                                <EditableField key={`skill-${idx}`} path={`skills.${idx}`} label={`Skill ${idx + 1}`}>
+                                    {(value) => (
+                                        <span className="px-3 py-1 text-sm rounded-full border" style={{ borderColor: colors.accent, color: colors.primary }}>{value}</span>
+                                    )}
+                                </EditableField>
                             ))}
                         </div>
                     </div>
@@ -191,10 +195,14 @@ const ExecutiveSkillsAndLanguages: React.FC<{ skills: CVProfile['skills']; langu
                     <div>
                         <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: colors.accent }}>Languages</h3>
                         <div className="space-y-1">
-                            {languages.map((lang, idx) => (
+                            {languages.map((_lang, idx) => (
                                 <div key={idx} className="flex justify-between text-sm">
-                                    <span style={{ color: colors.primary }}>{lang.name}</span>
-                                    <span style={{ color: colors.secondary }}>{lang.level}</span>
+                                    <EditableField path={`languages.${idx}.name`} label="Language">
+                                        {(value) => <span style={{ color: colors.primary }}>{value}</span>}
+                                    </EditableField>
+                                    <EditableField path={`languages.${idx}.level`} label="Level">
+                                        {(value) => <span style={{ color: colors.secondary }}>{value}</span>}
+                                    </EditableField>
                                 </div>
                             ))}
                         </div>

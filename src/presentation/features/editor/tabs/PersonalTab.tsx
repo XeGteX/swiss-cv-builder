@@ -12,12 +12,12 @@ import { useTranslation } from '../../../hooks/useTranslation';
 export const PersonalTab: React.FC = () => {
     const profile = useCVStoreV2((state) => state.profile);
     const updateField = useCVStoreV2((state) => state.updateField);
-    const { t } = useTranslation();
+    const { ts } = useTranslation();
     const { addToast } = useToastStore();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     if (!profile || !profile.personal || !profile.metadata) {
-        return <div className="p-4 text-slate-400">{t('common.loading')}</div>;
+        return <div className="p-4 text-slate-400">{ts('common.loading')}</div>;
     }
 
     const { personal, metadata } = profile;
@@ -25,9 +25,9 @@ export const PersonalTab: React.FC = () => {
     const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            // 1. Check Size (Max 2MB)
-            if (file.size > 2 * 1024 * 1024) {
-                alert('Image trop lourde. Maximum 2MB.');
+            // 1. Check Size (Max 5MB) - Studio photos can be large
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image trop lourde. Maximum 5MB.');
                 return;
             }
 
@@ -74,11 +74,11 @@ export const PersonalTab: React.FC = () => {
 
             {/* Personal Info */}
             <div>
-                <SectionHeader title={t('personal.title')} icon={<User size={16} className="text-white" />} className="text-white" />
+                <SectionHeader title={ts('personal.title')} icon={<User size={16} className="text-white" />} className="text-white" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <Input
                         variant="glass"
-                        label={t('personal.firstName')}
+                        label={ts('personal.firstName')}
                         value={personal.firstName}
                         onChange={(e) => updateField('personal.firstName', e.target.value)}
                         maxLength={50}
@@ -86,7 +86,7 @@ export const PersonalTab: React.FC = () => {
                     />
                     <Input
                         variant="glass"
-                        label={t('personal.lastName')}
+                        label={ts('personal.lastName')}
                         value={personal.lastName}
                         onChange={(e) => updateField('personal.lastName', e.target.value)}
                         maxLength={50}
@@ -95,7 +95,7 @@ export const PersonalTab: React.FC = () => {
                 </div>
                 <Input
                     variant="glass"
-                    label={t('personal.role')}
+                    label={ts('personal.role')}
                     value={personal.title}
                     onChange={(e) => updateField('personal.title', e.target.value)}
                     className="mb-4 font-bold"
@@ -156,7 +156,7 @@ export const PersonalTab: React.FC = () => {
                         )}
 
                         <p className="text-xs text-slate-400 text-center">
-                            {personal.photoUrl ? 'Survolez pour modifier' : 'JPG, PNG • Max 2MB'}
+                            {personal.photoUrl ? 'Survolez pour modifier' : 'JPG, PNG • Max 5MB'}
                         </p>
 
                         {/* Upscale Photo Button */}
@@ -166,42 +166,42 @@ export const PersonalTab: React.FC = () => {
                                 className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-lg transition-colors"
                             >
                                 <Sparkles size={12} />
-                                {t('personal.enhancePhoto')}
+                                {ts('personal.enhancePhoto')}
                             </button>
                         )}
                     </div>
 
                     <div className="bg-white/5 p-4 rounded-lg border border-white/10 space-y-3">
                         <p className="text-xs text-white font-bold flex items-center gap-1">
-                            {t('personal.swissInfo')}
+                            {ts('personal.swissInfo')}
                         </p>
                         <Input
                             variant="glass"
-                            label={t('personal.birthDate')}
+                            label={ts('personal.birthDate')}
                             value={personal.birthDate || ''}
                             onChange={(e) => updateField('personal.birthDate', e.target.value)}
                             placeholder="ex: 15 mars 1990"
                         />
                         <Input
                             variant="glass"
-                            label={t('personal.nationality')}
+                            label={ts('personal.nationality')}
                             value={personal.nationality || ''}
                             onChange={(e) => updateField('personal.nationality', e.target.value)}
                             placeholder="ex: Suisse, Français"
                         />
                         <div>
-                            <label className="block text-xs font-semibold text-white mb-1">{t('personal.permit')}</label>
+                            <label className="block text-xs font-semibold text-white mb-1">{ts('personal.permit')}</label>
                             <select
                                 className="glass-input w-full p-2 rounded text-sm outline-none bg-slate-900/50 text-slate-200 border border-white/10 focus:border-brand-500"
                                 value={personal.permit || ''}
                                 onChange={(e) => updateField('personal.permit', e.target.value)}
                             >
-                                <option value="" className="bg-slate-900">{t('personal.select')}</option>
-                                <option value="Permis B" className="bg-slate-900">{t('personal.permits.b')}</option>
-                                <option value="Permis C" className="bg-slate-900">{t('personal.permits.c')}</option>
-                                <option value="Permis G" className="bg-slate-900">{t('personal.permits.g')}</option>
-                                <option value="Permis L" className="bg-slate-900">{t('personal.permits.l')}</option>
-                                <option value="Suisse" className="bg-slate-900">{t('personal.permits.swiss')}</option>
+                                <option value="" className="bg-slate-900">{ts('personal.select')}</option>
+                                <option value="Permis B" className="bg-slate-900">{ts('personal.permits.b')}</option>
+                                <option value="Permis C" className="bg-slate-900">{ts('personal.permits.c')}</option>
+                                <option value="Permis G" className="bg-slate-900">{ts('personal.permits.g')}</option>
+                                <option value="Permis L" className="bg-slate-900">{ts('personal.permits.l')}</option>
+                                <option value="Suisse" className="bg-slate-900">{ts('personal.permits.swiss')}</option>
                             </select>
                         </div>
                     </div>
@@ -209,25 +209,25 @@ export const PersonalTab: React.FC = () => {
                     <div className="grid grid-cols-1 gap-4">
                         <Input
                             variant="glass"
-                            label={t('personal.email')}
+                            label={ts('personal.email')}
                             value={personal.contact.email || ''}
                             onChange={(e) => updateField('personal.contact.email', e.target.value)}
                         />
                         <Input
                             variant="glass"
-                            label={t('personal.phone')}
+                            label={ts('personal.phone')}
                             value={personal.contact.phone || ''}
                             onChange={(e) => updateField('personal.contact.phone', e.target.value)}
                         />
                         <Input
                             variant="glass"
-                            label={t('personal.address')}
+                            label={ts('personal.address')}
                             value={personal.contact.address || ''}
                             onChange={(e) => updateField('personal.contact.address', e.target.value)}
                         />
                         <Input
                             variant="glass"
-                            label={t('personal.mobility')}
+                            label={ts('personal.mobility')}
                             value={personal.mobility || ''}
                             onChange={(e) => updateField('personal.mobility', e.target.value)}
                         />
@@ -237,7 +237,7 @@ export const PersonalTab: React.FC = () => {
 
             {/* Summary */}
             <div>
-                <SectionHeader title={t('sections.summary')} className="text-white" />
+                <SectionHeader title={ts('sections.summary')} className="text-white" />
                 <TextArea
                     variant="glass"
                     value={profile.summary}

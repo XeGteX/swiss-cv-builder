@@ -98,11 +98,15 @@ const SiliconContact: React.FC<{ contact: CVProfile['personal']['contact']; colo
 const SiliconSidebarSkills: React.FC<{ skills: CVProfile['skills']; colors: typeof VARIANTS.uber }> = ({ skills, colors }) => {
     if (!skills?.length) return null;
     return (
-        <div className="mb-6">
+        <div id="section-skills" className="mb-6">
             <h3 className="text-xs font-bold uppercase tracking-wider mb-3 pb-1 border-b" style={{ color: colors.accent, borderColor: colors.sidebarMuted + '40' }}>Skills</h3>
             <div className="flex flex-wrap gap-1.5">
-                {skills.map((skill, idx) => (
-                    <span key={idx} className="px-2 py-0.5 text-xs rounded" style={{ backgroundColor: colors.accent + '20', color: colors.sidebarText }}>{skill}</span>
+                {skills.map((_skill, idx) => (
+                    <EditableField key={`skill-${idx}`} path={`skills.${idx}`} label={`Skill ${idx + 1}`}>
+                        {(value) => (
+                            <span className="px-2 py-0.5 text-xs rounded" style={{ backgroundColor: colors.accent + '20', color: colors.sidebarText }}>{value}</span>
+                        )}
+                    </EditableField>
                 ))}
             </div>
         </div>
@@ -112,13 +116,17 @@ const SiliconSidebarSkills: React.FC<{ skills: CVProfile['skills']; colors: type
 const SiliconSidebarLanguages: React.FC<{ languages: CVProfile['languages']; colors: typeof VARIANTS.uber }> = ({ languages, colors }) => {
     if (!languages?.length) return null;
     return (
-        <div className="mb-6">
+        <div id="section-languages" className="mb-6">
             <h3 className="text-xs font-bold uppercase tracking-wider mb-3 pb-1 border-b" style={{ color: colors.accent, borderColor: colors.sidebarMuted + '40' }}>Languages</h3>
             <div className="space-y-2">
-                {languages.map((lang, idx) => (
+                {languages.map((_lang, idx) => (
                     <div key={idx} className="flex justify-between text-sm">
-                        <span style={{ color: colors.sidebarText }}>{lang.name}</span>
-                        <span style={{ color: colors.sidebarMuted }}>{lang.level}</span>
+                        <EditableField path={`languages.${idx}.name`} label="Language">
+                            {(value) => <span style={{ color: colors.sidebarText }}>{value}</span>}
+                        </EditableField>
+                        <EditableField path={`languages.${idx}.level`} label="Level">
+                            {(value) => <span style={{ color: colors.sidebarMuted }}>{value}</span>}
+                        </EditableField>
                     </div>
                 ))}
             </div>
@@ -131,7 +139,7 @@ const SiliconSidebarLanguages: React.FC<{ languages: CVProfile['languages']; col
 // ============================================================================
 
 const SiliconSummary: React.FC<{ colors: typeof VARIANTS.uber }> = ({ colors }) => (
-    <section className="mb-6">
+    <section id="section-summary" className="mb-6">
         <h2 className="text-sm font-bold uppercase tracking-wider mb-2 pb-1 border-b" style={{ color: colors.primary, borderColor: colors.secondary + '40' }}>About</h2>
         <EditableField path="summary" label="Summary" multiline className="text-sm leading-relaxed">
             {(v) => <p style={{ color: colors.secondary }}>{v || 'Click to add...'}</p>}
@@ -142,7 +150,7 @@ const SiliconSummary: React.FC<{ colors: typeof VARIANTS.uber }> = ({ colors }) 
 const SiliconExperience: React.FC<{ experiences: CVProfile['experiences']; colors: typeof VARIANTS.uber }> = ({ experiences, colors }) => {
     if (!experiences?.length) return null;
     return (
-        <section className="mb-6">
+        <section id="section-experience" className="mb-6">
             <h2 className="text-sm font-bold uppercase tracking-wider mb-3 pb-1 border-b" style={{ color: colors.primary, borderColor: colors.secondary + '40' }}>Experience</h2>
             <div className="space-y-4">
                 {experiences.map((exp, idx) => (
@@ -178,7 +186,7 @@ const SiliconExperience: React.FC<{ experiences: CVProfile['experiences']; color
 const SiliconEducation: React.FC<{ educations: CVProfile['educations']; colors: typeof VARIANTS.uber }> = ({ educations, colors }) => {
     if (!educations?.length) return null;
     return (
-        <section className="mb-6">
+        <section id="section-education" className="mb-6">
             <h2 className="text-sm font-bold uppercase tracking-wider mb-3 pb-1 border-b" style={{ color: colors.primary, borderColor: colors.secondary + '40' }}>Education</h2>
             <div className="space-y-3">
                 {educations.map((edu, idx) => (

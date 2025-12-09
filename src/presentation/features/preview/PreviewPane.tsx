@@ -1,9 +1,10 @@
-﻿import React, { useRef, useState, useCallback, useEffect } from 'react';
+﻿import React, { useRef, useState, useCallback, useEffect, useMemo } from 'react';
 import { CVRenderer } from '../../components/CVRenderer';
 import { useUIStore } from '../../../application/store/ui-store';
 import { useSettingsStore } from '../../../application/store/settings-store';
 import { useCVStore } from '../../../application/store/cv-store';
 import { useToastStore } from '../../../application/store/toast-store';
+import { useRegionalFormat } from '../../hooks/useRegion';
 import { Button } from '../../design-system/atoms/Button';
 import { Download, Loader2 } from 'lucide-react';
 import { t } from '../../../data/translations';
@@ -12,19 +13,28 @@ import { useInlineEditorStore } from '../../../application/store/inline-editor-s
 import { useRippleEffect } from '../../hooks/useRippleEffect';
 import { InlineEditorOverlay } from '../editor/InlineEditorOverlay';
 import { MagicParticles } from '../editor/MagicParticles';
+import { CVErrorOverlay } from '../../components/CVErrorOverlay';
+import { useCVAnalyzer } from '../../hooks/useCVAnalyzer';
+import { useProfile } from '../../../application/store/v2';
 
 interface PreviewPaneProps {
     hideToolbar?: boolean;
     scale?: number;
+    showErrors?: boolean;  // Show visual error highlighting
 }
 
 export const PreviewPane: React.FC<PreviewPaneProps> = ({
     hideToolbar,
     scale = 1,
+    showErrors = false,
 }) => {
     const cvRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const photoInputRef = useRef<HTMLInputElement>(null);
+
+    // CV Analysis for error highlighting
+    const profileV2 = useProfile();
+    const cvAnalysis = useCVAnalyzer(profileV2);
     const { isGeneratingPDF, setGeneratingPDF } = useUIStore();
     const { language } = useSettingsStore();
     const { addToast } = useToastStore();
@@ -44,6 +54,27 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
     // Determine final zoom
     const finalZoom = isMobile ? 1 : scale;
 
+    // Use format hook for paper dimensions display (region read at download time in handleDownload)
+    const format = useRegionalFormat();
+    const paperDimensions = useMemo(() => {
+        // A4: 210mm x 297mm @ 96dpi = 794 x 1123 px
+        // Letter: 8.5" x 11" (216mm x 279mm) @ 96dpi = 816 x 1056 px
+        if (format.paperSize === 'letter') {
+            return {
+                width: 816,
+                height: 1056,
+                safetyScale: 0.98,  // 2% reduction to prevent content overflow
+                isLetter: true
+            };
+        }
+        return {
+            width: 794,
+            height: 1123,
+            safetyScale: 1,
+            isLetter: false
+        };
+    }, [format.paperSize]);
+
     // Mobile zoom & pan
     const [mobileZoom, setMobileZoom] = useState(1);
     const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
@@ -59,7 +90,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
     const [isHovered, setIsHovered] = useState(false);
     const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
     const [isScrolling, setIsScrolling] = useState(false);
-    const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
+    const scrollTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Detect scrolling to disable particles
     useEffect(() => {
@@ -93,11 +124,22 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
     const handleDownload = async () => {
         setGeneratingPDF(true);
 
+        // Get region settings from localStorage at download time
+        const currentRegionId = localStorage.getItem('nexal_region_preference') || 'dach';
+        const paperFormat = (currentRegionId === 'usa') ? 'LETTER' : 'A4';
+        const templateId = profile?.metadata?.templateId || 'chameleon';
+
         try {
             const response = await fetch('/api/puppeteer-pdf/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ profile, language }),
+                body: JSON.stringify({
+                    profile,
+                    language,
+                    paperFormat,
+                    regionId: currentRegionId,
+                    templateId  // ← ADDED: Send templateId to server
+                }),
             });
 
             if (!response.ok) {
@@ -372,26 +414,34 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
                     ref={cvRef}
                     className="relative backface-visibility-hidden"
                     style={isMobile ? {
-                        width: '794px',
-                        minHeight: '1123px',
+                        width: `${paperDimensions.width}px`,
+                        minHeight: `${paperDimensions.height}px`,
                         borderRadius: '8px',
                         boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2), 0 10px 30px rgba(99, 102, 241, 0.1)',
-                        transform: `scale(${mobileScale * mobileZoom}) translate(${panPosition.x / mobileScale / mobileZoom}px, ${panPosition.y / mobileScale / mobileZoom}px)`,
+                        transform: `scale(${mobileScale * mobileZoom * paperDimensions.safetyScale}) translate(${panPosition.x / mobileScale / mobileZoom}px, ${panPosition.y / mobileScale / mobileZoom}px)`,
                         transformOrigin: 'top center',
                         transition: isInteracting ? 'none' : 'transform 0.2s ease-out',
                         willChange: isInteracting ? 'transform' : 'auto'
                     } : {
-                        width: '794px',
-                        minHeight: '1123px',
+                        width: `${paperDimensions.width}px`,
+                        minHeight: `${paperDimensions.height}px`,
                         borderRadius: '12px',
                         boxShadow: '0 25px 60px rgba(0, 0, 0, 0.2), 0 15px 30px rgba(99, 102, 241, 0.08)',
                         transition: 'transform 0.15s ease-out, box-shadow 0.15s ease-out',
-                        transform: `scale(${finalZoom})`,
+                        transform: `scale(${finalZoom * paperDimensions.safetyScale})`,
                         transformOrigin: 'top center'
                     }}
-                    onClick={handleRippleClick}
                 >
                     <CVRenderer language={language} />
+
+                    {/* Error highlighting overlay */}
+                    {showErrors && (
+                        <CVErrorOverlay
+                            errors={cvAnalysis.errors}
+                            isActive={showErrors}
+                            containerRef={cvRef as React.RefObject<HTMLElement>}
+                        />
+                    )}
 
                     {ripples.map(ripple => (
                         <div

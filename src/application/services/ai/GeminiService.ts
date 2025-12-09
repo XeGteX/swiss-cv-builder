@@ -64,7 +64,8 @@ export class GeminiService {
     static async analyzeAndImprove(
         profile: CVProfile,
         audit: NanoBrainAudit,
-        targetCountry: CountryCode
+        targetCountry: CountryCode,
+        ragContext: string = ''  // Optional RAG context from OMNISCIENT
     ): Promise<GeminiAnalysis> {
         if (!this.API_KEY) {
             console.warn('[Gemini] No API key, using mock');
@@ -72,7 +73,7 @@ export class GeminiService {
         }
 
         const rules = getCountryRules(targetCountry);
-        const prompt = this.buildPrompt(profile, audit, rules);
+        const prompt = this.buildPrompt(profile, audit, rules, ragContext);
 
         try {
             const response = await fetch(`${this.TEXT_URL}?key=${this.API_KEY}`, {
@@ -257,14 +258,22 @@ Style: ${rules.languageStyle.formality}. Commence directement.`;
     private static buildPrompt(
         profile: CVProfile,
         audit: NanoBrainAudit,
-        rules: ReturnType<typeof getCountryRules>
+        rules: ReturnType<typeof getCountryRules>,
+        ragContext: string = ''
     ): string {
         const expCount = profile.experiences?.length || 0;
-        return `Expert CV ${rules.name}. Score: ${audit.score}/100. Erreurs: ${audit.criticalErrors.length}.
-Profil: ${profile.personal?.firstName}, ${profile.personal?.title}. ${expCount} exp.
-Règles: Photo=${rules.photo.required ? 'OUI' : 'NON'}, Style=${rules.languageStyle.formality}
 
-Réponds en JSON: {"suggestions":[{"field":"...","suggestedValue":"...","reason":"...","confidence":0.9}],"improvedSummary":"...","powerVerbs":["..."],"missingInfo":["..."],"culturalTips":["..."],"keywordsToAdd":["..."]}`;
+        // Base prompt
+        let prompt = `Tu es un expert CV pour le marché ${rules.name}.
+
+${ragContext ? `${ragContext}\n\n` : ''}Score actuel: ${audit.score}/100. Erreurs critiques: ${audit.criticalErrors.length}.
+Profil: ${profile.personal?.firstName} ${profile.personal?.lastName}, ${profile.personal?.title}. ${expCount} expériences.
+Règles pays: Photo=${rules.photo.required ? 'OBLIGATOIRE' : rules.photo.allowed ? 'OPTIONNELLE' : 'INTERDITE'}, Style=${rules.languageStyle.formality}
+
+Analyse ce CV et propose des améliorations. Réponds en JSON:
+{"suggestions":[{"field":"...","suggestedValue":"...","reason":"...","confidence":0.9}],"improvedSummary":"...","powerVerbs":["..."],"missingInfo":["..."],"culturalTips":["..."],"keywordsToAdd":["..."]}`;
+
+        return prompt;
     }
 
     private static parseResponse(text: string, profile: CVProfile, country: CountryCode): GeminiAnalysis {

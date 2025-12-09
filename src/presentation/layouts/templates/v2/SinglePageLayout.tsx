@@ -41,7 +41,7 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
     data,
     mode,
     config = DEFAULT_THEME,
-    language = 'fr'
+    language: _language = 'fr'
 }) => {
     // Effective config with metadata overrides
     const effectiveConfig = React.useMemo(() => ({

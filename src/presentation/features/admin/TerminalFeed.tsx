@@ -6,7 +6,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Terminal, Filter, Download } from 'lucide-react';
+import { Terminal, Download } from 'lucide-react';
 import type { LogType } from '../../../../server/agents/base-agent';
 
 interface LogEntry {

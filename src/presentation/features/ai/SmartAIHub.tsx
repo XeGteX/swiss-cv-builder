@@ -7,15 +7,19 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     X, Upload, Brain, Sparkles, CheckCircle, AlertCircle,
-    FileText, Loader2, Zap, Globe, ChevronRight, Camera, Lightbulb, RefreshCw, Check, Bug
+    FileText, Loader2, Zap, Globe, ChevronRight, Camera, Lightbulb, RefreshCw, Check, Bug, MessageSquare
 } from 'lucide-react';
 import type { CountryCode } from '../../../domain/config/countryRules';
 import { getCountryName, getAllCountryCodes } from '../../../domain/config/countryRules';
 import type { NanoBrainAudit } from '../../../application/services/ai/NanoBrainService';
 import { NanoBrainService } from '../../../application/services/ai/NanoBrainService';
 import { GeminiService, type GeminiAnalysis, type PhotoAnalysis } from '../../../application/services/ai/GeminiService';
+import { OmniscientService } from '../../../application/services/ai/OmniscientService';
 import { useProfile, useCVStoreV2 } from '../../../application/store/v2/cv-store-v2';
 import { useDebugStore, type DebugIssue } from '../../../application/store/debug-store';
+import { useRegionContext } from '../../contexts/RegionContext';
+import type { RegionId } from '../../../domain/region/types';
+import { CoachChat } from '../coach/CoachChat';
 
 
 interface SmartAIHubProps {
@@ -23,12 +27,13 @@ interface SmartAIHubProps {
     onClose: () => void;
 }
 
-type SmartImportStep = 'idle' | 'uploading' | 'extracting' | 'analyzing' | 'photo' | 'gemini' | 'generating' | 'complete' | 'error';
+type SmartImportStep = 'idle' | 'uploading' | 'extracting' | 'rag' | 'analyzing' | 'photo' | 'gemini' | 'generating' | 'complete' | 'error';
 
 const STEP_CONFIG: Record<SmartImportStep, { icon: React.ReactNode; label: string }> = {
     idle: { icon: <Upload size={20} />, label: 'Prêt' },
     uploading: { icon: <Loader2 size={20} className="animate-spin" />, label: 'Téléchargement...' },
     extracting: { icon: <FileText size={20} />, label: 'Extraction OCR...' },
+    rag: { icon: <Brain size={20} />, label: 'Consultation RAG...' },
     analyzing: { icon: <Brain size={20} />, label: 'Analyse NanoBrain...' },
     photo: { icon: <Camera size={20} />, label: 'Analyse photo...' },
     gemini: { icon: <Sparkles size={20} />, label: 'Gemini 3 Pro...' },
@@ -237,6 +242,9 @@ export const SmartAIHub: React.FC<SmartAIHubProps> = ({ isOpen, onClose }) => {
     const updateField = useCVStoreV2(s => s.updateField);
     const enableDebugMode = useDebugStore(s => s.enableDebugMode);
 
+    // Tab system: 'import' | 'chat'
+    const [activeTab, setActiveTab] = useState<'import' | 'chat'>('import');
+
     // GDPR Consent State (persisted in localStorage)
     const [isLegalChecked, setIsLegalChecked] = useState(() => {
         try {
@@ -245,6 +253,27 @@ export const SmartAIHub: React.FC<SmartAIHubProps> = ({ isOpen, onClose }) => {
             return false;
         }
     });
+
+    // Get global region context to sync country selection
+    const { setRegion } = useRegionContext();
+
+    // Map CountryCode to RegionId (used when user explicitly selects in this modal)
+    const COUNTRY_TO_REGION: Record<string, RegionId> = {
+        'US': 'usa', 'CA': 'usa',  // North America → USA profile (Letter format)
+        'UK': 'uk', 'IE': 'uk',  // UK profile
+        'CH': 'dach', 'AT': 'dach', 'LI': 'dach', 'DE': 'dach',  // DACH
+        'FR': 'france', 'BE': 'france', 'LU': 'france',  // Francophone
+        'JP': 'japan',  // Japan
+        'AE': 'middle-east', 'SA': 'middle-east',  // Middle East
+    };
+
+    // Handler for when user changes country in SmartAIHub - syncs to global context
+    const handleCountryChange = (country: CountryCode) => {
+        setTargetCountry(country);
+        const regionId = COUNTRY_TO_REGION[country] || 'global';
+        console.log(`[SmartAIHub] 🌍 User selected country: ${country} → ${regionId}`);
+        setRegion(regionId);
+    };
 
     // Persist consent in localStorage when it changes
     useEffect(() => {
@@ -268,23 +297,53 @@ export const SmartAIHub: React.FC<SmartAIHubProps> = ({ isOpen, onClose }) => {
         }
         if (!profile) return;
         setAppliedChanges([]);
+
+        let ragContext = '';
+
         try {
-            setStep('uploading'); setProgress(15);
+            // Step 1: Upload/Extract
+            setStep('uploading'); setProgress(10);
             await delay(300);
+
+            // Step 2: RAG Context Retrieval
+            setStep('rag'); setProgress(25);
+            const jobTitle = profile.personal?.title || 'Professional';
+            const countryName = getCountryName(targetCountry);
+            const ragQuery = `${jobTitle} CV rules for ${countryName}`;
+
+            console.log(`🧠 [SmartAIHub] RAG Query: "${ragQuery}"`);
+            const ragResult = await OmniscientService.recall(ragQuery);
+
+            if (ragResult.success && ragResult.matches.length > 0) {
+                ragContext = OmniscientService.buildContextString(ragResult.matches);
+                console.log(`🧠 [SmartAIHub] RAG Context retrieved (${ragResult.matches.length} matches)`);
+            }
+
+            // Step 3: NanoBrain Analysis
             setStep('analyzing'); setProgress(40);
             await delay(400);
             const auditResult = await NanoBrainService.analyzeResume(profile, targetCountry);
             setAudit(auditResult);
+
+            // Step 4: Photo Analysis (if photo exists)
             if (profile.personal?.photoUrl) {
-                setStep('photo'); setProgress(60);
+                setStep('photo'); setProgress(55);
                 await delay(300);
                 const photoResult = await GeminiService.analyzePhoto('', targetCountry);
                 setPhotoAnalysis(photoResult);
             }
-            setStep('gemini'); setProgress(80);
+
+            // Step 5: Gemini Analysis with RAG Context
+            setStep('gemini'); setProgress(75);
             await delay(500);
-            const geminiResult = await GeminiService.analyzeAndImprove(profile, auditResult, targetCountry);
+            const geminiResult = await GeminiService.analyzeAndImprove(
+                profile,
+                auditResult,
+                targetCountry,
+                ragContext  // Pass RAG context to Gemini
+            );
             setGeminiAnalysis(geminiResult);
+
             setProgress(100);
             setStep('complete');
         } catch (err) {
@@ -366,53 +425,86 @@ export const SmartAIHub: React.FC<SmartAIHubProps> = ({ isOpen, onClose }) => {
                             <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/10"><X size={20} className="text-slate-400" /></button>
                         </div>
                         <div className="p-5 space-y-5">
-                            {step === 'idle' && <CountrySelector value={targetCountry} onChange={setTargetCountry} />}
-                            {step === 'idle' ? (
-                                <>
-                                    {/* 🛡️ GDPR CONSENT CHECKBOX */}
-                                    <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
-                                        <label className="flex items-start gap-3 cursor-pointer group">
-                                            <div className="relative mt-0.5">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={isLegalChecked}
-                                                    onChange={(e) => setIsLegalChecked(e.target.checked)}
-                                                    className="sr-only peer"
-                                                />
-                                                <div className={`w-5 h-5 rounded border-2 transition-all flex items-center justify-center ${isLegalChecked
-                                                    ? 'bg-purple-500 border-purple-500'
-                                                    : 'border-slate-500 group-hover:border-purple-400'
-                                                    }`}>
-                                                    {isLegalChecked && <Check size={14} className="text-white" />}
-                                                </div>
-                                            </div>
-                                            <span className="text-xs text-slate-400 leading-relaxed">
-                                                J'accepte que les données de mon CV soient traitées par une Intelligence Artificielle
-                                                (Gemini Pro) à des fins d'analyse et de correction, conformément à la{' '}
-                                                <a href="/privacy" className="text-purple-400 hover:underline">Politique de Confidentialité</a>.
-                                                Je comprends que mes données ne seront pas stockées par l'IA après traitement.
-                                            </span>
-                                        </label>
-                                        {!isLegalChecked && (
-                                            <p className="text-xs text-amber-400/80 mt-2 flex items-center gap-1.5">
-                                                <AlertCircle size={12} />
-                                                Veuillez accepter pour utiliser l'analyse IA
-                                            </p>
-                                        )}
-                                    </div>
+                            {/* Tab Switcher */}
+                            <div className="flex gap-2 p-1 bg-slate-800/50 rounded-xl">
+                                <button
+                                    onClick={() => setActiveTab('import')}
+                                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'import'
+                                        ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg'
+                                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                        }`}
+                                >
+                                    <Upload size={16} />
+                                    Import CV
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('chat')}
+                                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'chat'
+                                        ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg'
+                                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                        }`}
+                                >
+                                    <MessageSquare size={16} />
+                                    Coach Chat
+                                </button>
+                            </div>
 
-                                    <DropZone
-                                        onFileSelect={handleFileSelect}
-                                        isProcessing={step !== 'idle'}
-                                        isDisabled={!isLegalChecked}
-                                    />
-                                </>
-                            ) : step === 'complete' && audit ? (
-                                <CoachReport audit={audit} geminiAnalysis={geminiAnalysis} photoAnalysis={photoAnalysis} appliedChanges={appliedChanges} isApplying={isApplying} onApply={handleApply} onReanalyze={runAnalysis} onDebugMode={handleDebugMode} />
-                            ) : step === 'error' ? (
-                                <div className="text-center py-10"><AlertCircle size={48} className="mx-auto text-red-400 mb-4" /><p className="text-white mb-2">Une erreur s'est produite</p><button onClick={handleReset} className="px-4 py-2 bg-white/10 rounded-lg text-white">Réessayer</button></div>
+                            {/* Tab Content */}
+                            {activeTab === 'chat' ? (
+                                <div className="h-[400px]">
+                                    <CoachChat onCVUpdate={(path, value) => updateField(path, value)} />
+                                </div>
                             ) : (
-                                <div className="py-10"><ProgressBar step={step} progress={progress} /></div>
+                                <>
+                                    {step === 'idle' && <CountrySelector value={targetCountry} onChange={handleCountryChange} />}
+                                    {step === 'idle' ? (
+                                        <>
+                                            {/* 🛡️ GDPR CONSENT CHECKBOX */}
+                                            <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                                                <label className="flex items-start gap-3 cursor-pointer group">
+                                                    <div className="relative mt-0.5">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isLegalChecked}
+                                                            onChange={(e) => setIsLegalChecked(e.target.checked)}
+                                                            className="sr-only peer"
+                                                        />
+                                                        <div className={`w-5 h-5 rounded border-2 transition-all flex items-center justify-center ${isLegalChecked
+                                                            ? 'bg-purple-500 border-purple-500'
+                                                            : 'border-slate-500 group-hover:border-purple-400'
+                                                            }`}>
+                                                            {isLegalChecked && <Check size={14} className="text-white" />}
+                                                        </div>
+                                                    </div>
+                                                    <span className="text-xs text-slate-400 leading-relaxed">
+                                                        J'accepte que les données de mon CV soient traitées par une Intelligence Artificielle
+                                                        (Gemini Pro) à des fins d'analyse et de correction, conformément à la{' '}
+                                                        <a href="/privacy" className="text-purple-400 hover:underline">Politique de Confidentialité</a>.
+                                                        Je comprends que mes données ne seront pas stockées par l'IA après traitement.
+                                                    </span>
+                                                </label>
+                                                {!isLegalChecked && (
+                                                    <p className="text-xs text-amber-400/80 mt-2 flex items-center gap-1.5">
+                                                        <AlertCircle size={12} />
+                                                        Veuillez accepter pour utiliser l'analyse IA
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            <DropZone
+                                                onFileSelect={handleFileSelect}
+                                                isProcessing={step !== 'idle'}
+                                                isDisabled={!isLegalChecked}
+                                            />
+                                        </>
+                                    ) : step === 'complete' && audit ? (
+                                        <CoachReport audit={audit} geminiAnalysis={geminiAnalysis} photoAnalysis={photoAnalysis} appliedChanges={appliedChanges} isApplying={isApplying} onApply={handleApply} onReanalyze={runAnalysis} onDebugMode={handleDebugMode} />
+                                    ) : step === 'error' ? (
+                                        <div className="text-center py-10"><AlertCircle size={48} className="mx-auto text-red-400 mb-4" /><p className="text-white mb-2">Une erreur s'est produite</p><button onClick={handleReset} className="px-4 py-2 bg-white/10 rounded-lg text-white">Réessayer</button></div>
+                                    ) : (
+                                        <div className="py-10"><ProgressBar step={step} progress={progress} /></div>
+                                    )}
+                                </>
                             )}
                         </div>
 

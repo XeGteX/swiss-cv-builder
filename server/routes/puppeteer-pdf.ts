@@ -13,17 +13,23 @@ const router = express.Router();
  * Response: PDF blob (application/pdf)
  */
 router.post('/generate', async (req, res) => {
-    console.log('[Puppeteer PDF] Generate PDF request received');
-
     try {
-        const { profile, language = 'en' } = req.body;
+        const {
+            profile,
+            language = 'en',
+            paperFormat = 'A4',
+            regionId = 'dach',
+            templateId = 'chameleon'
+        } = req.body;
+
+        console.log(`[Puppeteer PDF] Request: template=${templateId}, region=${regionId}, format=${paperFormat}`);
 
         if (!profile) {
             console.log('[Puppeteer PDF] No profile in request');
             return res.status(400).json({ error: 'Profile data is required' });
         }
 
-        console.log(`[Puppeteer PDF] Generating PDF for: ${profile.personal?.firstName} ${profile.personal?.lastName} (${language})`);
+        console.log(`[Puppeteer PDF] Generating PDF for: ${profile.personal?.firstName} ${profile.personal?.lastName} (${language}, format: ${paperFormat}, region: ${regionId}, template: ${templateId})`);
 
         // Store profile in memory and get unique ID
         const profileId = pdfStore.store(profile as CVProfile);
@@ -33,7 +39,9 @@ router.post('/generate', async (req, res) => {
             // Generate PDF using Puppeteer (navigates to real React page)
             const result = await PuppeteerPDFService.generatePDF({
                 profileId,
-                templateId: profile.metadata?.templateId || 'modern'
+                templateId,  // ← USE CLIENT'S TEMPLATE ID
+                paperFormat: paperFormat as 'A4' | 'LETTER',
+                regionId: regionId as string
             });
 
             // Generate filename

@@ -22,8 +22,11 @@ import { AuthModal } from '../features/auth/AuthModal';
 import { UserDropdown } from '../features/auth/UserDropdown';
 import { SettingsModal } from '../features/settings/SettingsModal';
 import { SmartAIHub } from '../features/ai/SmartAIHub';
-import { ZoomIn, ZoomOut, Layout, Edit3, User, Settings, Download, FileJson, Eye } from 'lucide-react';
+import { ZoomIn, ZoomOut, Layout, Edit3, User, Settings, Download, FileJson, Eye, Rocket } from 'lucide-react';
 import { useIsMobile } from '../hooks/useMediaQuery';
+import { DebugAgent } from '../features/coach/DebugAgent';
+import { useCVAnalyzer } from '../hooks/useCVAnalyzer';
+import { useCompanionOrchestrator } from '../hooks/useCompanionOrchestrator';
 
 export const CVPageV2: React.FC = () => {
     const isMobile = useIsMobile();
@@ -38,7 +41,14 @@ export const CVPageV2: React.FC = () => {
     const [isAIHubOpen, setIsAIHubOpen] = useState(false);
     const [showDownloadMenu, setShowDownloadMenu] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [isDebugAgentActive, setIsDebugAgentActive] = useState(false);
     const previewContainerRef = React.useRef<HTMLDivElement>(null);
+
+    // CV Analysis for Debug Agent
+    const cvAnalysis = useCVAnalyzer(profile);
+
+    // Smart Companion Orchestration (The Director)
+    const companion = useCompanionOrchestrator(profile);
 
     // Auto-Zoom Logic: Fit to width when sidebar opens or resizes
     useEffect(() => {
@@ -173,6 +183,24 @@ export const CVPageV2: React.FC = () => {
                                     <span className="absolute -top-1 -right-1 px-1 py-0.5 bg-amber-500/80 text-[8px] text-white rounded font-bold">SOON</span>
                                 </button>
                             </div>
+
+                            {/* Debug Agent Button */}
+                            <button
+                                onClick={() => setIsDebugAgentActive(!isDebugAgentActive)}
+                                className={`px-2 md:px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all border ${isDebugAgentActive
+                                    ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-transparent shadow-lg shadow-indigo-500/25'
+                                    : 'bg-slate-800/50 text-slate-400 border-white/10 hover:text-white hover:border-indigo-500/50'
+                                    }`}
+                                title="Agent Debug - Analyse ton CV en temps réel"
+                            >
+                                <Rocket size={14} className={isDebugAgentActive ? 'animate-bounce' : ''} />
+                                <span className="hidden sm:inline">Debug</span>
+                                {cvAnalysis.errors.length > 0 && (
+                                    <span className="ml-1 px-1.5 py-0.5 text-[10px] bg-red-500 text-white rounded-full">
+                                        {cvAnalysis.errors.length}
+                                    </span>
+                                )}
+                            </button>
                         </div>
 
                         <div className="flex items-center gap-3">
@@ -197,11 +225,23 @@ export const CVPageV2: React.FC = () => {
                                                 onClick={async () => {
                                                     setShowDownloadMenu(false);
                                                     setIsDownloading(true);
+
+                                                    // Get region settings from localStorage
+                                                    const currentRegionId = localStorage.getItem('nexal_region_preference') || 'dach';
+                                                    const paperFormat = (currentRegionId === 'usa') ? 'LETTER' : 'A4';
+                                                    const templateId = profile?.metadata?.templateId || 'chameleon';
+
                                                     try {
-                                                        const response = await fetch('http://localhost:3000/api/puppeteer-pdf/generate', {
+                                                        const response = await fetch('/api/puppeteer-pdf/generate', {
                                                             method: 'POST',
                                                             headers: { 'Content-Type': 'application/json' },
-                                                            body: JSON.stringify({ profile, language: 'fr' }),
+                                                            body: JSON.stringify({
+                                                                profile,
+                                                                language: 'fr',
+                                                                paperFormat,
+                                                                regionId: currentRegionId,
+                                                                templateId
+                                                            }),
                                                         });
                                                         if (response.ok) {
                                                             const blob = await response.blob();
@@ -372,6 +412,7 @@ export const CVPageV2: React.FC = () => {
                                 <PreviewPane
                                     hideToolbar={true}
                                     scale={zoom}
+                                    showErrors={isDebugAgentActive}
                                 />
                             </div>
                         </div>
@@ -405,6 +446,20 @@ export const CVPageV2: React.FC = () => {
             <SmartAIHub
                 isOpen={isAIHubOpen}
                 onClose={() => setIsAIHubOpen(false)}
+            />
+
+            {/* Debug Agent - Smart Companion Mascot */}
+            <DebugAgent
+                isActive={isDebugAgentActive}
+                mood={companion.mood}
+                targetId={companion.targetId}
+                errorCount={cvAnalysis.errors.length}
+                currentSuggestion={companion.suggestion}
+                onInteract={() => {
+                    setIsAIHubOpen(true);
+                    setIsDebugAgentActive(false);
+                }}
+                onClose={() => setIsDebugAgentActive(false)}
             />
         </MainLayout>
     );

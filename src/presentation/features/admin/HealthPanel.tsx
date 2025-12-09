@@ -4,7 +4,7 @@
  * Grid of agent cards with real-time status updates.
  */
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { RefreshCw } from 'lucide-react';
 import { AgentCard } from './AgentCard';

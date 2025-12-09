@@ -11,7 +11,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Sun, Network, Clock, Database, Terminal, Activity, AlertTriangle, Eye } from 'lucide-react';
+import { Shield, Sun, Network, Clock, Database, Terminal, Activity, AlertTriangle } from 'lucide-react';
 import { QuarantineModal } from './QuarantineModal';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -360,7 +360,7 @@ export const AdminDashboard: React.FC = () => {
                                     key={agent.id}
                                     agent={agent}
                                     onShowReport={agent.id === 'kairos' ? () => setShowQuarantine(true) : undefined}
-                                    hasAlert={agent.id === 'kairos' && hasKairosAlert}
+                                    hasAlert={agent.id === 'kairos' && (hasKairosAlert ?? false)}
                                 />
                             ))
                         ) : (
@@ -389,7 +389,7 @@ export const AdminDashboard: React.FC = () => {
             <QuarantineModal
                 isOpen={showQuarantine}
                 onClose={() => setShowQuarantine(false)}
-                report={kairosReport}
+                report={kairosReport ?? null}
                 onPurge={handlePurge}
                 onRescan={handleRescan}
             />

@@ -218,6 +218,97 @@ body {
   }
 }
 
+/* ============================================
+   PDF PERFORMANCE OPTIMIZATION (PRINT MODE)
+   - Mission: éliminer le lag dans Adobe/Chrome
+   - Stratégie: "Flat Design" sans effets GPU
+   ============================================ */
+@media print {
+
+  /* ═══ TUEUR DE LAG #1: Désactiver TOUS les filtres de flou ═══ */
+  * {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+  }
+
+  /* Remplacer les panneaux vitrés par des fonds solides */
+  .glass-panel,
+  .glass-card,
+  [class*="backdrop-blur"],
+  [class*="bg-slate-900/"],
+  [class*="bg-white/"] {
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* ═══ TUEUR DE LAG #2: Supprimer TOUTES les ombres ═══ */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    -webkit-box-shadow: none !important;
+  }
+
+  /* ═══ TUEUR DE LAG #3: Désactiver toutes les animations ═══ */
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    animation-duration: 0s !important;
+    transition: none !important;
+    transition-duration: 0s !important;
+  }
+
+  /* ═══ TUEUR DE LAG #4: Cacher les éléments décoratifs ═══ */
+  .particles-container,
+  .animated-bg,
+  .magic-particles,
+  [class*="particle"],
+  [class*="animate-"],
+  .gradient-bg,
+  .decorative-blur,
+  canvas:not([data-cv-content]) {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* ═══ OPTIMISATION DES BORDURES ═══ */
+  * {
+    border-color: currentColor !important;
+  }
+
+  /* ═══ FORCER LE RENDU SIMPLE ═══ */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* ═══ EMPÊCHER LES DÉGRADÉS COMPLEXES ═══ */
+  [class*="bg-gradient"] {
+    background: linear-gradient(135deg, var(--tw-gradient-from, currentColor), var(--tw-gradient-to, currentColor)) !important;
+  }
+
+  /* ═══ OPTIMISATION DE LA TYPOGRAPHIE ═══ */
+  body {
+    -webkit-font-smoothing: subpixel-antialiased !important;
+    -moz-osx-font-smoothing: auto !important;
+  }
+
+  /* ═══ MASQUER LES ÉLÉMENTS D'INTERFACE (non-CV) ═══ */
+  .no-print,
+  nav,
+  .toolbar,
+  .sidebar:not(.cv-sidebar),
+  button:not(.cv-action),
+  .modal-overlay,
+  .toast {
+    display: none !important;
+  }
+}
+
 /* Reduced Motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
 
@@ -250,4 +341,293 @@ body {
 
 body {
   @apply antialiased bg-transparent text-slate-900;
+}
+
+/* ============================================
+   OMEGA AGENT - SERIOUS MODE STYLES
+   Activated by Konami Code or Triple-Click
+   ============================================ */
+
+/* Dark dramatic overlay when OMEGA enters serious mode */
+body.omega-serious-mode {
+  animation: omega-darken 0.5s ease-out forwards;
+}
+
+body.omega-serious-mode::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(88, 28, 135, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
+  pointer-events: none;
+  z-index: 40;
+  animation: omega-pulse 2s ease-in-out infinite;
+}
+
+/* Invert main content for dramatic effect */
+body.omega-serious-mode main,
+body.omega-serious-mode .cv-preview-container {
+  filter: hue-rotate(180deg) saturate(0.8);
+  transition: filter 0.5s ease-out;
+}
+
+/* OMEGA Agent gets epic purple glow in serious mode */
+body.omega-serious-mode .omega-agent-rocket {
+  filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.8)) drop-shadow(0 0 40px rgba(168, 85, 247, 0.5));
+}
+
+@keyframes omega-darken {
+  0% {
+    filter: brightness(1) saturate(1);
+  }
+
+  100% {
+    filter: brightness(0.7) saturate(0.8);
+  }
+}
+
+@keyframes omega-pulse {
+
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* ============================================
+   SHOCKWAVE TEXT REWRITE ANIMATION
+   Text changes line by line as wave passes
+   ============================================ */
+
+@keyframes shockwave-ring {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes shockwave-text {
+  0% {
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+}
+
+.omega-shockwave-ring {
+  position: fixed;
+  width: 100px;
+  height: 100px;
+  border: 3px solid rgba(168, 85, 247, 0.8);
+  border-radius: 50%;
+  animation: shockwave-ring 1s ease-out forwards;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.omega-text-rewrite {
+  animation: shockwave-text 0.5s ease-out forwards;
+}
+
+/* Judgment stare effect - eyes locked on target */
+.omega-judgment-stare {
+  animation: judgment-stare 0.2s ease-in-out infinite alternate;
+}
+
+@keyframes judgment-stare {
+  0% {
+    transform: translateX(-1px);
+  }
+
+  100% {
+    transform: translateX(1px);
+  }
+}
+
+/* ============================================
+   OMEGA AGENT - DOM HIJACKING STYLES
+   Visual effects for grab, drop, and protect
+   ============================================ */
+
+/* Grabbed element floats and has dramatic glow */
+.omega-grabbed {
+  position: relative;
+  z-index: 1000 !important;
+  animation: omega-grab-float 0.5s ease-out forwards;
+  box-shadow:
+    0 20px 60px rgba(168, 85, 247, 0.4),
+    0 0 30px rgba(168, 85, 247, 0.3),
+    inset 0 0 10px rgba(255, 255, 255, 0.2) !important;
+  border: 2px solid rgba(168, 85, 247, 0.6) !important;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+@keyframes omega-grab-float {
+  0% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+
+  30% {
+    transform: scale(1.05) translateY(-10px);
+  }
+
+  100% {
+    transform: scale(0.9) translateY(-50px);
+    opacity: 0.8;
+  }
+}
+
+/* Dropped element bounces into place */
+.omega-dropped {
+  animation: omega-drop-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes omega-drop-bounce {
+  0% {
+    transform: scale(0.9) translateY(-30px);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.03) translateY(5px);
+  }
+
+  70% {
+    transform: scale(0.98) translateY(-2px);
+  }
+
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Protected section warning - red flash and shake */
+.omega-protected-warning {
+  animation: omega-protect-shake 0.5s ease-in-out;
+  box-shadow:
+    0 0 20px rgba(239, 68, 68, 0.6),
+    0 0 40px rgba(239, 68, 68, 0.3) !important;
+  border: 2px solid rgba(239, 68, 68, 0.8) !important;
+}
+
+@keyframes omega-protect-shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+    background-color: inherit;
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-5px);
+    background-color: rgba(239, 68, 68, 0.1);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(5px);
+    background-color: rgba(239, 68, 68, 0.1);
+  }
+}
+
+/* Grabbed element ghost trail effect */
+.omega-grabbed::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), transparent);
+  border-radius: 12px;
+  animation: omega-ghost-trail 0.8s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes omega-ghost-trail {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+/* ============================================
+   PRINT / PDF RENDERING STYLES
+   Critical for multi-page PDF generation
+   ============================================ */
+@media print {
+
+  /* Reset viewport restrictions during print */
+  html,
+  body,
+  #root {
+    height: auto !important;
+    min-height: initial !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Force page breaks between CV pages */
+  .pdf-page {
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Last page should not have a break after */
+  .pdf-page:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  /* Hide non-essential UI elements during print */
+  .no-print,
+  .debug-agent,
+  .sidebar-nav,
+  .mobile-nav,
+  button:not([data-print]),
+  nav {
+    display: none !important;
+  }
+
+  /* Ensure CV sections don't split across pages */
+  .cv-section,
+  .experience-item,
+  .education-item {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Reset shadows and filters for cleaner PDF */
+  .chameleon-page {
+    box-shadow: none !important;
+  }
 }

@@ -10,6 +10,8 @@ import { RegisterPage } from './presentation/features/auth/RegisterPage';
 import { LabsDashboard } from './presentation/labs/LabsDashboard';
 import { WizardPage } from './presentation/features/wizard/WizardPage';
 import { AdminDashboard } from './presentation/features/admin/AdminDashboard';
+import { PotentielDashboard } from './presentation/features/admin/PotentielDashboard';
+import { MarketingDashboard } from './presentation/features/admin/MarketingDashboard';
 import { CVPageV2 } from './presentation/pages/CVPageV2';
 import { TemplateGallery } from './presentation/features/templates/TemplateGallery';
 import { VirtualTemplateGallery } from './presentation/features/templates/VirtualTemplateGallery';
@@ -77,6 +79,8 @@ function App() {
                   <Route path="/templates" element={<TemplateGallery />} />
                   <Route path="/gallery" element={<VirtualTemplateGallery />} />
                   <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/admin/potentiel" element={<PotentielDashboard />} />
+                  <Route path="/admin/marketing" element={<MarketingDashboard />} />
                   {/* SCV .nex Viewer - Interactive Resume */}
                   <Route path="/interactive" element={<InteractiveResume />} />
                   <Route path="/sandbox" element={<InteractiveResume />} />

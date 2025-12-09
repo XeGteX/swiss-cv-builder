@@ -61,7 +61,7 @@ const SummarySection: React.FC<{ accentColor: string }> = ({
     accentColor
 }) => {
     return (
-        <section className="cv-section summary">
+        <section id="section-summary" className="cv-section summary">
             <h2
                 className="text-lg font-semibold border-b-2 pb-1 mb-3"
                 style={{ borderColor: accentColor, color: accentColor }}
@@ -87,7 +87,7 @@ const ExperienceSection: React.FC<{
     if (!experiences?.length) return null;
 
     return (
-        <section className="cv-section experience">
+        <section id="section-experience" className="cv-section experience">
             <h2
                 className="text-lg font-semibold border-b-2 pb-1 mb-3"
                 style={{ borderColor: accentColor, color: accentColor }}
@@ -150,7 +150,7 @@ const EducationSection: React.FC<{
     if (!educations?.length) return null;
 
     return (
-        <section className="cv-section education">
+        <section id="section-education" className="cv-section education">
             <h2
                 className="text-lg font-semibold border-b-2 pb-1 mb-3"
                 style={{ borderColor: accentColor, color: accentColor }}
@@ -211,7 +211,7 @@ const SkillsSection: React.FC<{
     const keyPrefix = isDebugMode ? 'debug' : 'normal';
 
     return (
-        <section className="cv-section skills">
+        <section id="section-skills" className="cv-section skills">
             <h2
                 className="text-lg font-semibold border-b-2 pb-1 mb-3"
                 style={{ borderColor: accentColor, color: accentColor }}
@@ -248,7 +248,7 @@ const LanguagesSection: React.FC<{
     if (!languages?.length) return null;
 
     return (
-        <section className="cv-section languages">
+        <section id="section-languages" className="cv-section languages">
             <h2
                 className="text-lg font-semibold border-b-2 pb-1 mb-3"
                 style={{ borderColor: accentColor, color: accentColor }}

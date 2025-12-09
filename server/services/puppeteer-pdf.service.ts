@@ -17,12 +17,41 @@ import type { Browser, Page } from 'puppeteer-core';
 // ENVIRONMENT DETECTION & BROWSER CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════
 
-const IS_LOCAL = process.env.NODE_ENV === 'development';
-const LOCAL_CHROME_PATH = process.env.CHROME_PATH || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+// Robust environment detection: Only use Vercel mode in PRODUCTION
+// If NODE_ENV is undefined or 'development', use local Chrome
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const IS_VERCEL = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+
+// Local Chrome paths for different OS
+const LOCAL_CHROME_PATHS = [
+    process.env.CHROME_PATH,
+    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',           // Windows
+    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',     // Windows 32-bit
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',         // macOS
+    '/usr/bin/google-chrome',                                                // Linux
+    '/usr/bin/chromium-browser',                                             // Linux Chromium
+].filter(Boolean) as string[];
+
+/**
+ * Find first existing Chrome path
+ */
+async function findChromePath(): Promise<string | undefined> {
+    const fs = await import('fs');
+    for (const path of LOCAL_CHROME_PATHS) {
+        try {
+            if (fs.existsSync(path)) {
+                return path;
+            }
+        } catch {
+            continue;
+        }
+    }
+    return undefined;
+}
 
 /**
  * Get browser instance based on environment
- * - LOCAL: Uses installed Chrome
+ * - LOCAL: Uses installed Chrome (auto-detect or manual path)
  * - VERCEL/PROD: Uses @sparticuz/chromium
  */
 async function getBrowser(quality: 'standard' | 'high' | 'ultra' = 'high'): Promise<Browser> {
@@ -66,33 +95,47 @@ async function getBrowser(quality: 'standard' | 'high' | 'ultra' = 'high'): Prom
         );
     }
 
-    if (IS_LOCAL) {
-        // ═══════════════════════════════════════════════════════════════
-        // LOCAL DEVELOPMENT: Use installed Chrome
-        // ═══════════════════════════════════════════════════════════════
-        console.log('[LIQUID-GLASS] 🏠 LOCAL MODE: Using installed Chrome');
-        console.log(`[LIQUID-GLASS] 📍 Chrome path: ${LOCAL_CHROME_PATH}`);
+    // PRODUCTION MODE: Use @sparticuz/chromium (Vercel/AWS Lambda)
+    if (IS_PRODUCTION && IS_VERCEL) {
+        console.log('[LIQUID-GLASS] ☁️ VERCEL MODE: Using @sparticuz/chromium');
+
+        try {
+            // Dynamic import to avoid bundling chromium in client
+            const chromium = await import('@sparticuz/chromium');
+
+            return puppeteer.launch({
+                executablePath: await chromium.default.executablePath(),
+                headless: 'shell',
+                args: [...chromium.default.args, ...commonArgs]
+            });
+        } catch (err) {
+            console.error('[LIQUID-GLASS] ❌ Failed to load @sparticuz/chromium:', err);
+            throw err;
+        }
+    }
+
+    // LOCAL/DEV MODE: Use installed Chrome
+    console.log('[LIQUID-GLASS] 🏠 LOCAL MODE: Finding installed Chrome...');
+
+    const chromePath = await findChromePath();
+
+    if (chromePath) {
+        console.log(`[LIQUID-GLASS] 📍 Chrome found at: ${chromePath}`);
 
         return puppeteer.launch({
-            executablePath: LOCAL_CHROME_PATH,
+            executablePath: chromePath,
             headless: true,
             args: commonArgs
         });
-    } else {
-        // ═══════════════════════════════════════════════════════════════
-        // VERCEL PRODUCTION: Use @sparticuz/chromium
-        // ═══════════════════════════════════════════════════════════════
-        console.log('[LIQUID-GLASS] ☁️ VERCEL MODE: Using @sparticuz/chromium');
-
-        // Dynamic import to avoid bundling chromium in client
-        const chromium = await import('@sparticuz/chromium');
-
-        return puppeteer.launch({
-            executablePath: await chromium.default.executablePath(),
-            headless: 'shell',
-            args: [...chromium.default.args, ...commonArgs]
-        });
     }
+
+    // Fallback: Let Puppeteer find Chrome automatically
+    console.log('[LIQUID-GLASS] ⚠️ No Chrome path found, letting Puppeteer auto-detect...');
+
+    return puppeteer.launch({
+        headless: true,
+        args: commonArgs
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -105,6 +148,8 @@ export interface PDFGenerationOptions {
     frontendUrl?: string;
     quality?: 'standard' | 'high' | 'ultra';
     timeout?: number;
+    paperFormat?: 'A4' | 'LETTER';  // Dynamic paper size (US Letter vs A4)
+    regionId?: string;  // Region for photo visibility rules (us, ch, fr, etc.)
 }
 
 export interface PDFGenerationResult {
@@ -136,11 +181,13 @@ export class PuppeteerPDFService {
             templateId = 'modern',
             frontendUrl = 'http://localhost:5173',
             quality = 'high',
-            timeout = 30000
+            timeout = 30000,
+            paperFormat = 'A4',
+            regionId = 'ch'
         } = options;
 
         this.log('🎨', 'INIT', `Generating PDF for profile ${profileId} with template "${templateId}"`);
-        this.log('🌍', 'ENV', IS_LOCAL ? 'Development (Local Chrome)' : 'Production (Vercel Chromium)');
+        this.log('🌍', 'ENV', (IS_PRODUCTION && IS_VERCEL) ? 'Production (Vercel Chromium)' : 'Development (Local Chrome)');
 
         let browser: Browser | null = null;
         let page: Page | null = null;
@@ -164,7 +211,7 @@ export class PuppeteerPDFService {
             this.log('📐', 'VIEWPORT', `Set to ${resolution.width}x${resolution.height} @ ${resolution.scale}x scale`);
 
             // STEP 3: BUILD RENDER URL
-            const renderUrl = this.buildRenderUrl(frontendUrl, profileId, templateId);
+            const renderUrl = this.buildRenderUrl(frontendUrl, profileId, templateId, regionId);
 
             this.log('🔗', 'URL', `Navigating to ${renderUrl}`);
 
@@ -216,11 +263,36 @@ export class PuppeteerPDFService {
 
             this.log('🎨', 'RENDER', 'All assets synchronized. Ready for capture.');
 
-            // STEP 6: GENERATE PDF
+            // STEP 6: LOG CONTENT HEIGHT FOR DEBUGGING (don't expand viewport)
+            const fullHeight = await page.evaluate(() => {
+                const cvTemplate = document.querySelector('#cv-template');
+                if (cvTemplate) {
+                    return cvTemplate.scrollHeight;
+                }
+                return Math.max(
+                    document.body.scrollHeight,
+                    document.documentElement.scrollHeight
+                );
+            });
+
+            this.log('📏', 'HEIGHT', `Full content height: ${fullHeight}px (viewport: ${resolution.height}px)`);
+
+            // STEP 7: GENERATE PDF
+            // CRITICAL: Do NOT use preferCSSPageSize - it prevents proper pagination
+            // Instead, let Puppeteer auto-paginate based on format size
+            const normalizedFormat = paperFormat.toUpperCase();
+            const puppeteerFormat: 'Letter' | 'A4' = normalizedFormat === 'LETTER' ? 'Letter' : 'A4';
+
+            // Calculate expected pages based on A4/Letter height
+            const pageHeightPx = puppeteerFormat === 'Letter' ? 1056 : 1123; // at 96dpi
+            const expectedPages = Math.ceil(fullHeight / pageHeightPx);
+            this.log('📑', 'PAGES', `Expected pages: ${expectedPages} (content=${fullHeight}px, pageHeight=${pageHeightPx}px)`);
+            this.log('📄', 'FORMAT', `Input: "${paperFormat}" → Puppeteer: "${puppeteerFormat}"`);
+
             const pdfBuffer = await page.pdf({
-                format: 'A4',
+                format: puppeteerFormat,
                 printBackground: true,
-                preferCSSPageSize: false,
+                preferCSSPageSize: false, // Let Puppeteer handle pagination based on format
                 margin: {
                     top: 0,
                     right: 0,
@@ -306,15 +378,16 @@ export class PuppeteerPDFService {
     }
 
     /**
-     * Build render URL with template registry support
+     * Build render URL with template registry and region support
      */
     private static buildRenderUrl(
         frontendUrl: string,
         profileId: string,
-        templateId: string
+        templateId: string,
+        regionId: string = 'ch'
     ): string {
         const baseUrl = frontendUrl.replace(/\/$/, '');
-        return `${baseUrl}/pdf-render/${profileId}?template=${templateId}`;
+        return `${baseUrl}/pdf-render/${profileId}?template=${templateId}&region=${regionId}`;
     }
 
     /**

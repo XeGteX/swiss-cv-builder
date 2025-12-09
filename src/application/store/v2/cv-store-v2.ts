@@ -16,7 +16,7 @@
 import { create } from 'zustand';
 import { persist, devtools, subscribeWithSelector } from 'zustand/middleware';
 import { setValueByPath, PathUtils } from '../../../domain/cv/v2/path-utils';
-import type { CVProfile } from '../../../domain/cv/v2/types';
+// CVProfile type is available via cv-store-v2.types which re-exports it
 
 // Import modularized components
 import type { CVStoreV2State, CVMode, SyncStatus } from './cv-store-v2.types';

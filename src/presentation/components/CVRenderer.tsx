@@ -10,6 +10,7 @@ import { useProfile, useTemplateId } from '../../application/store/v2';
 
 // Premium Templates Only
 import { ChameleonTemplate } from '../cv-templates/templates/ChameleonTemplate';
+import { ChameleonTemplateV2 } from '../cv-templates/templates/ChameleonTemplateV2';
 import { TemplateHarvard } from '../cv-templates/templates/TemplateHarvard';
 import { TemplateSilicon } from '../cv-templates/templates/TemplateSilicon';
 import { TemplateExecutive as TemplateExecutiveNew } from '../cv-templates/templates/TemplateExecutiveNew';
@@ -25,8 +26,8 @@ export interface CVRendererProps {
  * Template mapping - Chameleon Mode (only premium)
  */
 const TEMPLATES: Record<string, React.ComponentType<any>> = {
-    // Chameleon (default)
-    'chameleon': ChameleonTemplate,
+    // Chameleon Multi-Page (default)
+    'chameleon': ChameleonTemplateV2,
 
     // Premium Templates
     'harvard': TemplateHarvard,
@@ -54,7 +55,7 @@ export const CVRenderer: React.FC<CVRendererProps> = React.memo(({
     const templateId = forceTemplateId || storeTemplateId || 'chameleon';
 
     const TemplateComponent = useMemo(() => {
-        return TEMPLATES[templateId] || ChameleonTemplate;
+        return TEMPLATES[templateId] || ChameleonTemplateV2;
     }, [templateId]);
 
     if (!profile) {

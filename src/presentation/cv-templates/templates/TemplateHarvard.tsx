@@ -61,7 +61,7 @@ const VARIANTS = {
 // ============================================================================
 
 const HarvardSummary: React.FC<{ colors: typeof VARIANTS.classic }> = ({ colors }) => (
-    <section className="mb-4">
+    <section id="section-summary" className="mb-4">
         <h2
             className="text-sm font-bold uppercase tracking-wider mb-2 pb-1 border-b"
             style={{ color: colors.primary, borderColor: colors.border }}
@@ -78,7 +78,7 @@ const HarvardExperience: React.FC<{ experiences: CVProfile['experiences']; color
     if (!experiences?.length) return null;
 
     return (
-        <section className="mb-4">
+        <section id="section-experience" className="mb-4">
             <h2 className="text-sm font-bold uppercase tracking-wider mb-2 pb-1 border-b" style={{ color: colors.primary, borderColor: colors.border }}>
                 Professional Experience
             </h2>
@@ -120,7 +120,7 @@ const HarvardEducation: React.FC<{ educations: CVProfile['educations']; colors: 
     if (!educations?.length) return null;
 
     return (
-        <section className="mb-4">
+        <section id="section-education" className="mb-4">
             <h2 className="text-sm font-bold uppercase tracking-wider mb-2 pb-1 border-b" style={{ color: colors.primary, borderColor: colors.border }}>
                 Education
             </h2>
@@ -148,13 +148,21 @@ const HarvardSkills: React.FC<{ skills: CVProfile['skills']; colors: typeof VARI
     if (!skills?.length) return null;
 
     return (
-        <section className="mb-4">
+        <section id="section-skills" className="mb-4">
             <h2 className="text-sm font-bold uppercase tracking-wider mb-2 pb-1 border-b" style={{ color: colors.primary, borderColor: colors.border }}>
                 Skills
             </h2>
-            <p className="text-sm" style={{ color: colors.secondary }}>
-                {skills.join(' • ')}
-            </p>
+            <div className="flex flex-wrap gap-2">
+                {skills.map((_skill, idx) => (
+                    <EditableField key={`skill-${idx}`} path={`skills.${idx}`} label={`Skill ${idx + 1}`}>
+                        {(value) => (
+                            <span className="text-sm" style={{ color: colors.secondary }}>
+                                {value}{idx < skills.length - 1 ? ' •' : ''}
+                            </span>
+                        )}
+                    </EditableField>
+                ))}
+            </div>
         </section>
     );
 };
@@ -163,13 +171,24 @@ const HarvardLanguages: React.FC<{ languages: CVProfile['languages']; colors: ty
     if (!languages?.length) return null;
 
     return (
-        <section className="mb-4">
+        <section id="section-languages" className="mb-4">
             <h2 className="text-sm font-bold uppercase tracking-wider mb-2 pb-1 border-b" style={{ color: colors.primary, borderColor: colors.border }}>
                 Languages
             </h2>
-            <p className="text-sm" style={{ color: colors.secondary }}>
-                {languages.map(l => `${l.name} (${l.level})`).join(' • ')}
-            </p>
+            <div className="flex flex-wrap gap-3">
+                {languages.map((_lang, idx) => (
+                    <div key={idx} className="flex items-center gap-1">
+                        <EditableField path={`languages.${idx}.name`} label="Language" className="text-sm">
+                            {(value) => <span style={{ color: colors.secondary }}>{value}</span>}
+                        </EditableField>
+                        <span style={{ color: colors.secondary }}>(</span>
+                        <EditableField path={`languages.${idx}.level`} label="Level" className="text-sm">
+                            {(value) => <span style={{ color: colors.secondary }}>{value}</span>}
+                        </EditableField>
+                        <span style={{ color: colors.secondary }}>){idx < languages.length - 1 ? ' •' : ''}</span>
+                    </div>
+                ))}
+            </div>
         </section>
     );
 };

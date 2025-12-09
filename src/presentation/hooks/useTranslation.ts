@@ -81,8 +81,22 @@ export const useTranslation = (langOverride?: SupportedLanguage) => {
         return key;
     };
 
+    /**
+     * Translation function that always returns a string.
+     * Use this for component props that require string type.
+     * For arrays, returns the first element joined or the key.
+     */
+    const ts = (key: string): string => {
+        const value = t(key);
+        if (Array.isArray(value)) {
+            return value[0] || key;
+        }
+        return value;
+    };
+
     return {
         t,
+        ts,
         language: currentLang,
         isRtl,
         languages: SUPPORTED_LANGUAGES
