@@ -9,7 +9,6 @@ import React, { useMemo } from 'react';
 import { useProfile, useTemplateId } from '../../application/store/v2';
 
 // Premium Templates Only
-import { ChameleonTemplate } from '../cv-templates/templates/ChameleonTemplate';
 import { ChameleonTemplateV2 } from '../cv-templates/templates/ChameleonTemplateV2';
 import { TemplateHarvard } from '../cv-templates/templates/TemplateHarvard';
 import { TemplateSilicon } from '../cv-templates/templates/TemplateSilicon';
@@ -34,13 +33,13 @@ const TEMPLATES: Record<string, React.ComponentType<any>> = {
     'silicon': TemplateSilicon,
     'executive-new': TemplateExecutiveNew,
 
-    // Legacy fallbacks (redirect to Chameleon)
-    'modern': ChameleonTemplate,
-    'classic': ChameleonTemplate,
-    'executive': ChameleonTemplate,
-    'ats-classic': ChameleonTemplate,
-    'ats-modern': ChameleonTemplate,
-    'ats-minimal': ChameleonTemplate
+    // Legacy fallbacks (redirect to Chameleon V2)
+    'modern': ChameleonTemplateV2,
+    'classic': ChameleonTemplateV2,
+    'executive': ChameleonTemplateV2,
+    'ats-classic': ChameleonTemplateV2,
+    'ats-modern': ChameleonTemplateV2,
+    'ats-minimal': ChameleonTemplateV2
 };
 
 export const CVRenderer: React.FC<CVRendererProps> = React.memo(({

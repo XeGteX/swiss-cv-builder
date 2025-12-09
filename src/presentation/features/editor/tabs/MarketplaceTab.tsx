@@ -24,6 +24,7 @@ import {
     Palette,
     Code2
 } from 'lucide-react';
+import { useUpdateField } from '../../../../application/store/v2';
 
 // ============================================================================
 // TYPES
@@ -48,6 +49,19 @@ interface Template {
 // ============================================================================
 
 const TEMPLATES: Template[] = [
+    {
+        id: 'chameleon',
+        name: 'Chameleon (Universal)',
+        description: 'Le seul template dont vous avez besoin.',
+        preview: '🦎',
+        category: 'professional',
+        isPremium: false,
+        rating: 5.0,
+        downloads: 1,
+        author: 'NEXAL Studio',
+        colors: ['#3b82f6', '#10b981', '#f59e0b'],
+        isInstalled: true
+    },
     {
         id: 'executive-pro',
         name: 'Executive Pro',
@@ -214,10 +228,10 @@ function TemplateCard({ template, onInstall, onPreview }: TemplateCardProps) {
                         onClick={() => onInstall(template.id)}
                         disabled={template.isInstalled}
                         className={`flex-1 py-1.5 text-xs rounded-lg flex items-center justify-center gap-1 ${template.isInstalled
-                                ? 'bg-green-500/20 text-green-300'
-                                : template.isPremium
-                                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
-                                    : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
+                            ? 'bg-green-500/20 text-green-300'
+                            : template.isPremium
+                                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
+                                : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
                             }`}
                     >
                         {template.isInstalled ? (
@@ -246,6 +260,7 @@ export function MarketplaceTab() {
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('all');
     const [templates, setTemplates] = useState(TEMPLATES);
+    const updateField = useUpdateField();
 
     const filteredTemplates = templates.filter(t => {
         const matchesSearch = t.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -258,11 +273,15 @@ export function MarketplaceTab() {
         setTemplates(prev => prev.map(t =>
             t.id === id ? { ...t, isInstalled: true, downloads: t.downloads + 1 } : t
         ));
+        // Auto-select on install
+        updateField('metadata.templateId', id);
+        console.log(`[Marketplace] Installed and selected template: ${id}`);
     };
 
     const handlePreview = (id: string) => {
         console.log('Preview template:', id);
-        // Open preview modal or navigate to preview page
+        updateField('metadata.templateId', id);
+        console.log(`[Marketplace] Selected template for preview: ${id}`);
     };
 
     return (
@@ -302,8 +321,8 @@ export function MarketplaceTab() {
                             whileTap={{ scale: 0.95 }}
                             onClick={() => setCategory(cat.id)}
                             className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition-all ${isActive
-                                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                                    : 'bg-white/5 text-slate-400 hover:text-white'
+                                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                                : 'bg-white/5 text-slate-400 hover:text-white'
                                 }`}
                         >
                             <Icon className="w-3 h-3" />

@@ -155,6 +155,7 @@ export const useCVStoreV2 = create<CVStoreV2State>()(
                         set((state) => ({
                             atlas: {
                                 ...state.atlas,
+                                ...state.atlas,
                                 syncStatus: status,
                                 syncError: error || null
                             }
@@ -255,15 +256,11 @@ export const useCVStoreV2 = create<CVStoreV2State>()(
 
                             if (missingSections.length > 0) {
                                 state.sectionOrder = [...currentOrder, ...missingSections];
-                                console.info(
-                                    `[PATCH V2.1] 🔧 Auto-migrated sectionOrder: added ${missingSections.join(', ')}`
-                                );
                             }
 
                             // Migrate mode: 'write' -> 'edition'
                             if ((state.mode as any) === 'write') {
                                 state.mode = 'edition';
-                                console.info('[V3 MIGRATION] 🔧 Updated mode: write → edition');
                             }
                         }
                     }
@@ -290,8 +287,6 @@ if (typeof window !== 'undefined') {
             atlasSync.debouncedSync(profile, setSyncStatus, markSynced);
         }
     );
-
-    console.log('[ATLAS] ⚡ Protocol Permanence activated - Auto-save enabled');
 }
 
 // ============================================================================
@@ -371,4 +366,3 @@ export const useDesignActions = () => useCVStoreV2(
         setDesign: state.setDesign
     }))
 );
-

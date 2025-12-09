@@ -12,7 +12,7 @@
  * This ensures Preview and PDF are MATHEMATICALLY IDENTICAL.
  */
 
-import { useState, useCallback, useLayoutEffect, useRef } from 'react';
+import React, { useState, useCallback, useLayoutEffect, useRef } from 'react';
 import type { CVProfile } from '../../domain/cv/v2/types';
 import type { PageContent } from './usePaginationV2';
 
@@ -22,7 +22,8 @@ import type { PageContent } from './usePaginationV2';
 
 export interface DOMMeasurementOptions {
     paperSize: 'a4' | 'letter';
-    containerRef: React.RefObject<HTMLDivElement>;
+    // Accept both RefObject (readonly) and MutableRefObject (writable)
+    containerRef: React.RefObject<HTMLDivElement> | React.MutableRefObject<HTMLDivElement | null>;
     maxPages?: number;
 }
 
@@ -176,7 +177,7 @@ export function useDOMMeasuredPagination(
         headerMode: 'full',
         sections: sectionOrder.map(id => ({
             sectionId: id,
-            itemRange: 'all' as const,
+            itemRange: 'all' as const, // Cast to literal
             showHeader: true
         })),
         sidebarExtends: false,

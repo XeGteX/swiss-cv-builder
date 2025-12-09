@@ -6,7 +6,7 @@
  */
 
 import { layoutRegistry } from './registry';
-import ChameleonTemplateV2 from '../cv-templates/templates/ChameleonTemplateV2';
+import { ChameleonTemplateV2 } from '../cv-templates/templates/ChameleonTemplateV2';
 
 export const initializeLayouts = () => {
     // Single unified template - all customization via design config
