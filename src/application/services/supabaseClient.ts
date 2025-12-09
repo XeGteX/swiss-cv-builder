@@ -7,8 +7,10 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// @ts-ignore - import.meta.env is Vite-specific
+const supabaseUrl = import.meta.env?.VITE_SUPABASE_URL;
+// @ts-ignore - import.meta.env is Vite-specific
+const supabaseAnonKey = import.meta.env?.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
     console.warn('⚠️ Supabase credentials not found. Media upload will be disabled.');

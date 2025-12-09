@@ -51,7 +51,7 @@ export const ExperienceTab: React.FC = () => {
 
                     <div className="space-y-3">
                         <Input
-                            label={t('experience.position')}
+                            label={String(t('experience.position'))}
                             value={exp.role}
                             onChange={(e) => updateField(`experiences.${index}.role`, e.target.value)}
                             className="font-semibold"
@@ -61,7 +61,7 @@ export const ExperienceTab: React.FC = () => {
                         />
                         <div className="grid grid-cols-2 gap-3">
                             <Input
-                                label={t('experience.company')}
+                                label={String(t('experience.company'))}
                                 value={exp.company}
                                 onChange={(e) => updateField(`experiences.${index}.company`, e.target.value)}
                                 maxLength={100}
@@ -69,7 +69,7 @@ export const ExperienceTab: React.FC = () => {
                                 variant="glass"
                             />
                             <Input
-                                label={t('experience.startDate')}
+                                label={String(t('experience.startDate'))}
                                 value={exp.dates}
                                 onChange={(e) => updateField(`experiences.${index}.dates`, e.target.value)}
                                 variant="glass"
@@ -88,7 +88,7 @@ export const ExperienceTab: React.FC = () => {
                                             maxLength={300}
                                             debounceTime={300}
                                             enableAI={true}
-                                            label={`${t('experience.description')} ${i + 1}`}
+                                            label={`${String(t('experience.description'))} ${i + 1}`}
                                             variant="glass"
                                         />
                                         <button

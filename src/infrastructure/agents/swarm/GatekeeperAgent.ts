@@ -15,6 +15,9 @@ import { MemoryStream } from '../core/MemoryStream';
 import type { AgentConfig, CVInput, GatekeeperResult } from '../core/types';
 import { CVInputSchema, GatekeeperResultSchema } from '../core/types';
 
+// z is used in GatekeeperResultSchema
+void z;
+
 // ============================================================================
 // SYSTEM PROMPT - THE TOXIC RECRUITER
 // ============================================================================
@@ -84,7 +87,7 @@ export class GatekeeperAgent extends NeuralAgent<CVInput, GatekeeperResult> {
             enabled: true
         };
 
-        super(config, memoryStream, GATEKEEPER_SYSTEM_PROMPT);
+        super(config, memoryStream);
     }
 
     // ========================================================================

@@ -15,7 +15,7 @@ import { InlineEditorOverlay } from '../editor/InlineEditorOverlay';
 import { MagicParticles } from '../editor/MagicParticles';
 import { CVErrorOverlay } from '../../components/CVErrorOverlay';
 import { useCVAnalyzer } from '../../hooks/useCVAnalyzer';
-import { useProfile } from '../../../application/store/v2';
+import { useProfile, useDesign, useSectionOrder } from '../../../application/store/v2';
 
 interface PreviewPaneProps {
     hideToolbar?: boolean;
@@ -40,6 +40,8 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
     const { addToast } = useToastStore();
     const profile = useCVStore(state => state.profile);
     const { updateProfile } = useCVStore();
+    const design = useDesign();
+    const sectionOrder = useSectionOrder();
 
     // Mobile detection
     const [isMobile, setIsMobile] = useState(false);
@@ -127,18 +129,20 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
         // Get region settings from localStorage at download time
         const currentRegionId = localStorage.getItem('nexal_region_preference') || 'dach';
         const paperFormat = (currentRegionId === 'usa') ? 'LETTER' : 'A4';
-        const templateId = profile?.metadata?.templateId || 'chameleon';
+        const templateId = profileV2?.metadata?.templateId || 'chameleon';
 
         try {
             const response = await fetch('/api/puppeteer-pdf/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    profile,
+                    profile: profileV2,
+                    design,
+                    sectionOrder,
                     language,
                     paperFormat,
                     regionId: currentRegionId,
-                    templateId  // ← ADDED: Send templateId to server
+                    templateId
                 }),
             });
 
@@ -150,7 +154,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${profile.personal?.firstName || 'CV'}_${profile.personal?.lastName || ''}_CV.pdf`;
+            a.download = `${profileV2?.personal?.firstName || 'CV'}_${profileV2?.personal?.lastName || ''}_CV.pdf`;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);

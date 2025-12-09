@@ -99,12 +99,12 @@ export const WizardPage: React.FC = () => {
     };
 
     const steps: { id: WizardStep; label: string; icon: React.ReactNode }[] = [
-        { id: 'identity', label: t('wizard.steps.identity'), icon: <User size={18} /> },
-        { id: 'experience', label: t('wizard.steps.experience'), icon: <Briefcase size={18} /> },
-        { id: 'education', label: t('sections.education'), icon: <Briefcase size={18} /> },
-        { id: 'skills', label: t('sections.skills'), icon: <Briefcase size={18} /> },
-        { id: 'template', label: t('wizard.steps.template'), icon: <Layout size={18} /> },
-        { id: 'download', label: t('wizard.steps.download'), icon: <Download size={18} /> },
+        { id: 'identity', label: String(t('wizard.steps.identity') || 'Identity'), icon: <User size={18} /> },
+        { id: 'experience', label: String(t('wizard.steps.experience') || 'Experience'), icon: <Briefcase size={18} /> },
+        { id: 'education', label: String(t('sections.education') || 'Education'), icon: <Briefcase size={18} /> },
+        { id: 'skills', label: String(t('sections.skills') || 'Skills'), icon: <Briefcase size={18} /> },
+        { id: 'template', label: String(t('wizard.steps.template') || 'Template'), icon: <Layout size={18} /> },
+        { id: 'download', label: String(t('wizard.steps.download') || 'Download'), icon: <Download size={18} /> },
     ];
 
     const currentStepIndex = steps.findIndex(s => s.id === step);

@@ -8,10 +8,14 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
-import App from './App.tsx';
+import App from './App';
 import { ErrorBoundary } from './presentation/components/ErrorBoundary';
+import { registerServiceWorker } from './infrastructure/pwa/registerSW';
 
 console.log('🚀 Main.tsx executing...');
+
+// Register service worker for PWA support
+registerServiceWorker();
 
 try {
   const rootElement = document.getElementById('root');

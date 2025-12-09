@@ -1,9 +1,8 @@
 /**
  * Gemini 3 Pro Service - CV Expert & Vision
  * 
- * Using Gemini 3 Pro Preview - Google's most powerful AI (Nov 2025)
- * - gemini-3-pro-preview: Text analysis
- * - gemini-3-pro-image-preview: OCR & Photo analysis
+ * Using Gemini 3 Pro Preview - Google's most powerful AI (Dec 2025)
+ * - gemini-3-pro-preview: Text analysis + Vision (multimodal)
  */
 
 import type { CVProfile } from '../../../domain/entities/cv';
@@ -51,11 +50,12 @@ export interface OCRResult {
 // ============================================================================
 
 export class GeminiService {
-    private static API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+    // @ts-ignore - import.meta.env is Vite-specific
+    private static API_KEY = import.meta.env?.VITE_GEMINI_API_KEY;
 
-    // Gemini 3 Pro models (November 2025)
+    // Gemini 3 Pro Preview - Multimodal (December 2025)
     private static TEXT_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent';
-    private static IMAGE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent';
+    private static IMAGE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent';
 
     // ========================================================================
     // CV ANALYSIS (Text-based)

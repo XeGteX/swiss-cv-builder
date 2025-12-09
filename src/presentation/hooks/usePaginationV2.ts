@@ -50,24 +50,24 @@ const PAPER_HEIGHT = {
     letter: 279.4 * MM_TO_PX  // 1056px
 };
 
-const FULL_HEADER_HEIGHT = 180;   // First page header
-const MINI_HEADER_HEIGHT = 50;    // Subsequent pages
-const PAGE_MARGINS = 60;          // Top + bottom
-const SECTION_HEADER = 50;        // Section title height
-const SECTION_GAP = 24;           // Gap between sections
+const FULL_HEADER_HEIGHT = 150;   // First page header (reduced)
+const MINI_HEADER_HEIGHT = 36;    // Subsequent pages (reduced)
+const PAGE_MARGINS = 40;          // Top + bottom (reduced - CSS uses less)
+const SECTION_HEADER = 32;        // Section title + border + margin (reduced)
+const SECTION_GAP = 16;           // Gap between sections (reduced)
 
-// Item heights (conservative estimates)
+// Item heights (reduced to match actual CSS rendering)
 const ITEM_HEIGHTS = {
-    experienceBase: 80,           // Role + company + dates
-    experienceTaskLine: 24,       // Per task bullet
-    experienceGap: 16,            // Between experiences
-    education: 70,                // Each education
-    skill: 36,                    // Skill chip (row of ~5)
-    language: 35,                 // Each language
-    certification: 40,            // Each cert
-    hobby: 36,                    // Row of hobbies
-    summaryLine: 24,              // Per ~100 chars
-    signature: 100                // Signature block
+    experienceBase: 65,           // Role + company + dates + padding
+    experienceTaskLine: 20,       // Per task bullet + spacing
+    experienceGap: 12,            // Between experiences
+    education: 55,                // Each education (diplôme + école + année + description)
+    skill: 24,                    // Skill chip row
+    language: 24,                 // Each language (name + level)
+    certification: 35,            // Each cert
+    hobby: 28,                    // Row of hobbies
+    summaryLine: 20,              // Per ~100 chars
+    signature: 70                 // Signature block
 };
 
 // ============================================================================

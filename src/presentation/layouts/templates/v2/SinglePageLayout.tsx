@@ -292,12 +292,10 @@ export const SinglePageLayout: React.FC<SinglePageLayoutProps> = ({
 
     return (
         <div
-            className={`bg-white shadow-2xl text-slate-800 font-${data.metadata.fontFamily} ${densityStyles.textBase} print:shadow-none print:m-0 print:h-full print:w-full relative mx-auto box-border break-words rounded-lg`}
+            className={`bg-white shadow-2xl text-slate-800 font-${data.metadata.fontFamily} ${densityStyles.textBase} print:shadow-none print:m-0 print:!h-auto print:!w-full print:!overflow-visible relative mx-auto box-border break-words rounded-lg`}
             style={{
                 width: '210mm',
-                height: '297mm',  // FIXED HEIGHT for PDF pagination - critical for multi-page
-                maxHeight: '297mm',
-                overflow: 'hidden', // Prevent content bleeding between pages
+                minHeight: '297mm', // Ensure visual consistency on screen
                 ...cssVars
             }}
         >

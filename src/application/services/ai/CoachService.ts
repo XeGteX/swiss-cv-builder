@@ -64,9 +64,15 @@ export class CoachService {
     }
 
     private getApiKey(): string | null {
-        // Try multiple sources
-        if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY) {
-            return import.meta.env.VITE_GEMINI_API_KEY;
+        // Try to get API key from Vite environment
+        try {
+            // @ts-ignore - import.meta.env is Vite-specific
+            if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY) {
+                // @ts-ignore
+                return import.meta.env.VITE_GEMINI_API_KEY;
+            }
+        } catch {
+            // Not in Vite environment
         }
         return null;
     }

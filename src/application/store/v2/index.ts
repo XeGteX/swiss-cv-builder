@@ -17,7 +17,10 @@ export {
     useAtlasStatus,
     useMode,
     useSetMode,
-    useReorderActions
+    useReorderActions,
+    // NEXAL STUDIO
+    useDesign,
+    useDesignActions
 } from './cv-store-v2';
 
 // Convenience hooks for Telekinesis
@@ -66,7 +69,8 @@ export {
 
 // Types
 export type { CVProfile, CVProfilePath, PersonalInfo, Experience, Education, Language } from '../../../domain/cv/v2/types';
-export type { CVMode, SyncStatus } from './cv-store-v2.types';
+export type { CVMode, SyncStatus, DesignConfig, FontPairing, HeaderStyle } from './cv-store-v2.types';
+export { COLOR_PRESETS, FONT_PAIRINGS_CONFIG, DEFAULT_DESIGN } from './cv-store-v2.types';
 
 // Utils
 export { PathUtils } from '../../../domain/cv/v2/path-utils';

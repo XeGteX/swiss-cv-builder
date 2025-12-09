@@ -58,8 +58,11 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
                 gate.consumeAITrial();
 
                 // Dynamic import to avoid circular dependencies or server-side issues
-                const { geminiService } = await import('../../../application/services/ai/GeminiService');
-                const improvedText = await geminiService.improveText(localValue, label || 'CV Section');
+                const { AIService } = await import('../../../application/services/ai-service');
+                const { BackendAIClient } = await import('../../../infrastructure/ai/backend-ai-client');
+                const aiClient = new BackendAIClient();
+                const aiService = new AIService(aiClient);
+                const improvedText = await aiService.improveText(localValue, label || 'CV Section');
 
                 setLocalValue(improvedText);
 

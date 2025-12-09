@@ -3,7 +3,8 @@ import type { AIClient } from '../../domain/services/ai-client.interface';
 
 export class GeminiClient implements AIClient {
     private apiKey: string;
-    private baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent';
+    // Gemini 3 Pro Preview - Latest (December 2025)
+    private baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent';
 
     constructor(apiKey: string) {
         this.apiKey = apiKey;

@@ -22,11 +22,13 @@ import { AuthModal } from '../features/auth/AuthModal';
 import { UserDropdown } from '../features/auth/UserDropdown';
 import { SettingsModal } from '../features/settings/SettingsModal';
 import { SmartAIHub } from '../features/ai/SmartAIHub';
-import { ZoomIn, ZoomOut, Layout, Edit3, User, Settings, Download, FileJson, Eye, Rocket } from 'lucide-react';
+import { ZoomIn, ZoomOut, Layout, Edit3, User, Settings, Download, FileJson, Eye, Rocket, Palette } from 'lucide-react';
 import { useIsMobile } from '../hooks/useMediaQuery';
 import { DebugAgent } from '../features/coach/DebugAgent';
 import { useCVAnalyzer } from '../hooks/useCVAnalyzer';
 import { useCompanionOrchestrator } from '../hooks/useCompanionOrchestrator';
+import { DesignStudioPanel } from '../features/studio/DesignStudioPanel';
+import { SmartCompanion } from '../features/companion/SmartCompanion';
 
 export const CVPageV2: React.FC = () => {
     const isMobile = useIsMobile();
@@ -42,6 +44,7 @@ export const CVPageV2: React.FC = () => {
     const [showDownloadMenu, setShowDownloadMenu] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const [isDebugAgentActive, setIsDebugAgentActive] = useState(false);
+    const [isDesignPanelOpen, setIsDesignPanelOpen] = useState(false);
     const previewContainerRef = React.useRef<HTMLDivElement>(null);
 
     // CV Analysis for Debug Agent
@@ -200,6 +203,19 @@ export const CVPageV2: React.FC = () => {
                                         {cvAnalysis.errors.length}
                                     </span>
                                 )}
+                            </button>
+
+                            {/* NEXAL Studio Button */}
+                            <button
+                                onClick={() => setIsDesignPanelOpen(!isDesignPanelOpen)}
+                                className={`px-2 md:px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all border ${isDesignPanelOpen
+                                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white border-transparent shadow-lg shadow-blue-500/25'
+                                    : 'bg-slate-800/50 text-slate-400 border-white/10 hover:text-white hover:border-blue-500/50'
+                                    }`}
+                                title="NEXAL Studio - Design ton CV"
+                            >
+                                <Palette size={14} className={isDesignPanelOpen ? 'animate-pulse' : ''} />
+                                <span className="hidden sm:inline">Studio</span>
                             </button>
                         </div>
 
@@ -416,6 +432,13 @@ export const CVPageV2: React.FC = () => {
                                 />
                             </div>
                         </div>
+
+                        {/* NEXAL Studio Panel - Right side of preview */}
+                        {isDesignPanelOpen && !isMobile && mode === 'edition' && (
+                            <div className="shrink-0 w-72 h-full overflow-y-auto">
+                                <DesignStudioPanel />
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -461,6 +484,9 @@ export const CVPageV2: React.FC = () => {
                 }}
                 onClose={() => setIsDebugAgentActive(false)}
             />
+
+            {/* SmartCompanion - Magic Actions Mascot */}
+            <SmartCompanion />
         </MainLayout>
     );
 };

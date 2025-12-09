@@ -585,21 +585,71 @@ body.omega-serious-mode .omega-agent-rocket {
 @media print {
 
   /* Reset viewport restrictions during print */
+  /* Reset viewport restrictions during print */
   html,
   body,
-  #root {
+  #root,
+  #cv-template,
+  .chameleon-template-v2 {
     height: auto !important;
-    min-height: initial !important;
+    min-height: 0 !important;
     max-height: none !important;
     overflow: visible !important;
+    display: block !important;
+    /* CRITICAL: Break out of flex containers */
+    position: relative !important;
   }
 
   /* Force page breaks between CV pages */
   .pdf-page {
-    page-break-after: always !important;
-    break-after: page !important;
+    display: block !important;
+
+    /* STANDARD A4 DIMENSIONS */
+    width: 210mm !important;
+    min-height: 297mm !important;
+    /* Min-height, not fixed height */
+
+    /* Allow content to flow naturally - NO overflow:hidden */
+    overflow: visible !important;
+
+    position: relative !important;
+    margin: 0 auto !important;
+
+    /* Remove break-after to avoid double breaks */
+    page-break-after: auto !important;
+    break-after: auto !important;
+
+    /* Prevent internal breaks */
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+  }
+
+  /* CRITICAL: Force break only BEFORE subsequent pages */
+  .pdf-page+.pdf-page {
+    page-break-before: always !important;
+    break-before: page !important;
+    margin-top: 0 !important;
+    /* Ensure no gap adds to flow */
+  }
+
+  /* UNLOCK SCROLL FOR PDF GENERATION (Puppeteer Screen Mode)
+     When the #cv-template exists (PDF Mode), unlock the viewport
+  */
+  html:has(#cv-template),
+  body:has(#cv-template) {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow: visible !important;
+  }
+
+  /* Explicit break element */
+  .pdf-page-break {
+    display: block !important;
+    page-break-before: always !important;
+    break-before: page !important;
+    height: 0 !important;
+    width: 100% !important;
+    visibility: hidden !important;
   }
 
   /* Last page should not have a break after */
@@ -629,5 +679,14 @@ body.omega-serious-mode .omega-agent-rocket {
   /* Reset shadows and filters for cleaner PDF */
   .chameleon-page {
     box-shadow: none !important;
+  }
+
+  /* UTILITY: Force elements to keep their styles in print (Shadows, Borders, Colors) */
+  .print-force-style {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    /* Specific matching border */
   }
 }

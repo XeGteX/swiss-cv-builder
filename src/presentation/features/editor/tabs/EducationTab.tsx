@@ -35,7 +35,7 @@ export const EducationTab: React.FC = () => {
 
                     <div className="space-y-3">
                         <Input
-                            label={t('education.degree')}
+                            label={String(t('education.degree'))}
                             value={edu.degree}
                             onChange={(e) => updateField(`educations.${index}.degree`, e.target.value)}
                             className="font-semibold"
@@ -45,7 +45,7 @@ export const EducationTab: React.FC = () => {
                         />
                         <div className="grid grid-cols-2 gap-3">
                             <Input
-                                label={t('education.school')}
+                                label={String(t('education.school'))}
                                 value={edu.school}
                                 onChange={(e) => updateField(`educations.${index}.school`, e.target.value)}
                                 maxLength={100}
@@ -53,7 +53,7 @@ export const EducationTab: React.FC = () => {
                                 variant="glass"
                             />
                             <Input
-                                label={t('education.endDate')}
+                                label={String(t('education.endDate'))}
                                 value={edu.year}
                                 onChange={(e) => updateField(`educations.${index}.year`, e.target.value)}
                                 variant="glass"

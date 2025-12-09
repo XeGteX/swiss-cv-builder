@@ -16,6 +16,7 @@ import { CVPageV2 } from './presentation/pages/CVPageV2';
 import { TemplateGallery } from './presentation/features/templates/TemplateGallery';
 import { VirtualTemplateGallery } from './presentation/features/templates/VirtualTemplateGallery';
 import { InteractiveResume } from './presentation/features/interactive-resume/InteractiveResume';
+import { NexalOnboardingPage } from './presentation/features/wizard/NexalOnboardingPage';
 import { useAuthStore } from './application/store/auth-store';
 import { useCVStore } from './application/store/cv-store';
 import { initializeLayouts } from './presentation/layouts';
@@ -58,6 +59,9 @@ function App() {
             {/* Landing Page - Outside AppShell for full scroll */}
             <Route path="/landing" element={<LandingPage />} />
 
+            {/* NEXAL Wizard Onboarding - Full-screen immersive */}
+            <Route path="/onboard" element={<NexalOnboardingPage />} />
+
             {/* Footer link pages - Outside AppShell for full scroll */}
             <Route path="/templates" element={<TemplatesPage />} />
             <Route path="/exemples" element={<ExemplesPage />} />
@@ -84,8 +88,6 @@ function App() {
                   {/* SCV .nex Viewer - Interactive Resume */}
                   <Route path="/interactive" element={<InteractiveResume />} />
                   <Route path="/sandbox" element={<InteractiveResume />} />
-                  {/* PDF Render Route for Puppeteer - Do NOT add AppShell chrome */}
-                  <Route path="/pdf-render/:id" element={<PDFRenderPage />} />
                   <Route path="/" element={<CVPageV2 />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
@@ -95,6 +97,9 @@ function App() {
                 <ShareModal />
               </AppShell>
             } />
+
+            {/* PDF Render Route for Puppeteer - MUST be outside AppShell to avoid layout constraints */}
+            <Route path="/pdf-render/:id" element={<PDFRenderPage />} />
           </Routes>
           {/* DebugBar - Global floating component */}
           <DebugBar />

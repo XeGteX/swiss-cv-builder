@@ -15,12 +15,13 @@
 
 import { create } from 'zustand';
 import { persist, devtools, subscribeWithSelector } from 'zustand/middleware';
+import { useShallow } from 'zustand/react/shallow';
 import { setValueByPath, PathUtils } from '../../../domain/cv/v2/path-utils';
 // CVProfile type is available via cv-store-v2.types which re-exports it
 
 // Import modularized components
-import type { CVStoreV2State, CVMode, SyncStatus } from './cv-store-v2.types';
-import { DEFAULT_SECTION_ORDER } from './cv-store-v2.types';
+import type { CVStoreV2State, CVMode, SyncStatus, FontPairing, HeaderStyle } from './cv-store-v2.types';
+import { DEFAULT_SECTION_ORDER, DEFAULT_DESIGN } from './cv-store-v2.types';
 import { atlasSync } from './cv-store-v2.atlas';
 import * as helpers from './cv-store-v2.helpers';
 
@@ -46,6 +47,9 @@ export const useCVStoreV2 = create<CVStoreV2State>()(
                     // TELEKINESIS initial state (Updated: 3 modes)
                     mode: 'edition' as CVMode,
                     sectionOrder: [...DEFAULT_SECTION_ORDER],
+
+                    // NEXAL STUDIO - Design initial state
+                    design: { ...DEFAULT_DESIGN },
 
                     // ========================================
                     // CORE ACTION: updateField
@@ -176,6 +180,50 @@ export const useCVStoreV2 = create<CVStoreV2State>()(
                         set({ mode }, false, `telekinesis:setMode:${mode}`);
                     },
 
+                    setSectionOrder: (order) => {
+                        set({ sectionOrder: order }, false, 'telekinesis:setSectionOrder');
+                    },
+
+                    // ========================================
+                    // NEXAL STUDIO - DESIGN ACTIONS
+                    // ========================================
+
+                    setAccentColor: (color: string) => {
+                        set((state) => ({
+                            design: { ...state.design, accentColor: color }
+                        }), false, `nexal:setAccentColor:${color}`);
+                    },
+
+                    setFontPairing: (font: FontPairing) => {
+                        set((state) => ({
+                            design: { ...state.design, fontPairing: font }
+                        }), false, `nexal:setFontPairing:${font}`);
+                    },
+
+                    setHeaderStyle: (style: HeaderStyle) => {
+                        set((state) => ({
+                            design: { ...state.design, headerStyle: style }
+                        }), false, `nexal:setHeaderStyle:${style}`);
+                    },
+
+                    setFontSize: (scale: number) => {
+                        set((state) => ({
+                            design: { ...state.design, fontSize: scale }
+                        }), false, `nexal:setFontSize:${scale}`);
+                    },
+
+                    setLineHeight: (height: number) => {
+                        set((state) => ({
+                            design: { ...state.design, lineHeight: height }
+                        }), false, `nexal:setLineHeight:${height}`);
+                    },
+
+                    setDesign: (designUpdates) => {
+                        set((state) => ({
+                            design: { ...state.design, ...designUpdates }
+                        }), false, 'nexal:setDesign');
+                    },
+
                     // ========================================
                     // UTILITY ACTIONS
                     // ========================================
@@ -223,7 +271,8 @@ export const useCVStoreV2 = create<CVStoreV2State>()(
             ),
             {
                 name: 'CVStoreV2',
-                enabled: import.meta.env.DEV
+                // @ts-ignore - import.meta.env is Vite-specific
+                enabled: import.meta.env?.DEV
             }
         )
     )
@@ -298,3 +347,28 @@ export const useReorderActions = () => useCVStoreV2((state) => ({
     reorderSkills: state.reorderSkills,
     reorderSections: state.reorderSections
 }));
+
+// ============================================================================
+// NEXAL STUDIO - DESIGN HOOKS
+// ============================================================================
+
+/**
+ * Hook to get current design configuration
+ */
+export const useDesign = () => useCVStoreV2((state) => state.design);
+
+/**
+ * Hook to get all design actions for NEXAL Studio panel
+ * Uses shallow comparison to prevent infinite re-renders
+ */
+export const useDesignActions = () => useCVStoreV2(
+    useShallow((state) => ({
+        setAccentColor: state.setAccentColor,
+        setFontPairing: state.setFontPairing,
+        setHeaderStyle: state.setHeaderStyle,
+        setFontSize: state.setFontSize,
+        setLineHeight: state.setLineHeight,
+        setDesign: state.setDesign
+    }))
+);
+

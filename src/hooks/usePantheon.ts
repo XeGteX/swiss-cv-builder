@@ -133,7 +133,8 @@ export interface UsePantheonReturn {
 // ============================================================================
 
 const LOG_REPLAY_SPEED_MS = 400;  // Speed between each log display
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+// @ts-ignore - import.meta.env is Vite-specific
+const API_BASE_URL = import.meta.env?.VITE_API_URL || '';
 
 // ============================================================================
 // HOOK

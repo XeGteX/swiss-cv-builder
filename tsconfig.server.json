@@ -21,12 +21,12 @@
         ]
     },
     "include": [
-        "server/**/*",
-        "src/**/*"
+        "server/**/*"
     ],
     "exclude": [
         "node_modules",
         "dist",
-        "dist-server"
+        "dist-server",
+        "src/**/*"
     ]
 }

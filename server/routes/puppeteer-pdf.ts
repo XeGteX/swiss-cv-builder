@@ -16,6 +16,8 @@ router.post('/generate', async (req, res) => {
     try {
         const {
             profile,
+            design,  // Design config from frontend
+            sectionOrder,  // Section order from frontend
             language = 'en',
             paperFormat = 'A4',
             regionId = 'dach',
@@ -23,16 +25,34 @@ router.post('/generate', async (req, res) => {
         } = req.body;
 
         console.log(`[Puppeteer PDF] Request: template=${templateId}, region=${regionId}, format=${paperFormat}`);
+        console.log(`[Puppeteer PDF] Design config:`, design);
+        console.log(`[Puppeteer PDF] Section order:`, sectionOrder);
 
         if (!profile) {
             console.log('[Puppeteer PDF] No profile in request');
             return res.status(400).json({ error: 'Profile data is required' });
         }
 
-        console.log(`[Puppeteer PDF] Generating PDF for: ${profile.personal?.firstName} ${profile.personal?.lastName} (${language}, format: ${paperFormat}, region: ${regionId}, template: ${templateId})`);
+        // Merge design config and sectionOrder into profile for PDFRenderPage
+        const enrichedProfile = {
+            ...profile,
+            _designConfig: design,  // Temporary storage for PDFRenderPage
+            _sectionOrder: sectionOrder,  // Temporary storage for PDFRenderPage
+            metadata: {
+                ...profile.metadata,
+                accentColor: design?.accentColor || profile.metadata?.accentColor,
+                fontPairing: design?.fontPairing || profile.metadata?.fontPairing,
+                headerStyle: design?.headerStyle || profile.metadata?.headerStyle,
+                fontSize: design?.fontSize || profile.metadata?.fontSize,
+                lineHeight: design?.lineHeight || profile.metadata?.lineHeight
+            }
+        };
 
-        // Store profile in memory and get unique ID
-        const profileId = pdfStore.store(profile as CVProfile);
+        console.log(`[Puppeteer PDF] Generating PDF for: ${profile.personal?.firstName} ${profile.personal?.lastName} (${language}, format: ${paperFormat}, region: ${regionId}, template: ${templateId})`);
+        console.log(`[Puppeteer PDF] Enriched accentColor: ${enrichedProfile.metadata?.accentColor}`);
+
+        // Store enriched profile in memory and get unique ID
+        const profileId = pdfStore.store(enrichedProfile as CVProfile);
         console.log(`[Puppeteer PDF] Profile stored with ID: ${profileId}`);
 
         try {

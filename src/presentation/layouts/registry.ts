@@ -14,7 +14,7 @@ export interface TemplateDefinition {
     id: string;
     name: string;
     thumbnail?: string;
-    component: React.FC<TemplateProps>;
+    component: React.ComponentType<any>; // Flexible type for diverse template props
     isATS: boolean;
 }
 

@@ -70,7 +70,7 @@ function calculateScore(profile: CVProfile | null): number {
     if (profile.personal?.firstName && profile.personal?.lastName) {
         score += weights.personal * 0.5;
     }
-    if (profile.personal?.email) {
+    if (profile.personal?.contact?.email) {
         score += weights.personal * 0.5;
     }
 

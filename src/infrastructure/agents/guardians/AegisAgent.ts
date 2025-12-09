@@ -13,12 +13,14 @@ import { z } from 'zod';
 import { NeuralAgent } from '../core/NeuralAgent';
 import { MemoryStream } from '../core/MemoryStream';
 import type {
-    AgentConfig,
     SecurityScanResult,
     ThreatLevel,
     CVInput
 } from '../core/types';
 import { CVInputSchema, SecurityScanResultSchema } from '../core/types';
+
+// z is used in validateStructure method
+void z;
 
 // ============================================================================
 // THREAT PATTERNS

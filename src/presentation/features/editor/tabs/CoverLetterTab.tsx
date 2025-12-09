@@ -33,7 +33,7 @@ export const CoverLetterTab: React.FC = () => {
     const [mode, setMode] = useState<'offline' | 'online'>('offline');
     // API key removed - now using import.meta.env.VITE_GEMINI_API_KEY
     const [isOnlineLoading, setIsOnlineLoading] = useState(false);
-    const [targetLang, setTargetLang] = useState<'fr' | 'en'>(language);
+    const [targetLang, setTargetLang] = useState<'fr' | 'en'>(language === 'en' ? 'en' : 'fr');
     const [usage, setUsage] = useState<{ usage: number, limit: number | string, isPro: boolean } | null>(null);
 
     // Form State
@@ -48,31 +48,31 @@ export const CoverLetterTab: React.FC = () => {
     }, [isAuthenticated]);
 
     const txt = {
-        newLetter: t('letterGen.newLetter') || 'New Letter',
-        emptyState: t('letterGen.emptyState') || 'No letters yet',
-        edit: t('letterGen.edit') || 'Edit',
-        delete: t('letterGen.delete') || 'Delete',
-        optimize: t('letterGen.optimize') || 'Optimize',
-        back: t('letterGen.back') || 'Back',
-        save: t('actions.save'),
-        offline: t('letterGen.offline') || 'Offline',
-        online: t('letterGen.online') || 'Online',
-        jobTitle: t('letterGen.jobTitle') || 'Job Title',
-        company: t('letterGen.company') || 'Company',
-        targetLang: t('letterGen.targetLang') || 'Target Language',
-        generate: t('letterGen.generate') || 'Generate',
-        errorJob: t('letterGen.errorJob') || 'Job title required',
-        saved: t('letterGen.saved') || 'Saved',
-        deleted: t('letterGen.deleted') || 'Deleted',
-        generated: t('letterGen.generated') || 'Generated',
-        errorGen: t('letterGen.errorGen') || 'Generation failed',
-        startNew: t('letterGen.startNew') || 'Start a New Letter',
-        placeholder: t('letterGen.placeholder') || 'Start typing your letter here...',
+        newLetter: String(t('letterGen.newLetter') || 'New Letter'),
+        emptyState: String(t('letterGen.emptyState') || 'No letters yet'),
+        edit: String(t('letterGen.edit') || 'Edit'),
+        delete: String(t('letterGen.delete') || 'Delete'),
+        optimize: String(t('letterGen.optimize') || 'Optimize'),
+        back: String(t('letterGen.back') || 'Back'),
+        save: String(t('actions.save') || 'Save'),
+        offline: String(t('letterGen.offline') || 'Offline'),
+        online: String(t('letterGen.online') || 'Online'),
+        jobTitle: String(t('letterGen.jobTitle') || 'Job Title'),
+        company: String(t('letterGen.company') || 'Company'),
+        targetLang: String(t('letterGen.targetLang') || 'Target Language'),
+        generate: String(t('letterGen.generate') || 'Generate'),
+        errorJob: String(t('letterGen.errorJob') || 'Job title required'),
+        saved: String(t('letterGen.saved') || 'Saved'),
+        deleted: String(t('letterGen.deleted') || 'Deleted'),
+        generated: String(t('letterGen.generated') || 'Generated'),
+        errorGen: String(t('letterGen.errorGen') || 'Generation failed'),
+        startNew: String(t('letterGen.startNew') || 'Start a New Letter'),
+        placeholder: String(t('letterGen.placeholder') || 'Start typing your letter here...'),
     };
     const commonTxt = {
-        tabs: { letter: t('tabs.letter') },
-        download: t('actions.download'),
-        aiSection: { errorApiKey: t('aiSection.errorApiKey') || 'API Key required' }
+        tabs: { letter: String(t('tabs.letter') || 'Cover Letter') },
+        download: String(t('actions.download') || 'Download'),
+        aiSection: { errorApiKey: String(t('aiSection.errorApiKey') || 'API Key required') }
     };
 
     const fetchUsage = async () => {
@@ -176,7 +176,8 @@ export const CoverLetterTab: React.FC = () => {
     // --- Generators ---
     const generateOnline = async () => {
         // Use environment variable for API key
-        const envApiKey = import.meta.env.VITE_GEMINI_API_KEY;
+        // @ts-ignore - import.meta.env is Vite-specific
+        const envApiKey = import.meta.env?.VITE_GEMINI_API_KEY;
         if (!isAuthenticated && !envApiKey) {
             addToast('Clé API manquante. Ajoutez VITE_GEMINI_API_KEY dans .env', 'error');
             return;

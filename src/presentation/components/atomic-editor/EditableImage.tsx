@@ -94,7 +94,7 @@ export const EditableImage: React.FC<EditableImageProps> = ({
             />
 
             {/* Image container */}
-            <div className="w-36 h-36 bg-white rounded-full overflow-hidden border-4 border-white/30 shadow-lg relative z-10 shrink-0 aspect-square cursor-pointer">
+            <div className="w-36 h-36 bg-white rounded-full overflow-hidden border-4 border-black/20 shadow-lg relative z-10 shrink-0 aspect-square cursor-pointer print-force-style">
                 {src ? (
                     <img
                         src={src}

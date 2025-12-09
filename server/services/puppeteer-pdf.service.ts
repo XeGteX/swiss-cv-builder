@@ -264,27 +264,50 @@ export class PuppeteerPDFService {
             this.log('🎨', 'RENDER', 'All assets synchronized. Ready for capture.');
 
             // STEP 6: LOG CONTENT HEIGHT FOR DEBUGGING (don't expand viewport)
-            const fullHeight = await page.evaluate(() => {
+            const { fullHeight, pageCount } = await page.evaluate(() => {
                 const cvTemplate = document.querySelector('#cv-template');
-                if (cvTemplate) {
-                    return cvTemplate.scrollHeight;
-                }
-                return Math.max(
-                    document.body.scrollHeight,
-                    document.documentElement.scrollHeight
-                );
+                const pdfPages = document.querySelectorAll('.pdf-page');
+
+                console.log('[PDFRenderPage-Check] Found .pdf-page elements:', pdfPages.length);
+                console.log('[PDFRenderPage-Check] CV template exists:', !!cvTemplate);
+
+                const height = cvTemplate
+                    ? cvTemplate.scrollHeight
+                    : Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+
+                return {
+                    fullHeight: height,
+                    pageCount: pdfPages.length
+                };
             });
 
             this.log('📏', 'HEIGHT', `Full content height: ${fullHeight}px (viewport: ${resolution.height}px)`);
+            this.log('📄', 'DOM', `Found ${pageCount} .pdf-page elements in DOM`);
 
-            // STEP 7: GENERATE PDF
-            // CRITICAL: Do NOT use preferCSSPageSize - it prevents proper pagination
-            // Instead, let Puppeteer auto-paginate based on format size
+            // STEP 7: EXPAND VIEWPORT TO FULL CONTENT HEIGHT (Restored)
+            if (fullHeight > resolution.height) {
+                await page.setViewport({
+                    width: resolution.width,
+                    height: fullHeight,
+                    deviceScaleFactor: resolution.scale
+                });
+                this.log('📐', 'VIEWPORT', `Expanded to ${resolution.width}x${fullHeight}px to capture full content`);
+
+                // Wait for re-render after viewport change
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+
+            // STEP 8: EMULATE PRINT MEDIA (Robust multi-page support)
+            // Now that we escaped AppShell, we can use standard print logic
+            await page.emulateMediaType('print');
+            this.log('🖨️', 'MEDIA', 'Emulated print media type (Standard)');
+
+            // STEP 9: GENERATE PDF: Standard Page Break Mode
             const normalizedFormat = paperFormat.toUpperCase();
             const puppeteerFormat: 'Letter' | 'A4' = normalizedFormat === 'LETTER' ? 'Letter' : 'A4';
 
-            // Calculate expected pages based on A4/Letter height
-            const pageHeightPx = puppeteerFormat === 'Letter' ? 1056 : 1123; // at 96dpi
+            // Calculate expected pages
+            const pageHeightPx = puppeteerFormat === 'Letter' ? 1056 : 1123;
             const expectedPages = Math.ceil(fullHeight / pageHeightPx);
             this.log('📑', 'PAGES', `Expected pages: ${expectedPages} (content=${fullHeight}px, pageHeight=${pageHeightPx}px)`);
             this.log('📄', 'FORMAT', `Input: "${paperFormat}" → Puppeteer: "${puppeteerFormat}"`);
@@ -292,7 +315,7 @@ export class PuppeteerPDFService {
             const pdfBuffer = await page.pdf({
                 format: puppeteerFormat,
                 printBackground: true,
-                preferCSSPageSize: false, // Let Puppeteer handle pagination based on format
+                preferCSSPageSize: false, // Auto-slice mode
                 margin: {
                     top: 0,
                     right: 0,

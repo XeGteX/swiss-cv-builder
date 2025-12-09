@@ -5,7 +5,7 @@
  * with intelligent multi-page support, smart sidebar layouts, and full customization.
  * 
  * Features:
- * - MULTI-PAGE: Uses usePaginationV2 for atomic item-level splitting
+ * - MULTI-PAGE: Uses DOM measurement for pixel-perfect pagination
  * - LAYOUT TYPES: sidebar-left (Silicon) | full-width (Harvard)
  * - DESIGN CONFIG: headerStyle, fontPairing, accentColor
  * - REGION LOGIC: Auto-adapts format/photo/sections based on region
@@ -14,10 +14,10 @@
  * This is the BASE for all future templates (Harvard, Silicon, Executive).
  */
 
-import React, { useEffect, useMemo } from 'react';
-import { useProfile, useSectionOrder, useMode } from '../../../application/store/v2';
-import { useRegion, usePaperDimensions, useAtsOptimized, useShouldShowPhoto } from '../../hooks/useRegion';
-import usePaginationV2, { type PageContent } from '../../hooks/usePaginationV2';
+import React, { useEffect, useMemo, useRef, useState, useLayoutEffect, useCallback } from 'react';
+import { useProfile, useSectionOrder, useMode, useDesign } from '../../../application/store/v2';
+import { useRegion, useAtsOptimized, useShouldShowPhoto } from '../../hooks/useRegion';
+import type { PageContent } from '../../hooks/usePaginationV2';
 import { CVCardStack } from '../../components/CVCardStack';
 import {
     SmartHeader,
@@ -60,6 +60,8 @@ export interface DesignConfig {
     headerStyle: HeaderStyle;
     fontPairing: FontPairing;
     accentColor: string;
+    fontSize: number;     // Scale: 1.0 = 100%
+    lineHeight: number;   // e.g., 1.5
 }
 
 /** Main component props */
@@ -97,7 +99,9 @@ const FONT_PAIRINGS: Record<FontPairing, { heading: string; body: string }> = {
 const DEFAULT_DESIGN: DesignConfig = {
     headerStyle: 'modern',
     fontPairing: 'sans',
-    accentColor: '#3b82f6'
+    accentColor: '#3b82f6',
+    fontSize: 1.0,
+    lineHeight: 1.5
 };
 
 /** Phone prefix to region mapping for auto-detection */
@@ -134,7 +138,7 @@ interface SectionProps {
 }
 
 const SummarySection: React.FC<SectionProps> = ({ accentColor, headingFont }) => (
-    <section id="section-summary" className="cv-section summary mb-4">
+    <section id="section-summary" data-section-id="summary" className="cv-section summary mb-4">
         <h2
             className="text-lg font-semibold border-b-2 pb-1 mb-3"
             style={{ borderColor: accentColor, color: accentColor, fontFamily: headingFont }}
@@ -159,7 +163,7 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({
     if (!experiences?.length) return null;
 
     return (
-        <section id="section-experience" className="cv-section experience mb-4">
+        <section id="section-experience" data-section-id="experience" className="cv-section experience mb-4">
             <h2
                 className="text-lg font-semibold border-b-2 pb-1 mb-3"
                 style={{ borderColor: accentColor, color: accentColor, fontFamily: headingFont }}
@@ -211,7 +215,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
     if (!educations?.length) return null;
 
     return (
-        <section id="section-education" className="cv-section education mb-4">
+        <section id="section-education" data-section-id="education" className="cv-section education mb-4">
             <h2
                 className="text-lg font-semibold border-b-2 pb-1 mb-3"
                 style={{ borderColor: accentColor, color: accentColor, fontFamily: headingFont }}
@@ -251,7 +255,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skills, accentColor, head
     if (!skills?.length) return null;
 
     return (
-        <section id="section-skills" className="cv-section skills mb-4">
+        <section id="section-skills" data-section-id="skills" className="cv-section skills mb-4">
             <h2
                 className={`font-semibold border-b-2 pb-1 mb-3 ${compact ? 'text-sm' : 'text-lg'}`}
                 style={{ borderColor: accentColor, color: textColor || accentColor, fontFamily: headingFont }}
@@ -291,7 +295,7 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({
     if (!languages?.length) return null;
 
     return (
-        <section id="section-languages" className="cv-section languages mb-4">
+        <section id="section-languages" data-section-id="languages" className="cv-section languages mb-4">
             <h2
                 className={`font-semibold border-b-2 pb-1 mb-3 ${compact ? 'text-sm' : 'text-lg'}`}
                 style={{ borderColor: accentColor, color: textColor || accentColor, fontFamily: headingFont }}
@@ -324,6 +328,7 @@ interface ChameleonPageProps {
     designConfig: DesignConfig;
     layoutType: LayoutType;
     dimensions: { width: number; height: number };
+    paperSize: 'a4' | 'letter';
     isAts: boolean;
     showPhoto: boolean;
     showSignature: boolean;
@@ -337,7 +342,6 @@ const FullWidthPage: React.FC<ChameleonPageProps> = ({
     pageContent,
     profile,
     designConfig,
-    dimensions,
     isAts,
     showPhoto,
     showSignature,
@@ -382,9 +386,11 @@ const FullWidthPage: React.FC<ChameleonPageProps> = ({
         <div
             className="chameleon-page bg-white shadow-lg"
             style={{
-                width: `${dimensions.width}px`,
-                minHeight: `${dimensions.height}px`,
-                fontFamily: isAts ? 'Arial, sans-serif' : fonts.body
+                width: '100%',
+                minHeight: '100%',
+                fontFamily: isAts ? 'Arial, sans-serif' : fonts.body,
+                fontSize: `${designConfig.fontSize}rem`,
+                lineHeight: designConfig.lineHeight
                 // NOTE: No overflow:hidden here for PDF rendering
             }}
         >
@@ -396,6 +402,8 @@ const FullWidthPage: React.FC<ChameleonPageProps> = ({
                         photoUrl: showPhoto ? profile.personal.photoUrl : undefined
                     }}
                     accentColor={designConfig.accentColor}
+                    headerStyle={designConfig.headerStyle}
+                    showPhoto={showPhoto}
                 />
             ) : (
                 <div
@@ -426,7 +434,6 @@ const SidebarLeftPage: React.FC<ChameleonPageProps> = ({
     pageContent,
     profile,
     designConfig,
-    dimensions,
     isAts,
     showPhoto,
     showSignature,
@@ -485,9 +492,11 @@ const SidebarLeftPage: React.FC<ChameleonPageProps> = ({
         <div
             className="chameleon-page bg-white shadow-lg flex"
             style={{
-                width: `${dimensions.width}px`,
-                minHeight: `${dimensions.height}px`,
-                fontFamily: isAts ? 'Arial, sans-serif' : fonts.body
+                width: '100%',
+                minHeight: '100%',
+                fontFamily: isAts ? 'Arial, sans-serif' : fonts.body,
+                fontSize: `${designConfig.fontSize}rem`,
+                lineHeight: designConfig.lineHeight
                 // NOTE: No overflow:hidden here for PDF rendering
             }}
         >
@@ -497,7 +506,7 @@ const SidebarLeftPage: React.FC<ChameleonPageProps> = ({
                 style={{
                     width: sidebarWidth,
                     backgroundColor: designConfig.accentColor,
-                    minHeight: `${dimensions.height}px`
+                    minHeight: '100%'
                 }}
             >
                 {/* Photo (first page only) */}
@@ -615,19 +624,29 @@ export const ChameleonTemplateV2: React.FC<ChameleonTemplateV2Props> = ({
     // Region-aware hooks
     const regionProfile = useRegion();
     const sectionOrder = useSectionOrder();
-    const _dimensions = usePaperDimensions();
     const isAts = useAtsOptimized();
     const shouldShowPhoto = useShouldShowPhoto();
 
     // Override region if forced
     const effectiveRegion = forceRegion || regionProfile.id;
 
-    // Design config with defaults
+    // NEXAL STUDIO: Read design from store for real-time updates
+    const storeDesign = useDesign();
+
+    // Design config: Context-aware priority
+    // - Normal mode (preview): storeDesign > profile.metadata > defaults
+    // - PDF mode (forceMode="modele"): profile.metadata > storeDesign > defaults
+    const isPDFMode = mode === 'modele';
     const designConfig: DesignConfig = useMemo(() => ({
-        ...DEFAULT_DESIGN,
-        ...designConfigProp,
-        accentColor: designConfigProp?.accentColor || profile?.metadata?.accentColor || DEFAULT_DESIGN.accentColor
-    }), [designConfigProp, profile?.metadata?.accentColor]);
+        headerStyle: designConfigProp?.headerStyle || storeDesign?.headerStyle || DEFAULT_DESIGN.headerStyle,
+        fontPairing: designConfigProp?.fontPairing || storeDesign?.fontPairing || DEFAULT_DESIGN.fontPairing,
+        accentColor: designConfigProp?.accentColor ||
+            (isPDFMode
+                ? (profile?.metadata?.accentColor || storeDesign?.accentColor || DEFAULT_DESIGN.accentColor)
+                : (storeDesign?.accentColor || profile?.metadata?.accentColor || DEFAULT_DESIGN.accentColor)),
+        fontSize: storeDesign?.fontSize || DEFAULT_DESIGN.fontSize,
+        lineHeight: storeDesign?.lineHeight || DEFAULT_DESIGN.lineHeight
+    }), [designConfigProp, storeDesign, profile?.metadata?.accentColor, isPDFMode]);
 
     // Determine paper dimensions based on region
     const paperSize = regionProfile.format?.paperSize || 'a4';
@@ -658,17 +677,101 @@ export const ChameleonTemplateV2: React.FC<ChameleonTemplateV2Props> = ({
     }, [profile?.personal?.contact?.phone, forceRegion, effectiveRegion]);
 
     // ========================================================================
-    // PAGINATION: Use V2 for atomic item-level splitting
+    // PAGINATION: DOM Measurement for pixel-perfect sync
     // ========================================================================
-    const pages = usePaginationV2(
-        profile,
-        sectionOrder,
-        {
-            maxPages: regionProfile.maxPages,
-            paperSize: regionProfile.format?.paperSize,
-            hasSidebar: layoutType === 'sidebar-left'
+    const measureRef = useRef<HTMLDivElement>(null);
+    const [pages, setPages] = useState<PageContent[]>([{
+        pageIndex: 0,
+        headerMode: 'full',
+        sections: sectionOrder.map(id => ({
+            sectionId: id,
+            itemRange: 'all' as const,
+            showHeader: true
+        })),
+        sidebarExtends: false,
+        isOverflowing: false
+    }]);
+
+    // Paper dimensions
+    const MM_TO_PX = 3.7795;
+    const paperHeight = paperSize === 'letter' ? 279.4 * MM_TO_PX : 297 * MM_TO_PX;
+    const HEADER_FULL = 160;
+    const HEADER_MINI = 40;
+    const PAGE_MARGINS = 48;
+
+    const performMeasurement = useCallback(() => {
+        if (!measureRef.current || !profile) return;
+
+        const container = measureRef.current;
+        const sections = container.querySelectorAll('[data-section-id]');
+        const measurements: { sectionId: string; height: number }[] = [];
+
+        sections.forEach((section) => {
+            const sectionId = section.getAttribute('data-section-id');
+            if (!sectionId) return;
+            const rect = section.getBoundingClientRect();
+            if (rect.height > 0) {
+                measurements.push({ sectionId, height: rect.height });
+            }
+        });
+
+        if (measurements.length === 0) return;
+
+        // Calculate page breaks
+        const newPages: PageContent[] = [];
+        let currentPage: PageContent = {
+            pageIndex: 0,
+            headerMode: 'full',
+            sections: [],
+            sidebarExtends: layoutType === 'sidebar-left',
+            isOverflowing: false
+        };
+        let availableHeight = paperHeight - HEADER_FULL - PAGE_MARGINS;
+        let usedHeight = 0;
+
+        const measurementMap = new Map<string, number>();
+        measurements.forEach(m => measurementMap.set(m.sectionId, m.height));
+
+        for (const sectionId of sectionOrder) {
+            const height = measurementMap.get(sectionId);
+            if (!height) continue;
+
+            if (usedHeight + height <= availableHeight) {
+                currentPage.sections.push({ sectionId, itemRange: 'all', showHeader: true });
+                usedHeight += height;
+            } else {
+                if (currentPage.sections.length > 0) {
+                    newPages.push(currentPage);
+                }
+                currentPage = {
+                    pageIndex: newPages.length,
+                    headerMode: 'mini',
+                    sections: [{ sectionId, itemRange: 'all', showHeader: true }],
+                    sidebarExtends: layoutType === 'sidebar-left',
+                    isOverflowing: false
+                };
+                availableHeight = paperHeight - HEADER_MINI - PAGE_MARGINS;
+                usedHeight = height;
+            }
         }
-    );
+
+        if (currentPage.sections.length > 0) {
+            newPages.push(currentPage);
+        }
+
+        if (newPages.length > 0) {
+            console.log(`[ChameleonV2-DOM] 📏 Measured ${measurements.length} sections, calculated ${newPages.length} pages`);
+            setPages(newPages);
+        }
+    }, [profile, sectionOrder, paperHeight, layoutType]);
+
+    useLayoutEffect(() => {
+        const timer = setTimeout(performMeasurement, 100);
+        return () => clearTimeout(timer);
+    }, [performMeasurement, profile, sectionOrder]);
+
+    // DEBUG: Log pagination results
+    console.log(`[ChameleonV2-DEBUG] 📑 Pages: ${pages.length}, Mode: ${mode}`);
 
     // Guard against missing profile
     if (!profile) {
@@ -716,36 +819,35 @@ export const ChameleonTemplateV2: React.FC<ChameleonTemplateV2Props> = ({
                     data-layout={layoutType}
                 >
                     {pages.map((page, idx) => (
-                        <div
-                            key={`page-${page.pageIndex}`}
-                            className="pdf-page"
-                            style={{
-                                width: paperSize === 'letter' ? '8.5in' : '210mm',
-                                height: paperSize === 'letter' ? '11in' : '297mm',
-                                minHeight: paperSize === 'letter' ? '11in' : '297mm',
-                                // CRITICAL: NO overflow:hidden or maxHeight - allows proper pagination
-                                pageBreakAfter: idx < pages.length - 1 ? 'always' : 'auto',
-                                breakAfter: idx < pages.length - 1 ? 'page' : 'auto',
-                                pageBreakInside: 'avoid',
-                                breakInside: 'avoid',
-                                boxSizing: 'border-box',
-                                position: 'relative'
-                            }}
-                        >
-                            <PageComponent
-                                pageContent={page}
-                                profile={profile}
-                                designConfig={designConfig}
-                                layoutType={layoutType}
-                                dimensions={effectiveDimensions}
-                                isAts={isAts}
-                                showPhoto={shouldShowPhoto}
-                                showSignature={shouldShowSignature && idx === pages.length - 1}
-                                isFirstPage={page.pageIndex === 0}
-                                pageNumber={page.pageIndex + 1}
-                                totalPages={pages.length}
-                            />
-                        </div>
+                        <React.Fragment key={`page-${page.pageIndex}`}>
+                            <div
+                                className="pdf-page"
+                                style={{
+                                    width: paperSize === 'letter' ? '8.5in' : '210mm',
+                                    minHeight: paperSize === 'letter' ? '11in' : '297mm',
+                                    // Let content flow naturally, index.css handles page breaks
+                                    boxSizing: 'border-box',
+                                    position: 'relative',
+                                    backgroundColor: 'white'
+                                }}
+                            >
+                                <PageComponent
+                                    pageContent={page}
+                                    profile={profile}
+                                    designConfig={designConfig}
+                                    layoutType={layoutType}
+                                    dimensions={effectiveDimensions}
+                                    paperSize={paperSize}
+                                    isAts={isAts}
+                                    showPhoto={shouldShowPhoto}
+                                    showSignature={shouldShowSignature && idx === pages.length - 1}
+                                    isFirstPage={page.pageIndex === 0}
+                                    pageNumber={page.pageIndex + 1}
+                                    totalPages={pages.length}
+                                />
+                            </div>
+                            {/* Explicit page break removed - relying on CSS container break */}
+                        </React.Fragment>
                     ))}
                 </div>
             </>
@@ -761,6 +863,26 @@ export const ChameleonTemplateV2: React.FC<ChameleonTemplateV2Props> = ({
             data-region={effectiveRegion}
             data-layout={layoutType}
         >
+            {/* Hidden measurement container for DOM-based pagination */}
+            <div
+                ref={measureRef}
+                style={{
+                    position: 'absolute',
+                    left: '-9999px',
+                    top: '-9999px',
+                    width: paperSize === 'letter' ? '8.5in' : '210mm',
+                    visibility: 'hidden',
+                    pointerEvents: 'none'
+                }}
+                aria-hidden="true"
+            >
+                <SummarySection accentColor={designConfig.accentColor} headingFont={FONT_PAIRINGS[designConfig.fontPairing].heading} bodyFont={FONT_PAIRINGS[designConfig.fontPairing].body} />
+                <ExperienceSection experiences={profile.experiences} accentColor={designConfig.accentColor} headingFont={FONT_PAIRINGS[designConfig.fontPairing].heading} bodyFont={FONT_PAIRINGS[designConfig.fontPairing].body} />
+                <EducationSection educations={profile.educations} accentColor={designConfig.accentColor} headingFont={FONT_PAIRINGS[designConfig.fontPairing].heading} bodyFont={FONT_PAIRINGS[designConfig.fontPairing].body} />
+                <SkillsSection skills={profile.skills} accentColor={designConfig.accentColor} headingFont={FONT_PAIRINGS[designConfig.fontPairing].heading} bodyFont={FONT_PAIRINGS[designConfig.fontPairing].body} />
+                <LanguagesSection languages={profile.languages} accentColor={designConfig.accentColor} headingFont={FONT_PAIRINGS[designConfig.fontPairing].heading} bodyFont={FONT_PAIRINGS[designConfig.fontPairing].body} />
+            </div>
+
             <CVCardStack
                 pages={pages.map((page, idx) => (
                     <PageComponent
@@ -770,6 +892,7 @@ export const ChameleonTemplateV2: React.FC<ChameleonTemplateV2Props> = ({
                         designConfig={designConfig}
                         layoutType={layoutType}
                         dimensions={effectiveDimensions}
+                        paperSize={paperSize}
                         isAts={isAts}
                         showPhoto={shouldShowPhoto}
                         showSignature={shouldShowSignature && idx === pages.length - 1}

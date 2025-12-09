@@ -81,6 +81,8 @@ const PDFRenderPage: React.FC = () => {
     const templateId = searchParams.get('template') || 'chameleon';
     const regionParam = searchParams.get('region') || 'ch';  // Region from URL
     const setFullProfile = useCVStoreV2((state) => state.setFullProfile);
+    const setDesign = useCVStoreV2((state) => state.setDesign);
+    const setSectionOrder = useCVStoreV2((state) => state.setSectionOrder);
     const storeProfile = useCVStoreV2((state) => state.profile);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -106,6 +108,19 @@ const PDFRenderPage: React.FC = () => {
 
                 const data = await response.json();
                 console.log('[PDFRenderPage] Profile loaded:', data?.personal?.firstName);
+
+                // Extract and apply design config from enriched profile
+                if (data._designConfig) {
+                    console.log('[PDFRenderPage] 🎨 Applying design config:', data._designConfig);
+                    setDesign(data._designConfig);
+                }
+
+                // Extract and apply section order from enriched profile
+                if (data._sectionOrder && Array.isArray(data._sectionOrder)) {
+                    console.log('[PDFRenderPage] 📋 Applying section order:', data._sectionOrder);
+                    setSectionOrder(data._sectionOrder);
+                }
+
                 setFullProfile(data);
                 setLoading(false);
             } catch (err) {
@@ -117,7 +132,7 @@ const PDFRenderPage: React.FC = () => {
 
         if (id) fetchProfile();
         else { setError('No profile ID provided'); setLoading(false); }
-    }, [id, templateId, regionId, setFullProfile]);
+    }, [id, templateId, regionId, setFullProfile, setDesign, setSectionOrder]);
 
     const TemplateComponent = TEMPLATE_REGISTRY[templateId] || ChameleonTemplateV2;
     const hasValidProfile = storeProfile?.personal?.firstName || storeProfile?.personal?.lastName;

@@ -15,7 +15,7 @@ interface MagicParticlesProps {
 }
 
 export const MagicParticles: React.FC<MagicParticlesProps> = ({ cursor, accentColor = '#8b5cf6' }) => {
-    const [particles, setParticles] = useState<Particle[]>([]);
+    const [particles, _setParticles] = useState<Particle[]>([]);
 
     useEffect(() => {
         // Throttle particle creation to improve performance

@@ -1,7 +1,7 @@
 
 import { create } from 'zustand';
 
-type Tab = 'personal' | 'experience' | 'education' | 'skills' | 'letter' | 'ai' | 'critic' | 'letter-gen' | 'settings' | 'system';
+type Tab = 'personal' | 'experience' | 'education' | 'skills' | 'letter' | 'ai' | 'critic' | 'letter-gen' | 'settings' | 'system' | 'design' | 'analyzer' | 'coach' | 'export' | 'analytics' | 'collab' | 'marketplace' | 'admin' | 'photo';
 
 interface UIState {
     activeTab: Tab;

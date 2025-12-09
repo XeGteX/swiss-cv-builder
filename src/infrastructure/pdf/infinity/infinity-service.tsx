@@ -5,6 +5,9 @@ import type { CVProfile } from '../../../domain/entities/cv';
 import { mapProfileToScv } from '../../../domain/scv/mapper';
 import { InfinityDocument } from './InfinityRenderer';
 
+// React is needed for JSX
+void React;
+
 
 export const InfinityService = {
     async generateBlob(profile: CVProfile, language: string = 'en'): Promise<Blob> {

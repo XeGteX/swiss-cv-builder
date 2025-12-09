@@ -1,7 +1,10 @@
 /**
- * SmartHeader - Region-aware CV header with Inline Editing
+ * SmartHeader - Region-aware CV header with Style Variants
  * 
- * Adapts layout based on region:
+ * NEXAL STUDIO Integration:
+ * - headerStyle: 'modern' | 'classic' | 'minimal' (from design config)
+ * 
+ * Falls back to region-based layouts when no style is set:
  * - compact: USA/UK (no photo, minimal personal data)
  * - full-personal: DACH (all personal data)
  * - photo-right: France/EU
@@ -9,9 +12,14 @@
  */
 
 import React from 'react';
-import { useHeaderLayout, useRegionalDisplay, useNameFormatter, usePhoneFormatter } from '../../hooks/useRegion';
+import { useHeaderLayout, useRegionalDisplay, usePhoneFormatter } from '../../hooks/useRegion';
 import { SmartPhoto } from './SmartPhoto';
 import { EditableField } from '../../components/atomic-editor';
+import { ModernHeader, ClassicHeader, MinimalHeader, type HeaderVariantProps } from './HeaderVariants';
+
+// ============================================================================
+// TYPES
+// ============================================================================
 
 interface PersonalInfo {
     firstName: string;
@@ -27,34 +35,39 @@ interface PersonalInfo {
     driverLicense?: string;
     linkedIn?: string;
     website?: string;
+    contact?: {
+        email?: string;
+        phone?: string;
+        address?: string;
+    };
 }
+
+type HeaderStyle = 'modern' | 'classic' | 'minimal';
 
 interface SmartHeaderProps {
     personal: PersonalInfo;
     accentColor?: string;
+    headerStyle?: HeaderStyle;
+    showPhoto?: boolean;
     className?: string;
 }
 
-// Reusable editable name component
-const EditableName: React.FC<{ firstName: string; lastName: string; className?: string }> = ({
-    className = ''
-}) => {
-    const formatName = useNameFormatter();
+// ============================================================================
+// HELPER COMPONENTS (for legacy layouts)
+// ============================================================================
 
-    return (
-        <h1 className={className}>
-            <EditableField path="personal.firstName" label="Prénom">
-                {(firstName) => (
-                    <EditableField path="personal.lastName" label="Nom">
-                        {(lastName) => <>{formatName(firstName, lastName)}</>}
-                    </EditableField>
-                )}
-            </EditableField>
-        </h1>
-    );
-};
+const EditableName: React.FC<{ className?: string }> = ({ className = '' }) => (
+    <h1 className={className}>
+        <EditableField path="personal.firstName" label="Prénom">
+            {(firstName) => (
+                <EditableField path="personal.lastName" label="Nom">
+                    {(lastName) => <>{firstName} {lastName}</>}
+                </EditableField>
+            )}
+        </EditableField>
+    </h1>
+);
 
-// Reusable editable title
 const EditableTitle: React.FC<{ className?: string; style?: React.CSSProperties }> = ({
     className = '',
     style
@@ -64,7 +77,6 @@ const EditableTitle: React.FC<{ className?: string; style?: React.CSSProperties 
     </EditableField>
 );
 
-// Reusable editable contact item
 const EditableContact: React.FC<{
     path: string;
     label: string;
@@ -82,14 +94,47 @@ const EditableContact: React.FC<{
     </EditableField>
 );
 
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
+
 export const SmartHeader: React.FC<SmartHeaderProps> = ({
     personal,
     accentColor = '#3b82f6',
+    headerStyle,
+    showPhoto = true,
     className = ''
 }) => {
     const headerLayout = useHeaderLayout();
     const display = useRegionalDisplay();
     const formatPhone = usePhoneFormatter();
+
+    // ========================================================================
+    // NEXAL STUDIO: Header Style Variants
+    // Priority: explicit headerStyle prop > region-based layout
+    // ========================================================================
+
+    if (headerStyle) {
+        const variantProps: HeaderVariantProps = {
+            personal,
+            accentColor,
+            showPhoto,
+            className
+        };
+
+        switch (headerStyle) {
+            case 'modern':
+                return <ModernHeader {...variantProps} />;
+            case 'classic':
+                return <ClassicHeader {...variantProps} />;
+            case 'minimal':
+                return <MinimalHeader {...variantProps} />;
+        }
+    }
+
+    // ========================================================================
+    // LEGACY: Region-based layouts (backward compatibility)
+    // ========================================================================
 
     // Compact header (USA/UK)
     if (headerLayout === 'compact') {
@@ -99,11 +144,7 @@ export const SmartHeader: React.FC<SmartHeaderProps> = ({
                 style={{ backgroundColor: accentColor }}
             >
                 <div className="p-6 text-white">
-                    <EditableName
-                        firstName={personal.firstName}
-                        lastName={personal.lastName}
-                        className="text-2xl font-bold"
-                    />
+                    <EditableName className="text-2xl font-bold" />
                     <EditableTitle className="text-lg opacity-90 mt-1" />
 
                     <div className="flex flex-wrap gap-4 mt-3 text-sm opacity-80">
@@ -128,13 +169,8 @@ export const SmartHeader: React.FC<SmartHeaderProps> = ({
         return (
             <header className={`smart-header full-personal ${className}`}>
                 <div className="flex gap-6 p-6 bg-gradient-to-r from-gray-50 to-gray-100 border-b">
-                    {/* Personal data column */}
                     <div className="flex-1">
-                        <EditableName
-                            firstName={personal.firstName}
-                            lastName={personal.lastName}
-                            className="text-2xl font-bold text-gray-900"
-                        />
+                        <EditableName className="text-2xl font-bold text-gray-900" />
                         <EditableTitle className="text-lg text-gray-600 mt-1" />
 
                         <div className="mt-4 space-y-1 text-sm text-gray-700">
@@ -156,31 +192,9 @@ export const SmartHeader: React.FC<SmartHeaderProps> = ({
                                     prefix="Adresse: "
                                 />
                             )}
-                            {display.showDateOfBirth && (
-                                <EditableField path="personal.birthDate" label="Date de naissance">
-                                    {(value) => value ? (
-                                        <p><span className="text-gray-500">Geburtsdatum:</span> {value}</p>
-                                    ) : null}
-                                </EditableField>
-                            )}
-                            {display.showNationality && (
-                                <EditableField path="personal.nationality" label="Nationalité">
-                                    {(value) => value ? (
-                                        <p><span className="text-gray-500">Nationalität:</span> {value}</p>
-                                    ) : null}
-                                </EditableField>
-                            )}
-                            {display.showDriverLicense && (
-                                <EditableField path="personal.driverLicense" label="Permis">
-                                    {(value) => value ? (
-                                        <p><span className="text-gray-500">Führerschein:</span> {value}</p>
-                                    ) : null}
-                                </EditableField>
-                            )}
                         </div>
                     </div>
 
-                    {/* Photo on right */}
                     <SmartPhoto
                         src={personal.photoUrl}
                         alt={`${personal.firstName} ${personal.lastName}`}
@@ -200,11 +214,7 @@ export const SmartHeader: React.FC<SmartHeaderProps> = ({
             >
                 <div className="flex gap-6 p-6 border-b-4">
                     <div className="flex-1">
-                        <EditableName
-                            firstName={personal.firstName}
-                            lastName={personal.lastName}
-                            className="text-2xl font-bold text-gray-900"
-                        />
+                        <EditableName className="text-2xl font-bold text-gray-900" />
                         <EditableTitle style={{ color: accentColor }} className="text-lg" />
 
                         <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-sm text-gray-600">
@@ -228,37 +238,16 @@ export const SmartHeader: React.FC<SmartHeaderProps> = ({
         );
     }
 
-    // Default/centered
+    // Default/centered - Uses Modern style as default
     return (
-        <header
-            className={`smart-header centered text-center ${className}`}
-            style={{ backgroundColor: accentColor }}
-        >
-            <div className="p-6 text-white">
-                <SmartPhoto
-                    src={personal.photoUrl}
-                    alt={`${personal.firstName} ${personal.lastName}`}
-                    size="lg"
-                    className="mx-auto mb-4"
-                />
-                <EditableName
-                    firstName={personal.firstName}
-                    lastName={personal.lastName}
-                    className="text-2xl font-bold"
-                />
-                <EditableTitle className="text-lg opacity-90 mt-1" />
-
-                <div className="flex justify-center gap-4 mt-3 text-sm opacity-80">
-                    <EditableContact path="personal.contact.email" label="Email" />
-                    <EditableContact
-                        path="personal.contact.phone"
-                        label="Téléphone"
-                        formatter={formatPhone}
-                    />
-                </div>
-            </div>
-        </header>
+        <ModernHeader
+            personal={personal}
+            accentColor={accentColor}
+            showPhoto={showPhoto}
+            className={className}
+        />
     );
 };
 
 export default SmartHeader;
+
