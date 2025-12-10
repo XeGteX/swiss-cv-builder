@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Link2, Copy, Check, Clock, Crown, ExternalLink } from 'lucide-react';
 import { useGate, useUpsellModalStore } from '../../../application/hooks/useGate';
-import { useCVStore } from '../../../application/store/cv-store';
+import { useCVStoreV2 as useCVStore } from '@/application/store/v2/cv-store-v2';
 import { cn } from '../../design-system/atoms/Button';
 import { create } from 'zustand';
 

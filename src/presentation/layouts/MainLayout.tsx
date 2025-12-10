@@ -4,6 +4,7 @@
  * Principal layout pour l'application avec:
  * - Desktop: Smart Sidebar à gauche
  * - Mobile: Bottom Navigation Bar en bas
+ * - Dynamic Atmosphere Background based on weather/time
  * 
  * Mobile-First: Sidebar hidden on mobile, MobileBottomNav shown instead
  */
@@ -11,6 +12,7 @@
 import React from 'react';
 import { SmartSidebar } from '../components/sidebar/SmartSidebar';
 import { MobileBottomNav } from '../components/navigation/MobileBottomNav';
+import { AtmosphereBackground } from '../components/atmosphere';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -20,6 +22,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     console.log('📐 MainLayout rendering...');
     return (
         <div className="flex h-screen overflow-hidden bg-transparent">
+            {/* Dynamic Atmosphere Background */}
+            <AtmosphereBackground showWidget={true} />
+
             {/* Smart Sidebar (collapsible) - Desktop only */}
             <SmartSidebar />
 

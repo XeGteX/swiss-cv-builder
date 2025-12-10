@@ -15,7 +15,7 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { useCVStore } from '../../../application/store/cv-store';
+import { useCVStoreV2 as useCVStore } from '@/application/store/v2/cv-store-v2';
 import { useToastStore } from '../../../application/store/toast-store';
 import { uploadMedia, validateFile } from '../../../application/services/MediaService';
 import {
@@ -404,7 +404,8 @@ const RecruiterBridgeDock: React.FC = () => {
 export const InteractiveResume: React.FC = () => {
     const navigate = useNavigate();
     const containerRef = useRef<HTMLDivElement>(null);
-    const { profile, updatePersonal } = useCVStore();
+    const profile = useCVStore(state => state.profile);
+    const updateField = useCVStore(state => state.updateField);
     const [expandedExp, setExpandedExp] = useState<number | null>(null);
     const isMobile = useIsMobile();
 
@@ -418,7 +419,7 @@ export const InteractiveResume: React.FC = () => {
 
     // Save avatar URL to store
     const handleAvatarChange = (url: string) => {
-        updatePersonal({ photoUrl: url });
+        updateField('personal.photoUrl', url);
     };
 
     return (

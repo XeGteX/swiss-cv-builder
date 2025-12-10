@@ -1,6 +1,6 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useCVStore } from '../cv-store';
+import { useCVStoreV2 as useCVStore } from '@/application/store/v2/cv-store-v2';
 
 describe('CV Store', () => {
     beforeEach(() => {
@@ -35,9 +35,13 @@ describe('CV Store', () => {
     });
 
     it('should update personal info', () => {
-        const { updatePersonal } = useCVStore.getState();
+        const { updateField, profile: initialProfile } = useCVStore.getState();
 
-        updatePersonal({ firstName: 'John', lastName: 'Doe' });
+        updateField('personal', {
+            ...initialProfile.personal,
+            firstName: 'John',
+            lastName: 'Doe'
+        });
 
         const { profile } = useCVStore.getState();
         expect(profile.personal.firstName).toBe('John');
@@ -45,9 +49,9 @@ describe('CV Store', () => {
     });
 
     it('should update summary', () => {
-        const { updateSummary } = useCVStore.getState();
+        const { updateField } = useCVStore.getState();
 
-        updateSummary('A great developer');
+        updateField('summary', 'A great developer');
 
         const { profile } = useCVStore.getState();
         expect(profile.summary).toBe('A great developer');

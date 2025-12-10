@@ -7,13 +7,14 @@ import { Smartphone, Monitor, Cloud, HardDrive, LogIn, LogOut } from 'lucide-rea
 import { useNavigate } from 'react-router-dom';
 import { SubscriptionTab } from '../subscription/SubscriptionTab';
 
-import { useCVStore } from '../../../application/store/cv-store';
+import { useCVStoreV2 as useCVStore } from '@/application/store/v2/cv-store-v2';
+import { getInitialProfile } from '@/application/store/v2/cv-store-v2.helpers';
 import { useTranslation } from '../../hooks/useTranslation';
 
 export const SettingsTab: React.FC = () => {
     const { isMobileMode, setMobileMode, loadDemoOnStartup, toggleDemoOnStartup, setLanguage, storageMode, setStorageMode } = useSettingsStore();
     const { isAuthenticated, logout, user } = useAuthStore();
-    const loadDemoProfile = useCVStore(state => state.loadDemoProfile);
+    const setFullProfile = useCVStore(state => state.setFullProfile);
     const navigate = useNavigate();
     const { t, language } = useTranslation();
 
@@ -152,7 +153,7 @@ export const SettingsTab: React.FC = () => {
                             variant="outline"
                             onClick={() => {
                                 // Direct load for now to avoid native confirm issues
-                                loadDemoProfile(language as 'fr' | 'en');
+                                setFullProfile(getInitialProfile());
                                 // addToast is not available in this scope, removing for now or need to add hook
                                 console.log('Demo profile loaded');
                             }}

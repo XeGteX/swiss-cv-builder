@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useCVStore } from '../../application/store/cv-store';
+import { useCVStoreV2 as useCVStore } from '@/application/store/v2/cv-store-v2';
 import { useSettingsStore } from '../../application/store/settings-store';
 import { layoutRegistry } from './registry';
 import { AutoScaler } from '../../domain/services/auto-scaler';

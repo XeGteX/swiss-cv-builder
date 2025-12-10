@@ -18,7 +18,8 @@ import {
 } from 'lucide-react';
 import { useSettingsStore } from '../../../application/store/settings-store';
 import { useAuthStore } from '../../../application/store/auth-store';
-import { useCVStore } from '../../../application/store/cv-store';
+import { useCVStoreV2 as useCVStore } from '@/application/store/v2/cv-store-v2';
+import { getInitialProfile } from '@/application/store/v2/cv-store-v2.helpers';
 import { RegionSelector } from '../../components/region/RegionSelector';
 
 interface SettingsModalProps {
@@ -51,7 +52,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         storageMode, setStorageMode
     } = useSettingsStore();
     const { isAuthenticated } = useAuthStore();
-    const loadDemoProfile = useCVStore(state => state.loadDemoProfile);
+    const setFullProfile = useCVStore(state => state.setFullProfile);
 
     if (!isOpen) return null;
 
@@ -146,7 +147,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                                     setLanguage={setLanguage}
                                                     loadDemoOnStartup={loadDemoOnStartup}
                                                     toggleDemoOnStartup={toggleDemoOnStartup}
-                                                    loadDemoProfile={loadDemoProfile}
+                                                    loadDemoProfile={() => setFullProfile(getInitialProfile())}
                                                     storageMode={storageMode}
                                                     setStorageMode={setStorageMode}
                                                     isAuthenticated={isAuthenticated}
@@ -181,7 +182,7 @@ interface GeneralTabProps {
     setLanguage: (lang: 'fr' | 'en') => void;
     loadDemoOnStartup: boolean;
     toggleDemoOnStartup: () => void;
-    loadDemoProfile: (lang: 'fr' | 'en') => void;
+    loadDemoProfile: () => void;
     storageMode: string;
     setStorageMode: (mode: 'local' | 'cloud') => void;
     isAuthenticated: boolean;
@@ -257,7 +258,7 @@ const GeneralTab: React.FC<GeneralTabProps> = ({
                         />
                     </div>
                     <button
-                        onClick={() => loadDemoProfile(language as 'fr' | 'en')}
+                        onClick={() => loadDemoProfile()}
                         className="w-full py-2.5 border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white rounded-xl text-sm font-medium transition-all duration-200"
                     >
                         Générer profil démo

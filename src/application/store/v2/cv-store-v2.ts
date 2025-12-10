@@ -143,7 +143,7 @@ export const useCVStoreV2 = create<CVStoreV2State>()(
 
                     reorderSections: (startIndex, endIndex) => {
                         set((state) => ({
-                            sectionOrder: helpers.reorderSections(state.sectionOrder, startIndex, endIndex)
+                            sectionOrder: Array.from(new Set(helpers.reorderSections(state.sectionOrder, startIndex, endIndex)))
                         }), false, `telekinesis:reorderSections:${startIndex}→${endIndex}`);
                     },
 
@@ -182,7 +182,7 @@ export const useCVStoreV2 = create<CVStoreV2State>()(
                     },
 
                     setSectionOrder: (order) => {
-                        set({ sectionOrder: order }, false, 'telekinesis:setSectionOrder');
+                        set({ sectionOrder: Array.from(new Set(order)) }, false, 'telekinesis:setSectionOrder');
                     },
 
                     // ========================================
@@ -248,14 +248,17 @@ export const useCVStoreV2 = create<CVStoreV2State>()(
                     // Auto-migration for sectionOrder and mode
                     onRehydrateStorage: () => (state) => {
                         if (state) {
-                            // Migrate sectionOrder
-                            const currentOrder = state.sectionOrder || [];
+                            // Migrate sectionOrder - Ensure UNIQUE
+                            const currentOrder = Array.from(new Set(state.sectionOrder || []));
                             const missingSections = DEFAULT_SECTION_ORDER.filter(
                                 section => !currentOrder.includes(section)
                             );
 
                             if (missingSections.length > 0) {
                                 state.sectionOrder = [...currentOrder, ...missingSections];
+                            } else if (currentOrder.length !== (state.sectionOrder || []).length) {
+                                // If we filtered out duplicates, save back
+                                state.sectionOrder = currentOrder;
                             }
 
                             // Migrate mode: 'write' -> 'edition'

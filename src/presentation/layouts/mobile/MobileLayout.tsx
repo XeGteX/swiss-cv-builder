@@ -7,7 +7,7 @@ import { PreviewPane } from '../../features/preview/PreviewPane';
 import { CriticTab } from '../../features/editor/tabs/CriticTab';
 import { SettingsTab } from '../../features/settings/SettingsTab';
 import { Button } from '../../design-system/atoms/Button';
-import { useCVStore } from '../../../application/store/cv-store';
+import { useCVStoreV2 as useCVStore } from '@/application/store/v2/cv-store-v2';
 import { generateSoftBackground } from '../../utils/color-utils';
 
 type MobileTab = 'editor' | 'preview' | 'ai' | 'settings';

@@ -10,7 +10,19 @@
 
 import React, { useRef, useState, useLayoutEffect, useCallback } from 'react';
 import type { CVProfile } from '../../../domain/cv/v2/types';
-import type { PageContent } from '../../hooks/usePaginationV2';
+
+// PageContent type (previously from usePaginationV2, now defined locally)
+export interface PageContent {
+    pageIndex: number;
+    headerMode: 'full' | 'mini' | 'none';
+    sections: {
+        sectionId: string;
+        itemRange: [number, number] | 'all';
+        showHeader: boolean;
+    }[];
+    sidebarExtends: boolean;
+    isOverflowing: boolean;
+}
 
 // ============================================================================
 // CONSTANTS

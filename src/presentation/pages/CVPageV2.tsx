@@ -204,19 +204,6 @@ export const CVPageV2: React.FC = () => {
                                     </span>
                                 )}
                             </button>
-
-                            {/* NEXAL Studio Button */}
-                            <button
-                                onClick={() => setIsDesignPanelOpen(!isDesignPanelOpen)}
-                                className={`px-2 md:px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all border ${isDesignPanelOpen
-                                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white border-transparent shadow-lg shadow-blue-500/25'
-                                    : 'bg-slate-800/50 text-slate-400 border-white/10 hover:text-white hover:border-blue-500/50'
-                                    }`}
-                                title="NEXAL Studio - Design ton CV"
-                            >
-                                <Palette size={14} className={isDesignPanelOpen ? 'animate-pulse' : ''} />
-                                <span className="hidden sm:inline">Studio</span>
-                            </button>
                         </div>
 
                         <div className="flex items-center gap-3">
@@ -400,34 +387,34 @@ export const CVPageV2: React.FC = () => {
                             </div>
                         )}
 
-                        {/* CV Preview/Canvas - TOP ALIGNED with EditorSidebar */}
+                        {/* CV Preview/Canvas - FULL HEIGHT to match EditorSidebar */}
                         <div
                             ref={previewContainerRef}
-                            className={`flex-1 min-h-0 min-w-0 ${isFocusMode ? 'flex items-center justify-center' : ''}`}
+                            className={`flex-1 min-h-0 min-w-0 h-full ${isFocusMode ? 'fixed inset-0 z-40 bg-slate-950' : ''}`}
                         >
                             <div
                                 id="cv-scroll-container"
                                 tabIndex={0}
-                                className="w-full h-full overflow-y-auto overflow-x-hidden visible-scrollbar focus:outline-none"
-                                style={{
+                                className={`focus:outline-none w-full h-full ${isFocusMode ? 'flex items-center justify-center overflow-auto' : ''}`}
+                                style={!isFocusMode ? {
                                     display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'flex-start', // Always top-aligned
-                                    paddingTop: isMobile ? '16px' : '16px', // Consistent padding
-                                    paddingBottom: isMobile ? '120px' : '32px' // Space for MobileBottomNav on mobile
-                                }}
+                                    flexDirection: 'column',
+                                    padding: isMobile ? '8px' : '8px',
+                                } : undefined}
                                 onKeyDown={(e) => {
                                     const container = e.currentTarget;
                                     if (e.key === 'ArrowDown') {
                                         container.scrollBy({ top: 100, behavior: 'smooth' });
                                     } else if (e.key === 'ArrowUp') {
                                         container.scrollBy({ top: -100, behavior: 'smooth' });
+                                    } else if (e.key === 'Escape' && isFocusMode) {
+                                        setIsFocusMode(false);
                                     }
                                 }}
                             >
                                 <PreviewPane
                                     hideToolbar={true}
-                                    scale={zoom}
+                                    scale={isFocusMode ? 1 : zoom}
                                     showErrors={isDebugAgentActive}
                                 />
                             </div>

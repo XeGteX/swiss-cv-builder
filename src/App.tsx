@@ -18,11 +18,9 @@ import { VirtualTemplateGallery } from './presentation/features/templates/Virtua
 import { InteractiveResume } from './presentation/features/interactive-resume/InteractiveResume';
 import { NexalOnboardingPage } from './presentation/features/wizard/NexalOnboardingPage';
 import { useAuthStore } from './application/store/auth-store';
-import { useCVStore } from './application/store/cv-store';
 import { initializeLayouts } from './presentation/layouts';
 import { ErrorBoundary } from './presentation/components/ErrorBoundary';
 import { AppShell } from './presentation/layouts/AppShell';
-import PDFRenderPage from './presentation/pages/PDFRenderPage';
 import { LandingPage } from './presentation/pages/LandingPage';
 
 // Footer link pages
@@ -43,13 +41,11 @@ import { DebugBar } from './presentation/features/debug';
 
 function App() {
   const { checkAuth } = useAuthStore();
-  const { syncData } = useCVStore();
 
   useEffect(() => {
     initializeLayouts();
     checkAuth();
-    syncData();
-  }, [checkAuth, syncData]);
+  }, [checkAuth]);
 
   return (
     <ErrorBoundary>
@@ -98,8 +94,6 @@ function App() {
               </AppShell>
             } />
 
-            {/* PDF Render Route for Puppeteer - MUST be outside AppShell to avoid layout constraints */}
-            <Route path="/pdf-render/:id" element={<PDFRenderPage />} />
           </Routes>
           {/* DebugBar - Global floating component */}
           <DebugBar />
@@ -110,4 +104,3 @@ function App() {
 }
 
 export default App;
-

@@ -1,11 +1,8 @@
 /**
- * EditorSidebar v2 - Phase-Based Navigation
+ * EditorSidebar v3 - Compact Phase Navigation
  * 
- * NEXAL Career OS - Refactored with 4-Phase Architecture:
- * 1️⃣ DATA - "Je remplis"
- * 2️⃣ DESIGN - "Je rends beau"
- * 3️⃣ INTELLIGENCE - "J'optimise"
- * 4️⃣ ACTION - "Je postule"
+ * REFACTORED: Hover dropdown submenus, cleaner UI
+ * No more permanent tabs list - dropdowns on hover
  */
 
 import React, { useState, useCallback } from 'react';
@@ -17,9 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     PHASES,
     PhaseBar,
-    PhaseTabs,
     getPhaseForTab,
-    getDefaultTabForPhase,
     type PhaseId
 } from '../../components/PhaseNavigation';
 
@@ -67,7 +62,7 @@ const TabContent: React.FC<{ tabId: string }> = React.memo(({ tabId }) => {
 TabContent.displayName = 'TabContent';
 
 // ============================================================================
-// EDITOR SIDEBAR COMPONENT
+// EDITOR SIDEBAR COMPONENT - COMPACT VERSION
 // ============================================================================
 
 export const EditorSidebar: React.FC = React.memo(() => {
@@ -79,20 +74,17 @@ export const EditorSidebar: React.FC = React.memo(() => {
         currentPhase?.id ?? 'data'
     );
 
-    // Get the active phase object
-    const activePhase = PHASES.find(p => p.id === activePhaseId) ?? PHASES[0];
-
     // Handle phase change
     const handlePhaseChange = useCallback((phaseId: PhaseId) => {
         setActivePhaseId(phaseId);
-        // Set the first tab of the new phase as active
-        const defaultTab = getDefaultTabForPhase(phaseId);
-        setActiveTab(defaultTab as any);
-    }, [setActiveTab]);
+    }, []);
 
-    // Handle tab change within phase
+    // Handle tab change
     const handleTabChange = useCallback((tabId: string) => {
         setActiveTab(tabId as any);
+        // Also update phase to match
+        const phase = getPhaseForTab(tabId);
+        if (phase) setActivePhaseId(phase.id);
     }, [setActiveTab]);
 
     return (
@@ -101,27 +93,17 @@ export const EditorSidebar: React.FC = React.memo(() => {
             "text-slate-100 rounded-xl border border-white/10 overflow-hidden",
             GlassStyles.panel
         )}>
-            {/* Phase Bar - Top Navigation */}
+            {/* Phase Bar - Compact with hover dropdowns */}
             <div className="p-3 border-b border-white/10 bg-slate-900/60 backdrop-blur-md">
                 <PhaseBar
                     activePhase={activePhaseId}
+                    activeTab={activeTab}
                     onPhaseChange={handlePhaseChange}
+                    onTabChange={handleTabChange}
                 />
             </div>
 
-            {/* Phase Tabs - Sub Navigation */}
-            <div className="px-3 py-2 border-b border-white/10 bg-slate-900/40">
-                <AnimatePresence mode="wait">
-                    <PhaseTabs
-                        key={activePhaseId}
-                        phase={activePhase}
-                        activeTab={activeTab}
-                        onTabChange={handleTabChange}
-                    />
-                </AnimatePresence>
-            </div>
-
-            {/* Tab Content */}
+            {/* Tab Content - Takes all remaining space */}
             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-transparent">
                 <AnimatePresence mode="wait">
                     <motion.div

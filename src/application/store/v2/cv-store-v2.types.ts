@@ -31,13 +31,30 @@ export type CVMode = 'edition' | 'structure' | 'ai' | 'modele';
 
 export type FontPairing = 'sans' | 'serif' | 'mono';
 export type HeaderStyle = 'modern' | 'classic' | 'minimal';
+export type SectionLineStyle = 'solid' | 'dashed' | 'dotted' | 'none' | 'gradient';
+export type BulletStyle = 'disc' | 'square' | 'dash' | 'arrow' | 'check';
 
 export interface DesignConfig {
+    // Colors
     accentColor: string;
+
+    // Typography
     fontPairing: FontPairing;
-    headerStyle: HeaderStyle;
     fontSize: number;      // Scale: 1.0 = 100%
     lineHeight: number;    // e.g., 1.5
+
+    // Layout
+    headerStyle: HeaderStyle;
+
+    // Visual Details
+    sectionLineStyle: SectionLineStyle;
+    sectionLineColor: string;  // 'accent' uses accentColor, or custom hex
+    bulletStyle: BulletStyle;
+
+    // International Settings (reactive - pre-filled by country rules, user can override)
+    showPhoto: boolean;
+    targetCountry: string;
+    paperFormat: 'A4' | 'LETTER';
 }
 
 export interface NexalStudioState {
@@ -122,7 +139,14 @@ export const DEFAULT_DESIGN: DesignConfig = {
     fontPairing: 'sans',
     headerStyle: 'modern',
     fontSize: 1.0,
-    lineHeight: 1.5
+    lineHeight: 1.5,
+    sectionLineStyle: 'solid',
+    sectionLineColor: 'accent',  // Uses accentColor
+    bulletStyle: 'disc',
+    // International settings (default to France/Europe)
+    showPhoto: true,
+    targetCountry: 'FR',
+    paperFormat: 'A4',
 };
 
 /**

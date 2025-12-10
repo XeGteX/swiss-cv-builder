@@ -1,6 +1,6 @@
 
 import { useEffect } from 'react';
-import { useCVStore } from '../../application/store/cv-store';
+import { useCVStoreV2 as useCVStore } from '@/application/store/v2/cv-store-v2';
 import { useAdaptiveEngine } from '../../domain/services/adaptive/adaptive-engine';
 
 export const useSmartDensity = () => {
