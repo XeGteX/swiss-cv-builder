@@ -1,7 +1,18 @@
 
 import type { CVProfile, Experience, Education } from '../entities/cv';
 import type { ScvDocument, ScvBlock, ScvTheme } from './types';
-import { PDF_ICONS } from '../../infrastructure/pdf/infinity/icons';
+
+// Legacy PDF_ICONS placeholder (InfinityRenderer was removed)
+// This mapper is deprecated but kept for reference
+const PDF_ICONS = {
+    mapPin: [],
+    globe: [],
+    phone: [],
+    mail: [],
+    briefcase: [],
+    award: [],
+    graduationCap: [],
+};
 
 const translations = {
     en: {

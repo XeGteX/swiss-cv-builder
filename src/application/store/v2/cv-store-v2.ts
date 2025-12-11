@@ -225,6 +225,35 @@ export const useCVStoreV2 = create<CVStoreV2State>()(
                         }), false, 'nexal:setDesign');
                     },
 
+                    // INTERNATIONAL SETTINGS - Reactive country rules
+                    setTargetCountry: (country: string) => {
+                        // Import dynamically to avoid circular deps
+                        import('@/data/countryRules').then(({ getCountryRules }) => {
+                            const rules = getCountryRules(country);
+                            set((state) => ({
+                                design: {
+                                    ...state.design,
+                                    targetCountry: country,
+                                    // Pre-fill from country rules (user can override later)
+                                    showPhoto: rules.showPhoto,
+                                    paperFormat: rules.format,
+                                }
+                            }), false, `nexal:setTargetCountry:${country}`);
+                        });
+                    },
+
+                    setShowPhoto: (show: boolean) => {
+                        set((state) => ({
+                            design: { ...state.design, showPhoto: show }
+                        }), false, `nexal:setShowPhoto:${show}`);
+                    },
+
+                    setPaperFormat: (format: 'A4' | 'LETTER') => {
+                        set((state) => ({
+                            design: { ...state.design, paperFormat: format }
+                        }), false, `nexal:setPaperFormat:${format}`);
+                    },
+
                     // ========================================
                     // UTILITY ACTIONS
                     // ========================================
@@ -297,10 +326,35 @@ if (typeof window !== 'undefined') {
 // ============================================================================
 
 /**
- * Hook to get only the profile (no actions)
- * Use this for read-only components to avoid re-renders
+ * @deprecated PERFORMANCE ISSUE: Returns entire profile = re-render on ANY change
+ * Use granular hooks instead: useProfilePersonal, useProfileSkills, etc.
  */
-export const useProfile = () => useCVStoreV2((state) => state.profile);
+export const useProfile = () => {
+    // Dev warning removed to avoid build issues - use granular hooks for performance
+    return useCVStoreV2((state) => state.profile);
+};
+
+// ════════════════════════════════════════════════════════════════════════════
+// GRANULAR PROFILE HOOKS - Prevent unnecessary re-renders
+// ════════════════════════════════════════════════════════════════════════════
+
+/** Get only personal info - re-renders only on personal changes */
+export const useProfilePersonal = () => useCVStoreV2((state) => state.profile.personal);
+
+/** Get only skills - re-renders only on skills changes */
+export const useProfileSkills = () => useCVStoreV2((state) => state.profile.skills);
+
+/** Get only languages - re-renders only on languages changes */
+export const useProfileLanguages = () => useCVStoreV2((state) => state.profile.languages);
+
+/** Get only experiences - re-renders only on experiences changes */
+export const useProfileExperiences = () => useCVStoreV2((state) => state.profile.experiences);
+
+/** Get only educations - re-renders only on educations changes */
+export const useProfileEducations = () => useCVStoreV2((state) => state.profile.educations);
+
+/** Get only summary - re-renders only on summary changes */
+export const useProfileSummary = () => useCVStoreV2((state) => state.profile.summary);
 
 /**
  * Hook to get ATLAS sync status

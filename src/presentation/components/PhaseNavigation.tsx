@@ -125,51 +125,43 @@ export const PhaseBar: React.FC<PhaseBarProps> = ({
     onPhaseChange,
     onTabChange
 }) => {
-    const [hoveredPhase, setHoveredPhase] = useState<PhaseId | null>(null);
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    // Smart Recall: Remember what was clicked, show on hover
+    const [selectedPhase, setSelectedPhase] = useState<PhaseId | null>(null);
+    const [isHovering, setIsHovering] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
 
-    // Close dropdown when clicking outside
-    useEffect(() => {
-        const handleClickOutside = () => setDropdownOpen(false);
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }, []);
+    // Dropdown shows when hovering AND a phase is selected
+    const showDropdown = isHovering && selectedPhase !== null;
 
-    const handleMouseEnter = useCallback((phaseId: PhaseId) => {
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        setHoveredPhase(phaseId);
-        setDropdownOpen(true);
-    }, []);
-
-    const handleMouseLeave = useCallback(() => {
-        timeoutRef.current = setTimeout(() => {
-            setDropdownOpen(false);
-            setHoveredPhase(null);
-        }, 200);
-    }, []);
+    // CLICK to select phase (remember it)
+    const handlePhaseClick = useCallback((e: React.MouseEvent, phaseId: PhaseId) => {
+        e.stopPropagation();
+        setSelectedPhase(phaseId);
+        onPhaseChange(phaseId);
+    }, [onPhaseChange]);
 
     const handleTabClick = useCallback((e: React.MouseEvent, phaseId: PhaseId, tabId: string) => {
         e.stopPropagation();
         onPhaseChange(phaseId);
         onTabChange(tabId);
-        setDropdownOpen(false);
-        setHoveredPhase(null);
+        setIsHovering(false);  // Close dropdown after selection
     }, [onPhaseChange, onTabChange]);
 
-    const currentPhase = PHASES.find(p => p.id === (hoveredPhase || activePhase));
+    const currentPhase = PHASES.find(p => p.id === (selectedPhase || activePhase));
     const currentTab = currentPhase?.tabs.find(t => t.id === activeTab);
 
     return (
         <div
+            ref={containerRef}
             className="relative"
-            onMouseLeave={handleMouseLeave}
+            onMouseEnter={() => setIsHovering(true)}   // Show on enter
+            onMouseLeave={() => setIsHovering(false)}  // Hide on leave
         >
             {/* Phase Buttons Row */}
             <div className="flex gap-1 p-1 bg-black/20 rounded-xl backdrop-blur-sm border border-white/10">
                 {PHASES.map((phase) => {
                     const isActive = activePhase === phase.id;
-                    const isHovered = hoveredPhase === phase.id;
+                    const isSelected = selectedPhase === phase.id;
                     const Icon = phase.icon;
 
                     return (
@@ -177,18 +169,14 @@ export const PhaseBar: React.FC<PhaseBarProps> = ({
                             key={phase.id}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onPhaseChange(phase.id);
-                            }}
-                            onMouseEnter={() => handleMouseEnter(phase.id)}
+                            onClick={(e) => handlePhaseClick(e, phase.id)}
                             className={`
                                 relative flex-1 py-2 px-3 rounded-lg transition-all duration-300
                                 ${isActive
                                     ? `bg-gradient-to-r ${phase.color} text-white shadow-lg`
-                                    : isHovered
-                                        ? 'bg-white/10 text-slate-200'
-                                        : 'text-slate-400 hover:text-slate-200'
+                                    : isSelected && isHovering
+                                        ? 'bg-white/15 text-slate-200 ring-1 ring-white/20'
+                                        : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                                 }
                             `}
                         >
@@ -199,8 +187,8 @@ export const PhaseBar: React.FC<PhaseBarProps> = ({
                                 </span>
                             </div>
 
-                            {/* Hover indicator arrow */}
-                            {isHovered && dropdownOpen && (
+                            {/* Selected indicator arrow */}
+                            {isSelected && isHovering && (
                                 <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
@@ -223,50 +211,54 @@ export const PhaseBar: React.FC<PhaseBarProps> = ({
                 })}
             </div>
 
-            {/* Dropdown Menu - Shows on hover */}
+            {/* Dropdown Menu - Shows on hover when phase selected (Smart Recall) */}
             <AnimatePresence>
-                {dropdownOpen && hoveredPhase && (
+                {showDropdown && selectedPhase && (
                     <motion.div
                         initial={{ opacity: 0, y: -5 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -5 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute top-full left-0 right-0 mt-1 p-1.5 bg-slate-900/95 backdrop-blur-md rounded-lg border border-white/10 shadow-xl z-[9999]"
-                        onMouseEnter={() => {
-                            if (timeoutRef.current) clearTimeout(timeoutRef.current);
-                        }}
+                        className="absolute top-full left-0 right-0 pt-2 z-[9999]"
                     >
-                        <div className="flex flex-wrap gap-1">
-                            {currentPhase?.tabs.map((tab) => {
-                                const isActiveTab = activeTab === tab.id && activePhase === hoveredPhase;
-                                const TabIcon = tab.icon;
+                        {/* Inner panel with actual styling - pt-2 above creates hover bridge */}
+                        <div
+                            className="p-2 rounded-lg border border-white/20 shadow-2xl"
+                            style={{ backgroundColor: '#0f172a' }}  // Fully opaque slate-900
+                        >
+                            <div className="flex flex-wrap gap-1">
+                                {PHASES.find(p => p.id === selectedPhase)?.tabs.map((tab) => {
+                                    const isActiveTab = activeTab === tab.id && activePhase === selectedPhase;
+                                    const TabIcon = tab.icon;
+                                    const phase = PHASES.find(p => p.id === selectedPhase)!;
 
-                                return (
-                                    <motion.button
-                                        key={tab.id}
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.96 }}
-                                        onClick={(e) => handleTabClick(e, hoveredPhase!, tab.id)}
-                                        className={`
+                                    return (
+                                        <motion.button
+                                            key={tab.id}
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.96 }}
+                                            onClick={(e) => handleTabClick(e, selectedPhase!, tab.id)}
+                                            className={`
                                             flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all
                                             ${isActiveTab
-                                                ? `bg-gradient-to-r ${currentPhase.color} text-white`
-                                                : 'text-slate-300 hover:bg-white/10 hover:text-white'
-                                            }
+                                                    ? `bg-gradient-to-r ${phase.color} text-white`
+                                                    : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                                                }
                                         `}
-                                    >
-                                        <TabIcon className="w-3.5 h-3.5" />
-                                        {tab.label}
-                                    </motion.button>
-                                );
-                            })}
+                                        >
+                                            <TabIcon className="w-3.5 h-3.5" />
+                                            {tab.label}
+                                        </motion.button>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
             {/* Active Tab Indicator - Shows current selection compactly */}
-            {currentTab && !dropdownOpen && (
+            {currentTab && !showDropdown && (
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}

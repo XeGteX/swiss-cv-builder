@@ -5,7 +5,7 @@
  * Each preset applies color, typography, and header style simultaneously.
  */
 
-import type { HeaderStyle, FontPairing } from '../store/v2/cv-store-v2.types';
+import type { HeaderStyle, FontPairing, SidebarPosition } from '../store/v2/cv-store-v2.types';
 
 // ============================================================================
 // TYPES
@@ -22,6 +22,7 @@ export interface MagicPreset {
         secondaryColor?: string;
         fontPairing: FontPairing;
         headerStyle: HeaderStyle;
+        sidebarPosition?: SidebarPosition;  // NEW: Sidebar position
         fontWeight?: 'light' | 'normal' | 'bold';
         titleCase?: 'normal' | 'uppercase' | 'capitalize';
     };

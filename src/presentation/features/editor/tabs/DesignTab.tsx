@@ -20,7 +20,9 @@ import {
     Pipette,
     Sparkles,
     Grid3X3,
-    Sliders
+    Sliders,
+    PanelLeft,
+    PanelRight,
 } from 'lucide-react';
 
 import { useDesign, useCVStoreV2 } from '../../../../application/store/v2';
@@ -28,7 +30,8 @@ import {
     COLOR_PRESETS,
     FONT_PAIRINGS_CONFIG,
     type FontPairing,
-    type HeaderStyle
+    type HeaderStyle,
+    type SidebarPosition,
 } from '../../../../application/store/v2/cv-store-v2.types';
 
 import { MAGIC_PRESETS, PRESET_CATEGORIES, type PresetCategory } from '../../../../application/config/studio-presets';
@@ -90,19 +93,72 @@ function CollapsibleSection({ title, icon, children, defaultOpen = true, badge }
 }
 
 // ============================================================================
+// 🧪 TEST ZONE: SIDEBAR LAYOUT SECTION
+// ============================================================================
+
+function SidebarLayoutSection() {
+    const design = useDesign();
+    const setDesign = useCVStoreV2(state => state.setDesign);
+
+    const handlePositionChange = (position: SidebarPosition) => {
+        setDesign({ sidebarPosition: position });
+    };
+
+    return (
+        <div className="p-3 border-b-2 border-yellow-500/50 bg-gradient-to-r from-yellow-500/10 to-orange-500/10">
+            <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-bold text-yellow-400 uppercase tracking-wider">
+                    🧪 TEST ZONE: DISPOSITION
+                </span>
+            </div>
+            <div className="text-[10px] text-slate-400 mb-2">Position de la barre latérale</div>
+            <div className="grid grid-cols-2 gap-2">
+                <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handlePositionChange('left')}
+                    className={`p-3 rounded-lg border-2 text-center transition-all flex flex-col items-center gap-2 ${design.sidebarPosition === 'left'
+                        ? 'border-yellow-500 bg-yellow-500/20'
+                        : 'border-white/10 hover:border-white/30 bg-white/5'
+                        }`}
+                >
+                    <PanelLeft className="w-5 h-5 text-slate-200" />
+                    <span className="text-xs font-medium text-slate-200">Gauche</span>
+                </motion.button>
+                <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handlePositionChange('right')}
+                    className={`p-3 rounded-lg border-2 text-center transition-all flex flex-col items-center gap-2 ${design.sidebarPosition === 'right'
+                        ? 'border-yellow-500 bg-yellow-500/20'
+                        : 'border-white/10 hover:border-white/30 bg-white/5'
+                        }`}
+                >
+                    <PanelRight className="w-5 h-5 text-slate-200" />
+                    <span className="text-xs font-medium text-slate-200">Droite</span>
+                </motion.button>
+            </div>
+        </div>
+    );
+}
+
+// ============================================================================
 // MAGIC PRESETS SECTION (24 Presets)
 // ============================================================================
 
 function MagicPresetsSection() {
-    const setAccentColor = useCVStoreV2(state => state.setAccentColor);
-    const setHeaderStyle = useCVStoreV2(state => state.setHeaderStyle);
-    const setFontPairing = useCVStoreV2(state => state.setFontPairing);
+    const setDesign = useCVStoreV2(state => state.setDesign);
     const [activeCategory, setActiveCategory] = useState<PresetCategory | 'all'>('all');
 
     const applyPreset = (preset: typeof MAGIC_PRESETS[0]) => {
-        setAccentColor(preset.config.accentColor);
-        setHeaderStyle(preset.config.headerStyle);
-        setFontPairing(preset.config.fontPairing);
+        // Apply all preset config as a full design update
+        setDesign({
+            accentColor: preset.config.accentColor,
+            headerStyle: preset.config.headerStyle,
+            fontPairing: preset.config.fontPairing,
+            // Apply sidebarPosition if defined in preset
+            ...(preset.config.sidebarPosition && { sidebarPosition: preset.config.sidebarPosition }),
+        });
     };
 
     const filteredPresets = activeCategory === 'all'
@@ -121,8 +177,8 @@ function MagicPresetsSection() {
                 <button
                     onClick={() => setActiveCategory('all')}
                     className={`px-2 py-1 text-[10px] rounded-md transition-all ${activeCategory === 'all'
-                            ? 'bg-white/20 text-white'
-                            : 'bg-white/5 text-slate-400 hover:text-white'
+                        ? 'bg-white/20 text-white'
+                        : 'bg-white/5 text-slate-400 hover:text-white'
                         }`}
                 >
                     Tous
@@ -132,8 +188,8 @@ function MagicPresetsSection() {
                         key={cat.id}
                         onClick={() => setActiveCategory(cat.id)}
                         className={`px-2 py-1 text-[10px] rounded-md transition-all ${activeCategory === cat.id
-                                ? 'bg-white/20 text-white'
-                                : 'bg-white/5 text-slate-400 hover:text-white'
+                            ? 'bg-white/20 text-white'
+                            : 'bg-white/5 text-slate-400 hover:text-white'
                             }`}
                     >
                         {cat.emoji} {cat.name}
@@ -395,22 +451,123 @@ function HeaderSection() {
         </CollapsibleSection>
     );
 }
-
 // ============================================================================
-// VISUAL DETAILS SECTION (Coming Soon)
+// VISUAL DETAILS SECTION (Line Style, Bullet Style)
 // ============================================================================
 
 function VisualDetailsSection() {
+    const design = useDesign();
+    const setDesign = useCVStoreV2(state => state.setDesign);
+
+    const lineStyles = [
+        { id: 'solid', label: 'Solide', icon: '⎯' },
+        { id: 'dashed', label: 'Tirets', icon: '- -' },
+        { id: 'dotted', label: 'Points', icon: '···' },
+        { id: 'none', label: 'Aucune', icon: '○' },
+    ] as const;
+
+    const bulletStyles = [
+        { id: 'disc', label: 'Cercle', icon: '•' },
+        { id: 'square', label: 'Carré', icon: '▪' },
+        { id: 'arrow', label: 'Flèche', icon: '→' },
+        { id: 'dash', label: 'Tiret', icon: '–' },
+        { id: 'check', label: 'Check', icon: '✓' },
+    ] as const;
+
     return (
         <CollapsibleSection
             title="Détails visuels"
             icon={<Sliders className="w-4 h-4" />}
             defaultOpen={false}
-            badge="SOON"
         >
-            <div className="text-center py-4 text-slate-400">
-                <Grid3X3 className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p className="text-xs">Bientôt: Puces, lignes, icônes</p>
+            {/* Section Line Style */}
+            <div className="mb-4">
+                <div className="text-[10px] text-slate-400 mb-2 font-medium uppercase tracking-wider">
+                    Séparateurs de section
+                </div>
+                <div className="grid grid-cols-4 gap-1.5">
+                    {lineStyles.map((style) => (
+                        <button
+                            key={style.id}
+                            onClick={() => setDesign({ sectionLineStyle: style.id })}
+                            className={`p-2 rounded-lg text-xs transition-all flex flex-col items-center gap-1
+                                ${design?.sectionLineStyle === style.id
+                                    ? 'bg-white/20 ring-1 ring-white/30'
+                                    : 'bg-white/5 hover:bg-white/10'
+                                }`}
+                        >
+                            <span className="text-sm">{style.icon}</span>
+                            <span className="text-[9px] text-slate-400">{style.label}</span>
+                        </button>
+                    ))}
+                </div>
+
+                {/* Section Line Color - NEW */}
+                <div className="mt-3 flex items-center gap-2">
+                    <span className="text-[10px] text-slate-400">Couleur:</span>
+                    <button
+                        onClick={() => setDesign({ sectionLineColor: 'accent' })}
+                        className={`px-2 py-1 text-[10px] rounded transition-all ${design?.sectionLineColor === 'accent'
+                            ? 'bg-white/20 ring-1 ring-white/30 text-white'
+                            : 'bg-white/5 text-slate-400 hover:bg-white/10'
+                            }`}
+                    >
+                        Accent
+                    </button>
+                    <div className="relative">
+                        <input
+                            type="color"
+                            value={design?.sectionLineColor === 'accent' ? design?.accentColor : design?.sectionLineColor}
+                            onChange={(e) => setDesign({ sectionLineColor: e.target.value })}
+                            className="absolute inset-0 opacity-0 cursor-pointer w-6 h-6"
+                        />
+                        <div
+                            className={`w-6 h-6 rounded border-2 cursor-pointer transition-all ${design?.sectionLineColor !== 'accent'
+                                ? 'border-white/40'
+                                : 'border-white/10'
+                                }`}
+                            style={{
+                                backgroundColor: design?.sectionLineColor === 'accent'
+                                    ? design?.accentColor
+                                    : design?.sectionLineColor
+                            }}
+                            title="Couleur personnalisée"
+                        />
+                    </div>
+                    {design?.sectionLineColor !== 'accent' && (
+                        <span className="text-[9px] font-mono text-slate-500">
+                            {design?.sectionLineColor}
+                        </span>
+                    )}
+                </div>
+            </div>
+
+            {/* Bullet Style */}
+            <div className="mb-4">
+                <div className="text-[10px] text-slate-400 mb-2 font-medium uppercase tracking-wider">
+                    Style des puces
+                </div>
+                <div className="grid grid-cols-5 gap-1.5">
+                    {bulletStyles.map((style) => (
+                        <button
+                            key={style.id}
+                            onClick={() => setDesign({ bulletStyle: style.id })}
+                            className={`p-2 rounded-lg text-lg transition-all flex flex-col items-center gap-0.5
+                                ${design?.bulletStyle === style.id
+                                    ? 'bg-white/20 ring-1 ring-white/30'
+                                    : 'bg-white/5 hover:bg-white/10'
+                                }`}
+                        >
+                            <span>{style.icon}</span>
+                            <span className="text-[8px] text-slate-400">{style.label}</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Density Hint */}
+            <div className="text-[10px] text-slate-400 text-center py-2 opacity-60">
+                💡 Ajuste la taille de police dans "Typographie" pour modifier la densité
             </div>
         </CollapsibleSection>
     );
@@ -436,6 +593,7 @@ export function DesignTab() {
 
             {/* Controls */}
             <div className="rounded-lg border border-white/10 bg-white/5 overflow-hidden">
+                <SidebarLayoutSection />
                 <MagicPresetsSection />
                 <ColorSection />
                 <TypographySection />

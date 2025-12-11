@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCVStoreV2 } from '../../../../application/store/v2';
 import { Input } from '../../../design-system/atoms/Input';
 import { Button } from '../../../design-system/atoms/Button';
@@ -13,19 +13,32 @@ export const SkillsTab: React.FC = () => {
     const profile = useCVStoreV2((state) => state.profile);
     const updateField = useCVStoreV2((state) => state.updateField);
 
-    if (!profile || !profile.skills) {
+    // ═══════════════════════════════════════════════════════════════════════
+    // CRASH GUARD + AUTO-REPAIR: Ensure skills is always an array
+    // ═══════════════════════════════════════════════════════════════════════
+    const safeSkills = Array.isArray(profile?.skills) ? profile.skills : [];
+
+    // Auto-repair corrupted data on mount
+    useEffect(() => {
+        if (profile && !Array.isArray(profile.skills)) {
+            console.warn('[SkillsTab] Auto-repairing corrupted skills data');
+            updateField('skills', []);
+        }
+    }, [profile, updateField]);
+
+    if (!profile) {
         return <div className="p-4 text-slate-400">{t('common.loading')}</div>;
     }
     const [newSkill, setNewSkill] = useState('');
 
     const addSkill = () => {
         if (!newSkill.trim()) return;
-        updateField('skills', [...profile.skills, newSkill.trim()]);
+        updateField('skills', [...safeSkills, newSkill.trim()]);
         setNewSkill('');
     };
 
     const removeSkill = (index: number) => {
-        const updatedSkills = profile.skills.filter((_, i) => i !== index);
+        const updatedSkills = safeSkills.filter((_, i) => i !== index);
         updateField('skills', updatedSkills);
     };
 
@@ -55,7 +68,7 @@ export const SkillsTab: React.FC = () => {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                    {profile.skills.map((skill, index) => (
+                    {safeSkills.map((skill, index) => (
                         <div
                             key={index}
                             className="bg-white/10 border border-white/10 text-slate-200 text-sm px-3 py-1 rounded-full flex items-center gap-2"

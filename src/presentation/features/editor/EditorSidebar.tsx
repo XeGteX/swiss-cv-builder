@@ -90,11 +90,11 @@ export const EditorSidebar: React.FC = React.memo(() => {
     return (
         <div className={cn(
             "flex flex-col h-full w-full lg:min-w-[450px] lg:max-w-[550px] shrink-0",
-            "text-slate-100 rounded-xl border border-white/10 overflow-hidden",
+            "text-slate-100 rounded-xl border border-white/10",  // REMOVED overflow-hidden
             GlassStyles.panel
         )}>
-            {/* Phase Bar - Compact with hover dropdowns */}
-            <div className="p-3 border-b border-white/10 bg-slate-900/60 backdrop-blur-md">
+            {/* Phase Bar - Compact with click dropdowns - MUST BE ABLE TO OVERFLOW */}
+            <div className="p-3 border-b border-white/10 bg-slate-900/60 backdrop-blur-md relative z-50">
                 <PhaseBar
                     activePhase={activePhaseId}
                     activeTab={activeTab}
@@ -103,8 +103,8 @@ export const EditorSidebar: React.FC = React.memo(() => {
                 />
             </div>
 
-            {/* Tab Content - Takes all remaining space */}
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-transparent">
+            {/* Tab Content - Overflow hidden HERE only, not on parent */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 custom-scrollbar bg-transparent">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={activeTab}

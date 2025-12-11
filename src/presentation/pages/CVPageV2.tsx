@@ -15,7 +15,7 @@ import { PreviewPane } from '../features/preview/PreviewPane';
 import { AtlasStatus } from '../components/AtlasStatus';
 import { EditorSidebar } from '../features/editor/EditorSidebar';
 import { MainLayout } from '../layouts/MainLayout';
-import { useMode, useSetMode, useCVStoreV2 } from '../../application/store/v2';
+import { useMode, useSetMode, useCVStoreV2, useSyncRegionToStore } from '../../application/store/v2';
 import { useAuthStore } from '../../application/store/auth-store';
 import { FocusModeToggle } from '../features/preview/FocusModeToggle';
 import { AuthModal } from '../features/auth/AuthModal';
@@ -27,7 +27,7 @@ import { useIsMobile } from '../hooks/useMediaQuery';
 import { DebugAgent } from '../features/coach/DebugAgent';
 import { useCVAnalyzer } from '../hooks/useCVAnalyzer';
 import { useCompanionOrchestrator } from '../hooks/useCompanionOrchestrator';
-import { DesignStudioPanel } from '../features/studio/DesignStudioPanel';
+import { DesignTab } from '../features/editor/tabs/DesignTab';
 import { SmartCompanion } from '../features/companion/SmartCompanion';
 
 export const CVPageV2: React.FC = () => {
@@ -38,6 +38,9 @@ export const CVPageV2: React.FC = () => {
     const { isAuthenticated } = useAuthStore();
     const [isFocusMode, setIsFocusMode] = useState(false);
     const [zoom, setZoom] = useState(1);
+
+    // Sync localStorage region preference to store on mount
+    useSyncRegionToStore();
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
     const [isAIHubOpen, setIsAIHubOpen] = useState(false);
@@ -422,8 +425,8 @@ export const CVPageV2: React.FC = () => {
 
                         {/* NEXAL Studio Panel - Right side of preview */}
                         {isDesignPanelOpen && !isMobile && mode === 'edition' && (
-                            <div className="shrink-0 w-72 h-full overflow-y-auto">
-                                <DesignStudioPanel />
+                            <div className="shrink-0 w-72 h-full overflow-y-auto bg-slate-900/95 border-l border-slate-700/50">
+                                <DesignTab />
                             </div>
                         )}
                     </div>

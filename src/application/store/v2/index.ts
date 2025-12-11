@@ -11,7 +11,7 @@ import { useCVStoreV2 as _useCVStoreV2 } from './cv-store-v2';
 // Store
 export {
     useCVStoreV2,
-    useProfile,
+    useProfile,  // @deprecated - use granular hooks instead
     useUpdateField,
     useArrayActions,
     useAtlasStatus,
@@ -20,8 +20,18 @@ export {
     useReorderActions,
     // NEXAL STUDIO
     useDesign,
-    useDesignActions
+    useDesignActions,
+    // GRANULAR PROFILE HOOKS (PERFORMANCE OPTIMIZED)
+    useProfilePersonal,
+    useProfileSkills,
+    useProfileLanguages,
+    useProfileExperiences,
+    useProfileEducations,
+    useProfileSummary
 } from './cv-store-v2';
+
+// Region sync hook
+export { useSyncRegionToStore } from './useSyncRegionToStore';
 
 // Convenience hooks for Telekinesis
 export const useSectionOrder = () => _useCVStoreV2((state) => state.sectionOrder);

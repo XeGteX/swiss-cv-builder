@@ -7,9 +7,10 @@
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Download, Loader2, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Download, Loader2, Sparkles, Edit3 } from 'lucide-react';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
+import { InteractiveOverlay } from '../cv-templates/overlay';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -122,6 +123,8 @@ interface PDFPageViewerProps {
     onDownload?: () => void;
     isDownloading?: boolean;
     showOverlay?: boolean;
+    /** Enable inline editing overlay (Ghost Mode) */
+    enableInlineEdit?: boolean;
     className?: string;
 }
 
@@ -130,6 +133,7 @@ export const PDFPageViewer: React.FC<PDFPageViewerProps> = ({
     onDownload,
     isDownloading = false,
     showOverlay = false,
+    enableInlineEdit = false,
     className = '',
 }) => {
     const [numPages, setNumPages] = useState<number>(0);
@@ -137,6 +141,7 @@ export const PDFPageViewer: React.FC<PDFPageViewerProps> = ({
     const [scale, setScale] = useState<number>(0.75);
     const [error, setError] = useState<string | null>(null);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+    const [ghostMode, setGhostMode] = useState(enableInlineEdit);
 
     // Animation state: 'hidden' | 'entering' | 'visible' | 'exiting'
     const [animState, setAnimState] = useState<'hidden' | 'entering' | 'visible' | 'exiting'>('hidden');
@@ -265,6 +270,18 @@ export const PDFPageViewer: React.FC<PDFPageViewerProps> = ({
                     </button>
                 </div>
 
+                {/* Ghost Mode Toggle */}
+                <button
+                    onClick={() => setGhostMode(!ghostMode)}
+                    className={`p-1.5 rounded transition-all ${ghostMode
+                        ? 'bg-indigo-600 text-white'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                        }`}
+                    title={ghostMode ? 'Désactiver édition inline' : 'Activer édition inline'}
+                >
+                    <Edit3 size={14} />
+                </button>
+
                 <button
                     onClick={onDownload}
                     disabled={isDownloading}
@@ -284,23 +301,59 @@ export const PDFPageViewer: React.FC<PDFPageViewerProps> = ({
                     </div>
                 ) : (
                     <>
-                        {/* PDF with native scale from react-pdf */}
-                        <div className="bg-slate-900 rounded-lg">
+                        {/* ═══════════════════════════════════════════════════════════════ */}
+                        {/* PDF + OVERLAY ANCHOR SYSTEM                                      */}
+                        {/* 1. Outer div = Zoom wrapper (CSS transform for user zoom)        */}
+                        {/* 2. Stage div = Anchor (inline-block = strict PDF size)           */}
+                        {/* 3. Page + Overlay share the same (0,0) reference point           */}
+                        {/* ═══════════════════════════════════════════════════════════════ */}
+                        <div
+                            style={{
+                                display: 'inline-block',  // CRITICAL: Shrink to PDF size
+                                transform: `scale(${scale})`,
+                                transformOrigin: 'top center',
+                            }}
+                        >
                             <Document
                                 file={pdfUrl}
                                 onLoadSuccess={onDocumentLoadSuccess}
                                 onLoadError={onDocumentLoadError}
                                 loading={null}
-                                className="flex flex-col items-center"
                             >
-                                <Page
-                                    pageNumber={currentPage}
-                                    scale={scale}
-                                    renderTextLayer={false}
-                                    renderAnnotationLayer={false}
-                                    className="shadow-xl rounded overflow-hidden"
-                                    loading={null}
-                                />
+                                {/* STAGE - THE ANCHOR (exactly PDF canvas size) */}
+                                <div
+                                    style={{
+                                        position: 'relative',
+                                        display: 'inline-block',  // Force shrink-wrap
+                                        width: 'fit-content',
+                                        margin: 0,
+                                        padding: 0,
+                                    }}
+                                >
+                                    {/* PDF Page at scale=1 (72 DPI: 1pt = 1px) */}
+                                    <Page
+                                        pageNumber={currentPage}
+                                        scale={1}
+                                        renderTextLayer={false}
+                                        renderAnnotationLayer={false}
+                                        className="shadow-xl rounded overflow-hidden"
+                                        loading={null}
+                                    />
+
+                                    {/* ═══════════════════════════════════════════════════
+                                        STRATEGY ZERO: Overlay "Stapled" to STAGE
+                                        absolute inset-0 = perfect alignment with PDF canvas
+                                    ═══════════════════════════════════════════════════ */}
+                                    {ghostMode && (
+                                        <div className="absolute inset-0 z-50">
+                                            <InteractiveOverlay
+                                                scale={1}
+                                                enabled={ghostMode}
+                                                debug={false}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
                             </Document>
                         </div>
 
@@ -345,21 +398,23 @@ export const PDFPageViewer: React.FC<PDFPageViewerProps> = ({
             </div>
 
             {/* Page Dots */}
-            {numPages > 1 && (
-                <div className="shrink-0 py-1.5 flex justify-center gap-1 bg-slate-800/50 border-t border-white/5">
-                    {Array.from({ length: numPages }, (_, i) => (
-                        <button
-                            key={i + 1}
-                            onClick={() => changePage(i + 1)}
-                            className={`rounded-full transition-all ${currentPage === i + 1
-                                ? 'w-4 h-1.5 bg-emerald-500'
-                                : 'w-1.5 h-1.5 bg-slate-600 hover:bg-slate-500'
-                                }`}
-                        />
-                    ))}
-                </div>
-            )}
-        </div>
+            {
+                numPages > 1 && (
+                    <div className="shrink-0 py-1.5 flex justify-center gap-1 bg-slate-800/50 border-t border-white/5">
+                        {Array.from({ length: numPages }, (_, i) => (
+                            <button
+                                key={i + 1}
+                                onClick={() => changePage(i + 1)}
+                                className={`rounded-full transition-all ${currentPage === i + 1
+                                    ? 'w-4 h-1.5 bg-emerald-500'
+                                    : 'w-1.5 h-1.5 bg-slate-600 hover:bg-slate-500'
+                                    }`}
+                            />
+                        ))}
+                    </div>
+                )
+            }
+        </div >
     );
 };
 

@@ -12,9 +12,11 @@ import { useUIStore } from '../../../application/store/ui-store';
 import { useSettingsStore } from '../../../application/store/settings-store';
 import { useToastStore } from '../../../application/store/toast-store';
 import { Loader2, RefreshCw } from 'lucide-react';
-import { useProfile, useDesign } from '../../../application/store/v2';
-import { CVDocument } from '../../cv-templates/pdf/CVDocument';
+import { useProfile, useDesign, useCVStoreV2 } from '../../../application/store/v2';
+import { CVDocumentV2 as CVDocument } from '@/application/pdf-engine';
 import { PDFPageViewer } from '../../components/PDFPageViewer';
+import { useLayoutBudget } from '../../hooks/useLayoutBudget';
+import { LayoutBudgetIndicator } from '../../components/LayoutBudgetIndicator';
 
 interface PreviewPaneProps {
     hideToolbar?: boolean;
@@ -37,11 +39,18 @@ export const PreviewPane: React.FC<PreviewPaneProps> = () => {
     const renderIdRef = useRef(0);
     const hasRenderedOnce = useRef(false);
 
-    // Determine paper format based on region
+    // Determine paper format based on design or region
     const format = useMemo(() => {
+        // First check design.paperFormat (single source of truth)
+        if (design?.paperFormat) return design.paperFormat;
+        // Fallback to localStorage for backwards compatibility
         const regionId = localStorage.getItem('nexal_region_preference') || 'dach';
         return regionId === 'usa' ? 'LETTER' : 'A4';
-    }, []);
+    }, [design?.paperFormat]);
+
+    // Layout Budget - Auto-diagnostic engine
+    const layoutBudget = useLayoutBudget(profile, design, format as 'A4' | 'LETTER');
+    const setFontSize = useCVStoreV2((state) => state.setFontSize);
 
     // Generate PDF blob (runs in background, doesn't affect display until complete)
     const generatePdfBlob = useCallback(async () => {
@@ -167,6 +176,17 @@ export const PreviewPane: React.FC<PreviewPaneProps> = () => {
                         <RefreshCw className="animate-spin" size={10} />
                         <span>Mise à jour...</span>
                     </div>
+                </div>
+            )}
+
+            {/* Layout Budget Indicator - bottom left */}
+            {displayedBlob && (
+                <div className="absolute bottom-2 left-2 z-10">
+                    <LayoutBudgetIndicator
+                        budget={layoutBudget}
+                        onApplySuggestedScale={(scale) => setFontSize(scale)}
+                        compact
+                    />
                 </div>
             )}
 

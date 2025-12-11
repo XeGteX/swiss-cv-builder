@@ -33,6 +33,7 @@ export type FontPairing = 'sans' | 'serif' | 'mono';
 export type HeaderStyle = 'modern' | 'classic' | 'minimal';
 export type SectionLineStyle = 'solid' | 'dashed' | 'dotted' | 'none' | 'gradient';
 export type BulletStyle = 'disc' | 'square' | 'dash' | 'arrow' | 'check';
+export type SidebarPosition = 'left' | 'right';
 
 export interface DesignConfig {
     // Colors
@@ -45,6 +46,7 @@ export interface DesignConfig {
 
     // Layout
     headerStyle: HeaderStyle;
+    sidebarPosition: SidebarPosition;
 
     // Visual Details
     sectionLineStyle: SectionLineStyle;
@@ -114,6 +116,10 @@ export interface CVStoreV2State {
     setFontSize: (scale: number) => void;
     setLineHeight: (height: number) => void;
     setDesign: (design: Partial<DesignConfig>) => void;
+    // International settings (reactive - pre-fills from country rules)
+    setTargetCountry: (country: string) => void;
+    setShowPhoto: (show: boolean) => void;
+    setPaperFormat: (format: 'A4' | 'LETTER') => void;
 
     // Utility
     setFullProfile: (profile: CVProfile) => void;
@@ -138,6 +144,7 @@ export const DEFAULT_DESIGN: DesignConfig = {
     accentColor: '#3b82f6',  // Ocean Blue
     fontPairing: 'sans',
     headerStyle: 'modern',
+    sidebarPosition: 'left',
     fontSize: 1.0,
     lineHeight: 1.5,
     sectionLineStyle: 'solid',

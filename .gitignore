@@ -33,3 +33,6 @@ dist-ssr
 .env.production
 
 /src/generated/prisma
+
+# Project consciousness (internal memory)
+
