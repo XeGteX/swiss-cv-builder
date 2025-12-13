@@ -139,32 +139,22 @@ export function ExportTab() {
 
     const handleExport = async (format: ExportFormat) => {
         if (format === 'pdf') {
-            // Use same reliable method as PreviewPane (POST with profile)
+            // Client-side PDF generation using React-PDF
             setExportingFormat('pdf');
             setSuccessFormat(null);
 
             try {
-                const currentRegionId = localStorage.getItem('nexal_region_preference') || 'dach';
-                const paperFormat = (currentRegionId === 'usa') ? 'LETTER' : 'A4';
-                const templateId = profile?.metadata?.templateId || 'chameleon';
+                const { pdf } = await import('@react-pdf/renderer');
+                const { CVDocumentV2 } = await import('@/application/pdf-engine');
 
-                const response = await fetch('/api/puppeteer-pdf/generate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        profile,
-                        design,
-                        sectionOrder,  // Include section order for consistent rendering
-                        language: 'fr',
-                        paperFormat,
-                        regionId: currentRegionId,
-                        templateId
-                    }),
-                });
+                const blob = await pdf(
+                    <CVDocumentV2
+                        profile={profile}
+                        format={design?.paperFormat || 'A4'}
+                        design={design}
+                    />
+                ).toBlob();
 
-                if (!response.ok) throw new Error('PDF generation failed');
-
-                const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;

@@ -62,24 +62,18 @@ export const WizardPage: React.FC = () => {
         try {
             setIsDownloading(true);
 
-            // Call Puppeteer PDF API for pixel-perfect rendering
-            const response = await fetch('http://localhost:3000/api/puppeteer-pdf/generate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    profile,
-                    language
-                }),
-            });
+            // Client-side PDF generation using React-PDF
+            const { pdf } = await import('@react-pdf/renderer');
+            const { CVDocumentV2 } = await import('@/application/pdf-engine');
+            const design = (await import('@/application/store/v2')).useCVStoreV2.getState().design;
 
-            if (!response.ok) {
-                throw new Error(`Server returned ${response.status}: ${response.statusText}`);
-            }
-
-            // Get PDF blob from server response
-            const blob = await response.blob();
+            const blob = await pdf(
+                <CVDocumentV2
+                    profile={profile}
+                    format={design?.paperFormat || 'A4'}
+                    design={design}
+                />
+            ).toBlob();
 
             // Trigger download
             const url = URL.createObjectURL(blob);

@@ -231,35 +231,26 @@ export const CVPageV2: React.FC = () => {
                                                 onClick={async () => {
                                                     setShowDownloadMenu(false);
                                                     setIsDownloading(true);
-
-                                                    // Get region settings from localStorage
-                                                    const currentRegionId = localStorage.getItem('nexal_region_preference') || 'dach';
-                                                    const paperFormat = (currentRegionId === 'usa') ? 'LETTER' : 'A4';
-                                                    const templateId = profile?.metadata?.templateId || 'chameleon';
-
                                                     try {
-                                                        const response = await fetch('/api/puppeteer-pdf/generate', {
-                                                            method: 'POST',
-                                                            headers: { 'Content-Type': 'application/json' },
-                                                            body: JSON.stringify({
-                                                                profile,
-                                                                language: 'fr',
-                                                                paperFormat,
-                                                                regionId: currentRegionId,
-                                                                templateId
-                                                            }),
-                                                        });
-                                                        if (response.ok) {
-                                                            const blob = await response.blob();
-                                                            const url = URL.createObjectURL(blob);
-                                                            const link = document.createElement('a');
-                                                            link.href = url;
-                                                            link.download = `cv-${profile?.personal?.lastName || 'export'}.pdf`;
-                                                            link.click();
-                                                            URL.revokeObjectURL(url);
-                                                        } else {
-                                                            console.error('PDF generation failed:', response.status);
-                                                        }
+                                                        // Client-side PDF generation using React-PDF
+                                                        const { pdf } = await import('@react-pdf/renderer');
+                                                        const { CVDocumentV2 } = await import('@/application/pdf-engine');
+                                                        const design = (await import('@/application/store/v2')).useCVStoreV2.getState().design;
+
+                                                        const blob = await pdf(
+                                                            <CVDocumentV2
+                                                                profile={profile}
+                                                                format={design?.paperFormat || 'A4'}
+                                                                design={design}
+                                                            />
+                                                        ).toBlob();
+
+                                                        const url = URL.createObjectURL(blob);
+                                                        const link = document.createElement('a');
+                                                        link.href = url;
+                                                        link.download = `cv-${profile?.personal?.lastName || 'export'}.pdf`;
+                                                        link.click();
+                                                        URL.revokeObjectURL(url);
                                                     } catch (e) {
                                                         console.error('PDF download failed', e);
                                                     } finally {

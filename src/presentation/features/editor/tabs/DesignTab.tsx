@@ -23,6 +23,7 @@ import {
     Sliders,
     PanelLeft,
     PanelRight,
+    Maximize2,
 } from 'lucide-react';
 
 import { useDesign, useCVStoreV2 } from '../../../../application/store/v2';
@@ -572,6 +573,49 @@ function VisualDetailsSection() {
         </CollapsibleSection>
     );
 }
+// ============================================================================
+// PHOTO SCALE SECTION (Phase 5.5)
+// ============================================================================
+
+function PhotoScaleSection() {
+    const design = useDesign();
+    const setDesign = useCVStoreV2(state => state.setDesign);
+
+    const scales = [
+        { value: 1 as const, label: 'Compact', description: 'Photo petite' },
+        { value: 2 as const, label: 'Standard', description: 'Photo moyenne' },
+        { value: 3 as const, label: 'Large', description: 'Photo grande' },
+    ];
+
+    const currentScale = design.photoScale ?? 2;
+
+    return (
+        <CollapsibleSection
+            title="Échelle Photo"
+            icon={<Maximize2 className="w-4 h-4" />}
+            defaultOpen={false}
+        >
+            <div className="grid grid-cols-3 gap-2">
+                {scales.map(({ value, label, description }) => (
+                    <motion.button
+                        key={value}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setDesign({ photoScale: value })}
+                        className={`p-2 rounded-lg border text-center transition-all ${currentScale === value
+                                ? 'border-blue-500 bg-blue-500/20'
+                                : 'border-white/10 hover:border-white/20 bg-white/5'
+                            }`}
+                    >
+                        <div className="text-lg mb-1">{value}</div>
+                        <div className="text-[10px] font-medium text-slate-200">{label}</div>
+                        <div className="text-[9px] text-slate-500">{description}</div>
+                    </motion.button>
+                ))}
+            </div>
+        </CollapsibleSection>
+    );
+}
 
 // ============================================================================
 // MAIN EXPORT: DESIGN TAB
@@ -597,6 +641,7 @@ export function DesignTab() {
                 <MagicPresetsSection />
                 <ColorSection />
                 <TypographySection />
+                <PhotoScaleSection />
                 <HeaderSection />
                 <VisualDetailsSection />
             </div>

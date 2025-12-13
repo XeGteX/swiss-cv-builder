@@ -35,6 +35,52 @@ export type SectionLineStyle = 'solid' | 'dashed' | 'dotted' | 'none' | 'gradien
 export type BulletStyle = 'disc' | 'square' | 'dash' | 'arrow' | 'check';
 export type SidebarPosition = 'left' | 'right';
 
+// ============================================================================
+// PHASE 7.1: STRUCTURE MODE CONFIG
+// ============================================================================
+
+/** Section identifiers for Structure Mode */
+export type SectionId =
+    | 'identity' | 'contact' | 'summary'
+    | 'skills' | 'languages' | 'experiences' | 'educations';
+
+/** Structure Mode - section visibility, ordering, and limits */
+export interface StructureConfig {
+    /** Section display order */
+    order: SectionId[];
+    /** Visibility per section */
+    visible: Record<SectionId, boolean>;
+    /** Slice limits for array sections */
+    limits: {
+        skillsTopN: number;
+        languagesTopN: number;
+        experiencesTopN: number;
+        tasksTopN: number;
+        educationsTopN: number;
+    };
+}
+
+/** Default structure configuration */
+export const DEFAULT_STRUCTURE: StructureConfig = {
+    order: ['identity', 'contact', 'summary', 'skills', 'languages', 'experiences', 'educations'],
+    visible: {
+        identity: true,
+        contact: true,
+        summary: true,
+        skills: true,
+        languages: true,
+        experiences: true,
+        educations: true,
+    },
+    limits: {
+        skillsTopN: 12,
+        languagesTopN: 6,
+        experiencesTopN: 5,
+        tasksTopN: 4,
+        educationsTopN: 4,
+    },
+};
+
 export interface DesignConfig {
     // Colors
     accentColor: string;
@@ -57,6 +103,15 @@ export interface DesignConfig {
     showPhoto: boolean;
     targetCountry: string;
     paperFormat: 'A4' | 'LETTER';
+
+    // Phase 5.3: Photo/Header scale (1=small, 2=medium, 3=large)
+    photoScale?: 1 | 2 | 3;
+
+    // Phase 5.5: Layout preset for identity fallback
+    layoutPreset?: 'SIDEBAR' | 'TOP_HEADER' | 'SPLIT_HEADER' | 'LEFT_RAIL' | 'DUAL_SIDEBAR' | 'ATS_ONE_COLUMN';
+
+    // Phase 7.1: Structure Mode config (section order, visibility, limits)
+    structure?: StructureConfig;
 }
 
 export interface NexalStudioState {
@@ -154,6 +209,10 @@ export const DEFAULT_DESIGN: DesignConfig = {
     showPhoto: true,
     targetCountry: 'FR',
     paperFormat: 'A4',
+    // Phase 5.3: Photo/Header scale (1=small, 2=medium, 3=large)
+    photoScale: 2,
+    // Phase 5.5: Default layout preset
+    layoutPreset: 'SIDEBAR',
 };
 
 /**

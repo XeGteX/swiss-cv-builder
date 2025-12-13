@@ -13,6 +13,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
+    "test:pagination": "vitest run tests/pagination-ci-gate.test.ts",
+    "test:pagination:update": "cross-env UPDATE_SNAPSHOTS=true vitest run tests/pagination-ci-gate.test.ts",
     "sentinel": "tsx scripts/sentinel.ts"
   },
   "dependencies": {
@@ -77,6 +79,7 @@
     "@types/react-window": "^1.8.8",
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^5.1.1",
+    "cross-env": "^10.1.0",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",

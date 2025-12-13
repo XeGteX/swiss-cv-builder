@@ -39,6 +39,9 @@ import { RegionProvider } from './presentation/contexts/RegionContext';
 // Debug Mode
 import { DebugBar } from './presentation/features/debug';
 
+// NEXAL2 Test Page (dev-only, feature flag VITE_NEXAL2)
+import { Nexal2TestPage } from './nexal2/test';
+
 function App() {
   const { checkAuth } = useAuthStore();
 
@@ -57,6 +60,9 @@ function App() {
 
             {/* NEXAL Wizard Onboarding - Full-screen immersive */}
             <Route path="/onboard" element={<NexalOnboardingPage />} />
+
+            {/* NEXAL2 Test Page (dev-only) */}
+            <Route path="/nexal2-test" element={<Nexal2TestPage />} />
 
             {/* Footer link pages - Outside AppShell for full scroll */}
             <Route path="/templates" element={<TemplatesPage />} />

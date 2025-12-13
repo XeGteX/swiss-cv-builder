@@ -1,8 +1,11 @@
 /**
- * CV Templates - Minimal Export
- * 
- * After Tabula Rasa cleanup, only CVDocument remains.
+ * CV Templates - DEPRECATED
+ *
+ * Legacy export file. All PDF rendering now uses:
+ * - src/application/pdf-engine/CVDocumentV2.tsx
+ *
+ * This file is kept for backwards compatibility but exports nothing.
  */
 
-export { CVDocument } from './pdf/CVDocument';
-export type { CVDocumentProps } from './pdf/CVDocument';
+// All CV rendering is now handled by pdf-engine/CVDocumentV2
+// Import from '@/application/pdf-engine' instead
