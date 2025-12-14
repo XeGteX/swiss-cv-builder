@@ -4,7 +4,7 @@
     "FR|SIDEBAR|GOLDEN_01_CLASSIC|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "f6ad7934"
+        "32f46c50"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -12,7 +12,7 @@
     "FR|SIDEBAR|GOLDEN_01_CLASSIC|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "85ca36fc"
+        "bc94db80"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -20,8 +20,8 @@
     "FR|SIDEBAR|GOLDEN_02_MULTIPAGE|left": {
       "pageCount": 2,
       "pageSignatures": [
-        "19d26810",
-        "c4cb7d0d"
+        "bd797e88",
+        "0e01e344"
       ],
       "splitPoints": [
         612.6
@@ -31,8 +31,8 @@
     "FR|SIDEBAR|GOLDEN_02_MULTIPAGE|right": {
       "pageCount": 2,
       "pageSignatures": [
-        "dd880010",
-        "1aa00ecd"
+        "93de4440",
+        "2ef28c58"
       ],
       "splitPoints": [
         612.6
@@ -42,7 +42,7 @@
     "FR|SIDEBAR|GOLDEN_03_STUDENT|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "5b695a68"
+        "0f392abe"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -50,7 +50,7 @@
     "FR|SIDEBAR|GOLDEN_03_STUDENT|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "091a8520"
+        "f20b0b14"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -58,7 +58,7 @@
     "FR|SIDEBAR|GOLDEN_04_NO_EDUCATION|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "cf01ceae"
+        "f6eb3f08"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -66,7 +66,7 @@
     "FR|SIDEBAR|GOLDEN_04_NO_EDUCATION|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "66496ac8"
+        "3954d289"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -74,7 +74,7 @@
     "FR|SIDEBAR|GOLDEN_05_LONG_TITLES|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "bfe1a8a0"
+        "c6714aa0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -82,7 +82,7 @@
     "FR|SIDEBAR|GOLDEN_05_LONG_TITLES|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "1a991660"
+        "6a62b280"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -90,7 +90,7 @@
     "FR|SIDEBAR|GOLDEN_06_LONG_BULLETS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "5affda3c"
+        "d2535e08"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -98,7 +98,7 @@
     "FR|SIDEBAR|GOLDEN_06_LONG_BULLETS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "0dc55298"
+        "426ed78c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -106,7 +106,7 @@
     "FR|SIDEBAR|GOLDEN_07_MANY_SKILLS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "2d9d102c"
+        "12d5b0d0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -114,7 +114,7 @@
     "FR|SIDEBAR|GOLDEN_07_MANY_SKILLS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "c3531d60"
+        "a4a69e10"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -122,7 +122,7 @@
     "FR|SIDEBAR|GOLDEN_08_MANY_LANGUAGES|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "db830282"
+        "5b138cf0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -130,7 +130,7 @@
     "FR|SIDEBAR|GOLDEN_08_MANY_LANGUAGES|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "66858b47"
+        "d423ecc8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -138,7 +138,7 @@
     "FR|SIDEBAR|GOLDEN_09_SPARSE|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "8cfd4814"
+        "4465b694"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -146,7 +146,7 @@
     "FR|SIDEBAR|GOLDEN_09_SPARSE|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "b39cb928"
+        "7ba106b0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -154,7 +154,7 @@
     "FR|SIDEBAR|GOLDEN_10_DATE_FORMATS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "426aa408"
+        "6fa36054"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -162,7 +162,7 @@
     "FR|SIDEBAR|GOLDEN_10_DATE_FORMATS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "ba2f1390"
+        "4da51d10"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -170,7 +170,7 @@
     "FR|SIDEBAR|GOLDEN_11_OVERSIZED|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "8c2a1aa4"
+        "daa886a0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -178,7 +178,7 @@
     "FR|SIDEBAR|GOLDEN_11_OVERSIZED|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "1f72ead0"
+        "cc4f3250"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -186,7 +186,7 @@
     "FR|SIDEBAR|GOLDEN_12_ATS_MINIMAL|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "f6b2bbfc"
+        "0515c19c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -194,7 +194,7 @@
     "FR|SIDEBAR|GOLDEN_12_ATS_MINIMAL|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "4850d74c"
+        "f8639db8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -202,7 +202,7 @@
     "FR|TOP_HEADER|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b7d95524"
+        "4131e19c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -210,10 +210,10 @@
     "FR|TOP_HEADER|GOLDEN_02_MULTIPAGE|none": {
       "pageCount": 4,
       "pageSignatures": [
-        "154bc5b0",
+        "2a4e6f94",
         "a6edbd2c",
-        "23da8080",
-        "6900e3f8"
+        "5fcb20dc",
+        "ccb06d1c"
       ],
       "splitPoints": [
         274.8,
@@ -225,7 +225,7 @@
     "FR|TOP_HEADER|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f84c06c8"
+        "5d620a28"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -233,7 +233,7 @@
     "FR|TOP_HEADER|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9d1ce580"
+        "82775f50"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -241,7 +241,7 @@
     "FR|TOP_HEADER|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "242521f0"
+        "81b18d40"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -249,7 +249,7 @@
     "FR|TOP_HEADER|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "4f11d401"
+        "0daacaf5"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -257,7 +257,7 @@
     "FR|TOP_HEADER|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "0c1b8800"
+        "70091f08"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -265,7 +265,7 @@
     "FR|TOP_HEADER|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "52827005"
+        "15c83890"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -273,7 +273,7 @@
     "FR|TOP_HEADER|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "5866b390"
+        "3cbd8a5c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -281,7 +281,7 @@
     "FR|TOP_HEADER|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "71386ef0"
+        "9af98300"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -289,7 +289,7 @@
     "FR|TOP_HEADER|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "423db3cc"
+        "8456f075"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -297,7 +297,7 @@
     "FR|TOP_HEADER|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9b6f6994"
+        "cb993864"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -305,7 +305,7 @@
     "FR|SPLIT_HEADER|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "06f73e61"
+        "e20971b0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -313,10 +313,10 @@
     "FR|SPLIT_HEADER|GOLDEN_02_MULTIPAGE|none": {
       "pageCount": 4,
       "pageSignatures": [
-        "633ac63d",
+        "088b1170",
         "a6edbd2c",
-        "23da8080",
-        "6900e3f8"
+        "5fcb20dc",
+        "ccb06d1c"
       ],
       "splitPoints": [
         274.8,
@@ -328,7 +328,7 @@
     "FR|SPLIT_HEADER|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "60bb0e65"
+        "3d86e0ec"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -336,7 +336,7 @@
     "FR|SPLIT_HEADER|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "95371e41"
+        "663cec2c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -344,7 +344,7 @@
     "FR|SPLIT_HEADER|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9ba3908d"
+        "a29d0144"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -352,7 +352,7 @@
     "FR|SPLIT_HEADER|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "e65dfdcc"
+        "df8c1fe8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -360,7 +360,7 @@
     "FR|SPLIT_HEADER|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "2b2c42d1"
+        "f4be00d0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -368,7 +368,7 @@
     "FR|SPLIT_HEADER|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "8842c340"
+        "6b45fecc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -376,7 +376,7 @@
     "FR|SPLIT_HEADER|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f884def0"
+        "44e5f2c8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -384,7 +384,7 @@
     "FR|SPLIT_HEADER|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b8c65f9c"
+        "d7843850"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -392,7 +392,7 @@
     "FR|SPLIT_HEADER|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "d7e2652c"
+        "eb0d2100"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -400,7 +400,7 @@
     "FR|SPLIT_HEADER|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9d1ab008"
+        "6ca578e4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -408,30 +408,28 @@
     "FR|LEFT_RAIL|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "4a560471"
+        "ef6f5a64"
       ],
       "splitPoints": [],
       "warningCodes": []
     },
     "FR|LEFT_RAIL|GOLDEN_02_MULTIPAGE|none": {
-      "pageCount": 4,
+      "pageCount": 3,
       "pageSignatures": [
         "02817ac4",
         "d68641b0",
-        "261c02b4",
-        "9a1fa6ec"
+        "4b9b7164"
       ],
       "splitPoints": [
         90.2,
-        173,
-        773.6
+        173
       ],
       "warningCodes": []
     },
     "FR|LEFT_RAIL|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9461eb6d"
+        "2a8a50e0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -439,7 +437,7 @@
     "FR|LEFT_RAIL|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6f6fa6e0"
+        "537e7e88"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -447,7 +445,7 @@
     "FR|LEFT_RAIL|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "0e7ec1f4"
+        "1e037bb8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -455,7 +453,7 @@
     "FR|LEFT_RAIL|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "44171f50"
+        "4d8d10c0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -463,7 +461,7 @@
     "FR|LEFT_RAIL|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "8bd708e8"
+        "c484da00"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -471,7 +469,7 @@
     "FR|LEFT_RAIL|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "ae3d9250"
+        "34e10971"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -479,7 +477,7 @@
     "FR|LEFT_RAIL|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "e7e9ad24"
+        "2ebe7bbc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -487,7 +485,7 @@
     "FR|LEFT_RAIL|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "0b2ea994"
+        "fea70808"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -495,7 +493,7 @@
     "FR|LEFT_RAIL|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f6f51298"
+        "cb4dabf0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -503,7 +501,7 @@
     "FR|LEFT_RAIL|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6800403c"
+        "18a5015c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -511,28 +509,26 @@
     "FR|DUAL_SIDEBAR|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "a0993fd4"
+        "1af068bd"
       ],
       "splitPoints": [],
       "warningCodes": []
     },
     "FR|DUAL_SIDEBAR|GOLDEN_02_MULTIPAGE|none": {
-      "pageCount": 3,
+      "pageCount": 2,
       "pageSignatures": [
         "93f1c5c8",
-        "d1b3ef28",
-        "584dd33c"
+        "0b7ea468"
       ],
       "splitPoints": [
-        70.2,
-        670.8
+        70.2
       ],
       "warningCodes": []
     },
     "FR|DUAL_SIDEBAR|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b05c3e40"
+        "9fdf057c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -540,7 +536,7 @@
     "FR|DUAL_SIDEBAR|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "56209570"
+        "8a2f32c1"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -548,7 +544,7 @@
     "FR|DUAL_SIDEBAR|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "1c275ce2"
+        "8ddb49f8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -556,7 +552,7 @@
     "FR|DUAL_SIDEBAR|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "53d3fa2c"
+        "1d6b55c8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -564,7 +560,7 @@
     "FR|DUAL_SIDEBAR|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "bab7691c"
+        "90c9eb10"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -572,7 +568,7 @@
     "FR|DUAL_SIDEBAR|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "d1355494"
+        "51defa10"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -580,7 +576,7 @@
     "FR|DUAL_SIDEBAR|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "0a2b2c8d"
+        "f3fa4c9c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -588,7 +584,7 @@
     "FR|DUAL_SIDEBAR|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "858d32e6"
+        "37cf5eb0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -596,7 +592,7 @@
     "FR|DUAL_SIDEBAR|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "ebfff158"
+        "360886a0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -604,7 +600,7 @@
     "FR|DUAL_SIDEBAR|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "58cec360"
+        "612fd370"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -612,7 +608,7 @@
     "FR|ATS_ONE_COLUMN|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6f4e882c"
+        "79025544"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -623,8 +619,8 @@
         "3b33960c",
         "050afd90",
         "56241d89",
-        "624ee69c",
-        "820278b0"
+        "24c18b14",
+        "7cda5d64"
       ],
       "splitPoints": [
         90.2,
@@ -637,7 +633,7 @@
     "FR|ATS_ONE_COLUMN|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "c73a29ac"
+        "7cd09b38"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -645,7 +641,7 @@
     "FR|ATS_ONE_COLUMN|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b2a62be0"
+        "808554b4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -653,7 +649,7 @@
     "FR|ATS_ONE_COLUMN|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "40103ce8"
+        "035fa8fc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -661,7 +657,7 @@
     "FR|ATS_ONE_COLUMN|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "5dfd2afc"
+        "632c5ce1"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -669,7 +665,7 @@
     "FR|ATS_ONE_COLUMN|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f6e8e1c4"
+        "cc0c3039"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -677,7 +673,7 @@
     "FR|ATS_ONE_COLUMN|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "3b1793bc"
+        "4ad5224c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -685,7 +681,7 @@
     "FR|ATS_ONE_COLUMN|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6147e655"
+        "74a14584"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -693,7 +689,7 @@
     "FR|ATS_ONE_COLUMN|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "e79984a8"
+        "a3066b58"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -701,7 +697,7 @@
     "FR|ATS_ONE_COLUMN|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f3622284"
+        "73b15b3c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -709,7 +705,7 @@
     "FR|ATS_ONE_COLUMN|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "dc2e01b5"
+        "900c85c8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -717,7 +713,7 @@
     "CH_FR|SIDEBAR|GOLDEN_01_CLASSIC|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "f6ad7934"
+        "32f46c50"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -725,7 +721,7 @@
     "CH_FR|SIDEBAR|GOLDEN_01_CLASSIC|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "85ca36fc"
+        "bc94db80"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -733,8 +729,8 @@
     "CH_FR|SIDEBAR|GOLDEN_02_MULTIPAGE|left": {
       "pageCount": 2,
       "pageSignatures": [
-        "19d26810",
-        "c4cb7d0d"
+        "bd797e88",
+        "0e01e344"
       ],
       "splitPoints": [
         612.6
@@ -744,8 +740,8 @@
     "CH_FR|SIDEBAR|GOLDEN_02_MULTIPAGE|right": {
       "pageCount": 2,
       "pageSignatures": [
-        "dd880010",
-        "1aa00ecd"
+        "93de4440",
+        "2ef28c58"
       ],
       "splitPoints": [
         612.6
@@ -755,7 +751,7 @@
     "CH_FR|SIDEBAR|GOLDEN_03_STUDENT|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "5b695a68"
+        "0f392abe"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -763,7 +759,7 @@
     "CH_FR|SIDEBAR|GOLDEN_03_STUDENT|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "091a8520"
+        "f20b0b14"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -771,7 +767,7 @@
     "CH_FR|SIDEBAR|GOLDEN_04_NO_EDUCATION|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "cf01ceae"
+        "f6eb3f08"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -779,7 +775,7 @@
     "CH_FR|SIDEBAR|GOLDEN_04_NO_EDUCATION|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "66496ac8"
+        "3954d289"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -787,7 +783,7 @@
     "CH_FR|SIDEBAR|GOLDEN_05_LONG_TITLES|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "bfe1a8a0"
+        "c6714aa0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -795,7 +791,7 @@
     "CH_FR|SIDEBAR|GOLDEN_05_LONG_TITLES|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "1a991660"
+        "6a62b280"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -803,7 +799,7 @@
     "CH_FR|SIDEBAR|GOLDEN_06_LONG_BULLETS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "5affda3c"
+        "d2535e08"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -811,7 +807,7 @@
     "CH_FR|SIDEBAR|GOLDEN_06_LONG_BULLETS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "0dc55298"
+        "426ed78c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -819,7 +815,7 @@
     "CH_FR|SIDEBAR|GOLDEN_07_MANY_SKILLS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "2d9d102c"
+        "12d5b0d0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -827,7 +823,7 @@
     "CH_FR|SIDEBAR|GOLDEN_07_MANY_SKILLS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "c3531d60"
+        "a4a69e10"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -835,7 +831,7 @@
     "CH_FR|SIDEBAR|GOLDEN_08_MANY_LANGUAGES|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "db830282"
+        "5b138cf0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -843,7 +839,7 @@
     "CH_FR|SIDEBAR|GOLDEN_08_MANY_LANGUAGES|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "66858b47"
+        "d423ecc8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -851,7 +847,7 @@
     "CH_FR|SIDEBAR|GOLDEN_09_SPARSE|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "8cfd4814"
+        "4465b694"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -859,7 +855,7 @@
     "CH_FR|SIDEBAR|GOLDEN_09_SPARSE|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "b39cb928"
+        "7ba106b0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -867,7 +863,7 @@
     "CH_FR|SIDEBAR|GOLDEN_10_DATE_FORMATS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "426aa408"
+        "6fa36054"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -875,7 +871,7 @@
     "CH_FR|SIDEBAR|GOLDEN_10_DATE_FORMATS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "ba2f1390"
+        "4da51d10"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -883,7 +879,7 @@
     "CH_FR|SIDEBAR|GOLDEN_11_OVERSIZED|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "8c2a1aa4"
+        "daa886a0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -891,7 +887,7 @@
     "CH_FR|SIDEBAR|GOLDEN_11_OVERSIZED|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "1f72ead0"
+        "cc4f3250"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -899,7 +895,7 @@
     "CH_FR|SIDEBAR|GOLDEN_12_ATS_MINIMAL|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "f6b2bbfc"
+        "0515c19c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -907,7 +903,7 @@
     "CH_FR|SIDEBAR|GOLDEN_12_ATS_MINIMAL|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "4850d74c"
+        "f8639db8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -915,7 +911,7 @@
     "CH_FR|TOP_HEADER|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b7d95524"
+        "4131e19c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -923,10 +919,10 @@
     "CH_FR|TOP_HEADER|GOLDEN_02_MULTIPAGE|none": {
       "pageCount": 4,
       "pageSignatures": [
-        "154bc5b0",
+        "2a4e6f94",
         "a6edbd2c",
-        "23da8080",
-        "6900e3f8"
+        "5fcb20dc",
+        "ccb06d1c"
       ],
       "splitPoints": [
         274.8,
@@ -938,7 +934,7 @@
     "CH_FR|TOP_HEADER|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f84c06c8"
+        "5d620a28"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -946,7 +942,7 @@
     "CH_FR|TOP_HEADER|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9d1ce580"
+        "82775f50"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -954,7 +950,7 @@
     "CH_FR|TOP_HEADER|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "242521f0"
+        "81b18d40"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -962,7 +958,7 @@
     "CH_FR|TOP_HEADER|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "4f11d401"
+        "0daacaf5"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -970,7 +966,7 @@
     "CH_FR|TOP_HEADER|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "0c1b8800"
+        "70091f08"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -978,7 +974,7 @@
     "CH_FR|TOP_HEADER|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "52827005"
+        "15c83890"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -986,7 +982,7 @@
     "CH_FR|TOP_HEADER|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "5866b390"
+        "3cbd8a5c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -994,7 +990,7 @@
     "CH_FR|TOP_HEADER|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "71386ef0"
+        "9af98300"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1002,7 +998,7 @@
     "CH_FR|TOP_HEADER|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "423db3cc"
+        "8456f075"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1010,7 +1006,7 @@
     "CH_FR|TOP_HEADER|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9b6f6994"
+        "cb993864"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1018,7 +1014,7 @@
     "CH_FR|SPLIT_HEADER|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "06f73e61"
+        "e20971b0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1026,10 +1022,10 @@
     "CH_FR|SPLIT_HEADER|GOLDEN_02_MULTIPAGE|none": {
       "pageCount": 4,
       "pageSignatures": [
-        "633ac63d",
+        "088b1170",
         "a6edbd2c",
-        "23da8080",
-        "6900e3f8"
+        "5fcb20dc",
+        "ccb06d1c"
       ],
       "splitPoints": [
         274.8,
@@ -1041,7 +1037,7 @@
     "CH_FR|SPLIT_HEADER|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "60bb0e65"
+        "3d86e0ec"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1049,7 +1045,7 @@
     "CH_FR|SPLIT_HEADER|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "95371e41"
+        "663cec2c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1057,7 +1053,7 @@
     "CH_FR|SPLIT_HEADER|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9ba3908d"
+        "a29d0144"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1065,7 +1061,7 @@
     "CH_FR|SPLIT_HEADER|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "e65dfdcc"
+        "df8c1fe8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1073,7 +1069,7 @@
     "CH_FR|SPLIT_HEADER|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "2b2c42d1"
+        "f4be00d0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1081,7 +1077,7 @@
     "CH_FR|SPLIT_HEADER|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "8842c340"
+        "6b45fecc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1089,7 +1085,7 @@
     "CH_FR|SPLIT_HEADER|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f884def0"
+        "44e5f2c8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1097,7 +1093,7 @@
     "CH_FR|SPLIT_HEADER|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b8c65f9c"
+        "d7843850"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1105,7 +1101,7 @@
     "CH_FR|SPLIT_HEADER|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "d7e2652c"
+        "eb0d2100"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1113,7 +1109,7 @@
     "CH_FR|SPLIT_HEADER|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9d1ab008"
+        "6ca578e4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1121,30 +1117,28 @@
     "CH_FR|LEFT_RAIL|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "4a560471"
+        "ef6f5a64"
       ],
       "splitPoints": [],
       "warningCodes": []
     },
     "CH_FR|LEFT_RAIL|GOLDEN_02_MULTIPAGE|none": {
-      "pageCount": 4,
+      "pageCount": 3,
       "pageSignatures": [
         "02817ac4",
         "d68641b0",
-        "261c02b4",
-        "9a1fa6ec"
+        "4b9b7164"
       ],
       "splitPoints": [
         90.2,
-        173,
-        773.6
+        173
       ],
       "warningCodes": []
     },
     "CH_FR|LEFT_RAIL|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9461eb6d"
+        "2a8a50e0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1152,7 +1146,7 @@
     "CH_FR|LEFT_RAIL|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6f6fa6e0"
+        "537e7e88"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1160,7 +1154,7 @@
     "CH_FR|LEFT_RAIL|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "0e7ec1f4"
+        "1e037bb8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1168,7 +1162,7 @@
     "CH_FR|LEFT_RAIL|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "44171f50"
+        "4d8d10c0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1176,7 +1170,7 @@
     "CH_FR|LEFT_RAIL|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "8bd708e8"
+        "c484da00"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1184,7 +1178,7 @@
     "CH_FR|LEFT_RAIL|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "ae3d9250"
+        "34e10971"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1192,7 +1186,7 @@
     "CH_FR|LEFT_RAIL|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "e7e9ad24"
+        "2ebe7bbc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1200,7 +1194,7 @@
     "CH_FR|LEFT_RAIL|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "0b2ea994"
+        "fea70808"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1208,7 +1202,7 @@
     "CH_FR|LEFT_RAIL|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f6f51298"
+        "cb4dabf0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1216,7 +1210,7 @@
     "CH_FR|LEFT_RAIL|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6800403c"
+        "18a5015c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1224,28 +1218,26 @@
     "CH_FR|DUAL_SIDEBAR|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "a0993fd4"
+        "1af068bd"
       ],
       "splitPoints": [],
       "warningCodes": []
     },
     "CH_FR|DUAL_SIDEBAR|GOLDEN_02_MULTIPAGE|none": {
-      "pageCount": 3,
+      "pageCount": 2,
       "pageSignatures": [
         "93f1c5c8",
-        "d1b3ef28",
-        "584dd33c"
+        "0b7ea468"
       ],
       "splitPoints": [
-        70.2,
-        670.8
+        70.2
       ],
       "warningCodes": []
     },
     "CH_FR|DUAL_SIDEBAR|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b05c3e40"
+        "9fdf057c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1253,7 +1245,7 @@
     "CH_FR|DUAL_SIDEBAR|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "56209570"
+        "8a2f32c1"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1261,7 +1253,7 @@
     "CH_FR|DUAL_SIDEBAR|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "1c275ce2"
+        "8ddb49f8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1269,7 +1261,7 @@
     "CH_FR|DUAL_SIDEBAR|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "53d3fa2c"
+        "1d6b55c8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1277,7 +1269,7 @@
     "CH_FR|DUAL_SIDEBAR|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "bab7691c"
+        "90c9eb10"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1285,7 +1277,7 @@
     "CH_FR|DUAL_SIDEBAR|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "d1355494"
+        "51defa10"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1293,7 +1285,7 @@
     "CH_FR|DUAL_SIDEBAR|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "0a2b2c8d"
+        "f3fa4c9c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1301,7 +1293,7 @@
     "CH_FR|DUAL_SIDEBAR|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "858d32e6"
+        "37cf5eb0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1309,7 +1301,7 @@
     "CH_FR|DUAL_SIDEBAR|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "ebfff158"
+        "360886a0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1317,7 +1309,7 @@
     "CH_FR|DUAL_SIDEBAR|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "58cec360"
+        "612fd370"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1325,7 +1317,7 @@
     "CH_FR|ATS_ONE_COLUMN|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6f4e882c"
+        "79025544"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1336,8 +1328,8 @@
         "3b33960c",
         "050afd90",
         "56241d89",
-        "624ee69c",
-        "820278b0"
+        "24c18b14",
+        "7cda5d64"
       ],
       "splitPoints": [
         90.2,
@@ -1350,7 +1342,7 @@
     "CH_FR|ATS_ONE_COLUMN|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "c73a29ac"
+        "7cd09b38"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1358,7 +1350,7 @@
     "CH_FR|ATS_ONE_COLUMN|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b2a62be0"
+        "808554b4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1366,7 +1358,7 @@
     "CH_FR|ATS_ONE_COLUMN|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "40103ce8"
+        "035fa8fc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1374,7 +1366,7 @@
     "CH_FR|ATS_ONE_COLUMN|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "5dfd2afc"
+        "632c5ce1"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1382,7 +1374,7 @@
     "CH_FR|ATS_ONE_COLUMN|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f6e8e1c4"
+        "cc0c3039"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1390,7 +1382,7 @@
     "CH_FR|ATS_ONE_COLUMN|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "3b1793bc"
+        "4ad5224c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1398,7 +1390,7 @@
     "CH_FR|ATS_ONE_COLUMN|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6147e655"
+        "74a14584"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1406,7 +1398,7 @@
     "CH_FR|ATS_ONE_COLUMN|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "e79984a8"
+        "a3066b58"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1414,7 +1406,7 @@
     "CH_FR|ATS_ONE_COLUMN|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f3622284"
+        "73b15b3c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1422,7 +1414,7 @@
     "CH_FR|ATS_ONE_COLUMN|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "dc2e01b5"
+        "900c85c8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1430,7 +1422,7 @@
     "CH_DE|SIDEBAR|GOLDEN_01_CLASSIC|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "f6ad7934"
+        "32f46c50"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1438,7 +1430,7 @@
     "CH_DE|SIDEBAR|GOLDEN_01_CLASSIC|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "85ca36fc"
+        "bc94db80"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1446,8 +1438,8 @@
     "CH_DE|SIDEBAR|GOLDEN_02_MULTIPAGE|left": {
       "pageCount": 2,
       "pageSignatures": [
-        "19d26810",
-        "c4cb7d0d"
+        "bd797e88",
+        "0e01e344"
       ],
       "splitPoints": [
         612.6
@@ -1457,8 +1449,8 @@
     "CH_DE|SIDEBAR|GOLDEN_02_MULTIPAGE|right": {
       "pageCount": 2,
       "pageSignatures": [
-        "dd880010",
-        "1aa00ecd"
+        "93de4440",
+        "2ef28c58"
       ],
       "splitPoints": [
         612.6
@@ -1468,7 +1460,7 @@
     "CH_DE|SIDEBAR|GOLDEN_03_STUDENT|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "5b695a68"
+        "0f392abe"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1476,7 +1468,7 @@
     "CH_DE|SIDEBAR|GOLDEN_03_STUDENT|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "091a8520"
+        "f20b0b14"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1484,7 +1476,7 @@
     "CH_DE|SIDEBAR|GOLDEN_04_NO_EDUCATION|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "cf01ceae"
+        "f6eb3f08"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1492,7 +1484,7 @@
     "CH_DE|SIDEBAR|GOLDEN_04_NO_EDUCATION|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "66496ac8"
+        "3954d289"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1500,7 +1492,7 @@
     "CH_DE|SIDEBAR|GOLDEN_05_LONG_TITLES|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "bfe1a8a0"
+        "c6714aa0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1508,7 +1500,7 @@
     "CH_DE|SIDEBAR|GOLDEN_05_LONG_TITLES|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "1a991660"
+        "6a62b280"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1516,7 +1508,7 @@
     "CH_DE|SIDEBAR|GOLDEN_06_LONG_BULLETS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "5affda3c"
+        "d2535e08"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1524,7 +1516,7 @@
     "CH_DE|SIDEBAR|GOLDEN_06_LONG_BULLETS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "0dc55298"
+        "426ed78c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1532,7 +1524,7 @@
     "CH_DE|SIDEBAR|GOLDEN_07_MANY_SKILLS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "2d9d102c"
+        "12d5b0d0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1540,7 +1532,7 @@
     "CH_DE|SIDEBAR|GOLDEN_07_MANY_SKILLS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "c3531d60"
+        "a4a69e10"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1548,7 +1540,7 @@
     "CH_DE|SIDEBAR|GOLDEN_08_MANY_LANGUAGES|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "db830282"
+        "5b138cf0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1556,7 +1548,7 @@
     "CH_DE|SIDEBAR|GOLDEN_08_MANY_LANGUAGES|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "66858b47"
+        "d423ecc8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1564,7 +1556,7 @@
     "CH_DE|SIDEBAR|GOLDEN_09_SPARSE|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "8cfd4814"
+        "4465b694"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1572,7 +1564,7 @@
     "CH_DE|SIDEBAR|GOLDEN_09_SPARSE|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "b39cb928"
+        "7ba106b0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1580,7 +1572,7 @@
     "CH_DE|SIDEBAR|GOLDEN_10_DATE_FORMATS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "426aa408"
+        "6fa36054"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1588,7 +1580,7 @@
     "CH_DE|SIDEBAR|GOLDEN_10_DATE_FORMATS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "ba2f1390"
+        "4da51d10"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1596,7 +1588,7 @@
     "CH_DE|SIDEBAR|GOLDEN_11_OVERSIZED|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "8c2a1aa4"
+        "daa886a0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1604,7 +1596,7 @@
     "CH_DE|SIDEBAR|GOLDEN_11_OVERSIZED|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "1f72ead0"
+        "cc4f3250"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1612,7 +1604,7 @@
     "CH_DE|SIDEBAR|GOLDEN_12_ATS_MINIMAL|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "f6b2bbfc"
+        "0515c19c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1620,7 +1612,7 @@
     "CH_DE|SIDEBAR|GOLDEN_12_ATS_MINIMAL|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "4850d74c"
+        "f8639db8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1628,7 +1620,7 @@
     "CH_DE|TOP_HEADER|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b7d95524"
+        "4131e19c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1636,10 +1628,10 @@
     "CH_DE|TOP_HEADER|GOLDEN_02_MULTIPAGE|none": {
       "pageCount": 4,
       "pageSignatures": [
-        "154bc5b0",
+        "2a4e6f94",
         "a6edbd2c",
-        "23da8080",
-        "6900e3f8"
+        "5fcb20dc",
+        "ccb06d1c"
       ],
       "splitPoints": [
         274.8,
@@ -1651,7 +1643,7 @@
     "CH_DE|TOP_HEADER|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f84c06c8"
+        "5d620a28"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1659,7 +1651,7 @@
     "CH_DE|TOP_HEADER|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9d1ce580"
+        "82775f50"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1667,7 +1659,7 @@
     "CH_DE|TOP_HEADER|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "242521f0"
+        "81b18d40"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1675,7 +1667,7 @@
     "CH_DE|TOP_HEADER|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "4f11d401"
+        "0daacaf5"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1683,7 +1675,7 @@
     "CH_DE|TOP_HEADER|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "0c1b8800"
+        "70091f08"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1691,7 +1683,7 @@
     "CH_DE|TOP_HEADER|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "52827005"
+        "15c83890"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1699,7 +1691,7 @@
     "CH_DE|TOP_HEADER|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "5866b390"
+        "3cbd8a5c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1707,7 +1699,7 @@
     "CH_DE|TOP_HEADER|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "71386ef0"
+        "9af98300"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1715,7 +1707,7 @@
     "CH_DE|TOP_HEADER|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "423db3cc"
+        "8456f075"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1723,7 +1715,7 @@
     "CH_DE|TOP_HEADER|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9b6f6994"
+        "cb993864"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1731,7 +1723,7 @@
     "CH_DE|SPLIT_HEADER|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "06f73e61"
+        "e20971b0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1739,10 +1731,10 @@
     "CH_DE|SPLIT_HEADER|GOLDEN_02_MULTIPAGE|none": {
       "pageCount": 4,
       "pageSignatures": [
-        "633ac63d",
+        "088b1170",
         "a6edbd2c",
-        "23da8080",
-        "6900e3f8"
+        "5fcb20dc",
+        "ccb06d1c"
       ],
       "splitPoints": [
         274.8,
@@ -1754,7 +1746,7 @@
     "CH_DE|SPLIT_HEADER|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "60bb0e65"
+        "3d86e0ec"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1762,7 +1754,7 @@
     "CH_DE|SPLIT_HEADER|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "95371e41"
+        "663cec2c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1770,7 +1762,7 @@
     "CH_DE|SPLIT_HEADER|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9ba3908d"
+        "a29d0144"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1778,7 +1770,7 @@
     "CH_DE|SPLIT_HEADER|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "e65dfdcc"
+        "df8c1fe8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1786,7 +1778,7 @@
     "CH_DE|SPLIT_HEADER|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "2b2c42d1"
+        "f4be00d0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1794,7 +1786,7 @@
     "CH_DE|SPLIT_HEADER|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "8842c340"
+        "6b45fecc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1802,7 +1794,7 @@
     "CH_DE|SPLIT_HEADER|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f884def0"
+        "44e5f2c8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1810,7 +1802,7 @@
     "CH_DE|SPLIT_HEADER|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b8c65f9c"
+        "d7843850"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1818,7 +1810,7 @@
     "CH_DE|SPLIT_HEADER|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "d7e2652c"
+        "eb0d2100"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1826,7 +1818,7 @@
     "CH_DE|SPLIT_HEADER|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9d1ab008"
+        "6ca578e4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1834,30 +1826,28 @@
     "CH_DE|LEFT_RAIL|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "4a560471"
+        "ef6f5a64"
       ],
       "splitPoints": [],
       "warningCodes": []
     },
     "CH_DE|LEFT_RAIL|GOLDEN_02_MULTIPAGE|none": {
-      "pageCount": 4,
+      "pageCount": 3,
       "pageSignatures": [
         "02817ac4",
         "d68641b0",
-        "261c02b4",
-        "9a1fa6ec"
+        "4b9b7164"
       ],
       "splitPoints": [
         90.2,
-        173,
-        773.6
+        173
       ],
       "warningCodes": []
     },
     "CH_DE|LEFT_RAIL|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9461eb6d"
+        "2a8a50e0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1865,7 +1855,7 @@
     "CH_DE|LEFT_RAIL|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6f6fa6e0"
+        "537e7e88"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1873,7 +1863,7 @@
     "CH_DE|LEFT_RAIL|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "0e7ec1f4"
+        "1e037bb8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1881,7 +1871,7 @@
     "CH_DE|LEFT_RAIL|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "44171f50"
+        "4d8d10c0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1889,7 +1879,7 @@
     "CH_DE|LEFT_RAIL|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "8bd708e8"
+        "c484da00"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1897,7 +1887,7 @@
     "CH_DE|LEFT_RAIL|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "ae3d9250"
+        "34e10971"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1905,7 +1895,7 @@
     "CH_DE|LEFT_RAIL|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "e7e9ad24"
+        "2ebe7bbc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1913,7 +1903,7 @@
     "CH_DE|LEFT_RAIL|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "0b2ea994"
+        "fea70808"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1921,7 +1911,7 @@
     "CH_DE|LEFT_RAIL|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f6f51298"
+        "cb4dabf0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1929,7 +1919,7 @@
     "CH_DE|LEFT_RAIL|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6800403c"
+        "18a5015c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1937,28 +1927,26 @@
     "CH_DE|DUAL_SIDEBAR|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "a0993fd4"
+        "1af068bd"
       ],
       "splitPoints": [],
       "warningCodes": []
     },
     "CH_DE|DUAL_SIDEBAR|GOLDEN_02_MULTIPAGE|none": {
-      "pageCount": 3,
+      "pageCount": 2,
       "pageSignatures": [
         "93f1c5c8",
-        "d1b3ef28",
-        "584dd33c"
+        "0b7ea468"
       ],
       "splitPoints": [
-        70.2,
-        670.8
+        70.2
       ],
       "warningCodes": []
     },
     "CH_DE|DUAL_SIDEBAR|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b05c3e40"
+        "9fdf057c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1966,7 +1954,7 @@
     "CH_DE|DUAL_SIDEBAR|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "56209570"
+        "8a2f32c1"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1974,7 +1962,7 @@
     "CH_DE|DUAL_SIDEBAR|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "1c275ce2"
+        "8ddb49f8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1982,7 +1970,7 @@
     "CH_DE|DUAL_SIDEBAR|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "53d3fa2c"
+        "1d6b55c8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1990,7 +1978,7 @@
     "CH_DE|DUAL_SIDEBAR|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "bab7691c"
+        "90c9eb10"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -1998,7 +1986,7 @@
     "CH_DE|DUAL_SIDEBAR|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "d1355494"
+        "51defa10"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2006,7 +1994,7 @@
     "CH_DE|DUAL_SIDEBAR|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "0a2b2c8d"
+        "f3fa4c9c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2014,7 +2002,7 @@
     "CH_DE|DUAL_SIDEBAR|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "858d32e6"
+        "37cf5eb0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2022,7 +2010,7 @@
     "CH_DE|DUAL_SIDEBAR|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "ebfff158"
+        "360886a0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2030,7 +2018,7 @@
     "CH_DE|DUAL_SIDEBAR|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "58cec360"
+        "612fd370"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2038,7 +2026,7 @@
     "CH_DE|ATS_ONE_COLUMN|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6f4e882c"
+        "79025544"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2049,8 +2037,8 @@
         "3b33960c",
         "050afd90",
         "56241d89",
-        "624ee69c",
-        "820278b0"
+        "24c18b14",
+        "7cda5d64"
       ],
       "splitPoints": [
         90.2,
@@ -2063,7 +2051,7 @@
     "CH_DE|ATS_ONE_COLUMN|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "c73a29ac"
+        "7cd09b38"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2071,7 +2059,7 @@
     "CH_DE|ATS_ONE_COLUMN|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b2a62be0"
+        "808554b4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2079,7 +2067,7 @@
     "CH_DE|ATS_ONE_COLUMN|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "40103ce8"
+        "035fa8fc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2087,7 +2075,7 @@
     "CH_DE|ATS_ONE_COLUMN|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "5dfd2afc"
+        "632c5ce1"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2095,7 +2083,7 @@
     "CH_DE|ATS_ONE_COLUMN|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f6e8e1c4"
+        "cc0c3039"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2103,7 +2091,7 @@
     "CH_DE|ATS_ONE_COLUMN|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "3b1793bc"
+        "4ad5224c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2111,7 +2099,7 @@
     "CH_DE|ATS_ONE_COLUMN|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6147e655"
+        "74a14584"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2119,7 +2107,7 @@
     "CH_DE|ATS_ONE_COLUMN|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "e79984a8"
+        "a3066b58"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2127,7 +2115,7 @@
     "CH_DE|ATS_ONE_COLUMN|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f3622284"
+        "73b15b3c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2135,7 +2123,7 @@
     "CH_DE|ATS_ONE_COLUMN|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "dc2e01b5"
+        "900c85c8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2143,7 +2131,7 @@
     "DE|SIDEBAR|GOLDEN_01_CLASSIC|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "d3cd2f3c"
+        "0ef80115"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2151,37 +2139,31 @@
     "DE|SIDEBAR|GOLDEN_01_CLASSIC|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "13369504"
+        "12a80d99"
       ],
       "splitPoints": [],
       "warningCodes": []
     },
     "DE|SIDEBAR|GOLDEN_02_MULTIPAGE|left": {
-      "pageCount": 2,
+      "pageCount": 1,
       "pageSignatures": [
-        "5140bcd0",
-        "cb4b8690"
+        "c0d035d1"
       ],
-      "splitPoints": [
-        581.7
-      ],
+      "splitPoints": [],
       "warningCodes": []
     },
     "DE|SIDEBAR|GOLDEN_02_MULTIPAGE|right": {
-      "pageCount": 2,
+      "pageCount": 1,
       "pageSignatures": [
-        "7cf35f94",
-        "0f711510"
+        "de451552"
       ],
-      "splitPoints": [
-        581.7
-      ],
+      "splitPoints": [],
       "warningCodes": []
     },
     "DE|SIDEBAR|GOLDEN_03_STUDENT|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "98964cb8"
+        "4ea81d56"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2189,7 +2171,7 @@
     "DE|SIDEBAR|GOLDEN_03_STUDENT|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "255491c6"
+        "e9844e0e"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2197,7 +2179,7 @@
     "DE|SIDEBAR|GOLDEN_04_NO_EDUCATION|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "6a063e06"
+        "b12dbd40"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2205,7 +2187,7 @@
     "DE|SIDEBAR|GOLDEN_04_NO_EDUCATION|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "83653a00"
+        "bb28c30a"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2213,7 +2195,7 @@
     "DE|SIDEBAR|GOLDEN_05_LONG_TITLES|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "61148bc0"
+        "db0c2b3e"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2221,7 +2203,7 @@
     "DE|SIDEBAR|GOLDEN_05_LONG_TITLES|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "3008d390"
+        "64db7a82"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2229,7 +2211,7 @@
     "DE|SIDEBAR|GOLDEN_06_LONG_BULLETS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "ddd1053c"
+        "ff33fb50"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2237,7 +2219,7 @@
     "DE|SIDEBAR|GOLDEN_06_LONG_BULLETS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "177b1451"
+        "0b128680"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2245,7 +2227,7 @@
     "DE|SIDEBAR|GOLDEN_07_MANY_SKILLS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "e021a774"
+        "f9507b48"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2253,7 +2235,7 @@
     "DE|SIDEBAR|GOLDEN_07_MANY_SKILLS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "5a206994"
+        "144b1a08"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2261,7 +2243,7 @@
     "DE|SIDEBAR|GOLDEN_08_MANY_LANGUAGES|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "c30c24a6"
+        "d736f998"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2269,7 +2251,7 @@
     "DE|SIDEBAR|GOLDEN_08_MANY_LANGUAGES|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "895d05cc"
+        "9574e517"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2277,7 +2259,7 @@
     "DE|SIDEBAR|GOLDEN_09_SPARSE|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "c7bda285"
+        "d24dd38c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2285,7 +2267,7 @@
     "DE|SIDEBAR|GOLDEN_09_SPARSE|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "2f1669e8"
+        "e9ebdf14"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2293,7 +2275,7 @@
     "DE|SIDEBAR|GOLDEN_10_DATE_FORMATS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "4b3eb4d8"
+        "6426a938"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2301,7 +2283,7 @@
     "DE|SIDEBAR|GOLDEN_10_DATE_FORMATS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "80cb174c"
+        "1218af74"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2309,7 +2291,7 @@
     "DE|SIDEBAR|GOLDEN_11_OVERSIZED|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "0fcfdfd8"
+        "91b32eac"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2317,7 +2299,7 @@
     "DE|SIDEBAR|GOLDEN_11_OVERSIZED|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "e9e3cc40"
+        "bb0390c0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2325,7 +2307,7 @@
     "DE|SIDEBAR|GOLDEN_12_ATS_MINIMAL|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "4ba8781c"
+        "af78d1dc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2333,7 +2315,7 @@
     "DE|SIDEBAR|GOLDEN_12_ATS_MINIMAL|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "4fd6a210"
+        "6a8f7ebc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2341,7 +2323,7 @@
     "DE|TOP_HEADER|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "1f732360"
+        "f238bbb8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2349,10 +2331,10 @@
     "DE|TOP_HEADER|GOLDEN_02_MULTIPAGE|none": {
       "pageCount": 4,
       "pageSignatures": [
-        "54d17960",
+        "9d2a0796",
         "46cd6a48",
-        "4054db10",
-        "ac20f796"
+        "e2929c56",
+        "5fb44476"
       ],
       "splitPoints": [
         261.6,
@@ -2364,7 +2346,7 @@
     "DE|TOP_HEADER|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "33cfe158"
+        "1ba4b43e"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2372,7 +2354,7 @@
     "DE|TOP_HEADER|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "0874b85a"
+        "3f89eeda"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2380,7 +2362,7 @@
     "DE|TOP_HEADER|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "c1a34dde"
+        "093e7642"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2388,7 +2370,7 @@
     "DE|TOP_HEADER|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "20ff5f7e"
+        "fb0975ea"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2396,7 +2378,7 @@
     "DE|TOP_HEADER|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "bfb6a813"
+        "9766a25c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2404,7 +2386,7 @@
     "DE|TOP_HEADER|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "af08b7b4"
+        "b0ada6c2"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2412,7 +2394,7 @@
     "DE|TOP_HEADER|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f23168b0"
+        "8a0ddfda"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2420,7 +2402,7 @@
     "DE|TOP_HEADER|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "2d01e77a"
+        "7faad5f0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2428,7 +2410,7 @@
     "DE|TOP_HEADER|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "c2ba2433"
+        "7ede417c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2436,7 +2418,7 @@
     "DE|TOP_HEADER|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "bc19029a"
+        "e910946a"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2444,7 +2426,7 @@
     "DE|SPLIT_HEADER|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "69ee4150"
+        "4c7654bf"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2452,10 +2434,10 @@
     "DE|SPLIT_HEADER|GOLDEN_02_MULTIPAGE|none": {
       "pageCount": 4,
       "pageSignatures": [
-        "a177ca0a",
+        "ec4ef600",
         "46cd6a48",
-        "4054db10",
-        "ac20f796"
+        "e2929c56",
+        "5fb44476"
       ],
       "splitPoints": [
         261.6,
@@ -2467,7 +2449,7 @@
     "DE|SPLIT_HEADER|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "e7aff236"
+        "c7dc9dbe"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2475,7 +2457,7 @@
     "DE|SPLIT_HEADER|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "17e15678"
+        "97ae2a32"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2483,7 +2465,7 @@
     "DE|SPLIT_HEADER|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6ff3b4bc"
+        "30f7ef88"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2491,7 +2473,7 @@
     "DE|SPLIT_HEADER|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "20bc403a"
+        "a26405ba"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2499,7 +2481,7 @@
     "DE|SPLIT_HEADER|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "381f8a28"
+        "a85e67b0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2507,7 +2489,7 @@
     "DE|SPLIT_HEADER|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "1783ea40"
+        "e06c69d4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2515,7 +2497,7 @@
     "DE|SPLIT_HEADER|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b5e7d368"
+        "4a9ce848"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2523,7 +2505,7 @@
     "DE|SPLIT_HEADER|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "641e99c8"
+        "74f0dc30"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2531,7 +2513,7 @@
     "DE|SPLIT_HEADER|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "3e3ffbc6"
+        "3c5fd640"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2539,7 +2521,7 @@
     "DE|SPLIT_HEADER|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "60ffbf40"
+        "05a12197"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2547,30 +2529,28 @@
     "DE|LEFT_RAIL|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6118d018"
+        "2f78fb14"
       ],
       "splitPoints": [],
       "warningCodes": []
     },
     "DE|LEFT_RAIL|GOLDEN_02_MULTIPAGE|none": {
-      "pageCount": 4,
+      "pageCount": 3,
       "pageSignatures": [
         "d51e558a",
         "e70a31af",
-        "1baf6c2a",
-        "ad461b9e"
+        "daaa0c30"
       ],
       "splitPoints": [
         85.9,
-        164.5,
-        734.2
+        164.5
       ],
       "warningCodes": []
     },
     "DE|LEFT_RAIL|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "63167d56"
+        "c679c1c8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2578,7 +2558,7 @@
     "DE|LEFT_RAIL|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "a486228a"
+        "91fc7d52"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2586,7 +2566,7 @@
     "DE|LEFT_RAIL|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9a7d4c0e"
+        "b44605f0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2594,7 +2574,7 @@
     "DE|LEFT_RAIL|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "5780c99e"
+        "8e1693e8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2602,7 +2582,7 @@
     "DE|LEFT_RAIL|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "3be9a824"
+        "baae912c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2610,7 +2590,7 @@
     "DE|LEFT_RAIL|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "267d554a"
+        "2559544a"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2618,7 +2598,7 @@
     "DE|LEFT_RAIL|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "554bb835"
+        "01b58f41"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2626,7 +2606,7 @@
     "DE|LEFT_RAIL|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "1007182c"
+        "ee028692"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2634,7 +2614,7 @@
     "DE|LEFT_RAIL|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "1e4b2e50"
+        "3c4828ec"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2642,7 +2622,7 @@
     "DE|LEFT_RAIL|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "459372b6"
+        "8f4a171a"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2650,28 +2630,26 @@
     "DE|DUAL_SIDEBAR|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "0c43bace"
+        "18464cd8"
       ],
       "splitPoints": [],
       "warningCodes": []
     },
     "DE|DUAL_SIDEBAR|GOLDEN_02_MULTIPAGE|none": {
-      "pageCount": 3,
+      "pageCount": 2,
       "pageSignatures": [
         "95a0c872",
-        "1963e278",
-        "4ca48bba"
+        "14901aae"
       ],
       "splitPoints": [
-        66.9,
-        636.6
+        66.9
       ],
       "warningCodes": []
     },
     "DE|DUAL_SIDEBAR|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "993d8578"
+        "824dbe50"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2679,7 +2657,7 @@
     "DE|DUAL_SIDEBAR|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "73f593e6"
+        "5748dcda"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2687,7 +2665,7 @@
     "DE|DUAL_SIDEBAR|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "94a97750"
+        "fe5d9180"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2695,7 +2673,7 @@
     "DE|DUAL_SIDEBAR|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f5e0a06e"
+        "6c2b2698"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2703,7 +2681,7 @@
     "DE|DUAL_SIDEBAR|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "bdfbbd52"
+        "66cc5f68"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2711,7 +2689,7 @@
     "DE|DUAL_SIDEBAR|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "372be64b"
+        "9b44f57e"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2719,7 +2697,7 @@
     "DE|DUAL_SIDEBAR|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "ee349357"
+        "fd01f5a7"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2727,7 +2705,7 @@
     "DE|DUAL_SIDEBAR|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "ac19e8c6"
+        "8c9df1e4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2735,7 +2713,7 @@
     "DE|DUAL_SIDEBAR|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "75896ca4"
+        "a1db0dc0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2743,7 +2721,7 @@
     "DE|DUAL_SIDEBAR|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "eb504e74"
+        "c645407c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2751,32 +2729,30 @@
     "DE|ATS_ONE_COLUMN|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "dd2ee242"
+        "7c837bb8"
       ],
       "splitPoints": [],
       "warningCodes": []
     },
     "DE|ATS_ONE_COLUMN|GOLDEN_02_MULTIPAGE|none": {
-      "pageCount": 5,
+      "pageCount": 4,
       "pageSignatures": [
         "9402a159",
         "25747a28",
         "995fecd0",
-        "e07ef200",
-        "81d0f6e0"
+        "1b407da3"
       ],
       "splitPoints": [
         85.9,
         335.5,
-        414.1,
-        983.8
+        414.1
       ],
       "warningCodes": []
     },
     "DE|ATS_ONE_COLUMN|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "4d41cb52"
+        "16c49d78"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2784,7 +2760,7 @@
     "DE|ATS_ONE_COLUMN|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f96405d8"
+        "01b81608"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2792,7 +2768,7 @@
     "DE|ATS_ONE_COLUMN|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f22f96d8"
+        "5b97a5cc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2800,7 +2776,7 @@
     "DE|ATS_ONE_COLUMN|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "115fc6aa"
+        "c178fe18"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2808,7 +2784,7 @@
     "DE|ATS_ONE_COLUMN|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "2f68f25f"
+        "50f48a18"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2816,7 +2792,7 @@
     "DE|ATS_ONE_COLUMN|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "11acb068"
+        "bacc5110"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2824,7 +2800,7 @@
     "DE|ATS_ONE_COLUMN|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "4ae148e0"
+        "5fce7a92"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2832,7 +2808,7 @@
     "DE|ATS_ONE_COLUMN|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "c84db8ba"
+        "f8c90e10"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2840,7 +2816,7 @@
     "DE|ATS_ONE_COLUMN|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "548a0c93"
+        "69821648"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2848,7 +2824,7 @@
     "DE|ATS_ONE_COLUMN|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "aa6ffdb0"
+        "fc5d3188"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2856,7 +2832,7 @@
     "UK|SIDEBAR|GOLDEN_01_CLASSIC|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "4d476828"
+        "65151b38"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2864,7 +2840,7 @@
     "UK|SIDEBAR|GOLDEN_01_CLASSIC|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "cc012c30"
+        "e7f3ddf0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2872,8 +2848,8 @@
     "UK|SIDEBAR|GOLDEN_02_MULTIPAGE|left": {
       "pageCount": 2,
       "pageSignatures": [
-        "b04b4d40",
-        "24867748"
+        "94611680",
+        "d2669f07"
       ],
       "splitPoints": [
         612.6
@@ -2883,8 +2859,8 @@
     "UK|SIDEBAR|GOLDEN_02_MULTIPAGE|right": {
       "pageCount": 2,
       "pageSignatures": [
-        "5113c144",
-        "d40bc0b8"
+        "b7e6bb20",
+        "f3652a98"
       ],
       "splitPoints": [
         612.6
@@ -2894,7 +2870,7 @@
     "UK|SIDEBAR|GOLDEN_03_STUDENT|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "c56c631e"
+        "9d4bba44"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2902,7 +2878,7 @@
     "UK|SIDEBAR|GOLDEN_03_STUDENT|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "05f96008"
+        "6d0c6790"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2910,7 +2886,7 @@
     "UK|SIDEBAR|GOLDEN_04_NO_EDUCATION|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "fcaa04b8"
+        "dd4007d0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2918,7 +2894,7 @@
     "UK|SIDEBAR|GOLDEN_04_NO_EDUCATION|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "9ccf1f60"
+        "8302f6d8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2926,7 +2902,7 @@
     "UK|SIDEBAR|GOLDEN_05_LONG_TITLES|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "77d1f451"
+        "ee85d2d2"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2934,7 +2910,7 @@
     "UK|SIDEBAR|GOLDEN_05_LONG_TITLES|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "f82a7e10"
+        "be50fa00"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2942,7 +2918,7 @@
     "UK|SIDEBAR|GOLDEN_06_LONG_BULLETS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "3deaa380"
+        "6d628c9c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2950,7 +2926,7 @@
     "UK|SIDEBAR|GOLDEN_06_LONG_BULLETS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "9426e6e4"
+        "39a64fcc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2958,7 +2934,7 @@
     "UK|SIDEBAR|GOLDEN_07_MANY_SKILLS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "98d8ec10"
+        "cb5eace4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2966,7 +2942,7 @@
     "UK|SIDEBAR|GOLDEN_07_MANY_SKILLS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "79f81654"
+        "f4aa0268"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2974,7 +2950,7 @@
     "UK|SIDEBAR|GOLDEN_08_MANY_LANGUAGES|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "39bb5d00"
+        "35ee734c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2982,7 +2958,7 @@
     "UK|SIDEBAR|GOLDEN_08_MANY_LANGUAGES|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "94051660"
+        "bad9c378"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2990,7 +2966,7 @@
     "UK|SIDEBAR|GOLDEN_09_SPARSE|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "21f9dd7c"
+        "ebb1fae4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -2998,7 +2974,7 @@
     "UK|SIDEBAR|GOLDEN_09_SPARSE|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "0001bed0"
+        "d198147c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3006,7 +2982,7 @@
     "UK|SIDEBAR|GOLDEN_10_DATE_FORMATS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "cf8559c8"
+        "f348007c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3014,7 +2990,7 @@
     "UK|SIDEBAR|GOLDEN_10_DATE_FORMATS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "bfcfe33c"
+        "76ac974c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3022,7 +2998,7 @@
     "UK|SIDEBAR|GOLDEN_11_OVERSIZED|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "554ff26c"
+        "68877e58"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3030,7 +3006,7 @@
     "UK|SIDEBAR|GOLDEN_11_OVERSIZED|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "f83e0054"
+        "db4132fc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3038,7 +3014,7 @@
     "UK|SIDEBAR|GOLDEN_12_ATS_MINIMAL|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "6de7ae10"
+        "19facdac"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3046,7 +3022,7 @@
     "UK|SIDEBAR|GOLDEN_12_ATS_MINIMAL|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "fb71e168"
+        "0610a6cc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3054,7 +3030,7 @@
     "UK|TOP_HEADER|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "dbb3d1e9"
+        "14cfbf0d"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3062,10 +3038,10 @@
     "UK|TOP_HEADER|GOLDEN_02_MULTIPAGE|none": {
       "pageCount": 4,
       "pageSignatures": [
-        "db1432e8",
+        "f041df80",
         "46b08f38",
-        "06574238",
-        "faedf698"
+        "6e8d465c",
+        "ec92bad9"
       ],
       "splitPoints": [
         274.8,
@@ -3077,7 +3053,7 @@
     "UK|TOP_HEADER|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "e388f380"
+        "a32640e1"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3085,7 +3061,7 @@
     "UK|TOP_HEADER|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9896be58"
+        "13c08c90"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3093,7 +3069,7 @@
     "UK|TOP_HEADER|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "56fe77dd"
+        "4fc3b4dc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3101,7 +3077,7 @@
     "UK|TOP_HEADER|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "dc989e64"
+        "a958a93c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3109,7 +3085,7 @@
     "UK|TOP_HEADER|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "90ec40e0"
+        "db4b2800"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3117,7 +3093,7 @@
     "UK|TOP_HEADER|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "be23c3cc"
+        "99b59514"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3125,7 +3101,7 @@
     "UK|TOP_HEADER|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "55525cc1"
+        "7c472238"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3133,7 +3109,7 @@
     "UK|TOP_HEADER|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "88eb8e6c"
+        "ceb3eeb5"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3141,7 +3117,7 @@
     "UK|TOP_HEADER|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "949ae910"
+        "21b659bc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3149,7 +3125,7 @@
     "UK|TOP_HEADER|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "80e0981c"
+        "28335bf4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3157,7 +3133,7 @@
     "UK|SPLIT_HEADER|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "c94a39ed"
+        "aa3c043c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3165,10 +3141,10 @@
     "UK|SPLIT_HEADER|GOLDEN_02_MULTIPAGE|none": {
       "pageCount": 4,
       "pageSignatures": [
-        "d33db9b5",
+        "af633890",
         "46b08f38",
-        "06574238",
-        "faedf698"
+        "6e8d465c",
+        "ec92bad9"
       ],
       "splitPoints": [
         274.8,
@@ -3180,7 +3156,7 @@
     "UK|SPLIT_HEADER|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b82ffebc"
+        "3e9e3995"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3188,7 +3164,7 @@
     "UK|SPLIT_HEADER|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "e97cdff1"
+        "d65014c8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3196,7 +3172,7 @@
     "UK|SPLIT_HEADER|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "4e25703c"
+        "e9c44678"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3204,7 +3180,7 @@
     "UK|SPLIT_HEADER|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "85c3802c"
+        "82054ffc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3212,7 +3188,7 @@
     "UK|SPLIT_HEADER|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "ab7b0424"
+        "3e870560"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3220,7 +3196,7 @@
     "UK|SPLIT_HEADER|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "5e8ce711"
+        "e66e5384"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3228,7 +3204,7 @@
     "UK|SPLIT_HEADER|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9c24caf1"
+        "37962514"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3236,7 +3212,7 @@
     "UK|SPLIT_HEADER|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "93cf78ec"
+        "f7b289a4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3244,7 +3220,7 @@
     "UK|SPLIT_HEADER|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "512618d8"
+        "2b05a5d0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3252,7 +3228,7 @@
     "UK|SPLIT_HEADER|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "cdf924e4"
+        "b9890629"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3260,30 +3236,28 @@
     "UK|LEFT_RAIL|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "e5e6cfb8"
+        "4abca47c"
       ],
       "splitPoints": [],
       "warningCodes": []
     },
     "UK|LEFT_RAIL|GOLDEN_02_MULTIPAGE|none": {
-      "pageCount": 4,
+      "pageCount": 3,
       "pageSignatures": [
         "2103ec60",
         "b77ba61c",
-        "3b31ec2c",
-        "6afcf19e"
+        "f448d3e4"
       ],
       "splitPoints": [
         90.2,
-        173,
-        773.6
+        173
       ],
       "warningCodes": []
     },
     "UK|LEFT_RAIL|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "5dc682b4"
+        "57bb9739"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3291,7 +3265,7 @@
     "UK|LEFT_RAIL|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "95d17830"
+        "8123c74d"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3299,7 +3273,7 @@
     "UK|LEFT_RAIL|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b27e9a48"
+        "c97c89ec"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3307,7 +3281,7 @@
     "UK|LEFT_RAIL|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9d70f7ad"
+        "ce44b3dc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3315,7 +3289,7 @@
     "UK|LEFT_RAIL|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "2837a930"
+        "c7eab438"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3323,7 +3297,7 @@
     "UK|LEFT_RAIL|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "80158df8"
+        "5969a9dc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3331,7 +3305,7 @@
     "UK|LEFT_RAIL|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "ed53cb60"
+        "a2ca1068"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3339,7 +3313,7 @@
     "UK|LEFT_RAIL|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "1a9f9e8c"
+        "85137411"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3347,7 +3321,7 @@
     "UK|LEFT_RAIL|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "d5723bd4"
+        "768ad394"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3355,7 +3329,7 @@
     "UK|LEFT_RAIL|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "94fec4fc"
+        "dcef9d55"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3363,28 +3337,26 @@
     "UK|DUAL_SIDEBAR|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "2b3626c5"
+        "714bc34c"
       ],
       "splitPoints": [],
       "warningCodes": []
     },
     "UK|DUAL_SIDEBAR|GOLDEN_02_MULTIPAGE|none": {
-      "pageCount": 3,
+      "pageCount": 2,
       "pageSignatures": [
         "008d9b96",
-        "53cd83f8",
-        "3560f35c"
+        "69907311"
       ],
       "splitPoints": [
-        70.2,
-        670.8
+        70.2
       ],
       "warningCodes": []
     },
     "UK|DUAL_SIDEBAR|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "99307978"
+        "4bb64514"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3392,7 +3364,7 @@
     "UK|DUAL_SIDEBAR|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "8c66bf24"
+        "b83d81e4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3400,7 +3372,7 @@
     "UK|DUAL_SIDEBAR|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "02096fed"
+        "3aa7eb14"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3408,7 +3380,7 @@
     "UK|DUAL_SIDEBAR|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "ff0d7a04"
+        "8c3cd184"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3416,7 +3388,7 @@
     "UK|DUAL_SIDEBAR|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "d5123d48"
+        "60e7c2c4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3424,7 +3396,7 @@
     "UK|DUAL_SIDEBAR|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b98fce44"
+        "655ba57c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3432,7 +3404,7 @@
     "UK|DUAL_SIDEBAR|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b6509c68"
+        "f3b03ca0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3440,7 +3412,7 @@
     "UK|DUAL_SIDEBAR|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "73997728"
+        "a6197eec"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3448,7 +3420,7 @@
     "UK|DUAL_SIDEBAR|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "60cc7cc8"
+        "15bfa194"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3456,7 +3428,7 @@
     "UK|DUAL_SIDEBAR|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "42164b58"
+        "72fa95e1"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3464,7 +3436,7 @@
     "UK|ATS_ONE_COLUMN|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6f4e882c"
+        "79025544"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3475,8 +3447,8 @@
         "3b33960c",
         "050afd90",
         "56241d89",
-        "624ee69c",
-        "820278b0"
+        "24c18b14",
+        "7cda5d64"
       ],
       "splitPoints": [
         90.2,
@@ -3489,7 +3461,7 @@
     "UK|ATS_ONE_COLUMN|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "c73a29ac"
+        "7cd09b38"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3497,7 +3469,7 @@
     "UK|ATS_ONE_COLUMN|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b2a62be0"
+        "808554b4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3505,7 +3477,7 @@
     "UK|ATS_ONE_COLUMN|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "40103ce8"
+        "035fa8fc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3513,7 +3485,7 @@
     "UK|ATS_ONE_COLUMN|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "5dfd2afc"
+        "632c5ce1"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3521,7 +3493,7 @@
     "UK|ATS_ONE_COLUMN|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f6e8e1c4"
+        "cc0c3039"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3529,7 +3501,7 @@
     "UK|ATS_ONE_COLUMN|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "3b1793bc"
+        "4ad5224c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3537,7 +3509,7 @@
     "UK|ATS_ONE_COLUMN|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6147e655"
+        "74a14584"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3545,7 +3517,7 @@
     "UK|ATS_ONE_COLUMN|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "e79984a8"
+        "a3066b58"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3553,7 +3525,7 @@
     "UK|ATS_ONE_COLUMN|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f3622284"
+        "73b15b3c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3561,7 +3533,7 @@
     "UK|ATS_ONE_COLUMN|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "dc2e01b5"
+        "900c85c8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3569,7 +3541,7 @@
     "US|SIDEBAR|GOLDEN_01_CLASSIC|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "db29c73c"
+        "d3c59894"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3577,7 +3549,7 @@
     "US|SIDEBAR|GOLDEN_01_CLASSIC|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "760544c4"
+        "25df4168"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3585,8 +3557,8 @@
     "US|SIDEBAR|GOLDEN_02_MULTIPAGE|left": {
       "pageCount": 2,
       "pageSignatures": [
-        "618ced0a",
-        "ab4188b1"
+        "1e7fa95e",
+        "e0c479bc"
       ],
       "splitPoints": [
         612.6
@@ -3596,8 +3568,8 @@
     "US|SIDEBAR|GOLDEN_02_MULTIPAGE|right": {
       "pageCount": 2,
       "pageSignatures": [
-        "fcb2c30e",
-        "8d3eb210"
+        "97c22fd2",
+        "c808aa7c"
       ],
       "splitPoints": [
         612.6
@@ -3607,7 +3579,7 @@
     "US|SIDEBAR|GOLDEN_03_STUDENT|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "cfb18e0c"
+        "a03887a2"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3615,7 +3587,7 @@
     "US|SIDEBAR|GOLDEN_03_STUDENT|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "cf1ebe1a"
+        "ed0c21dc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3623,7 +3595,7 @@
     "US|SIDEBAR|GOLDEN_04_NO_EDUCATION|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "c3fedc5d"
+        "58c079ae"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3631,7 +3603,7 @@
     "US|SIDEBAR|GOLDEN_04_NO_EDUCATION|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "2ef50e6d"
+        "e14c8aa2"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3639,7 +3611,7 @@
     "US|SIDEBAR|GOLDEN_05_LONG_TITLES|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "af40fbd0"
+        "35cd5d56"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3647,7 +3619,7 @@
     "US|SIDEBAR|GOLDEN_05_LONG_TITLES|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "d9db6052"
+        "517fd4c0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3655,7 +3627,7 @@
     "US|SIDEBAR|GOLDEN_06_LONG_BULLETS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "bd283d5c"
+        "306209a0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3663,7 +3635,7 @@
     "US|SIDEBAR|GOLDEN_06_LONG_BULLETS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "75aa1fdc"
+        "091f5a04"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3671,7 +3643,7 @@
     "US|SIDEBAR|GOLDEN_07_MANY_SKILLS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "b9bf61e4"
+        "ae1e739c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3679,7 +3651,7 @@
     "US|SIDEBAR|GOLDEN_07_MANY_SKILLS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "e0512618"
+        "b61288ec"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3687,7 +3659,7 @@
     "US|SIDEBAR|GOLDEN_08_MANY_LANGUAGES|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "1c9fc844"
+        "a1241e84"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3695,7 +3667,7 @@
     "US|SIDEBAR|GOLDEN_08_MANY_LANGUAGES|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "835efb8c"
+        "c8c83908"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3703,7 +3675,7 @@
     "US|SIDEBAR|GOLDEN_09_SPARSE|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "f0bc88a4"
+        "c1ed3164"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3711,7 +3683,7 @@
     "US|SIDEBAR|GOLDEN_09_SPARSE|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "8f2751dc"
+        "e24bf58d"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3719,7 +3691,7 @@
     "US|SIDEBAR|GOLDEN_10_DATE_FORMATS|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "f4cf18a0"
+        "89acea38"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3727,7 +3699,7 @@
     "US|SIDEBAR|GOLDEN_10_DATE_FORMATS|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "3f5d7460"
+        "dfe8d70c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3735,7 +3707,7 @@
     "US|SIDEBAR|GOLDEN_11_OVERSIZED|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "133189b0"
+        "f02da268"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3743,7 +3715,7 @@
     "US|SIDEBAR|GOLDEN_11_OVERSIZED|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "171bdbb4"
+        "11c5d394"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3751,7 +3723,7 @@
     "US|SIDEBAR|GOLDEN_12_ATS_MINIMAL|left": {
       "pageCount": 1,
       "pageSignatures": [
-        "56d705ec"
+        "af153388"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3759,7 +3731,7 @@
     "US|SIDEBAR|GOLDEN_12_ATS_MINIMAL|right": {
       "pageCount": 1,
       "pageSignatures": [
-        "49dd0a90"
+        "2eb4ef10"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3767,7 +3739,7 @@
     "US|TOP_HEADER|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "7a0bdd0c"
+        "c5d5afa8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3775,11 +3747,11 @@
     "US|TOP_HEADER|GOLDEN_02_MULTIPAGE|none": {
       "pageCount": 5,
       "pageSignatures": [
-        "47d0e974",
+        "5aa87464",
         "fa3702c8",
-        "fa1c016c",
-        "387fbcb0",
-        "3bcd6f14"
+        "4f9faed0",
+        "9acc619e",
+        "edc0fc28"
       ],
       "splitPoints": [
         274.8,
@@ -3792,7 +3764,7 @@
     "US|TOP_HEADER|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6e694e68"
+        "66dde531"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3800,7 +3772,7 @@
     "US|TOP_HEADER|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "70938388"
+        "2b7b7644"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3808,7 +3780,7 @@
     "US|TOP_HEADER|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "e9c69aec"
+        "798d7064"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3816,7 +3788,7 @@
     "US|TOP_HEADER|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "d3cfd445"
+        "a3e341a1"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3824,7 +3796,7 @@
     "US|TOP_HEADER|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "ad607334"
+        "a3786e00"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3832,7 +3804,7 @@
     "US|TOP_HEADER|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "4bc015e8"
+        "66e3fa30"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3840,7 +3812,7 @@
     "US|TOP_HEADER|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "66d207d4"
+        "20eca0c0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3848,7 +3820,7 @@
     "US|TOP_HEADER|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "a0960ef5"
+        "67170735"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3856,7 +3828,7 @@
     "US|TOP_HEADER|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "1c4115f4"
+        "b8f144c4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3864,7 +3836,7 @@
     "US|TOP_HEADER|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b8c3b714"
+        "f85a6b34"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3872,7 +3844,7 @@
     "US|SPLIT_HEADER|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "d28fcad4"
+        "b4ec26bc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3880,11 +3852,11 @@
     "US|SPLIT_HEADER|GOLDEN_02_MULTIPAGE|none": {
       "pageCount": 5,
       "pageSignatures": [
-        "a0428ce0",
+        "647cb119",
         "fa3702c8",
-        "fa1c016c",
-        "387fbcb0",
-        "3bcd6f14"
+        "4f9faed0",
+        "9acc619e",
+        "edc0fc28"
       ],
       "splitPoints": [
         274.8,
@@ -3897,7 +3869,7 @@
     "US|SPLIT_HEADER|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "16161e91"
+        "68c4282c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3905,7 +3877,7 @@
     "US|SPLIT_HEADER|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "5735ed0c"
+        "042c5b50"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3913,7 +3885,7 @@
     "US|SPLIT_HEADER|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "79795fbc"
+        "b0445405"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3921,7 +3893,7 @@
     "US|SPLIT_HEADER|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "5d4e3824"
+        "24424964"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3929,7 +3901,7 @@
     "US|SPLIT_HEADER|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "ab92d690"
+        "15a0ea3c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3937,7 +3909,7 @@
     "US|SPLIT_HEADER|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "48509888"
+        "2256da70"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3945,7 +3917,7 @@
     "US|SPLIT_HEADER|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "d89e1260"
+        "93eba9d4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3953,7 +3925,7 @@
     "US|SPLIT_HEADER|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "7038d3b4"
+        "75249fd9"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3961,7 +3933,7 @@
     "US|SPLIT_HEADER|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "41cb06b4"
+        "c13fe474"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3969,7 +3941,7 @@
     "US|SPLIT_HEADER|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "151467c9"
+        "a2554fd4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3977,7 +3949,7 @@
     "US|LEFT_RAIL|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "ff1eb2a8"
+        "c164b120"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -3987,8 +3959,8 @@
       "pageSignatures": [
         "12644aa4",
         "4dd33e54",
-        "b7419af0",
-        "308db089"
+        "5f152600",
+        "3f56dd34"
       ],
       "splitPoints": [
         90.2,
@@ -4000,7 +3972,7 @@
     "US|LEFT_RAIL|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "9470e1e5"
+        "b6d1f4cd"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4008,7 +3980,7 @@
     "US|LEFT_RAIL|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "c071fac0"
+        "60148878"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4016,7 +3988,7 @@
     "US|LEFT_RAIL|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "43f14ed4"
+        "6dea9cdc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4024,7 +3996,7 @@
     "US|LEFT_RAIL|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "f11f08f0"
+        "bdb4eb90"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4032,7 +4004,7 @@
     "US|LEFT_RAIL|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "0b76f6a5"
+        "dbb18b1c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4040,7 +4012,7 @@
     "US|LEFT_RAIL|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "58054bb0"
+        "3a3e1af1"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4048,7 +4020,7 @@
     "US|LEFT_RAIL|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "1e1562e0"
+        "6bba656c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4056,7 +4028,7 @@
     "US|LEFT_RAIL|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "c2e6b4b8"
+        "209b3700"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4064,7 +4036,7 @@
     "US|LEFT_RAIL|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "b3ccea3c"
+        "12cd7b14"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4072,7 +4044,7 @@
     "US|LEFT_RAIL|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "70cf6c00"
+        "0b45c8d1"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4080,7 +4052,7 @@
     "US|DUAL_SIDEBAR|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "c2d185a4"
+        "d51f3f08"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4089,8 +4061,8 @@
       "pageCount": 3,
       "pageSignatures": [
         "995a8b2d",
-        "527dbc88",
-        "25b70e3c"
+        "80891aac",
+        "bd78addc"
       ],
       "splitPoints": [
         70.2,
@@ -4101,7 +4073,7 @@
     "US|DUAL_SIDEBAR|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "4acbf87c"
+        "4c12e74d"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4109,7 +4081,7 @@
     "US|DUAL_SIDEBAR|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "7312dbbc"
+        "e23e9f18"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4117,7 +4089,7 @@
     "US|DUAL_SIDEBAR|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "65aa19d8"
+        "e70b3074"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4125,7 +4097,7 @@
     "US|DUAL_SIDEBAR|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "e2d48214"
+        "678d66c0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4133,7 +4105,7 @@
     "US|DUAL_SIDEBAR|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "745bc9e4"
+        "690da709"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4141,7 +4113,7 @@
     "US|DUAL_SIDEBAR|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "a53268e1"
+        "a7100bdc"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4149,7 +4121,7 @@
     "US|DUAL_SIDEBAR|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "fb799b18"
+        "909922b8"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4157,7 +4129,7 @@
     "US|DUAL_SIDEBAR|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "bd0a215c"
+        "b1c2fb50"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4165,7 +4137,7 @@
     "US|DUAL_SIDEBAR|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "25017aa0"
+        "d3071860"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4173,7 +4145,7 @@
     "US|DUAL_SIDEBAR|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "fd33f2b8"
+        "119b7690"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4181,7 +4153,7 @@
     "US|ATS_ONE_COLUMN|GOLDEN_01_CLASSIC|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "088ded28"
+        "fc0a168c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4192,8 +4164,8 @@
         "624c26f4",
         "1946e671",
         "e336aa08",
-        "192759ac",
-        "fa18d6dc"
+        "e3e441bc",
+        "1395473c"
       ],
       "splitPoints": [
         90.2,
@@ -4206,7 +4178,7 @@
     "US|ATS_ONE_COLUMN|GOLDEN_03_STUDENT|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "7314f9b8"
+        "14895e7c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4214,7 +4186,7 @@
     "US|ATS_ONE_COLUMN|GOLDEN_04_NO_EDUCATION|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "65659120"
+        "1e1415d0"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4222,7 +4194,7 @@
     "US|ATS_ONE_COLUMN|GOLDEN_05_LONG_TITLES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "6bd7bd98"
+        "82be1d2c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4230,7 +4202,7 @@
     "US|ATS_ONE_COLUMN|GOLDEN_06_LONG_BULLETS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "a71e88c8"
+        "00a268e4"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4238,7 +4210,7 @@
     "US|ATS_ONE_COLUMN|GOLDEN_07_MANY_SKILLS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "596b8e59"
+        "a9b0db50"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4246,7 +4218,7 @@
     "US|ATS_ONE_COLUMN|GOLDEN_08_MANY_LANGUAGES|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "78da63d5"
+        "0ce30c14"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4254,7 +4226,7 @@
     "US|ATS_ONE_COLUMN|GOLDEN_09_SPARSE|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "a8a7a3c0"
+        "95df362c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4262,7 +4234,7 @@
     "US|ATS_ONE_COLUMN|GOLDEN_10_DATE_FORMATS|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "fefa94e4"
+        "98ba661c"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4270,7 +4242,7 @@
     "US|ATS_ONE_COLUMN|GOLDEN_11_OVERSIZED|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "d933cde4"
+        "de3bc5d9"
       ],
       "splitPoints": [],
       "warningCodes": []
@@ -4278,7 +4250,7 @@
     "US|ATS_ONE_COLUMN|GOLDEN_12_ATS_MINIMAL|none": {
       "pageCount": 1,
       "pageSignatures": [
-        "bcd0fc20"
+        "424eb7dc"
       ],
       "splitPoints": [],
       "warningCodes": []

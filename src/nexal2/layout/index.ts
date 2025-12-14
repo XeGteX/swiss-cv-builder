@@ -2,6 +2,6 @@
  * NEXAL2 - Layout Module
  */
 
-export { computeLayout, measureText } from './computeLayout';
+export { computeLayout, measureText, splitTextByLines, createSplitTextNodes } from './computeLayout';
 export { paginateLayout, type PaginationOptions, type PaginationResult } from './paginateLayout';
 

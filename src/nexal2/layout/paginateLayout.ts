@@ -22,7 +22,8 @@
  * 6. Return multi-page LayoutTree with validation warnings
  */
 
-import type { LayoutNode, LayoutTree, LayoutConstraints, LayoutFrame, PaginationMeta, PaginationWarning } from '../types';
+import type { LayoutNode, LayoutTree, LayoutConstraints, LayoutFrame, PaginationMeta, PaginationWarning, ComputedStyle } from '../types';
+import { splitTextByLines, measureText } from './computeLayout';
 
 // ============================================================================
 // TYPES
@@ -88,33 +89,37 @@ const PENALTY_LONELY_TITLE = -200;
 /**
  * Phase 4.9: Determine keep rule using fieldPath (stable) or nodeType.
  * Avoids fragile nodeId string matching.
+ * 
+ * P0 FIX: Relaxed keepTogether rules to allow sections to start+continue across pages.
+ * Only headers use keepWithNext; items are splittable (normal).
  */
 function getKeepRule(node: LayoutNode): KeepRule {
     const { nodeType, fieldPath } = node;
 
     // Phase 4.9: Use fieldPath for stable identification
     if (fieldPath) {
-        // Section titles by fieldPath
+        // Section titles - must stay with first content item
         if (fieldPath.endsWith('.title') || fieldPath.includes('_title')) {
             return 'keepWithNext';
         }
 
-        // Experience headers should stay with content
+        // P0 FIX: Experience headers should stay with at least 1 content line
+        // Changed from keepTogether to keepWithNext to allow item splitting
         if (fieldPath.startsWith('experiences[') &&
-            (fieldPath.includes('.company') || fieldPath.includes('.role') || fieldPath.endsWith('].header'))) {
-            return 'keepTogether';
+            (fieldPath.includes('.role') || fieldPath.endsWith('].header'))) {
+            return 'keepWithNext';
         }
 
-        // Education headers should stay with content
+        // P0 FIX: Education headers should stay with content
+        // Changed from keepTogether to keepWithNext
         if (fieldPath.startsWith('educations[') &&
-            (fieldPath.includes('.school') || fieldPath.includes('.degree') || fieldPath.endsWith('].header'))) {
-            return 'keepTogether';
+            (fieldPath.includes('.degree') || fieldPath.endsWith('].header'))) {
+            return 'keepWithNext';
         }
 
-        // Section block patterns
-        if (fieldPath.match(/^(experiences|educations|skills|languages)$/)) {
-            return 'keepTogether';
-        }
+        // P0 FIX: REMOVED keepTogether for whole sections (experiences, educations, etc.)
+        // This allows sections to start on current page and continue on next
+        // Previously: if (fieldPath.match(/^(experiences|educations|skills|languages)$/)) return 'keepTogether';
     }
 
     // Fallback to nodeType-based rules
@@ -123,10 +128,9 @@ function getKeepRule(node: LayoutNode): KeepRule {
         return 'keepWithNext';
     }
 
-    // Section blocks should generally try to stay together
-    if (nodeType === 'section') {
-        return 'keepTogether';
-    }
+    // P0 FIX: Section nodeTypes are now 'normal' to allow splitting
+    // Previously sections were keepTogether which prevented any splitting
+    // if (nodeType === 'section') return 'keepTogether';
 
     return 'normal';
 }
@@ -208,6 +212,12 @@ export function paginateLayout(
         totalHeight,
         availableHeight,
         candidateCount: candidates.length
+    });
+
+    // P0.4 DEBUG: Show first 8 candidates to understand the issue
+    console.log('[NEXAL2 Pagination] P0.4 DEBUG - First 8 candidates:');
+    candidates.slice(0, 8).forEach((c, i) => {
+        console.log(`  [${i}] ${c.node.nodeId}: startY=${c.startY.toFixed(1)}, endY=${c.endY.toFixed(1)}, height=${(c.endY - c.startY).toFixed(1)}`);
     });
 
     // Perform pagination with scoring
@@ -298,15 +308,27 @@ function analyzeMainContent(mainContainer: LayoutNode, availableHeight?: number)
                 console.log(`[NEXAL2 Pagination] Force-expanding splittable section ${child.nodeId}`);
             }
 
-            // CRITICAL FIX: Section children have frame.y relative to the SECTION, not main container.
-            // We must add the section's startY (its Y within main) to get absolute coordinates.
+            // CRITICAL FIX: Section children have frame.y/x relative to the SECTION, not main container.
+            // We must add the section's position (its X/Y within main) to get absolute coordinates.
+            const sectionOffsetX = child.frame.x;
             const sectionOffsetY = startY;
+            const sectionEndY = endY; // The correct end Y of the entire section
 
             let prevWasTitle = false;
-            child.children?.forEach((sectionChild, sectionChildIndex) => {
-                // Use section's offset + child's relative Y to get absolute Y within main
+            const sectionChildren = child.children || [];
+            const lastChildIndex = sectionChildren.length - 1;
+
+            sectionChildren.forEach((sectionChild, sectionChildIndex) => {
+                // P0 FIX: Use section's offset + child's relative X/Y to get absolute coords within main
+                const sChildStartX = sectionOffsetX + sectionChild.frame.x;
                 const sChildStartY = sectionOffsetY + sectionChild.frame.y;
-                const sChildEndY = sChildStartY + sectionChild.frame.height;
+
+                // P0.2 FIX: For the LAST child, use the section's endY to ensure totalHeight is correct.
+                // This fixes the bug where children's relative Y coords don't sum to section height.
+                const isLastChild = sectionChildIndex === lastChildIndex;
+                const sChildEndY = isLastChild
+                    ? sectionEndY  // Last child inherits section's endY for correct totalHeight
+                    : sChildStartY + sectionChild.frame.height;
 
                 // Section title detection
                 const isChildSectionTitle = sectionChild.nodeType === 'text' &&
@@ -324,8 +346,25 @@ function analyzeMainContent(mainContainer: LayoutNode, availableHeight?: number)
                     keepRule = getKeepRule(sectionChild);
                 }
 
+                // P0 FIX: Normalize child frame to absolute (main-relative) coordinates.
+                // Both X and Y must be converted from section-relative to main-relative.
+                const normalizedNode: LayoutNode = {
+                    ...sectionChild,
+                    frame: {
+                        ...sectionChild.frame,
+                        x: sChildStartX, // Absolute X relative to main container
+                        y: sChildStartY, // Absolute Y relative to main container
+                        // P0.2: Use correct height for pagination (last child gets remaining section height)
+                        height: isLastChild
+                            ? sectionEndY - sChildStartY
+                            : sectionChild.frame.height,
+                    },
+                    // Deep clone children to prevent shared reference issues
+                    children: sectionChild.children?.map(c => deepCloneNode(c)),
+                };
+
                 candidates.push({
-                    node: sectionChild,
+                    node: normalizedNode,
                     index: candidates.length,
                     startY: sChildStartY,
                     endY: sChildEndY,
@@ -368,6 +407,137 @@ function findNode(root: LayoutNode, id: string): LayoutNode | null {
 }
 
 // ============================================================================
+// P0.1: TEXT NODE SPLITTING
+// ============================================================================
+
+/**
+ * P0.1: Split a text node at a target Y position.
+ * 
+ * When a text node starts before the page boundary but extends beyond it,
+ * this function splits it into two nodes:
+ * - part0: fits on current page (up to remaining lines)
+ * - part1: continues on next page
+ * 
+ * @param node - The text node to split
+ * @param availableHeight - Remaining height on current page (from node.frame.y)
+ * @returns Array of [part0, part1] split nodes, or [originalNode] if no split needed
+ */
+function splitTextNodeAtY(
+    node: LayoutNode,
+    availableHeight: number
+): LayoutNode[] {
+    const { nodeType, content, computedStyle, frame, nodeId, fieldPath } = node;
+
+    // Only split text and listItem nodes
+    if (nodeType !== 'text' && nodeType !== 'listItem') {
+        return [node];
+    }
+
+    // No content to split
+    if (!content || content.trim().length === 0) {
+        return [node];
+    }
+
+    // Calculate how many lines fit in available space
+    const lineHeightPx = computedStyle.fontSize * computedStyle.lineHeight;
+    const fittingLines = Math.max(1, Math.floor(availableHeight / lineHeightPx));
+
+    // Measure total lines
+    const style = {
+        fontSize: computedStyle.fontSize,
+        fontFamily: 'sans',
+        lineHeight: computedStyle.lineHeight,
+    };
+    const measurement = measureText(content, style, frame.width);
+
+    // If it fits in available lines, no split needed
+    if (measurement.lineCount <= fittingLines) {
+        return [node];
+    }
+
+    // Split the text
+    const segments = splitTextByLines(content, style, frame.width, fittingLines);
+
+    if (segments.length <= 1) {
+        return [node]; // Couldn't split
+    }
+
+    console.log(`[NEXAL2 Pagination] P0.1 Splitting text node ${nodeId}: ${fittingLines} lines on current page, ${segments.length - 1} segments to next`);
+
+    // Create split nodes
+    const splitNodes: LayoutNode[] = segments.map((segment, index) => {
+        const segmentHeight = segment.lineCount * lineHeightPx;
+        const isFirst = index === 0;
+
+        return {
+            nodeId: `${nodeId}@part${index}`,
+            nodeType,
+            frame: {
+                x: frame.x,
+                y: isFirst ? frame.y : 0, // part1+ start at Y=0 on new page
+                width: frame.width,
+                height: segmentHeight,
+            },
+            computedStyle,
+            content: segment.text,
+            fieldPath: fieldPath ? `${fieldPath}@part${index}` : undefined,
+            splitInfo: {
+                partIndex: index,
+                totalParts: segments.length,
+                originalNodeId: nodeId,
+            },
+        };
+    });
+
+    return splitNodes;
+}
+
+/**
+ * P0.1: Check if a candidate can be split and if splitting would help pagination.
+ * 
+ * Returns true if:
+ * - Node is a text or listItem
+ * - Node extends beyond available height
+ * - Node has enough content to split (> 1 line fits)
+ */
+function canSplitCandidate(
+    candidate: SplitCandidate,
+    availableHeight: number,
+    contentOffsetY: number
+): boolean {
+    const { node } = candidate;
+    const { nodeType, content } = node;
+
+    // Only split text and listItem
+    if (nodeType !== 'text' && nodeType !== 'listItem') {
+        return false;
+    }
+
+    // Must have content
+    if (!content || content.trim().length === 0) {
+        return false;
+    }
+
+    // Node must start before page end but extend beyond
+    const relativeStartY = candidate.startY - contentOffsetY;
+    const relativeEndY = candidate.endY - contentOffsetY;
+
+    if (relativeStartY >= availableHeight) {
+        return false; // Starts after page end - no split needed
+    }
+
+    if (relativeEndY <= availableHeight) {
+        return false; // Fully fits - no split needed
+    }
+
+    // Check if at least 1 line fits
+    const remainingHeight = availableHeight - relativeStartY;
+    const lineHeightPx = node.computedStyle.fontSize * node.computedStyle.lineHeight;
+
+    return remainingHeight >= lineHeightPx;
+}
+
+// ============================================================================
 // SPLITTING LOGIC (Phase 4.8: Scoring-based split selection)
 // ============================================================================
 
@@ -388,14 +558,32 @@ function splitIntoPages(
     const splitPoints: number[] = [];
     const warnings: PaginationWarning[] = [];
 
+    // P0.1: Work with a mutable copy of candidates that can be expanded by splits
+    let workingCandidates = [...candidates];
+
     let startIndex = 0;
     let pageIndex = 0;
     let contentOffsetY = 0; // Cumulative Y offset from original content
 
-    while (startIndex < candidates.length) {
+    while (startIndex < workingCandidates.length) {
+        // P0.1: Pre-process - check if the NEXT candidate that overflows can be split
+        // This allows fitting partial content on the current page
+        const splitResult = trySplitOverflowingCandidate(
+            workingCandidates,
+            startIndex,
+            contentOffsetY,
+            availableHeight
+        );
+
+        if (splitResult.didSplit) {
+            // Replace the candidates array with the new one containing split nodes
+            workingCandidates = splitResult.newCandidates;
+            console.log(`[NEXAL2 Pagination] P0.1: Split candidate created ${splitResult.splitNodeCount} new nodes`);
+        }
+
         // Find where this page should end using scoring
         const { endIndex, splitY, pageWarnings } = findBestPageEnd(
-            candidates,
+            workingCandidates,
             startIndex,
             contentOffsetY,
             availableHeight,
@@ -407,7 +595,7 @@ function splitIntoPages(
         // Collect children for this page
         const pageMainChildren: LayoutNode[] = [];
         for (let i = startIndex; i <= endIndex; i++) {
-            const candidate = candidates[i];
+            const candidate = workingCandidates[i];
             // Clone with Y offset relative to page start
             const offsetNode = cloneWithOffsetY(candidate.node, -contentOffsetY);
             pageMainChildren.push(offsetNode);
@@ -427,7 +615,7 @@ function splitIntoPages(
         pages.push(page);
 
         // Record split point (in original content space)
-        if (endIndex < candidates.length - 1) {
+        if (endIndex < workingCandidates.length - 1) {
             splitPoints.push(splitY);
             console.log(`[NEXAL2 Pagination] Page ${pageIndex + 1} split at Y=${splitY.toFixed(1)}pt, items ${startIndex}-${endIndex}`);
         }
@@ -448,6 +636,199 @@ function splitIntoPages(
 }
 
 /**
+ * P0.1: Attempt to split an overflowing candidate to fit partial content on current page.
+ * 
+ * Finds the first candidate that:
+ * 1. Starts within available height (has room to start)
+ * 2. Extends beyond available height (overflows)
+ * 3. Is a splittable type (text/listItem)
+ * 
+ * If found, splits it and inserts the parts back into the candidates array.
+ */
+function trySplitOverflowingCandidate(
+    candidates: SplitCandidate[],
+    startIndex: number,
+    contentOffsetY: number,
+    availableHeight: number
+): { didSplit: boolean; newCandidates: SplitCandidate[]; splitNodeCount: number } {
+    // Find the first candidate that could benefit from splitting
+    for (let i = startIndex; i < candidates.length; i++) {
+        const candidate = candidates[i];
+
+        // Check if this candidate is a split opportunity
+        if (canSplitCandidate(candidate, availableHeight, contentOffsetY)) {
+            // Calculate remaining height for this node
+            const relativeStartY = candidate.startY - contentOffsetY;
+            const remainingHeight = availableHeight - relativeStartY;
+
+            // Split the node
+            const splitNodes = splitTextNodeAtY(candidate.node, remainingHeight);
+
+            if (splitNodes.length <= 1) {
+                continue; // Split didn't produce multiple nodes, try next
+            }
+
+            // Create new candidates from split nodes
+            const newCandidates = [...candidates];
+
+            // Remove the original candidate
+            newCandidates.splice(i, 1);
+
+            // P0 FIX: Build split candidates with CONTENT-SPACE Y coordinates
+            // Part0 starts at original candidate.startY
+            // Part1+ starts where previous part ended (cumulative)
+            let cumulativeY = candidate.startY;
+            const splitCandidates: SplitCandidate[] = splitNodes.map((node, partIndex) => {
+                const partStartY = cumulativeY;
+                const partEndY = partStartY + node.frame.height;
+                cumulativeY = partEndY;
+
+                // P0 FIX: Update node.frame.y to match content-space coordinate
+                const fixedNode: LayoutNode = {
+                    ...node,
+                    frame: {
+                        ...node.frame,
+                        x: candidate.node.frame.x, // Preserve original X
+                        y: partStartY, // Content-space Y (absolute within main)
+                    },
+                };
+
+                return {
+                    node: fixedNode,
+                    index: 0, // Will be recalculated
+                    startY: partStartY,
+                    endY: partEndY,
+                    isSectionTitle: false,
+                    isSection: false,
+                    keepRule: partIndex === 0 ? candidate.keepRule : 'normal' as KeepRule,
+                };
+            });
+
+            // Insert split candidates
+            newCandidates.splice(i, 0, ...splitCandidates);
+
+            // Reindex all candidates
+            newCandidates.forEach((c, idx) => { c.index = idx; });
+
+            return {
+                didSplit: true,
+                newCandidates,
+                splitNodeCount: splitNodes.length,
+            };
+        }
+
+        // P0.3: Check if candidate is an oversized CONTAINER that can be expanded
+        if (canExpandContainer(candidate, availableHeight, contentOffsetY)) {
+            const expandedCandidates = expandContainerToChildren(candidate);
+
+            if (expandedCandidates.length > 1) {
+                console.log(`[NEXAL2 Pagination] P0.3: Expanding oversized container ${candidate.node.nodeId} into ${expandedCandidates.length} children`);
+
+                // Remove original candidate and insert expanded children
+                const newCandidates = [...candidates];
+                newCandidates.splice(i, 1, ...expandedCandidates);
+
+                // Reindex all candidates
+                newCandidates.forEach((c, idx) => { c.index = idx; });
+
+                return {
+                    didSplit: true,
+                    newCandidates,
+                    splitNodeCount: expandedCandidates.length,
+                };
+            }
+        }
+    }
+
+    return { didSplit: false, newCandidates: candidates, splitNodeCount: 0 };
+}
+
+/**
+ * P0.3: Check if a candidate is an oversized container that can be expanded.
+ */
+function canExpandContainer(
+    candidate: SplitCandidate,
+    availableHeight: number,
+    contentOffsetY: number
+): boolean {
+    const { node } = candidate;
+    const { nodeType, children } = node;
+
+    // Must be a container with children
+    if (nodeType !== 'container' || !children || children.length === 0) {
+        return false;
+    }
+
+    // Node must start before page end but extend beyond
+    const relativeStartY = candidate.startY - contentOffsetY;
+    const relativeEndY = candidate.endY - contentOffsetY;
+
+    if (relativeStartY >= availableHeight) {
+        return false; // Starts after page end
+    }
+
+    if (relativeEndY <= availableHeight) {
+        return false; // Fits entirely - no expansion needed
+    }
+
+    return true;
+}
+
+/**
+ * P0.3: Expand an oversized container into its children as separate candidates.
+ */
+function expandContainerToChildren(candidate: SplitCandidate): SplitCandidate[] {
+    const { node, startY } = candidate;
+    const children = node.children || [];
+
+    if (children.length === 0) {
+        return [candidate];
+    }
+
+    const containerOffsetX = node.frame.x;
+    const containerOffsetY = startY;
+    const containerEndY = candidate.endY;
+
+    const expandedCandidates: SplitCandidate[] = [];
+    const lastChildIndex = children.length - 1;
+
+    children.forEach((child, childIndex) => {
+        const childStartX = containerOffsetX + child.frame.x;
+        const childStartY = containerOffsetY + child.frame.y;
+
+        // P0.3: Last child inherits container's endY for correct height
+        const isLastChild = childIndex === lastChildIndex;
+        const childEndY = isLastChild
+            ? containerEndY
+            : childStartY + child.frame.height;
+
+        // Normalize child frame to absolute coords
+        const normalizedNode: LayoutNode = {
+            ...child,
+            frame: {
+                ...child.frame,
+                x: childStartX,
+                y: childStartY,
+                height: isLastChild ? containerEndY - childStartY : child.frame.height,
+            },
+            children: child.children?.map(c => deepCloneNode(c)),
+        };
+
+        expandedCandidates.push({
+            node: normalizedNode,
+            index: expandedCandidates.length,
+            startY: childStartY,
+            endY: childEndY,
+            isSectionTitle: child.nodeType === 'text' && child.nodeId.includes('.title'),
+            isSection: child.nodeType === 'section',
+            keepRule: getKeepRule(child),
+        });
+    });
+
+    return expandedCandidates;
+}
+
+/**
  * Phase 4.8: Find the best split point using scoring.
  */
 function findBestPageEnd(
@@ -459,12 +840,21 @@ function findBestPageEnd(
 ): { endIndex: number; splitY: number; pageWarnings: PaginationWarning[] } {
     const pageWarnings: PaginationWarning[] = [];
 
+    // P0.4 DEBUG: Log first few candidates in findBestPageEnd
+    if (startIndex === 0) {
+        console.log(`[NEXAL2 Pagination] findBestPageEnd: startIndex=${startIndex}, contentOffsetY=${contentOffsetY.toFixed(1)}, availableHeight=${availableHeight.toFixed(1)}`);
+    }
+
     // First pass: find all candidates that fit on this page
     const fittingIndices: number[] = [];
 
     for (let i = startIndex; i < candidates.length; i++) {
         const candidate = candidates[i];
         const relativeEndY = candidate.endY - contentOffsetY;
+
+        if (startIndex === 0 && i < 8) {
+            console.log(`  [${i}] ${candidate.node.nodeId}: relEnd=${relativeEndY.toFixed(1)} ${relativeEndY <= availableHeight ? '✓' : '✗'}`);
+        }
 
         if (relativeEndY <= availableHeight) {
             fittingIndices.push(i);
@@ -509,6 +899,45 @@ function findBestPageEnd(
         };
     }
 
+    // P0 FIX: minStartHeight check for next candidate after lastFit
+    // If the NEXT candidate is a section title (keepWithNext), check if it fits with at least one content item
+    // This prevents page 1 underfill where title gets pushed to next page unnecessarily
+    const nextAfterFit = candidates[lastFitIndex + 1];
+    if (nextAfterFit && (nextAfterFit.keepRule === 'keepWithNext' || nextAfterFit.isSectionTitle)) {
+        // Check if title alone fits
+        const titleEndY = nextAfterFit.endY - contentOffsetY;
+        if (titleEndY <= availableHeight) {
+            // Title fits - now check if title + next content fits
+            const titlePlusOneIndex = lastFitIndex + 2;
+            if (titlePlusOneIndex < candidates.length) {
+                const titlePlusOneEndY = candidates[titlePlusOneIndex].endY - contentOffsetY;
+                if (titlePlusOneEndY <= availableHeight) {
+                    // Title + next fits - extend fittingIndices to include both
+                    fittingIndices.push(lastFitIndex + 1); // title
+                    fittingIndices.push(lastFitIndex + 2); // first content
+                    console.log(`[NEXAL2 Pagination] P0 minStartHeight: including title+next on current page (${nextAfterFit.node.nodeId})`);
+                } else {
+                    // Only title fits, include it with keepWithNext (will be handled later)
+                    fittingIndices.push(lastFitIndex + 1);
+                    console.log(`[NEXAL2 Pagination] P0 minStartHeight: including title on current page (${nextAfterFit.node.nodeId})`);
+                }
+            } else {
+                // Title is last candidate - include it
+                fittingIndices.push(lastFitIndex + 1);
+            }
+        }
+    }
+
+    // Update lastFitIndex after potential extension
+    const updatedLastFitIndex = fittingIndices[fittingIndices.length - 1];
+    if (updatedLastFitIndex === candidates.length - 1) {
+        return {
+            endIndex: updatedLastFitIndex,
+            splitY: candidates[updatedLastFitIndex].endY,
+            pageWarnings,
+        };
+    }
+
     // Phase 4.8: Score each candidate split point
     let bestScore = -Infinity;
     let bestSplitIndex = lastFitIndex;
@@ -521,19 +950,38 @@ function findBestPageEnd(
         }
     }
 
-    // Check if the chosen split leaves a lonely title at bottom
+    // P0 FIX: minStartHeight logic for keepWithNext
+    // If the best split point is a title (keepWithNext), check if title + next item fits
+    // If so, INCLUDE both on current page. Only push to next if combined height doesn't fit.
     const splitCandidate = candidates[bestSplitIndex];
-    if (splitCandidate.keepRule === 'keepWithNext') {
-        // Would leave title alone - check if we can move it to next page
-        if (bestSplitIndex > startIndex) {
-            bestSplitIndex = bestSplitIndex - 1;
-            pageWarnings.push({
-                code: 'ORPHAN_TITLE',
-                nodeId: splitCandidate.node.nodeId,
-                nodeType: splitCandidate.node.nodeType,
-                message: `Moved title to next page to prevent orphan: ${splitCandidate.node.nodeId}`,
-            });
-            console.log(`[NEXAL2 Pagination] Orphan prevention: moved ${splitCandidate.node.nodeId} to next page`);
+    if (splitCandidate.keepRule === 'keepWithNext' && bestSplitIndex + 1 < candidates.length) {
+        const nextCandidate = candidates[bestSplitIndex + 1];
+        const titlePlusNextEndY = nextCandidate.endY - contentOffsetY;
+
+        if (titlePlusNextEndY <= availableHeight) {
+            // Title + next item fits on current page - INCLUDE both (extend split point)
+            bestSplitIndex = bestSplitIndex + 1;
+            console.log(`[NEXAL2 Pagination] P0 minStartHeight: including title+next on current page (${splitCandidate.node.nodeId})`);
+        } else {
+            // P0.5 FIX: Only move title to next page if NO content after it fits on current page
+            // Check if any items AFTER the title exist in fittingIndices
+            const contentAfterTitle = fittingIndices.filter(idx => idx > bestSplitIndex);
+            if (contentAfterTitle.length > 0) {
+                // There IS content after the title that fits - keep the title AND that content
+                // Use the last fitting item after the title as the split point
+                bestSplitIndex = contentAfterTitle[contentAfterTitle.length - 1];
+                console.log(`[NEXAL2 Pagination] P0.5: Keeping title + ${contentAfterTitle.length} items that fit (${splitCandidate.node.nodeId})`);
+            } else if (bestSplitIndex > startIndex) {
+                // No content after title fits - move title to next page (original orphan prevention)
+                bestSplitIndex = bestSplitIndex - 1;
+                pageWarnings.push({
+                    code: 'ORPHAN_TITLE',
+                    nodeId: splitCandidate.node.nodeId,
+                    nodeType: splitCandidate.node.nodeType,
+                    message: `Moved title to next page to prevent orphan: ${splitCandidate.node.nodeId}`,
+                });
+                console.log(`[NEXAL2 Pagination] Orphan prevention: moved ${splitCandidate.node.nodeId} to next page`);
+            }
         }
     }
 

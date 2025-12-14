@@ -338,10 +338,32 @@ function layoutContainer(
             continue;
         }
 
-        // Layout child with available width (for row: estimate, will adjust)
-        const childWidth = direction === 'row'
-            ? (child.style?.width && typeof child.style.width === 'number' ? child.style.width : innerWidth)
-            : innerWidth;
+        // TASK 3 FIX: For row direction, estimate intrinsic width for text children
+        // instead of defaulting to full innerWidth which causes X overlap
+        let childWidth: number;
+        if (direction === 'row') {
+            if (child.style?.width && typeof child.style.width === 'number') {
+                // Explicit width specified
+                childWidth = child.style.width;
+            } else if (isTextish && rawContent.length > 0) {
+                // Estimate intrinsic width for text based on content
+                // Use measureText with a large maxWidth to get natural width
+                const fontSize = child.style?.fontSize ?? computedStyle.fontSize ?? 10;
+                const textMeasure = measureText(
+                    rawContent,
+                    { fontSize, fontFamily: computedStyle.fontFamily, lineHeight: computedStyle.lineHeight },
+                    innerWidth // max width for wrapping
+                );
+                // For row items, use actual measured width (clamped to inner)
+                childWidth = Math.min(textMeasure.width, innerWidth);
+            } else {
+                // Non-text or empty: estimate based on content type
+                childWidth = innerWidth / 2; // Default to half for flex distribution
+            }
+        } else {
+            // Column direction: full width
+            childWidth = innerWidth;
+        }
 
         const childLayout = layoutNode(
             child,
@@ -397,7 +419,8 @@ function layoutContainer(
                 mainAxisStart = paddingLeft;
                 if (childLayouts.length > 1) {
                     const totalChildWidth = childLayouts.reduce((sum, c) => sum + c.frame.width, 0);
-                    spacing = (availableMainSpace - totalChildWidth) / (childLayouts.length - 1);
+                    // TASK 3 FIX: Clamp spacing to >= 0 to prevent negative spacing causing overlap
+                    spacing = Math.max(0, (availableMainSpace - totalChildWidth) / (childLayouts.length - 1));
                 }
                 break;
             default: // 'start'
@@ -737,6 +760,147 @@ export function measureText(
         height,
         lineCount: totalLines,
     };
+}
+
+// ============================================================================
+// TEXT LINE SPLITTING (P0)
+// ============================================================================
+
+/**
+ * Split text into segments by measured line count.
+ * 
+ * Used for pagination: when a long text node spans multiple pages,
+ * this function splits it into parts that fit available space.
+ * 
+ * @param text - The full text content to split
+ * @param style - Text style for measurement
+ * @param maxWidth - Available width for text
+ * @param targetLines - Maximum lines for first segment
+ * @returns Array of text segments with line counts
+ */
+export function splitTextByLines(
+    text: string,
+    style: { fontSize: number; fontFamily: string; lineHeight: number },
+    maxWidth: number,
+    targetLines: number
+): { text: string; lineCount: number }[] {
+    if (!text || text.length === 0 || targetLines <= 0) {
+        return [{ text: '', lineCount: 0 }];
+    }
+
+    const measurement = measureText(text, style, maxWidth);
+
+    // If text fits within target lines, return as single segment
+    if (measurement.lineCount <= targetLines) {
+        return [{ text, lineCount: measurement.lineCount }];
+    }
+
+    // Calculate approximate character width and chars per line
+    const avgCharWidth = style.fontSize * 0.55;
+    const maxCharsPerLine = Math.max(1, Math.floor(maxWidth / avgCharWidth));
+
+    // Split by words and reconstruct until target line count
+    const words = text.split(/\s+/).filter(w => w.length > 0);
+    if (words.length === 0) {
+        return [{ text: '', lineCount: 0 }];
+    }
+
+    let currentLineChars = 0;
+    let lineCount = 1;
+    let splitIndex = 0;
+
+    for (let i = 0; i < words.length; i++) {
+        const word = words[i];
+        const wordLen = word.length;
+
+        // Handle very long words
+        if (wordLen > maxCharsPerLine) {
+            if (currentLineChars > 0) {
+                lineCount++;
+                currentLineChars = 0;
+            }
+            const chunks = Math.ceil(wordLen / maxCharsPerLine);
+            lineCount += chunks - 1;
+            currentLineChars = wordLen % maxCharsPerLine || maxCharsPerLine;
+        } else {
+            const neededSpace = currentLineChars > 0 ? wordLen + 1 : wordLen;
+            if (currentLineChars + neededSpace > maxCharsPerLine) {
+                lineCount++;
+                currentLineChars = wordLen;
+            } else {
+                currentLineChars += neededSpace;
+            }
+        }
+
+        // Check if we've reached target lines
+        if (lineCount >= targetLines) {
+            // Include current word in first segment
+            splitIndex = i + 1;
+            break;
+        }
+    }
+
+    // If we didn't find a split point, take all words
+    if (splitIndex === 0) {
+        splitIndex = words.length;
+    }
+
+    const firstPart = words.slice(0, splitIndex).join(' ');
+    const secondPart = words.slice(splitIndex).join(' ');
+
+    const segments: { text: string; lineCount: number }[] = [];
+
+    // Add first segment
+    const firstMeasurement = measureText(firstPart, style, maxWidth);
+    segments.push({ text: firstPart, lineCount: firstMeasurement.lineCount });
+
+    // Recursively split the rest if needed
+    if (secondPart.length > 0) {
+        // For remaining parts, allow full page of lines
+        const remainingSegments = splitTextByLines(secondPart, style, maxWidth, 999);
+        segments.push(...remainingSegments);
+    }
+
+    return segments;
+}
+
+/**
+ * Create split text nodes with stable nodeIds for pagination.
+ * 
+ * @param baseNodeId - Original node ID (e.g., "main.experience.item-0.task-1")
+ * @param segments - Text segments from splitTextByLines
+ * @param style - Computed style for the text
+ * @param fieldPath - Original field path for inline editing
+ * @param availableWidth - Available width for layout
+ * @returns Array of LayoutNode objects for each segment
+ */
+export function createSplitTextNodes(
+    baseNodeId: string,
+    segments: { text: string; lineCount: number }[],
+    style: ComputedStyle,
+    fieldPath: string | undefined,
+    availableWidth: number
+): LayoutNode[] {
+    const lineHeightPx = style.fontSize * style.lineHeight;
+
+    return segments.map((segment, index) => ({
+        nodeId: segments.length > 1 ? `${baseNodeId}@part${index}` : baseNodeId,
+        nodeType: 'text' as const,
+        frame: {
+            x: 0, // Will be set by caller
+            y: 0, // Will be set by caller
+            width: availableWidth,
+            height: segment.lineCount * lineHeightPx,
+        },
+        computedStyle: style,
+        content: segment.text,
+        fieldPath: fieldPath ? `${fieldPath}@part${index}` : undefined,
+        splitInfo: segments.length > 1 ? {
+            partIndex: index,
+            totalParts: segments.length,
+            originalNodeId: baseNodeId,
+        } : undefined,
+    }));
 }
 
 // ============================================================================

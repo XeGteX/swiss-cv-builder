@@ -467,7 +467,7 @@ function createMainContentNode(profile: CVProfile, design: DesignConfig): SceneN
         });
     }
 
-    // Education section
+    // Education section - P1: Row layout (degree left, year right)
     // Sprint 6.2: Relaxed filter - keep entries with ANY meaningful field (degree, school, or year)
     // Phase 7.1: Check visibility + apply limits
     if (isSectionVisible(structure, 'educations') && profile.educations && profile.educations.length > 0) {
@@ -483,9 +483,33 @@ function createMainContentNode(profile: CVProfile, design: DesignConfig): SceneN
                 type: 'container' as const,
                 fieldPath: `educations[${i}]`,
                 children: [
-                    { id: `main.education.item-${i}.degree`, type: 'text' as const, content: edu.degree || '', style: { fontWeight: 'bold', fontSize: theme.fontSize.body } },
-                    { id: `main.education.item-${i}.school`, type: 'text' as const, content: edu.school || '', style: { fontSize: theme.fontSize.body } },
-                    { id: `main.education.item-${i}.year`, type: 'text' as const, content: edu.year || '', style: { fontSize: theme.fontSize.small } },
+                    // P1: Row with degree left, year right (spaceBetween)
+                    {
+                        id: `main.education.item-${i}.header`,
+                        type: 'container' as const,
+                        style: { direction: 'row', justifyContent: 'spaceBetween' },
+                        children: [
+                            {
+                                id: `main.education.item-${i}.degree`,
+                                type: 'text' as const,
+                                content: edu.degree || '',
+                                style: { fontWeight: 'bold', fontSize: theme.fontSize.body }
+                            },
+                            {
+                                id: `main.education.item-${i}.year`,
+                                type: 'text' as const,
+                                content: edu.year || '',
+                                style: { fontSize: theme.fontSize.small, textAlign: 'right' }
+                            },
+                        ],
+                    },
+                    // School on separate line
+                    {
+                        id: `main.education.item-${i}.school`,
+                        type: 'text' as const,
+                        content: edu.school || '',
+                        style: { fontSize: theme.fontSize.body }
+                    },
                 ],
             }));
 

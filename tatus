@@ -1,0 +1,149 @@
+warning: in the working copy of 'tests/__snapshots__/pagination.signatures.json', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/package.json b/package.json[m
+[1mindex 2c4ace9..d27d523 100644[m
+[1m--- a/package.json[m
+[1m+++ b/package.json[m
+[36m@@ -15,6 +15,7 @@[m
+     "test": "vitest",[m
+     "test:pagination": "vitest run tests/pagination-ci-gate.test.ts",[m
+     "test:pagination:update": "cross-env UPDATE_SNAPSHOTS=true vitest run tests/pagination-ci-gate.test.ts",[m
+[32m+[m[32m    "verify:enterprise": "npx tsc --noEmit && npm run test:pagination && npx vitest run && npx vitest run tests/qa-enterprise.test.ts",[m
+     "sentinel": "tsx scripts/sentinel.ts"[m
+   },[m
+   "dependencies": {[m
+[1mdiff --git a/src/nexal2/layout/computeLayout.ts b/src/nexal2/layout/computeLayout.ts[m
+[1mindex 3e25537..6f498b8 100644[m
+[1m--- a/src/nexal2/layout/computeLayout.ts[m
+[1m+++ b/src/nexal2/layout/computeLayout.ts[m
+[36m@@ -338,10 +338,32 @@[m [mfunction layoutContainer([m
+             continue;[m
+         }[m
+ [m
+[31m-        // Layout child with available width (for row: estimate, will adjust)[m
+[31m-        const childWidth = direction === 'row'[m
+[31m-            ? (child.style?.width && typeof child.style.width === 'number' ? child.style.width : innerWidth)[m
+[31m-            : innerWidth;[m
+[32m+[m[32m        // TASK 3 FIX: For row direction, estimate intrinsic width for text children[m
+[32m+[m[32m        // instead of defaulting to full innerWidth which causes X overlap[m
+[32m+[m[32m        let childWidth: number;[m
+[32m+[m[32m        if (direction === 'row') {[m
+[32m+[m[32m            if (child.style?.width && typeof child.style.width === 'number') {[m
+[32m+[m[32m                // Explicit width specified[m
+[32m+[m[32m                childWidth = child.style.width;[m
+[32m+[m[32m            } else if (isTextish && rawContent.length > 0) {[m
+[32m+[m[32m                // Estimate intrinsic width for text based on content[m
+[32m+[m[32m                // Use measureText with a large maxWidth to get natural width[m
+[32m+[m[32m                const fontSize = child.style?.fontSize ?? computedStyle.fontSize ?? 10;[m
+[32m+[m[32m                const textMeasure = measureText([m
+[32m+[m[32m                    rawContent,[m
+[32m+[m[32m                    { fontSize, fontFamily: computedStyle.fontFamily, lineHeight: computedStyle.lineHeight },[m
+[32m+[m[32m                    innerWidth // max width for wrapping[m
+[32m+[m[32m                );[m
+[32m+[m[32m                // For row items, use actual measured width (clamped to inner)[m
+[32m+[m[32m                childWidth = Math.min(textMeasure.width, innerWidth);[m
+[32m+[m[32m            } else {[m
+[32m+[m[32m                // Non-text or empty: estimate based on content type[m
+[32m+[m[32m                childWidth = innerWidth / 2; // Default to half for flex distribution[m
+[32m+[m[32m            }[m
+[32m+[m[32m        } else {[m
+[32m+[m[32m            // Column direction: full width[m
+[32m+[m[32m            childWidth = innerWidth;[m
+[32m+[m[32m        }[m
+ [m
+         const childLayout = layoutNode([m
+             child,[m
+[36m@@ -397,7 +419,8 @@[m [mfunction layoutContainer([m
+                 mainAxisStart = paddingLeft;[m
+                 if (childLayouts.length > 1) {[m
+                     const totalChildWidth = childLayouts.reduce((sum, c) => sum + c.frame.width, 0);[m
+[31m-                    spacing = (availableMainSpace - totalChildWidth) / (childLayouts.length - 1);[m
+[32m+[m[32m                    // TASK 3 FIX: Clamp spacing to >= 0 to prevent negative spacing causing overlap[m
+[32m+[m[32m                    spacing = Math.max(0, (availableMainSpace - totalChildWidth) / (childLayouts.length - 1));[m
+                 }[m
+                 break;[m
+             default: // 'start'[m
+[36m@@ -739,6 +762,147 @@[m [mexport function measureText([m
+     };[m
+ }[m
+ [m
+[32m+[m[32m// ============================================================================[m
+[32m+[m[32m// TEXT LINE SPLITTING (P0)[m
+[32m+[m[32m// ============================================================================[m
+[32m+[m
+[32m+[m[32m/**[m
+[32m+[m[32m * Split text into segments by measured line count.[m
+[32m+[m[32m *[m[41m [m
+[32m+[m[32m * Used for pagination: when a long text node spans multiple pages,[m
+[32m+[m[32m * this function splits it into parts that fit available space.[m
+[32m+[m[32m *[m[41m [m
+[32m+[m[32m * @param text - The full text content to split[m
+[32m+[m[32m * @param style - Text style for measurement[m
+[32m+[m[32m * @param maxWidth - Available width for text[m
+[32m+[m[32m * @param targetLines - Maximum lines for first segment[m
+[32m+[m[32m * @returns Array of text segments with line counts[m
+[32m+[m[32m */[m
+[32m+[m[32mexport function splitTextByLines([m
+[32m+[m[32m    text: string,[m
+[32m+[m[32m    style: { fontSize: number; fontFamily: string; lineHeight: number },[m
+[32m+[m[32m    maxWidth: number,[m
+[32m+[m[32m    targetLines: number[m
+[32m+[m[32m): { text: string; lineCount: number }[] {[m
+[32m+[m[32m    if (!text || text.length === 0 || targetLines <= 0) {[m
+[32m+[m[32m        return [{ text: '', lineCount: 0 }];[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    const measurement = measureText(text, style, maxWidth);[m
+[32m+[m
+[32m+[m[32m    // If text fits within target lines, return as single segment[m
+[32m+[m[32m    if (measurement.lineCount <= targetLines) {[m
+[32m+[m[32m        return [{ text, lineCount: measurement.lineCount }];[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Calculate approximate character width and chars per line[m
+[32m+[m[32m    const avgCharWidth = style.fontSize * 0.55;[m
+[32m+[m[32m    const maxCharsPerLine = Math.max(1, Math.floor(maxWidth / avgCharWidth));[m
+[32m+[m
+[32m+[m[32m    // Split by words and reconstruct until target line count[m
+[32m+[m[32m    const words = text.split(/\s+/).filter(w => w.length > 0);[m
+[32m+[m[32m    if (words.length === 0) {[m
+[32m+[m[32m        return [{ text: '', lineCount: 0 }];[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    let currentLineChars = 0;[m
+[32m+[m[32m    let lineCount = 1;[m
+[32m+[m[32m    let splitIndex = 0;[m
+[32m+[m
+[32m+[m[32m    for (let i = 0; i < words.length; i++) {[m
+[32m+[m[32m        const word = words[i];[m
+[32m+[m[32m        const wordLen = word.length;[m
+[32m+[m
+[32m+[m[32m        // Handle very long words[m
+[32m+[m[32m        if (wordLen > maxCharsPerLine) {[m
+[32m+[m[32m            if (currentLineChars > 0) {[m
+[32m+[m[32m                lineCount++;[m
+[32m+[m[32m                currentLineChars = 0;[m
+[32m+[m[32m            }[m
+[32m+[m[32m            const chunks = Math.ceil(wordLen / maxCharsPerLine);[m
+[32m+[m[32m            lineCount += chunks - 1;[m
+[32m+[m[32m            currentLineChars = wordLen % maxCharsPerLine || maxCharsPerLine;[m
+[32m+[m[32m        } else {[m
+[32m+[m[32m            const neededSpace = currentLineChars > 0 ? wordLen + 1 : wordLen;[m
+[32m+[m[32m            if (currentLineChars + neededSpace > maxCharsPerLine) {[m
+[32m+[m[32m                lineCount++;[m
+[32m+[m[32m                currentLineChars = wordLen;[m
+[32m+[m[32m            } else {[m
+[32m+[m[32m                currentLineChars += neededSpace;[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        // Check if we've reached target lines[m
+[32m+[m[32m        if (lineCount >= targetLines) {[m
+[32m+[m[32m            // Include current word in first segment[m
+[32m+[m[32m            splitIndex = i + 1;[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // If we didn't find a split point, take all words[m
+[32m+[m[32m    if (splitIndex === 0) {[m
+[32m+[m[32m    

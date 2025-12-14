@@ -118,6 +118,12 @@ export interface LayoutNode {
     computedStyle: ComputedStyle;
     content?: string;
     fieldPath?: string;
+    /** P0: Split text info for pagination */
+    splitInfo?: {
+        partIndex: number;
+        totalParts: number;
+        originalNodeId: string;
+    };
 }
 
 export interface LayoutConstraints {
