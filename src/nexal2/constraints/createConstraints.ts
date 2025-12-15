@@ -52,6 +52,9 @@ export interface ChameleonConstraints {
     density: Density;
     atsMode: boolean;
     supportsPhoto: boolean;  // Phase 4.2: Whether preset has photo placement
+
+    // P1: Auto font scaling
+    fontScale?: number;  // 1.0 = normal, 0.9 = 90%, etc.
 }
 
 export interface CreateConstraintsOptions {

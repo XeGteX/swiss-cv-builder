@@ -22,6 +22,8 @@ export interface EditableHTMLRendererProps {
     margins?: { top: number; right: number; bottom: number; left: number };
     /** FRR: Enable/disable inline editing. Default: true */
     isInlineEditEnabled?: boolean;
+    /** Bullet style for list items */
+    bulletStyle?: 'disc' | 'square' | 'dash' | 'arrow' | 'check';
 }
 
 interface EditState {
@@ -50,6 +52,7 @@ export const EditableHTMLRenderer: React.FC<EditableHTMLRendererProps> = ({
     layoutSignature,
     margins,
     isInlineEditEnabled = true, // FRR: Default enabled for dev, can be disabled for clean preview
+    bulletStyle = 'disc',
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [editState, setEditState] = useState<EditState>(initialEditState);
@@ -123,6 +126,7 @@ export const EditableHTMLRenderer: React.FC<EditableHTMLRendererProps> = ({
                 debug={debug}
                 layoutSignature={layoutSignature}
                 margins={margins}
+                bulletStyle={bulletStyle}
             />
 
             {isInlineEditEnabled && (

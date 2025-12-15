@@ -1,106 +1,86 @@
 /**
- * NEXAL2 - PDF Renderer
+ * NEXAL2 - Matrix PDF Renderer
  *
- * Renders a LayoutTree using @react-pdf/renderer.
- * All elements absolutely positioned - no flexbox auto.
- *
- * Phase 2.3: Uses nodeType instead of nodeId heuristics.
- * Uses SVG placeholder for photos (no emoji dependency).
+ * Generates a single PDF with all preset × region combinations as separate pages.
+ * Each page has a label showing the combination (e.g., "SIDEBAR × FR").
+ * 
+ * Uses the same rendering logic as PDFRenderer for consistency.
  */
 
 import React from 'react';
 import { Document, Page, View, Text, Image, StyleSheet, Svg, Circle, Path } from '@react-pdf/renderer';
 import type { LayoutTree, LayoutNode } from '../../types';
 
-interface PDFRendererProps {
-    layout: LayoutTree;
+interface MatrixPDFRendererProps {
+    /** Array of layout entries, each containing layout + metadata */
+    entries: Array<{
+        layout: LayoutTree;
+        presetId: string;
+        regionId: string;
+    }>;
     title?: string;
-    layoutSignature?: string;
-    /** Margins for page number positioning (from constraints) */
-    margins?: { top: number; right: number; bottom: number; left: number };
-    /** Bullet style for list items */
-    bulletStyle?: 'disc' | 'square' | 'dash' | 'arrow' | 'check';
 }
 
-/** Bullet character mapping */
-const BULLET_CHARS: Record<string, string> = {
-    disc: '•',
-    square: '▪',
-    dash: '–',
-    arrow: '→',
-    check: '✓',
-};
-
 /**
- * Render a LayoutTree as a PDF document.
- * Phase 4.7: Added page numbers for multi-page layouts.
+ * Render multiple LayoutTrees as pages in a single PDF document.
+ * Each page is labeled with its preset × region combination.
  */
-export const PDFRenderer: React.FC<PDFRendererProps> = ({
-    layout,
-    title = 'CV',
-    layoutSignature,
-    margins = { top: 40, right: 40, bottom: 40, left: 40 },
-    bulletStyle = 'disc',
+export const MatrixPDFRenderer: React.FC<MatrixPDFRendererProps> = ({
+    entries,
+    title = 'CV-Matrix',
 }) => {
-    const { pages } = layout;
-    const pageCount = pages.length;
-
-    // Use first page dimensions (all pages should be same size)
-    const pageWidth = pages[0]?.frame.width || layout.bounds.width;
-    const pageHeight = pages[0]?.frame.height || layout.bounds.height;
-
-    // Dynamic page number styles based on margins
-    const pageNumberStyle = {
-        position: 'absolute' as const,
-        bottom: margins.bottom / 2,
-        right: margins.right,
-    };
-    const pageNumberTextStyle = {
-        fontSize: 8,
-        color: '#9CA3AF',
-        fontFamily: 'Helvetica' as const,
-    };
-
-    // Create bulletChar from style
-    const bulletChar = BULLET_CHARS[bulletStyle] || '•';
-
     return (
         <Document title={title}>
-            {pages.map((page, pageIndex) => (
-                <Page
-                    key={page.nodeId}
-                    size={{ width: pageWidth, height: pageHeight }}
-                    style={styles.page}
-                >
-                    {renderPDFNode(page, bulletChar)}
+            {entries.flatMap((entry, entryIndex) => {
+                const { layout, presetId, regionId } = entry;
+                const { pages } = layout;
 
-                    {/* Phase 4.7: Page numbers for multi-page layouts */}
-                    {pageCount > 1 && (
-                        <View style={pageNumberStyle}>
-                            <Text style={pageNumberTextStyle}>
-                                {pageIndex + 1} / {pageCount}
+                if (!pages || pages.length === 0) {
+                    console.warn(`[MatrixPDF] Empty layout for ${presetId}×${regionId}`);
+                    return [];
+                }
+
+                // Use first page dimensions
+                const pageWidth = pages[0]?.frame.width || 595;
+                const pageHeight = pages[0]?.frame.height || 842;
+
+                // Render each page of this layout
+                return pages.map((page, pageIndex) => (
+                    <Page
+                        key={`${presetId}-${regionId}-page${pageIndex}-${entryIndex}`}
+                        size={{ width: pageWidth, height: pageHeight }}
+                        style={styles.page}
+                    >
+                        {/* Render the page content using full renderPDFNode */}
+                        {renderPDFNode(page)}
+
+                        {/* Combination label at top-right corner */}
+                        <View style={styles.labelContainer}>
+                            <Text style={styles.labelText}>
+                                {presetId} × {regionId}
+                                {pages.length > 1 ? ` (${pageIndex + 1}/${pages.length})` : ''}
                             </Text>
                         </View>
-                    )}
 
-                    {/* Layout signature footer for parity proof */}
-                    {layoutSignature && (
-                        <View style={styles.footer}>
-                            <Text style={styles.footerText}>
-                                NEXAL2 Sig: {layoutSignature}
+                        {/* Entry counter at bottom-left */}
+                        <View style={styles.entryCounter}>
+                            <Text style={styles.entryCounterText}>
+                                #{entryIndex + 1}/{entries.length}
                             </Text>
                         </View>
-                    )}
-                </Page>
-            ))}
+                    </Page>
+                ));
+            })}
         </Document>
     );
 };
 
+// ============================================================================
+// COPIED FROM PDFRenderer.tsx - Full rendering logic
+// ============================================================================
 
 /**
  * SVG Placeholder for photo (matches HTML version).
- * Note: react-pdf doesn't support rgba() in fill, use fill + fillOpacity instead.
  */
 const PhotoPlaceholderPDF: React.FC<{ size: number }> = ({ size }) => (
     <Svg width={size} height={size} viewBox="0 0 80 80">
@@ -115,7 +95,7 @@ const PhotoPlaceholderPDF: React.FC<{ size: number }> = ({ size }) => (
 );
 
 /**
- * Apply text transform manually (react-pdf support may vary).
+ * Apply text transform manually.
  */
 function applyTextTransform(s: string | undefined, t: 'none' | 'uppercase' | undefined): string {
     if (!s) return '';
@@ -129,8 +109,8 @@ function applyTextTransform(s: string | undefined, t: 'none' | 'uppercase' | und
  * Recursively render a LayoutNode for PDF.
  * Uses nodeType for branching (no heuristics).
  */
-function renderPDFNode(node: LayoutNode, bulletChar: string = '•'): React.ReactNode {
-    const { frame, computedStyle, content, children, nodeId, nodeType, fieldPath } = node;
+function renderPDFNode(node: LayoutNode): React.ReactNode {
+    const { frame, computedStyle, content, children, nodeId, nodeType } = node;
 
     // Base style for all nodes
     const baseStyle = {
@@ -194,7 +174,7 @@ function renderPDFNode(node: LayoutNode, bulletChar: string = '•'): React.Reac
                     flexDirection: 'row',
                     alignItems: 'flex-start',
                 }}>
-                    <Text style={{ ...textStyle, marginRight: 4 }}>{bulletChar}</Text>
+                    <Text style={{ ...textStyle, marginRight: 4 }}>•</Text>
                     <Text style={textStyle}>{rendered}</Text>
                 </View>
             );
@@ -228,7 +208,7 @@ function renderPDFNode(node: LayoutNode, bulletChar: string = '•'): React.Reac
                     ...baseStyle,
                     backgroundColor: computedStyle.backgroundColor,
                 }}>
-                    {children?.map((child) => renderPDFNode(child, bulletChar))}
+                    {children?.map((child) => renderPDFNode(child))}
                 </View>
             );
         }
@@ -238,7 +218,8 @@ function renderPDFNode(node: LayoutNode, bulletChar: string = '•'): React.Reac
 /**
  * Map font family to PDF-compatible font names.
  */
-function mapPDFFontFamily(family: string): string {
+function mapPDFFontFamily(family: string | undefined): string {
+    if (!family) return 'Helvetica';
     if (family.includes('serif') && !family.includes('sans')) {
         return 'Times-Roman';
     }
@@ -253,27 +234,35 @@ const styles = StyleSheet.create({
         position: 'relative',
         backgroundColor: '#FFFFFF',
     },
-    footer: {
+    labelContainer: {
         position: 'absolute',
-        bottom: 8,
-        right: 8,
+        top: 4,
+        right: 4,
+        backgroundColor: '#1F2937',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 2,
     },
-    footerText: {
+    labelText: {
+        fontSize: 7,
+        color: '#FFFFFF',
+        fontWeight: 700,
+        fontFamily: 'Helvetica-Bold',
+    },
+    entryCounter: {
+        position: 'absolute',
+        bottom: 4,
+        left: 4,
+        backgroundColor: '#6B7280',
+        paddingHorizontal: 4,
+        paddingVertical: 2,
+        borderRadius: 2,
+    },
+    entryCounterText: {
         fontSize: 6,
-        color: '#999999',
-        fontFamily: 'Helvetica',
-    },
-    // Phase 4.7: Page number styles
-    pageNumber: {
-        position: 'absolute',
-        bottom: 20,
-        right: 40,
-    },
-    pageNumberText: {
-        fontSize: 8,
-        color: '#9CA3AF',
+        color: '#FFFFFF',
         fontFamily: 'Helvetica',
     },
 });
 
-export default PDFRenderer;
+export default MatrixPDFRenderer;

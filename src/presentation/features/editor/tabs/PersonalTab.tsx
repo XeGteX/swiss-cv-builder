@@ -422,11 +422,11 @@ export const PersonalTab: React.FC = () => {
                     placeholder="Décrivez votre profil en quelques lignes..."
                     debounceTime={300}
                     enableAI={true}
-                    maxLength={200}
+                    maxLength={400}
                 />
                 <div className="flex justify-end mt-1">
-                    <span className={`text-xs ${(profile.summary?.length || 0) > 200 ? 'text-red-400' : (profile.summary?.length || 0) > 150 ? 'text-amber-400' : 'text-slate-400'}`}>
-                        {profile.summary?.length || 0}/200
+                    <span className={`text-xs ${(profile.summary?.length || 0) > 400 ? 'text-red-400' : (profile.summary?.length || 0) > 300 ? 'text-amber-400' : 'text-slate-400'}`}>
+                        {profile.summary?.length || 0}/400
                     </span>
                 </div>
             </div>

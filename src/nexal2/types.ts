@@ -21,13 +21,15 @@ export type SceneNodeType =
     | 'image'
     | 'list'
     | 'listItem'
-    | 'spacer';
+    | 'spacer'
+    | 'chip'        // Phase 8: Element variant for skills
+    | 'progressBar'; // Phase 8: Element variant for skills/languages
 
 export interface SceneStyle {
     // Typography
     fontSize?: number;
     fontWeight?: 'normal' | 'bold';
-    fontFamily?: 'sans' | 'serif' | 'mono';
+    fontFamily?: string; // CSS font-family (e.g. 'Inter, system-ui, sans-serif')
     lineHeight?: number;
     textAlign?: 'left' | 'center' | 'right';
     textTransform?: 'none' | 'uppercase';
@@ -60,6 +62,10 @@ export interface SceneStyle {
     alignItems?: 'start' | 'center' | 'end';
     /** Phase 5.2: Main-axis distribution (flex justifyContent) */
     justifyContent?: 'start' | 'center' | 'end' | 'spaceBetween';
+    /** Phase 8: CSS display property */
+    display?: 'block' | 'flex' | 'inline' | 'inline-block';
+    /** Phase 8: CSS flex-wrap */
+    flexWrap?: 'nowrap' | 'wrap';
     width?: number | 'auto';
     height?: number | 'auto';
     minHeight?: number;
@@ -108,6 +114,13 @@ export interface ComputedStyle {
     textAlign: 'left' | 'center' | 'right';
     textTransform: 'none' | 'uppercase';
     letterSpacing?: number;
+    // Border properties (for section separators)
+    borderStyle?: 'solid' | 'dashed' | 'dotted' | 'none';
+    borderWidth?: number;
+    borderColor?: string;
+    // Spacing
+    paddingBottom?: number;
+    marginBottom?: number;
 }
 
 export interface LayoutNode {
@@ -132,6 +145,8 @@ export interface LayoutConstraints {
     sidebarWidth: number;
     sidebarPosition: 'left' | 'right';
     sidebarGap: number;
+    /** P1: Font scale factor (1.0 = normal, 0.9 = 90%, etc.) */
+    fontScale?: number;
 }
 
 export interface LayoutTree {
@@ -157,6 +172,10 @@ export interface PaginationMeta {
     warnings: PaginationWarning[];
     /** Per-page parity signatures (hash of node frames/types) */
     pageSignatures: string[];
+    /** P1: Fill ratio of first page (0.0 to 1.0) */
+    page1FillRatio?: number;
+    /** P1: Applied font scale (for debugging) */
+    appliedFontScale?: number;
 }
 
 /** Phase 4.9: Structured pagination warning */

@@ -22,6 +22,105 @@ import type { DesignConfig } from '@/application/store/v2/cv-store-v2.types';
 const s = (v: unknown): string => (v == null ? '' : String(v).trim());
 
 // ============================================================================
+// PDF SANITIZATION (Sprint 7 - Release Grade)
+// ============================================================================
+
+/**
+ * Set to true in development to disable sanitization (see all data including test garbage).
+ * In production, this should be false to filter runtime pollution.
+ */
+const SANITIZER_DISABLED = true; // TODO: Set to false for production
+
+/**
+ * Blocklist of DEFINITE runtime/technical strings that should NEVER appear in a CV.
+ * These indicate data pollution from console logs, errors, or DOM leaks.
+ * 
+ * NOTE: URLs (http/https) are ALLOWED - users may have portfolio/LinkedIn links.
+ * NOTE: Short text is ALLOWED - users may have valid short entries.
+ */
+const BLOCKLIST_PATTERNS = [
+    // React/JS runtime errors
+    'was not allowed to start',
+    'must be resumed',
+    'react-dom_client',
+    '[object Object]',
+    'undefined is not',
+    'cannot read property',
+    // Build tool artifacts
+    'webpack:',
+    'vite:',
+    'node_modules/',
+    // Script injection
+    '<script',
+    '</script',
+];
+
+/**
+ * Check if a string contains blocklisted technical content.
+ */
+function containsBlocklisted(text: string): boolean {
+    const lower = text.toLowerCase();
+    return BLOCKLIST_PATTERNS.some(pattern => lower.includes(pattern.toLowerCase()));
+}
+
+/**
+ * Sanitize a single task/bullet point for PDF rendering.
+ * 
+ * Rules (when SANITIZER_DISABLED = false):
+ * - Trim whitespace
+ * - Reject if length < 3 (catches "T", "n", etc.)
+ * - Reject if contains blocklisted patterns
+ */
+function sanitizeTask(task: string): string | null {
+    const cleaned = s(task);
+
+    // DEV MODE: Skip all filtering
+    if (SANITIZER_DISABLED) {
+        return cleaned.length > 0 ? cleaned : null;
+    }
+
+    // Too short = fragment from bad split
+    if (cleaned.length < 3) {
+        console.warn(`[NEXAL2 Sanitizer] Rejected short task: "${cleaned}"`);
+        return null;
+    }
+
+    // Contains technical/runtime content
+    if (containsBlocklisted(cleaned)) {
+        console.warn(`[NEXAL2 Sanitizer] Rejected blocklisted task: "${cleaned.slice(0, 50)}..."`);
+        return null;
+    }
+
+    return cleaned;
+}
+
+/**
+ * Sanitize an array of tasks, filtering out invalid entries.
+ */
+function sanitizeTasks(tasks: unknown[]): string[] {
+    if (!Array.isArray(tasks)) return [];
+
+    return tasks
+        .map(t => sanitizeTask(String(t)))
+        .filter((t): t is string => t !== null);
+}
+
+/**
+ * Sanitize language level - handle null/undefined/single-char fallbacks.
+ */
+function sanitizeLevel(level: unknown): string {
+    const cleaned = s(level);
+
+    // Reject single characters (likely "n" from null, "u" from undefined)
+    if (cleaned.length === 1) {
+        console.warn(`[NEXAL2 Sanitizer] Rejected single-char level: "${cleaned}"`);
+        return '';
+    }
+
+    return cleaned;
+}
+
+// ============================================================================
 // NEXAL2 PROFILE TYPE (what buildScene expects)
 // ============================================================================
 
@@ -69,10 +168,24 @@ export interface Nexal2Profile {
 export interface Nexal2Design {
     paperFormat: 'A4' | 'LETTER';
     accentColor: string;
-    fontPair: string;
+    fontPairing: string;
     showPhoto: boolean;
     sidebarPosition: 'left' | 'right';
     headerStyle: 'classic' | 'modern' | 'minimal';
+    // Phase 5.7: Extended design props
+    sectionLineStyle?: 'solid' | 'dashed' | 'dotted' | 'double' | 'groove' | 'ridge' | 'none' | 'gradient';
+    sectionLineColor?: string;
+    bulletStyle?: 'disc' | 'square' | 'dash' | 'arrow' | 'check';
+    photoScale?: 1 | 2 | 3;
+    fontSize?: number;
+    lineHeight?: number;
+    locale?: string;
+    // Phase 8: Element variants
+    elementVariants?: {
+        skills?: string;
+        languages?: string;
+        contact?: string;
+    };
 }
 
 // ============================================================================
@@ -115,7 +228,7 @@ export function mapProfileToNexal2(profile: CVProfile | undefined): Nexal2Profil
                 ? `${s((exp as any).startDate)} - ${s((exp as any).endDate) || 'Present'}`
                 : ''),
         dateRange: exp.dateRange,
-        tasks: Array.isArray(exp.tasks) ? exp.tasks.map(s) : [],
+        tasks: sanitizeTasks(exp.tasks || []),
     }));
 
     // Sprint 6.2: Normalize educations with robust key aliasing
@@ -149,8 +262,8 @@ export function mapProfileToNexal2(profile: CVProfile | undefined): Nexal2Profil
         skills: (profile.skills || []).map(s),
         languages: (profile.languages || []).map((l) => ({
             name: s(l.name),
-            level: s(l.level),
-        })),
+            level: sanitizeLevel(l.level),
+        })).filter(l => l.name.length > 0), // Remove entries with no name
         experiences: normalizedExperiences,
         educations: normalizedEducations,
     };
@@ -168,10 +281,19 @@ export function mapDesignToNexal2(design: Partial<DesignConfig> | undefined): Ne
     return {
         paperFormat: design?.paperFormat || 'A4',
         accentColor: design?.accentColor || '#4F46E5',
-        fontPair: design?.fontPairing || 'sans',
+        fontPairing: design?.fontPairing || 'sans',
         showPhoto: design?.showPhoto !== false,
         sidebarPosition: design?.sidebarPosition || 'left',
         headerStyle: (design?.headerStyle as 'classic' | 'modern' | 'minimal') || 'classic',
+        // Phase 5.7: Extended design props
+        sectionLineStyle: design?.sectionLineStyle || 'solid',
+        sectionLineColor: design?.sectionLineColor || 'accent',
+        bulletStyle: design?.bulletStyle || 'disc',
+        photoScale: design?.photoScale || 2,
+        fontSize: design?.fontSize || 1.0,
+        lineHeight: design?.lineHeight || 1.5,
+        locale: 'fr', // Default locale, can be extended to read from region
+        elementVariants: design?.elementVariants,
     };
 }
 

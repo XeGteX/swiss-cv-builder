@@ -75,11 +75,23 @@ export function computeLayout(
 
     // Build root text style from tokens (if present)
     const tokens = (constraints as any).tokens;
+    const fontScale = constraints.fontScale ?? 1.0;
+
+    const baseFontSize = tokens?.fontSize?.body ?? DEFAULT_TEXT_STYLE.fontSize;
+    const scaledFontSize = baseFontSize * fontScale;
+
     const rootTextStyle: ComputedStyle = tokens ? {
         ...DEFAULT_TEXT_STYLE,
-        fontSize: tokens.fontSize?.body ?? DEFAULT_TEXT_STYLE.fontSize,
+        fontSize: scaledFontSize,
         lineHeight: tokens.lineHeight ?? DEFAULT_TEXT_STYLE.lineHeight,
-    } : DEFAULT_TEXT_STYLE;
+    } : {
+        ...DEFAULT_TEXT_STYLE,
+        fontSize: DEFAULT_TEXT_STYLE.fontSize * fontScale,
+    };
+
+    if (fontScale !== 1.0) {
+        console.log(`[NEXAL2 Layout] P1: Applied fontScale ${fontScale.toFixed(2)}, fontSize: ${scaledFontSize.toFixed(1)}pt`);
+    }
 
     // Layout each page with root style
     const layoutPages: LayoutNode[] = scene.pages.map((pageNode) => {
@@ -612,6 +624,57 @@ function layoutNode(
             return layoutContainer(node, { ...availableFrame, height: 0 }, constraints, computedStyle);
         }
 
+        case 'chip': {
+            // Phase 8: Chip layout - inline pill-style element
+            // Height = fontSize + vertical padding (8pt total)
+            // Width = text width + horizontal padding (20pt total)
+            const CHIP_PADDING_H = 10; // left + right
+            const CHIP_PADDING_V = 4;  // top + bottom
+            const measurement = measureText(
+                node.content || '',
+                { fontSize: computedStyle.fontSize, fontFamily: 'sans', lineHeight: 1.2 },
+                availableFrame.width - CHIP_PADDING_H * 2
+            );
+            // Chips are inline: use measured width (capped to available)
+            const chipWidth = Math.min(measurement.width + CHIP_PADDING_H * 2, availableFrame.width);
+            const chipHeight = computedStyle.fontSize * 1.2 + CHIP_PADDING_V * 2;
+            return {
+                nodeId: node.id,
+                nodeType: node.type,
+                frame: {
+                    x: availableFrame.x,
+                    y: availableFrame.y,
+                    width: chipWidth,
+                    height: chipHeight,
+                },
+                computedStyle,
+                content: node.content,
+                fieldPath: node.fieldPath,
+            };
+        }
+
+        case 'progressBar': {
+            // Phase 8: Progress bar layout - label + bar
+            // Height = fontSize line + bar (6pt) + gap (4pt)
+            const BAR_HEIGHT = 6;
+            const GAP = 4;
+            const lineHeight = computedStyle.fontSize * computedStyle.lineHeight;
+            const totalHeight = lineHeight + GAP + BAR_HEIGHT;
+            return {
+                nodeId: node.id,
+                nodeType: node.type,
+                frame: {
+                    x: availableFrame.x,
+                    y: availableFrame.y,
+                    width: availableFrame.width,
+                    height: totalHeight,
+                },
+                computedStyle,
+                content: node.content,
+                fieldPath: node.fieldPath,
+            };
+        }
+
         case 'spacer': {
             const height = (style.height as number) || 10;
             return {
@@ -661,6 +724,13 @@ function resolveComputedStyle(
         letterSpacing: style.letterSpacing ?? parentStyle.letterSpacing,
         // Non-inherited (explicit only)
         backgroundColor: style.backgroundColor,
+        // Border properties (for section separators)
+        borderStyle: style.borderStyle,
+        borderWidth: style.borderWidth,
+        borderColor: style.borderColor,
+        // Spacing (for section separator margins)
+        paddingBottom: style.paddingBottom,
+        marginBottom: style.marginBottom,
     };
 }
 
@@ -909,13 +979,18 @@ export function createSplitTextNodes(
 
 /**
  * Map font family enum to actual font names.
+ * Now also accepts full CSS font-family strings and passes them through.
  */
-function mapFontFamily(family: 'sans' | 'serif' | 'mono'): string {
+function mapFontFamily(family: string): string {
+    // Already a CSS font stack (contains comma)
+    if (family.includes(',')) return family;
+
+    // Map shorthand keys to font stacks
     switch (family) {
         case 'sans': return 'Helvetica, Arial, sans-serif';
         case 'serif': return 'Times New Roman, Times, serif';
         case 'mono': return 'Courier New, Courier, monospace';
-        default: return 'Helvetica, Arial, sans-serif';
+        default: return family || 'Helvetica, Arial, sans-serif';
     }
 }
 

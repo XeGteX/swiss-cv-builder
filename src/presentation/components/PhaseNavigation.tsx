@@ -219,9 +219,12 @@ export const PhaseBar: React.FC<PhaseBarProps> = ({
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -5 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute top-full left-0 right-0 pt-2 z-[9999]"
+                        className="absolute top-full left-0 right-0 z-[9999]"
                     >
-                        {/* Inner panel with actual styling - pt-2 above creates hover bridge */}
+                        {/* Invisible hover bridge - prevents flicker when cursor moves between button and dropdown */}
+                        <div className="h-3" />
+
+                        {/* Inner panel with actual styling */}
                         <div
                             className="p-2 rounded-lg border border-white/20 shadow-2xl"
                             style={{ backgroundColor: '#0f172a' }}  // Fully opaque slate-900

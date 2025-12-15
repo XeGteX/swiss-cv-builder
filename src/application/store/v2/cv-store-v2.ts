@@ -254,6 +254,18 @@ export const useCVStoreV2 = create<CVStoreV2State>()(
                         }), false, `nexal:setPaperFormat:${format}`);
                     },
 
+                    setElementVariant: (element: 'skills' | 'languages' | 'contact', variant: string) => {
+                        set((state) => ({
+                            design: {
+                                ...state.design,
+                                elementVariants: {
+                                    ...state.design.elementVariants,
+                                    [element]: variant
+                                }
+                            }
+                        }), false, `nexal:setElementVariant:${element}:${variant}`);
+                    },
+
                     // ========================================
                     // UTILITY ACTIONS
                     // ========================================

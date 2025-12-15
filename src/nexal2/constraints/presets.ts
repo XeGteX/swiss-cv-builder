@@ -150,10 +150,10 @@ function computeSplitHeaderFrames(
     margins: { top: number; right: number; bottom: number; left: number },
     options: PresetOptions
 ): PresetResult {
-    // Phase 5.3: Slightly taller header to allow real photo size
-    const headerHeight = Math.min(options.headerHeight ?? 96, 110);
-    // Phase 5.1: Left block larger (65%) for name/title, right smaller for photo/contacts
-    const headerSplit = options.headerSplit || 0.65;
+    // P1: Taller header (110pt) for photo + readable contact info
+    const headerHeight = Math.min(options.headerHeight ?? 110, 120);
+    // P1 FIX: 50/50 split for balanced layout (was 65/35, too narrow for contact info)
+    const headerSplit = options.headerSplit || 0.50;
     const gap = 8;
 
     // Calculate split widths

@@ -12,6 +12,7 @@ import type {
     DesignConfig,
 } from '../types';
 import { getScaledTheme } from '../types';
+import { getLabels } from '../i18n';
 
 // ============================================================================
 // SPRINT 6.1: PRESET COVERAGE MAP (Single Source of Truth)
@@ -96,6 +97,65 @@ function isSectionVisible(structure: StructureConfig, sectionId: SectionId): boo
     return structure.visible[sectionId] !== false;
 }
 
+// ============================================================================
+// FONT FAMILY MAPPING (from fontPairing to CSS)
+// ============================================================================
+
+const FONT_FAMILIES: Record<string, { heading: string; body: string }> = {
+    // Sans-serif fonts
+    sans: { heading: 'Inter, system-ui, sans-serif', body: 'Inter, system-ui, sans-serif' },
+    roboto: { heading: 'Roboto, Arial, sans-serif', body: 'Roboto, Arial, sans-serif' },
+    opensans: { heading: 'Open Sans, Arial, sans-serif', body: 'Open Sans, Arial, sans-serif' },
+    lato: { heading: 'Lato, Arial, sans-serif', body: 'Lato, Arial, sans-serif' },
+    poppins: { heading: 'Poppins, Arial, sans-serif', body: 'Poppins, Arial, sans-serif' },
+    montserrat: { heading: 'Montserrat, Arial, sans-serif', body: 'Montserrat, Arial, sans-serif' },
+    raleway: { heading: 'Raleway, Arial, sans-serif', body: 'Raleway, Arial, sans-serif' },
+    nunito: { heading: 'Nunito, Arial, sans-serif', body: 'Nunito, Arial, sans-serif' },
+    // Serif fonts
+    serif: { heading: 'Playfair Display, Georgia, serif', body: 'Lora, Georgia, serif' },
+    georgia: { heading: 'Georgia, Times New Roman, serif', body: 'Georgia, Times New Roman, serif' },
+    merriweather: { heading: 'Merriweather, Georgia, serif', body: 'Merriweather, Georgia, serif' },
+    sourcepro: { heading: 'Source Serif Pro, Georgia, serif', body: 'Source Serif Pro, Georgia, serif' },
+    // Monospace
+    mono: { heading: 'JetBrains Mono, Consolas, monospace', body: 'JetBrains Mono, Consolas, monospace' },
+    firacode: { heading: 'Fira Code, monospace', body: 'Fira Code, monospace' },
+    // Mixed pairings
+    executive: { heading: 'Playfair Display, Georgia, serif', body: 'Source Sans Pro, Arial, sans-serif' },
+    creative: { heading: 'Oswald, Impact, sans-serif', body: 'Lato, Arial, sans-serif' },
+    minimal: { heading: 'Helvetica Neue, Arial, sans-serif', body: 'Helvetica Neue, Arial, sans-serif' },
+};
+
+/** Get body font family from fontPairing key */
+function getBodyFontFamily(fontPairing: string | undefined): string {
+    return FONT_FAMILIES[fontPairing || 'sans']?.body || 'Inter, system-ui, sans-serif';
+}
+
+/** Get heading font family from fontPairing key */
+function getHeadingFontFamily(fontPairing: string | undefined): string {
+    return FONT_FAMILIES[fontPairing || 'sans']?.heading || 'Inter, system-ui, sans-serif';
+}
+
+/** Create section title style with separator line */
+function getSectionTitleStyle(design: any, theme: any): Record<string, any> {
+    const lineStyle = design.sectionLineStyle || 'solid';
+    const lineColor = design.sectionLineColor === 'accent'
+        ? (design.accentColor || '#4F46E5')
+        : (design.sectionLineColor || '#E5E7EB');
+
+    return {
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+        fontSize: theme.fontSize.sectionTitle,
+        fontFamily: getHeadingFontFamily(design.fontPairing),
+        // Section separator line
+        paddingBottom: lineStyle !== 'none' ? 4 : 0,
+        marginBottom: lineStyle !== 'none' ? 6 : 0,
+        borderStyle: lineStyle !== 'none' ? lineStyle : undefined,
+        borderWidth: lineStyle !== 'none' ? (design.sectionLineWidth || 1) : 0,
+        borderColor: lineStyle !== 'none' ? lineColor : undefined,
+    };
+}
+
 /**
  * Build a SceneDocument from profile and design configuration.
  *
@@ -111,6 +171,9 @@ export function buildScene(
     const now = new Date().toISOString();
     const profileId = profile.id || 'unknown';
     const designHash = JSON.stringify(design).substring(0, 32);
+
+    // i18n labels (default: French)
+    const labels = getLabels(design.locale || 'fr').sections;
 
     // Create page structure with all container types
     // computeLayout will only render containers that have matching frames
@@ -196,76 +259,243 @@ function createSidebarNode(profile: CVProfile, design: DesignConfig): SceneNode 
         style: { height: theme.spacing.itemMargin },
     });
 
-    // Contact section - Phase 7.1: Check visibility
+    // Contact section - Phase 8: Element variants with layout engine support
     if (isSectionVisible(structure, 'contact')) {
-        const contactItems: SceneNode[] = [];
-        if (profile.personal?.contact?.email) {
-            contactItems.push({
-                id: 'sidebar.contact.email',
-                type: 'text',
-                content: profile.personal.contact.email,
-                fieldPath: 'personal.contact.email',
-                style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
-            });
-        }
-        if (profile.personal?.contact?.phone) {
-            contactItems.push({
-                id: 'sidebar.contact.phone',
-                type: 'text',
-                content: profile.personal.contact.phone,
-                fieldPath: 'personal.contact.phone',
-                style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
-            });
-        }
+        const contactVariant = design.elementVariants?.contact || 'stacked';
 
-        if (contactItems.length > 0) {
+        // Build contact items
+        const email = profile.personal?.contact?.email;
+        const phone = profile.personal?.contact?.phone;
+        const hasContact = email || phone;
+
+        if (hasContact) {
+            let contactContent: SceneNode[];
+
+            if (contactVariant === 'inline') {
+                // INLINE VARIANT: single line
+                const parts = [email, phone].filter(Boolean);
+                contactContent = [{
+                    id: 'sidebar.contact.inline',
+                    type: 'text' as const,
+                    content: parts.join(' • '),
+                    style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
+                }];
+            } else if (contactVariant === 'icons') {
+                // ICONS VARIANT: with emoji icons
+                const items: SceneNode[] = [];
+                if (email) {
+                    items.push({
+                        id: 'sidebar.contact.email',
+                        type: 'text' as const,
+                        content: `📧 ${email}`,
+                        fieldPath: 'personal.contact.email',
+                        style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
+                    });
+                }
+                if (phone) {
+                    items.push({
+                        id: 'sidebar.contact.phone',
+                        type: 'text' as const,
+                        content: `📱 ${phone}`,
+                        fieldPath: 'personal.contact.phone',
+                        style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
+                    });
+                }
+                contactContent = items;
+            } else {
+                // DEFAULT STACKED VARIANT
+                const items: SceneNode[] = [];
+                if (email) {
+                    items.push({
+                        id: 'sidebar.contact.email',
+                        type: 'text' as const,
+                        content: email,
+                        fieldPath: 'personal.contact.email',
+                        style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
+                    });
+                }
+                if (phone) {
+                    items.push({
+                        id: 'sidebar.contact.phone',
+                        type: 'text' as const,
+                        content: phone,
+                        fieldPath: 'personal.contact.phone',
+                        style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
+                    });
+                }
+                contactContent = items;
+            }
+
             children.push({
                 id: 'sidebar.contact',
                 type: 'section',
                 children: [
-                    { id: 'sidebar.contact.title', type: 'text', content: 'Contact', style: { fontWeight: 'bold', textTransform: 'uppercase', color: '#FFFFFF', fontSize: theme.fontSize.sectionTitle } },
-                    ...contactItems,
+                    { id: 'sidebar.contact.title', type: 'text', content: getLabels(design.locale).sections.contact, style: { fontWeight: 'bold', textTransform: 'uppercase', color: '#FFFFFF', fontSize: theme.fontSize.sectionTitle } },
+                    ...contactContent,
                 ],
             });
         }
     }
 
-    // Skills section - Phase 7.1: Check visibility + apply limits
+    // Skills section - Phase 8: Element variants with layout engine support
     if (isSectionVisible(structure, 'skills') && profile.skills && profile.skills.length > 0) {
+        const skillsVariant = design.elementVariants?.skills || 'list';
+        const limitedSkills = profile.skills.slice(0, structure.limits.skillsTopN);
+
+        // Different rendering based on variant
+        let skillsContent: SceneNode[];
+
+        if (skillsVariant === 'chips') {
+            // CHIPS VARIANT: wrapped in flex container for horizontal layout
+            skillsContent = [{
+                id: 'sidebar.skills.chips-container',
+                type: 'container' as const,
+                style: {
+                    direction: 'row' as const,
+                    gap: 6,
+                },
+                children: limitedSkills.map((skill, i) => ({
+                    id: `sidebar.skills.chip-${i}`,
+                    type: 'chip' as const,
+                    content: skill,
+                    fieldPath: `skills[${i}]`,
+                    style: {
+                        backgroundColor: 'rgba(255,255,255,0.2)',
+                        color: '#FFFFFF',
+                        fontSize: theme.fontSize.small,
+                        borderRadius: 12,
+                        paddingLeft: 10,
+                        paddingRight: 10,
+                        paddingTop: 4,
+                        paddingBottom: 4,
+                    },
+                })),
+            }];
+        } else if (skillsVariant === 'progress') {
+            // PROGRESS VARIANT: skill bars with levels
+            skillsContent = limitedSkills.map((skill, i) => ({
+                id: `sidebar.skills.progress-${i}`,
+                type: 'progressBar' as const,
+                content: skill,
+                fieldPath: `skills[${i}]`,
+                style: {
+                    color: '#FFFFFF',
+                    fontSize: theme.fontSize.small,
+                    marginBottom: 8,
+                },
+            }));
+        } else if (skillsVariant === 'horizontal') {
+            // HORIZONTAL VARIANT: inline comma-separated
+            skillsContent = [{
+                id: 'sidebar.skills.inline',
+                type: 'text' as const,
+                content: limitedSkills.join(' • '),
+                style: {
+                    color: '#FFFFFF',
+                    fontSize: theme.fontSize.small,
+                    lineHeight: 1.6,
+                },
+            }];
+        } else {
+            // DEFAULT LIST VARIANT
+            skillsContent = [{
+                id: 'sidebar.skills.list',
+                type: 'list' as const,
+                children: limitedSkills.map((skill, i) => ({
+                    id: `sidebar.skills.item-${i}`,
+                    type: 'listItem' as const,
+                    content: skill,
+                    fieldPath: `skills[${i}]`,
+                    style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
+                })),
+            }];
+        }
+
         children.push({
             id: 'sidebar.skills',
             type: 'section',
             children: [
                 { id: 'sidebar.skills.title', type: 'text', content: 'Compétences', style: { fontWeight: 'bold', textTransform: 'uppercase', color: '#FFFFFF', fontSize: theme.fontSize.sectionTitle } },
-                {
-                    id: 'sidebar.skills.list',
-                    type: 'list',
-                    children: profile.skills.slice(0, structure.limits.skillsTopN).map((skill, i) => ({
-                        id: `sidebar.skills.item-${i}`,
-                        type: 'listItem' as const,
-                        content: skill,
-                        fieldPath: `skills[${i}]`,
-                        style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
-                    })),
-                },
+                ...skillsContent,
             ],
         });
     }
 
-    // Languages section - Phase 7.1: Check visibility + apply limits
+    // Languages section - Phase 8: Element variants with layout engine support
     if (isSectionVisible(structure, 'languages') && profile.languages && profile.languages.length > 0) {
+        const languagesVariant = design.elementVariants?.languages || 'list';
+        const limitedLanguages = profile.languages.slice(0, structure.limits.languagesTopN);
+
+        // Map language levels to percentages for bars variant
+        const levelToPercent = (level: string): number => {
+            const lower = level.toLowerCase();
+            if (lower.includes('natif') || lower.includes('c2')) return 100;
+            if (lower.includes('courant') || lower.includes('c1')) return 90;
+            if (lower.includes('b2')) return 75;
+            if (lower.includes('b1') || lower.includes('intermédiaire')) return 60;
+            if (lower.includes('a2')) return 40;
+            if (lower.includes('a1') || lower.includes('débutant')) return 25;
+            return 50; // Default
+        };
+
+        let languagesContent: SceneNode[];
+
+        if (languagesVariant === 'bars') {
+            // BARS VARIANT: progress bars
+            languagesContent = limitedLanguages.map((lang, i) => ({
+                id: `sidebar.languages.bar-${i}`,
+                type: 'progressBar' as const,
+                content: lang.name,
+                fieldPath: `languages[${i}]`,
+                style: {
+                    color: '#FFFFFF',
+                    fontSize: theme.fontSize.small,
+                    marginBottom: 6,
+                },
+            }));
+        } else if (languagesVariant === 'dots') {
+            // DOTS VARIANT: name with dot rating
+            languagesContent = limitedLanguages.map((lang, i) => {
+                const level = levelToPercent(lang.level);
+                const filledDots = Math.round(level / 20); // 5 dots max
+                const dots = '●'.repeat(filledDots) + '○'.repeat(5 - filledDots);
+                return {
+                    id: `sidebar.languages.dots-${i}`,
+                    type: 'text' as const,
+                    content: `${lang.name} ${dots}`,
+                    fieldPath: `languages[${i}]`,
+                    style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
+                };
+            });
+        } else if (languagesVariant === 'horizontal') {
+            // HORIZONTAL VARIANT: inline
+            languagesContent = [{
+                id: 'sidebar.languages.inline',
+                type: 'text' as const,
+                content: limitedLanguages.map(l => `${l.name} (${l.level})`).join(' • '),
+                style: {
+                    color: '#FFFFFF',
+                    fontSize: theme.fontSize.small,
+                    lineHeight: 1.6,
+                },
+            }];
+        } else {
+            // DEFAULT LIST VARIANT
+            languagesContent = limitedLanguages.map((lang, i) => ({
+                id: `sidebar.languages.item-${i}`,
+                type: 'text' as const,
+                content: `${lang.name} — ${lang.level}`,
+                fieldPath: `languages[${i}]`,
+                style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
+            }));
+        }
+
         children.push({
             id: 'sidebar.languages',
             type: 'section',
             children: [
-                { id: 'sidebar.languages.title', type: 'text', content: 'Langues', style: { fontWeight: 'bold', textTransform: 'uppercase', color: '#FFFFFF', fontSize: theme.fontSize.sectionTitle } },
-                ...profile.languages.slice(0, structure.limits.languagesTopN).map((lang, i) => ({
-                    id: `sidebar.languages.item-${i}`,
-                    type: 'text' as const,
-                    content: `${lang.name} — ${lang.level}`,
-                    fieldPath: `languages[${i}]`,
-                    style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
-                })),
+                { id: 'sidebar.languages.title', type: 'text', content: getLabels(design.locale).sections.languages, style: { fontWeight: 'bold', textTransform: 'uppercase', color: '#FFFFFF', fontSize: theme.fontSize.sectionTitle } },
+                ...languagesContent,
             ],
         });
     }
@@ -279,9 +509,9 @@ function createSidebarNode(profile: CVProfile, design: DesignConfig): SceneNode 
             backgroundColor: design.accentColor || '#4F46E5',
             // Root typographic style (children inherit) - Phase 5.4: Scaled
             color: '#FFFFFF',
-            fontFamily: 'sans',
+            fontFamily: getBodyFontFamily(design.fontPairing),
             fontSize: theme.fontSize.body,
-            lineHeight: 1.4,
+            lineHeight: design.lineHeightSidebar ?? design.lineHeight ?? 1.4,
             // Padding - Phase 5.4: Scaled from theme spacing
             paddingTop: theme.spacing.sectionMargin + 4,
             paddingBottom: theme.spacing.sectionMargin + 4,
@@ -374,7 +604,7 @@ function createMainContentNode(profile: CVProfile, design: DesignConfig): SceneN
             id: 'main.summary',
             type: 'section',
             children: [
-                { id: 'main.summary.title', type: 'text', content: 'Profil', style: { fontWeight: 'bold', textTransform: 'uppercase', fontSize: theme.fontSize.sectionTitle } },
+                { id: 'main.summary.title', type: 'text', content: getLabels(design.locale).sections.profile, style: getSectionTitleStyle(design, theme) },
                 { id: 'main.summary.content', type: 'text', content: profile.summary, fieldPath: 'summary', style: { fontSize: theme.fontSize.body } },
             ],
         });
@@ -395,7 +625,7 @@ function createMainContentNode(profile: CVProfile, design: DesignConfig): SceneN
             id: 'main.skills',
             type: 'section',
             children: [
-                { id: 'main.skills.title', type: 'text', content: 'Compétences', style: { fontWeight: 'bold', textTransform: 'uppercase', fontSize: theme.fontSize.sectionTitle } },
+                { id: 'main.skills.title', type: 'text', content: 'Compétences', style: getSectionTitleStyle(design, theme) },
                 {
                     id: 'main.skills.list',
                     type: 'list',
@@ -419,7 +649,7 @@ function createMainContentNode(profile: CVProfile, design: DesignConfig): SceneN
             id: 'main.languages',
             type: 'section',
             children: [
-                { id: 'main.languages.title', type: 'text', content: 'Langues', style: { fontWeight: 'bold', textTransform: 'uppercase', fontSize: theme.fontSize.sectionTitle } },
+                { id: 'main.languages.title', type: 'text', content: getLabels(design.locale).sections.languages, style: getSectionTitleStyle(design, theme) },
                 ...langItems,
             ],
         });
@@ -460,8 +690,9 @@ function createMainContentNode(profile: CVProfile, design: DesignConfig): SceneN
         children.push({
             id: 'main.experience',
             type: 'section',
+            style: { gap: 6 }, // Compact spacing between experience entries
             children: [
-                { id: 'main.experience.title', type: 'text', content: 'Expérience Professionnelle', style: { fontWeight: 'bold', textTransform: 'uppercase', fontSize: theme.fontSize.sectionTitle } },
+                { id: 'main.experience.title', type: 'text', content: 'Expérience Professionnelle', style: getSectionTitleStyle(design, theme) },
                 ...expItems,
             ],
         });
@@ -516,8 +747,9 @@ function createMainContentNode(profile: CVProfile, design: DesignConfig): SceneN
         children.push({
             id: 'main.education',
             type: 'section',
+            style: { gap: 4 }, // Compact spacing between education entries
             children: [
-                { id: 'main.education.title', type: 'text', content: 'Formation', style: { fontWeight: 'bold', textTransform: 'uppercase', fontSize: theme.fontSize.sectionTitle } },
+                { id: 'main.education.title', type: 'text', content: getLabels(design.locale).sections.education, style: getSectionTitleStyle(design, theme) },
                 ...eduItems,
             ],
         });
@@ -534,6 +766,8 @@ function createMainContentNode(profile: CVProfile, design: DesignConfig): SceneN
             paddingLeft: theme.spacing.itemMargin,
             paddingRight: theme.spacing.itemMargin,
             fontSize: theme.fontSize.body,
+            lineHeight: design.lineHeightContent ?? design.lineHeight ?? 1.4,
+            fontFamily: getBodyFontFamily(design.fontPairing),
         },
     };
 }
@@ -669,7 +903,7 @@ function createHeaderNode(profile: CVProfile, design: DesignConfig): SceneNode {
 
 /**
  * Create headerLeft container node (for SPLIT_HEADER preset).
- * Phase 5.1: Name/title only - photo moved to headerRight.
+ * P1: Dynamic font scaling - adapts to content length like Canva/Figma.
  */
 function createHeaderLeftNode(profile: CVProfile, design: DesignConfig): SceneNode {
     const children: SceneNode[] = [];
@@ -677,22 +911,36 @@ function createHeaderLeftNode(profile: CVProfile, design: DesignConfig): SceneNo
 
     const metrics = getPhotoScaleMetrics(design);
 
-    // Name (no photo here - moved to headerRight)
+    // P1: Dynamic font size based on text length
+    // Short = big, Long = smaller, but always readable
+    const scaleFontSize = (baseSize: number, textLength: number, thresholds: number[]): number => {
+        // thresholds = [small, medium, long] char counts
+        if (textLength <= thresholds[0]) return baseSize;
+        if (textLength <= thresholds[1]) return baseSize * 0.9;
+        if (textLength <= thresholds[2]) return baseSize * 0.8;
+        return baseSize * 0.7; // Very long text
+    };
+
+    // Name - dynamic sizing (base from metrics)
+    const fullName = `${profile.personal?.firstName || ''} ${profile.personal?.lastName || ''}`.trim();
+    const nameSize = scaleFontSize(metrics.nameFontSize, fullName.length, [20, 35, 50]);
     children.push({
         id: 'headerLeft.name',
         type: 'text',
-        content: `${profile.personal?.firstName || ''} ${profile.personal?.lastName || ''}`.trim(),
-        fieldPath: 'personal.fullName', // Sprint 6.1: Correct fieldPath for full name
-        style: { fontSize: metrics.nameFontSize, fontWeight: 'bold', color: '#FFFFFF' },
+        content: fullName, // Full text, no truncation
+        fieldPath: 'personal.fullName',
+        style: { fontSize: nameSize, fontWeight: 'bold', color: '#FFFFFF' },
     });
 
+    // Title - dynamic sizing
     if (profile.personal?.title) {
+        const titleSize = scaleFontSize(metrics.titleFontSize, profile.personal.title.length, [25, 45, 65]);
         children.push({
             id: 'headerLeft.title',
             type: 'text',
-            content: profile.personal.title,
+            content: profile.personal.title, // Full text, no truncation
             fieldPath: 'personal.title',
-            style: { fontSize: metrics.titleFontSize, color: '#FFFFFF' },
+            style: { fontSize: titleSize, color: '#FFFFFF' },
         });
     }
 
@@ -716,14 +964,16 @@ function createHeaderLeftNode(profile: CVProfile, design: DesignConfig): SceneNo
 
 /**
  * Create headerRight container node (for SPLIT_HEADER preset).
- * Phase 6: Photo AND contact shown together (not either/or).
+ * P1 REDESIGN: Photo LEFT + Contact column RIGHT, all readable and well-spaced.
  */
 function createHeaderRightNode(profile: CVProfile, design: DesignConfig): SceneNode {
     const children: SceneNode[] = [];
 
     const metrics = getPhotoScaleMetrics(design);
+    // P1: Photo ~85pt for good visibility while leaving room for contact
+    const photoSize = Math.min(metrics.photoSize, 85);
 
-    // Phase 6: Photo in RIGHT header (if enabled) - size from metrics
+    // Photo (if enabled)
     if (design.showPhoto) {
         const photoUrl = profile.personal?.photoUrl || 'PLACEHOLDER_PHOTO';
         children.push({
@@ -731,50 +981,71 @@ function createHeaderRightNode(profile: CVProfile, design: DesignConfig): SceneN
             type: 'image',
             content: photoUrl,
             fieldPath: 'personal.photoUrl',
-            style: { width: metrics.photoSize, height: metrics.photoSize },
+            style: { width: photoSize, height: photoSize },
         });
     }
 
-    // Phase 6: Contact info ALWAYS shown (alongside photo, not instead of)
-    const contactChildren: SceneNode[] = [];
+    // P1: Gentle font scaling - only small reduction for very long text
+    // Minimum is 85% of base, never smaller
+    const scaleFontSize = (baseSize: number, textLength: number, thresholds: number[]): number => {
+        if (textLength <= thresholds[0]) return baseSize;
+        if (textLength <= thresholds[1]) return baseSize * 0.95;
+        if (textLength <= thresholds[2]) return baseSize * 0.9;
+        return baseSize * 0.85; // Never smaller than 85%
+    };
+
+    const contactLines: SceneNode[] = [];
+    const baseFontSize = 10;
+
+    // Email - clean text, no icon
     if (profile.personal?.contact?.email) {
-        contactChildren.push({
+        const email = profile.personal.contact.email;
+        const fontSize = scaleFontSize(baseFontSize, email.length, [30, 45, 60]);
+        contactLines.push({
             id: 'headerRight.email',
             type: 'text',
-            content: profile.personal.contact.email,
+            content: email,
             fieldPath: 'personal.contact.email',
-            style: { fontSize: 9, color: '#374151' },
+            style: { fontSize, color: '#374151' },
         });
     }
+
+    // Phone - clean text, no icon
     if (profile.personal?.contact?.phone) {
-        contactChildren.push({
+        const phone = profile.personal.contact.phone;
+        const fontSize = scaleFontSize(baseFontSize, phone.length, [18, 25, 35]);
+        contactLines.push({
             id: 'headerRight.phone',
             type: 'text',
-            content: profile.personal.contact.phone,
+            content: phone,
             fieldPath: 'personal.contact.phone',
-            style: { fontSize: 9, color: '#374151' },
+            style: { fontSize, color: '#374151' },
         });
     }
+
+    // Address - clean text, no icon
     if (profile.personal?.contact?.address) {
         const address = profile.personal.contact.address as string | { city?: string };
         const addressText = typeof address === 'string' ? address : (address.city || '');
         if (addressText) {
-            contactChildren.push({
+            const fontSize = scaleFontSize(baseFontSize, addressText.length, [40, 70, 100]);
+            contactLines.push({
                 id: 'headerRight.address',
                 type: 'text',
                 content: addressText,
                 fieldPath: 'personal.contact.address',
-                style: { fontSize: 9, color: '#374151' },
+                style: { fontSize, color: '#374151' },
             });
         }
     }
 
-    if (contactChildren.length > 0) {
+    // Contact column
+    if (contactLines.length > 0) {
         children.push({
             id: 'headerRight.contactBlock',
             type: 'container',
-            children: contactChildren,
-            style: { direction: 'column', gap: 1 },
+            children: contactLines,
+            style: { direction: 'column', gap: 2, alignItems: 'start' },
         });
     }
 
@@ -783,7 +1054,7 @@ function createHeaderRightNode(profile: CVProfile, design: DesignConfig): SceneN
         children.push({
             id: 'headerRight.placeholder',
             type: 'text',
-            content: ' ', // Minimal placeholder
+            content: ' ',
             style: { fontSize: 10, color: '#9CA3AF' },
         });
     }
@@ -794,15 +1065,15 @@ function createHeaderRightNode(profile: CVProfile, design: DesignConfig): SceneN
         children,
         style: {
             backgroundColor: '#F3F4F6',
-            paddingTop: 10,
-            paddingBottom: 10,
+            paddingTop: 8,
+            paddingBottom: 8,
             paddingLeft: 12,
-            paddingRight: 16,
-            // Phase 6: Row layout for photo + contact side by side
+            paddingRight: 12,
+            // P1: Row layout - photo left, contacts right
             direction: 'row',
-            justifyContent: 'center',
+            justifyContent: 'start',
             alignItems: 'center',
-            gap: 10,
+            gap: 12,
         },
     };
 }
@@ -872,7 +1143,7 @@ function createRightRailNode(profile: CVProfile, design: DesignConfig): SceneNod
             id: 'rightRail.languages',
             type: 'section',
             children: [
-                { id: 'rightRail.languages.title', type: 'text', content: 'Langues', style: { fontWeight: 'bold', fontSize: theme.fontSize.sectionTitle, textTransform: 'uppercase' } },
+                { id: 'rightRail.languages.title', type: 'text', content: getLabels(design.locale).sections.languages, style: { fontWeight: 'bold', fontSize: theme.fontSize.sectionTitle, textTransform: 'uppercase' } },
                 ...langItems,
             ],
         });
@@ -902,7 +1173,7 @@ function createRightRailNode(profile: CVProfile, design: DesignConfig): SceneNod
             id: 'rightRail.contact',
             type: 'section',
             children: [
-                { id: 'rightRail.contact.title', type: 'text', content: 'Contact', style: { fontWeight: 'bold', fontSize: theme.fontSize.sectionTitle, textTransform: 'uppercase' } },
+                { id: 'rightRail.contact.title', type: 'text', content: getLabels(design.locale).sections.contact, style: { fontWeight: 'bold', fontSize: theme.fontSize.sectionTitle, textTransform: 'uppercase' } },
                 ...contactItems,
             ],
         });
@@ -923,3 +1194,5 @@ function createRightRailNode(profile: CVProfile, design: DesignConfig): SceneNod
 }
 
 export default buildScene;
+
+

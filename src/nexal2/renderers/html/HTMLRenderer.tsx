@@ -32,7 +32,18 @@ interface HTMLRendererProps {
     layoutSignature?: string;
     /** Margins for page number positioning (from constraints) */
     margins?: { top: number; right: number; bottom: number; left: number };
+    /** Bullet style for list items */
+    bulletStyle?: 'disc' | 'square' | 'dash' | 'arrow' | 'check';
 }
+
+/** Bullet character mapping */
+const BULLET_CHARS: Record<string, string> = {
+    disc: '•',
+    square: '▪',
+    dash: '–',
+    arrow: '→',
+    check: '✓',
+};
 
 /**
  * Render a LayoutTree as HTML using absolute positioning.
@@ -44,6 +55,7 @@ export const HTMLRenderer: React.FC<HTMLRendererProps> = ({
     debug = false,
     layoutSignature,
     margins = { top: 40, right: 40, bottom: 40, left: 40 },
+    bulletStyle = 'disc',
 }) => {
     const { bounds, pages } = layout;
 
@@ -94,7 +106,7 @@ export const HTMLRenderer: React.FC<HTMLRendererProps> = ({
                             borderBottom: pageIndex < pageCount - 1 ? '1px solid #e5e7eb' : undefined,
                         }}
                     >
-                        {renderLayoutNode(page, scale, debug, page.frame.width, page.frame.height)}
+                        {renderLayoutNode(page, scale, debug, page.frame.width, page.frame.height, bulletStyle)}
 
                         {/* Phase 4.7: Page numbers for multi-page layouts */}
                         {pageCount > 1 && (
@@ -227,7 +239,8 @@ function renderLayoutNode(
     scale: number,
     debug: boolean,
     paperWidthPt: number,
-    paperHeightPt: number
+    paperHeightPt: number,
+    bulletStyleProp: string = 'disc'
 ): React.ReactNode {
     const { frame, computedStyle, content, children, nodeId, nodeType } = node;
 
@@ -236,6 +249,7 @@ function renderLayoutNode(
 
     // Base styles for all nodes (edge-snapped)
     // If element is flush right, use right: 0 instead of width for bulletproof alignment
+    // Phase 8 FIX: Changed overflow from hidden to visible to prevent text truncation
     const baseStyle: React.CSSProperties = snapped.useRightAnchor ? {
         position: 'absolute',
         left: snapped.left,
@@ -243,7 +257,7 @@ function renderLayoutNode(
         right: 0, // Use right anchor for flush-right elements
         height: snapped.height,
         boxSizing: 'border-box',
-        overflow: 'hidden',
+        overflow: 'visible',
     } : {
         position: 'absolute',
         left: snapped.left,
@@ -251,7 +265,7 @@ function renderLayoutNode(
         width: snapped.width,
         height: snapped.height,
         boxSizing: 'border-box',
-        overflow: 'hidden',
+        overflow: 'visible',
     };
 
     // Debug mode: show borders
@@ -316,7 +330,7 @@ function renderLayoutNode(
                         cursor: isFieldEditable(node.fieldPath) ? 'pointer' : undefined,
                     }}
                 >
-                    <span style={{ marginRight: pxRaw(4, scale), flexShrink: 0 }}>•</span>
+                    <span style={{ marginRight: pxRaw(4, scale), flexShrink: 0 }}>{BULLET_CHARS[bulletStyleProp] || '•'}</span>
                     <span style={{
                         whiteSpace: 'pre-wrap',
                         overflowWrap: 'anywhere',
@@ -341,6 +355,12 @@ function renderLayoutNode(
                 textAlign: computedStyle.textAlign,
                 textTransform: computedStyle.textTransform,
                 letterSpacing: computedStyle.letterSpacing ? pxRaw(computedStyle.letterSpacing, scale) : undefined,
+                // Section separator line (from getSectionTitleStyle)
+                borderBottomStyle: computedStyle.borderStyle as any,
+                borderBottomWidth: computedStyle.borderWidth ? pxRaw(computedStyle.borderWidth, scale) : undefined,
+                borderBottomColor: computedStyle.borderColor,
+                paddingBottom: computedStyle.paddingBottom ? pxRaw(computedStyle.paddingBottom, scale) : undefined,
+                marginBottom: computedStyle.marginBottom ? pxRaw(computedStyle.marginBottom, scale) : undefined,
                 // Word-break properties for PDF parity
                 whiteSpace: 'pre-wrap',
                 overflowWrap: 'anywhere',
@@ -363,8 +383,126 @@ function renderLayoutNode(
             );
         }
 
+        case 'chip': {
+            // Render skill chip (inline pill-style badge)
+            const fontSize = pxRaw(computedStyle.fontSize, scale);
+            return (
+                <span
+                    key={nodeId}
+                    style={{
+                        ...baseStyle,
+                        position: 'relative', // Override absolute for inline
+                        display: 'inline-block',
+                        fontSize,
+                        color: computedStyle.color,
+                        backgroundColor: computedStyle.backgroundColor || 'rgba(255,255,255,0.2)',
+                        padding: `${pxRaw(3, scale)}px ${pxRaw(8, scale)}px`,
+                        borderRadius: pxRaw(10, scale),
+                        fontFamily: computedStyle.fontFamily,
+                        marginRight: pxRaw(5, scale),
+                        marginBottom: pxRaw(5, scale),
+                        whiteSpace: 'nowrap',
+                    }}
+                    data-field-path={node.fieldPath}
+                    data-node-id={nodeId}
+                >
+                    {content}
+                </span>
+            );
+        }
+
+        case 'progressBar': {
+            // Render skill progress bar
+            const fontSize = pxRaw(computedStyle.fontSize, scale);
+            const level = (node as any).level || 70;
+            return (
+                <div
+                    key={nodeId}
+                    style={{
+                        ...baseStyle,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: pxRaw(3, scale),
+                    }}
+                    data-field-path={node.fieldPath}
+                    data-node-id={nodeId}
+                >
+                    <span style={{ fontSize, color: computedStyle.color, fontFamily: computedStyle.fontFamily }}>
+                        {content}
+                    </span>
+                    <div style={{
+                        width: '100%',
+                        height: pxRaw(4, scale),
+                        backgroundColor: 'rgba(255,255,255,0.2)',
+                        borderRadius: pxRaw(2, scale),
+                        overflow: 'hidden',
+                    }}>
+                        <div style={{
+                            width: `${level}%`,
+                            height: '100%',
+                            backgroundColor: '#FFFFFF',
+                            borderRadius: pxRaw(2, scale),
+                        }} />
+                    </div>
+                </div>
+            );
+        }
+
         // Container types: page, document, container, section, list, spacer
         default: {
+            // Phase 8: Detect if this is a chips container (has chip children)
+            const hasChipChildren = children?.some((child) => child.nodeType === 'chip');
+            const isFlexWrapContainer = hasChipChildren || nodeId.includes('chips-container');
+
+            // For chip containers: use CSS flex-wrap instead of absolute positioning
+            if (isFlexWrapContainer) {
+                return (
+                    <div
+                        key={nodeId}
+                        style={{
+                            position: 'absolute',
+                            left: snapped.left,
+                            top: snapped.top,
+                            width: snapped.width,
+                            // height: auto for wrap
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            gap: pxRaw(6, scale),
+                            backgroundColor: computedStyle.backgroundColor,
+                        }}
+                        data-field-path={node.fieldPath}
+                        data-node-id={nodeId}
+                    >
+                        {children?.map((child) => {
+                            // Render chip children inline (not absolute)
+                            if (child.nodeType === 'chip') {
+                                const chipFontSize = pxRaw(child.computedStyle.fontSize, scale);
+                                return (
+                                    <span
+                                        key={child.nodeId}
+                                        style={{
+                                            display: 'inline-block',
+                                            fontSize: chipFontSize,
+                                            color: child.computedStyle.color,
+                                            backgroundColor: child.computedStyle.backgroundColor || 'rgba(255,255,255,0.2)',
+                                            padding: `${pxRaw(4, scale)}px ${pxRaw(10, scale)}px`,
+                                            borderRadius: pxRaw(12, scale),
+                                            fontFamily: child.computedStyle.fontFamily,
+                                            whiteSpace: 'nowrap',
+                                        }}
+                                        data-field-path={child.fieldPath}
+                                        data-node-id={child.nodeId}
+                                    >
+                                        {child.content}
+                                    </span>
+                                );
+                            }
+                            return renderLayoutNode(child, scale, debug, paperWidthPt, paperHeightPt, bulletStyleProp);
+                        })}
+                    </div>
+                );
+            }
+
             return (
                 <div
                     key={nodeId}
@@ -375,7 +513,7 @@ function renderLayoutNode(
                     data-field-path={node.fieldPath}
                     data-node-id={nodeId}
                 >
-                    {children?.map((child) => renderLayoutNode(child, scale, debug, paperWidthPt, paperHeightPt))}
+                    {children?.map((child) => renderLayoutNode(child, scale, debug, paperWidthPt, paperHeightPt, bulletStyleProp))}
                 </div>
             );
         }
@@ -383,3 +521,4 @@ function renderLayoutNode(
 }
 
 export default HTMLRenderer;
+

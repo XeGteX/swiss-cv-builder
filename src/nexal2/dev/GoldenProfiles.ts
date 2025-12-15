@@ -30,6 +30,64 @@ export interface GoldenProfile {
 // ============================================================================
 
 export const GOLDEN_PROFILES: GoldenProfile[] = [
+    // 0. UNDERFILL TEST - Short summary + medium experience (should fit page 1 but triggers bug)
+    {
+        name: 'UNDERFILL_PROFILE',
+        description: 'Test case for page 1 underfill bug: short summary pushes experience to page 2 incorrectly',
+        data: {
+            id: 'underfill-test',
+            personal: {
+                firstName: 'Underfill',
+                lastName: 'Test',
+                title: 'Architecte Logiciel Senior',
+                contact: { email: 'test@example.com', phone: '+33 6 12 34 56 78' },
+                address: 'Paris, France',
+                summary: 'Test profil court.', // Very short summary ~ 40pt
+            },
+            experiences: [
+                {
+                    company: 'TechCorp International',
+                    role: 'Ingénieur Senior',
+                    startDate: '2020-01',
+                    endDate: 'Present',
+                    tasks: [
+                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.',
+                        'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+                        'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+                    ],
+                },
+                {
+                    company: 'Startup Innovation',
+                    role: 'Développeur Full-Stack',
+                    startDate: '2017-03',
+                    endDate: '2019-12',
+                    tasks: [
+                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.',
+                        'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.',
+                    ],
+                },
+                {
+                    company: 'Digital Agency',
+                    role: 'Junior Developer',
+                    startDate: '2015-06',
+                    endDate: '2017-02',
+                    tasks: [
+                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+                        'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+                    ],
+                },
+            ],
+            educations: [
+                { school: 'École Polytechnique', degree: 'Master Informatique', year: '2015' },
+            ],
+            skills: ['TypeScript', 'React', 'Node.js', 'Python', 'Docker', 'Kubernetes'],
+            languages: [
+                { name: 'Français', level: 'Natif' },
+                { name: 'Anglais', level: 'Courant (C1)' },
+            ],
+        },
+    },
+
     // 1. Classic 1-page CV
     {
         name: 'GOLDEN_01_CLASSIC',

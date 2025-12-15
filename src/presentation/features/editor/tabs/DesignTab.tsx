@@ -27,6 +27,10 @@ import {
 } from 'lucide-react';
 
 import { useDesign, useCVStoreV2 } from '../../../../application/store/v2';
+
+// NEXAL Platform imports
+import { ElementStylesTab } from '../../../../nexal2/components/ElementStylesTab';
+import { DesignInspector, useInspector } from '../../../../nexal2/inspector';
 import {
     COLOR_PRESETS,
     FONT_PAIRINGS_CONFIG,
@@ -319,6 +323,49 @@ function TypographySection() {
     const setFontPairing = useCVStoreV2(state => state.setFontPairing);
     const setFontSize = useCVStoreV2(state => state.setFontSize);
     const setLineHeight = useCVStoreV2(state => state.setLineHeight);
+    const setDesign = useCVStoreV2(state => state.setDesign);
+    const [fontSearch, setFontSearch] = useState('');
+    const [lineHeightTarget, setLineHeightTarget] = useState<'all' | 'sidebar' | 'content'>('all');
+
+    // Get current line height based on target
+    const getCurrentLineHeight = () => {
+        switch (lineHeightTarget) {
+            case 'sidebar': return design.lineHeightSidebar ?? design.lineHeight;
+            case 'content': return design.lineHeightContent ?? design.lineHeight;
+            default: return design.lineHeight;
+        }
+    };
+
+    // Handle line height change based on target
+    const handleLineHeightChange = (value: number) => {
+        switch (lineHeightTarget) {
+            case 'sidebar':
+                setDesign({ lineHeightSidebar: value });
+                break;
+            case 'content':
+                setDesign({ lineHeightContent: value });
+                break;
+            default:
+                setLineHeight(value);
+                // Also reset overrides when setting global
+                setDesign({ lineHeightSidebar: undefined, lineHeightContent: undefined });
+                break;
+        }
+    };
+
+    // Filter fonts based on search query
+    const filteredFonts = Object.entries(FONT_PAIRINGS_CONFIG).filter(([key, config]) => {
+        if (!fontSearch) return true;
+        const query = fontSearch.toLowerCase();
+        return (
+            key.toLowerCase().includes(query) ||
+            config.name.toLowerCase().includes(query) ||
+            config.description.toLowerCase().includes(query) ||
+            config.heading.toLowerCase().includes(query) ||
+            config.body.toLowerCase().includes(query)
+        );
+    }) as [FontPairing, typeof FONT_PAIRINGS_CONFIG['sans']][];
+
 
     return (
         <CollapsibleSection
@@ -326,10 +373,25 @@ function TypographySection() {
             icon={<Type className="w-4 h-4" />}
             defaultOpen={false}
         >
+            {/* Font Search Input */}
+            <div className="mb-3">
+                <input
+                    type="text"
+                    value={fontSearch}
+                    onChange={(e) => setFontSearch(e.target.value)}
+                    placeholder="Rechercher une police..."
+                    className="w-full px-3 py-2 text-sm bg-white/5 border border-white/10 rounded-lg text-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-500"
+                />
+            </div>
+
             {/* Font Pairing Selector */}
-            <div className="space-y-2 mb-4">
-                {(Object.entries(FONT_PAIRINGS_CONFIG) as [FontPairing, typeof FONT_PAIRINGS_CONFIG['sans']][]).map(
-                    ([key, config]) => (
+            <div className="space-y-2 mb-4 max-h-[200px] overflow-y-auto custom-scrollbar pr-1">
+                {filteredFonts.length === 0 ? (
+                    <div className="text-xs text-slate-500 text-center py-4">
+                        Aucune police trouvée pour "{fontSearch}"
+                    </div>
+                ) : (
+                    filteredFonts.map(([key, config]) => (
                         <motion.button
                             key={key}
                             whileHover={{ scale: 1.01 }}
@@ -353,7 +415,7 @@ function TypographySection() {
                                 {config.description}
                             </div>
                         </motion.button>
-                    )
+                    ))
                 )}
             </div>
 
@@ -376,21 +438,38 @@ function TypographySection() {
                 />
             </div>
 
-            {/* Line Height Slider */}
+            {/* Line Height Section */}
             <div>
+                {/* Target Selector */}
+                <div className="flex gap-1 mb-2">
+                    {(['all', 'sidebar', 'content'] as const).map((target) => (
+                        <button
+                            key={target}
+                            onClick={() => setLineHeightTarget(target)}
+                            className={`flex-1 px-2 py-1 text-xs rounded transition-all ${lineHeightTarget === target
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-white/5 text-slate-400 hover:bg-white/10'
+                                }`}
+                        >
+                            {target === 'all' ? 'Tout' : target === 'sidebar' ? 'Sidebar' : 'Contenu'}
+                        </button>
+                    ))}
+                </div>
                 <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs text-slate-400">Interligne</span>
+                    <span className="text-xs text-slate-400">
+                        Interligne {lineHeightTarget === 'sidebar' ? '(Sidebar)' : lineHeightTarget === 'content' ? '(Contenu)' : '(Tout)'}
+                    </span>
                     <span className="text-xs font-mono text-slate-300">
-                        {design.lineHeight.toFixed(1)}
+                        {getCurrentLineHeight().toFixed(1)}
                     </span>
                 </div>
                 <input
                     type="range"
-                    min="1.2"
+                    min="1.0"
                     max="2.0"
                     step="0.1"
-                    value={design.lineHeight}
-                    onChange={(e) => setLineHeight(parseFloat(e.target.value))}
+                    value={getCurrentLineHeight()}
+                    onChange={(e) => handleLineHeightChange(parseFloat(e.target.value))}
                     className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500"
                 />
             </div>
@@ -603,8 +682,8 @@ function PhotoScaleSection() {
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setDesign({ photoScale: value })}
                         className={`p-2 rounded-lg border text-center transition-all ${currentScale === value
-                                ? 'border-blue-500 bg-blue-500/20'
-                                : 'border-white/10 hover:border-white/20 bg-white/5'
+                            ? 'border-blue-500 bg-blue-500/20'
+                            : 'border-white/10 hover:border-white/20 bg-white/5'
                             }`}
                     >
                         <div className="text-lg mb-1">{value}</div>
@@ -618,21 +697,48 @@ function PhotoScaleSection() {
 }
 
 // ============================================================================
+// ELEMENT STYLES SECTION (NEXAL Platform)
+// ============================================================================
+
+function ElementStylesSection() {
+    return (
+        <CollapsibleSection
+            title="Styles d'éléments"
+            icon={<Grid3X3 className="w-4 h-4" />}
+        >
+            <ElementStylesTab />
+        </CollapsibleSection>
+    );
+}
+
+// ============================================================================
 // MAIN EXPORT: DESIGN TAB
 // ============================================================================
 
 export function DesignTab() {
+    const inspector = useInspector();
+    
     return (
         <div className="space-y-0">
-            {/* Header */}
-            <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-                    <Palette className="w-4 h-4 text-white" />
+            {/* Header with Inspector Toggle */}
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                        <Palette className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                        <h2 className="text-sm font-bold text-slate-200">NEXAL STUDIO</h2>
+                        <p className="text-xs text-slate-400">Design en temps réel</p>
+                    </div>
                 </div>
-                <div>
-                    <h2 className="text-sm font-bold text-slate-200">NEXAL STUDIO</h2>
-                    <p className="text-xs text-slate-400">Design en temps réel</p>
-                </div>
+                {/* Inspector Toggle Button */}
+                <button
+                    onClick={inspector.toggle}
+                    className="p-2 rounded-lg bg-slate-700/50 hover:bg-blue-500/50 text-slate-400 hover:text-white transition-all"
+                    title="Ouvrir l'inspecteur de design"
+                >
+                    🔍
+                </button>
             </div>
 
             {/* Controls */}
@@ -644,7 +750,11 @@ export function DesignTab() {
                 <PhotoScaleSection />
                 <HeaderSection />
                 <VisualDetailsSection />
+                <ElementStylesSection />
             </div>
+            
+            {/* Inspector Portal */}
+            <DesignInspector isOpen={inspector.isOpen} onClose={inspector.close} />
         </div>
     );
 }

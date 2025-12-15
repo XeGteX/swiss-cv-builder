@@ -31,6 +31,7 @@ import {
     HTMLRenderer,
     EditableHTMLRenderer,
     PDFRenderer,
+    MatrixPDFRenderer,
     mapAppToNexal2,
     runAndLogMatrix,
     runAndLogLongProfileTests,
@@ -38,6 +39,7 @@ import {
     type RegionId,
     type PresetId,
     type ChameleonConstraints,
+    type LayoutTree,
 } from '@/nexal2';
 import { StructurePanel } from './StructurePanel';
 import type { LayoutNode } from '../types';
@@ -126,10 +128,12 @@ export const NEXAL2PreviewPane: React.FC<NEXAL2PreviewPaneProps> = ({
     const { profile: nexal2Profile, design: nexal2Design } = useMemo(() => {
         const mapped = mapAppToNexal2(profile, design);
         // SYNC: override paperFormat from constraints (region) to prevent mismatch
+        // P1 FIX: Include layoutPreset so buildScene knows where to put content
         const syncedDesign = {
             ...mapped.design,
             paperFormat: constraints.paperFormat,
             showPhoto: effectiveShowPhoto,
+            layoutPreset: presetId, // Critical: tells buildScene which container to use
         };
         console.log('[NEXAL2] regionId=', regionId, 'presetId=', presetId, 'paperFormat=', syncedDesign.paperFormat);
         console.log('[NEXAL2] effectiveShowPhoto=', effectiveShowPhoto, '(policy:', photoPolicy, ')');
@@ -141,9 +145,67 @@ export const NEXAL2PreviewPane: React.FC<NEXAL2PreviewPaneProps> = ({
         return buildScene(nexal2Profile, nexal2Design);
     }, [nexal2Profile, nexal2Design]);
 
-    // Compute layout using constraints
+    // Compute layout using constraints with P1 auto font scaling
     const layout = useMemo(() => {
-        return computeLayout(scene, constraints as any);
+        const MIN_FONT_SCALE = 0.85; // Never go below 85% of original size
+        const MAX_FONT_SCALE = 1.10; // Can increase up to 110% if room
+        const FILL_RATIO_MIN = 0.85; // Target minimum fill ratio
+        const FILL_RATIO_TARGET = 0.92; // Ideal fill ratio
+        const MAX_ITERATIONS = 5;
+
+        // First pass: compute with default fontScale
+        let currentScale = constraints.fontScale ?? 1.0;
+        let currentLayout = computeLayout(scene, { ...constraints, fontScale: currentScale } as any);
+
+        // Check if auto-scaling could help
+        const meta = currentLayout.paginationMeta;
+        if (!meta) return currentLayout;
+
+        const fillRatio = meta.page1FillRatio ?? 1.0;
+        const pageCount = meta.pageCount;
+
+        // Case 1: Underfill - page 1 has too much white space AND content on next pages
+        if (fillRatio < FILL_RATIO_MIN && pageCount > 1) {
+            console.log(`[NEXAL2 AutoScale] P1: Underfill detected (${(fillRatio * 100).toFixed(1)}%), trying to reduce font...`);
+
+            // Binary search for optimal scale
+            let low = MIN_FONT_SCALE;
+            let high = currentScale;
+            let bestLayout = currentLayout;
+            let bestFillRatio = fillRatio;
+
+            for (let i = 0; i < MAX_ITERATIONS && high - low > 0.01; i++) {
+                const mid = (low + high) / 2;
+                const testLayout = computeLayout(scene, { ...constraints, fontScale: mid } as any);
+                const testMeta = testLayout.paginationMeta;
+                const testFillRatio = testMeta?.page1FillRatio ?? 1.0;
+
+                console.log(`[NEXAL2 AutoScale] Iter ${i}: scale=${mid.toFixed(3)}, fillRatio=${(testFillRatio * 100).toFixed(1)}%`);
+
+                if (testFillRatio > bestFillRatio && testFillRatio <= 0.98) {
+                    bestLayout = testLayout;
+                    bestFillRatio = testFillRatio;
+                }
+
+                if (testFillRatio < FILL_RATIO_TARGET) {
+                    // Still underfilled, try smaller font
+                    high = mid;
+                } else {
+                    // Good fill or overfilled, try larger font
+                    low = mid;
+                }
+            }
+
+            if (bestFillRatio > fillRatio) {
+                console.log(`[NEXAL2 AutoScale] ✓ Improved fill: ${(fillRatio * 100).toFixed(1)}% → ${(bestFillRatio * 100).toFixed(1)}%`);
+                return bestLayout;
+            }
+        }
+
+        // Case 2: Overfill potential - page 1 is full but tight, could increase font slightly
+        // (Future enhancement: check if increasing font would still fit)
+
+        return currentLayout;
     }, [scene, constraints]);
 
     // Overflow detection - P0 FIX: Only show overflow if pagination DID NOT fix it
@@ -264,13 +326,12 @@ export const NEXAL2PreviewPane: React.FC<NEXAL2PreviewPaneProps> = ({
         addToast('Pagination matrix completed - see console', 'success');
     }, [addToast]);
 
-    // Download PDF handler
+    // Download PDF handler (SINGLE EXPORT)
     const handleDownloadPDF = useCallback(async () => {
         setIsDownloading(true);
         setGeneratingPDF(true);
         try {
-            console.log(`[NEXAL2] Export PDF sig=${layoutSignature} region=${regionId} preset=${presetId}`);
-            const pdfDoc = <PDFRenderer layout={layout} title="CV-NEXAL2" layoutSignature={layoutSignature} margins={constraints.margins} />;
+            const pdfDoc = <PDFRenderer layout={layout} title="CV-NEXAL2" layoutSignature={layoutSignature} margins={constraints.margins} bulletStyle={design?.bulletStyle || 'disc'} />;
             const blob = await pdf(pdfDoc).toBlob();
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -290,7 +351,83 @@ export const NEXAL2PreviewPane: React.FC<NEXAL2PreviewPaneProps> = ({
             setIsDownloading(false);
             setGeneratingPDF(false);
         }
-    }, [layout, layoutSignature, profile, regionId, presetId, addToast, setGeneratingPDF]);
+    }, [layout, layoutSignature, profile, regionId, presetId, addToast, setGeneratingPDF, constraints.margins, design]);
+
+    // Download ALL PDFs as a single multi-page PDF (Matrix Export)
+    const [batchProgress, setBatchProgress] = useState<string | null>(null);
+    const handleDownloadAllPDFs = useCallback(async () => {
+        const allPresets = getPresetIds();
+        const allRegions = getRegionIds();
+        const total = allPresets.length * allRegions.length;
+
+        setIsDownloading(true);
+        setGeneratingPDF(true);
+        setBatchProgress(`Generating layouts...`);
+
+        const firstName = profile?.personal?.firstName || 'CV';
+        const lastName = profile?.personal?.lastName || '';
+
+        try {
+            console.log(`[NEXAL2] Matrix export: ${allPresets.length} presets × ${allRegions.length} regions = ${total} combinations`);
+
+            // Step 1: Generate all layouts first
+            const entries: Array<{ layout: LayoutTree; presetId: string; regionId: string }> = [];
+            let count = 0;
+
+            for (const preset of allPresets) {
+                for (const region of allRegions) {
+                    count++;
+                    setBatchProgress(`${count}/${total} layouts`);
+
+                    try {
+                        const batchConstraints = createConstraints({
+                            regionId: region,
+                            presetId: preset,
+                            sidebarPosition: design?.sidebarPosition || 'left',
+                        });
+
+                        const { profile: nexalProfile, design: nexalDesign } = mapAppToNexal2(profile || {}, design);
+                        const batchScene = buildScene(nexalProfile, nexalDesign);
+                        const batchLayout = computeLayout(batchScene, batchConstraints);
+
+                        entries.push({
+                            layout: batchLayout,
+                            presetId: preset,
+                            regionId: region,
+                        });
+                    } catch (err) {
+                        console.error(`[NEXAL2 Matrix] Failed ${preset}×${region}:`, err);
+                    }
+                }
+            }
+
+            // Step 2: Generate single PDF with all layouts
+            setBatchProgress(`Rendering PDF...`);
+            console.log(`[NEXAL2 Matrix] Generating PDF with ${entries.length} entries...`);
+
+            const matrixDoc = <MatrixPDFRenderer entries={entries} title={`CV-Matrix-${firstName}_${lastName}`} />;
+            const blob = await pdf(matrixDoc).toBlob();
+
+            // Step 3: Download
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${firstName}_${lastName}_MATRIX_${total}combinations.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            addToast(`PDF Matrix téléchargé (${entries.length} pages) !`, 'success');
+        } catch (error) {
+            console.error('[NEXAL2] Matrix export error:', error);
+            addToast('Erreur lors du téléchargement matrix', 'error');
+        } finally {
+            setIsDownloading(false);
+            setGeneratingPDF(false);
+            setBatchProgress(null);
+        }
+    }, [profile, design, addToast, setGeneratingPDF]);
 
     // Loading state
     if (!profile) {
@@ -422,6 +559,20 @@ export const NEXAL2PreviewPane: React.FC<NEXAL2PreviewPaneProps> = ({
                 >
                     📄⚡ Matrix+Paginate
                 </button>
+
+                {/* Batch PDF Export Button */}
+                <button
+                    onClick={handleDownloadAllPDFs}
+                    disabled={isDownloading}
+                    className="flex items-center gap-1 px-2 py-1 bg-rose-600/80 backdrop-blur-sm text-white text-[10px] rounded-full border border-rose-500 hover:bg-rose-500 disabled:opacity-50"
+                    title="Download ALL PDFs (6 presets × 6 regions = 36 files)"
+                >
+                    {batchProgress ? (
+                        <>📦 {batchProgress}</>
+                    ) : (
+                        <>📦 Export All PDFs</>
+                    )}
+                </button>
             </div>
 
             {/* Overflow Warning - Top Left */}
@@ -511,6 +662,7 @@ export const NEXAL2PreviewPane: React.FC<NEXAL2PreviewPaneProps> = ({
                             debug={false}
                             layoutSignature={layoutSignature}
                             margins={constraints.margins}
+                            bulletStyle={design?.bulletStyle || 'disc'}
                         />
                     </div>
                 </div>

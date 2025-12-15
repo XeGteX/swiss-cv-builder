@@ -72,7 +72,7 @@ const DEFAULT_OPTIONS: Required<PaginationOptions> = {
     minOrphans: 2,  // Keep at least 2 items with a section title
     minWidows: 1,   // Keep at least 1 item on new page
     keepTogetherThreshold: 3, // Try to keep up to 3 items together
-    repeatSidebarOnAllPages: false, // FIX P0: Sidebar only on page 1 by default
+    repeatSidebarOnAllPages: true, // P1 FIX: Sidebar on ALL pages for consistency
 };
 
 // Phase 4.8: Split scoring weights
@@ -136,6 +136,95 @@ function getKeepRule(node: LayoutNode): KeepRule {
 }
 
 // ============================================================================
+// FRAME NORMALIZATION
+// ============================================================================
+
+/**
+ * P0.6: Normalize all frame coordinates to ABSOLUTE within the tree.
+ * 
+ * This function traverses the layout tree and ensures all children have
+ * absolute coordinates (relative to the page root), not relative to their parent.
+ * 
+ * Root cause fix: The pagination logic assumes absolute coordinates,
+ * but computeLayout produces children with coordinates relative to their parent container.
+ * This mismatch causes incorrect endY calculations during pagination.
+ * 
+ * @param node - The layout node to normalize
+ * @param parentAbsX - Parent's absolute X position
+ * @param parentAbsY - Parent's absolute Y position
+ * @returns A new tree with all frames in absolute coordinates
+ */
+function absolutizeFrames(
+    node: LayoutNode,
+    parentAbsX: number = 0,
+    parentAbsY: number = 0
+): LayoutNode {
+    // Calculate this node's absolute position
+    const absX = parentAbsX + node.frame.x;
+    const absY = parentAbsY + node.frame.y;
+
+    // Recursively process children
+    const absolutizedChildren = node.children?.map(child => {
+        // Check if child coords look relative (small values compared to parent)
+        // If child.frame.y is much smaller than parent's height and starts from 0+,
+        // it's likely relative
+        const isLikelyRelative = child.frame.y < node.frame.height && child.frame.y >= 0;
+
+        if (isLikelyRelative) {
+            // Child uses relative coords - convert to absolute
+            return absolutizeFrames(child, absX, absY);
+        } else {
+            // Child already absolute - just recurse without offset
+            return absolutizeFrames(child, 0, 0);
+        }
+    });
+
+    return {
+        ...node,
+        frame: {
+            ...node.frame,
+            x: absX,
+            y: absY,
+        },
+        children: absolutizedChildren,
+    };
+}
+
+/**
+ * P0.6: Normalize the main container's children to absolute coordinates.
+ * 
+ * Only applies to the 'main' container since sidebar is typically single-level.
+ */
+function normalizeMainContainerFrames(page: LayoutNode): LayoutNode {
+    const mainContainer = page.children?.find(c => c.nodeId === 'main');
+    if (!mainContainer) return page;
+
+    // Get main container's position within the page
+    const mainAbsX = mainContainer.frame.x;
+    const mainAbsY = mainContainer.frame.y;
+
+    // Absolutize all children within main
+    const absolutizedMainChildren = mainContainer.children?.map(child => {
+        // Each child's frame.y is relative to main, convert to absolute
+        return absolutizeFrames(child, mainAbsX, mainAbsY);
+    });
+
+    // Rebuild page with normalized main container
+    return {
+        ...page,
+        children: page.children?.map(container => {
+            if (container.nodeId === 'main') {
+                return {
+                    ...container,
+                    children: absolutizedMainChildren,
+                };
+            }
+            return container;
+        }),
+    };
+}
+
+// ============================================================================
 // MAIN PAGINATION FUNCTION
 // ============================================================================
 
@@ -161,6 +250,9 @@ export function paginateLayout(
     const firstPage = layout.pages[0];
     if (!firstPage) return layout;
 
+    // P0.10 DEBUG: Log what containers are in firstPage
+    console.log('[NEXAL2 Pagination] P0.10 DEBUG - firstPage containers:', firstPage.children?.map(c => c.nodeId));
+
     // Get paper dimensions and frames
     const paper = layout.bounds;
     const frames = (constraints as any).frames;
@@ -179,6 +271,9 @@ export function paginateLayout(
     if (!mainContainer || !mainContainer.children?.length) {
         return layout; // No main content to paginate
     }
+
+    // NOTE: P0.6 normalization was causing double-counting of offsets
+    // The fix is in findBestPageEnd's orphan prevention logic instead
 
     // Analyze content and gather split candidates with keep rules
     // Phase 5.4: Pass availableHeight to enable oversized section expansion
@@ -246,6 +341,12 @@ export function paginateLayout(
     // Phase 4.9: Generate per-page parity signatures
     const pageSignatures = paginationResult.pages.map(page => computePageSignature(page));
 
+    // P1: Calculate page 1 fill ratio for auto font scaling
+    const page1SplitY = paginationResult.splitPoints[0] ?? totalHeight;
+    const page1FillRatio = availableHeight > 0 ? Math.min(1.0, page1SplitY / availableHeight) : 1.0;
+
+    console.log(`[NEXAL2 Pagination] P1: Page 1 fill ratio: ${(page1FillRatio * 100).toFixed(1)}% (${page1SplitY.toFixed(1)}pt / ${availableHeight.toFixed(1)}pt)`);
+
     // Build new layout tree with per-page bounds and paginationMeta
     return {
         ...layout,
@@ -262,6 +363,8 @@ export function paginateLayout(
             splitPoints: paginationResult.splitPoints,
             warnings: paginationResult.warnings,
             pageSignatures,
+            page1FillRatio,
+            appliedFontScale: constraints.fontScale ?? 1.0,
         },
     };
 }
@@ -558,6 +661,15 @@ function splitIntoPages(
     const splitPoints: number[] = [];
     const warnings: PaginationWarning[] = [];
 
+    // P0.12: Calculate available height for continuation pages (no header)
+    const hasHeader = frames?.header || frames?.headerLeft;
+    const headerHeight = frames?.header?.height || frames?.headerLeft?.height || 0;
+    const continuationAvailableHeight = hasHeader
+        ? availableHeight + headerHeight
+        : availableHeight;
+
+    console.log(`[NEXAL2 Pagination] P0.12: Page 1 height=${availableHeight.toFixed(0)}pt, Page 2+ height=${continuationAvailableHeight.toFixed(0)}pt (header=${headerHeight.toFixed(0)}pt)`);
+
     // P0.1: Work with a mutable copy of candidates that can be expanded by splits
     let workingCandidates = [...candidates];
 
@@ -566,13 +678,16 @@ function splitIntoPages(
     let contentOffsetY = 0; // Cumulative Y offset from original content
 
     while (startIndex < workingCandidates.length) {
+        // Use different available height for page 1 vs pages 2+
+        const pageAvailableHeight = pageIndex === 0 ? availableHeight : continuationAvailableHeight;
+
         // P0.1: Pre-process - check if the NEXT candidate that overflows can be split
         // This allows fitting partial content on the current page
         const splitResult = trySplitOverflowingCandidate(
             workingCandidates,
             startIndex,
             contentOffsetY,
-            availableHeight
+            pageAvailableHeight
         );
 
         if (splitResult.didSplit) {
@@ -586,7 +701,7 @@ function splitIntoPages(
             workingCandidates,
             startIndex,
             contentOffsetY,
-            availableHeight,
+            pageAvailableHeight,
             opts
         );
 
@@ -938,59 +1053,188 @@ function findBestPageEnd(
         };
     }
 
-    // Phase 4.8: Score each candidate split point
-    let bestScore = -Infinity;
-    let bestSplitIndex = lastFitIndex;
+    // P0.7 SIMPLIFIED ALGORITHM: Use last fitting item as split point (fill until overflow)
+    // Remove complex scoring that caused underfill by choosing early split points
+    let bestSplitIndex = updatedLastFitIndex;
 
-    for (const splitIndex of fittingIndices) {
-        const score = scoreSplitPoint(candidates, splitIndex, startIndex, lastFitIndex, opts);
-        if (score > bestScore) {
-            bestScore = score;
-            bestSplitIndex = splitIndex;
-        }
-    }
-
-    // P0 FIX: minStartHeight logic for keepWithNext
-    // If the best split point is a title (keepWithNext), check if title + next item fits
-    // If so, INCLUDE both on current page. Only push to next if combined height doesn't fit.
-    const splitCandidate = candidates[bestSplitIndex];
-    if (splitCandidate.keepRule === 'keepWithNext' && bestSplitIndex + 1 < candidates.length) {
-        const nextCandidate = candidates[bestSplitIndex + 1];
-        const titlePlusNextEndY = nextCandidate.endY - contentOffsetY;
-
-        if (titlePlusNextEndY <= availableHeight) {
-            // Title + next item fits on current page - INCLUDE both (extend split point)
-            bestSplitIndex = bestSplitIndex + 1;
-            console.log(`[NEXAL2 Pagination] P0 minStartHeight: including title+next on current page (${splitCandidate.node.nodeId})`);
-        } else {
-            // P0.5 FIX: Only move title to next page if NO content after it fits on current page
-            // Check if any items AFTER the title exist in fittingIndices
-            const contentAfterTitle = fittingIndices.filter(idx => idx > bestSplitIndex);
-            if (contentAfterTitle.length > 0) {
-                // There IS content after the title that fits - keep the title AND that content
-                // Use the last fitting item after the title as the split point
-                bestSplitIndex = contentAfterTitle[contentAfterTitle.length - 1];
-                console.log(`[NEXAL2 Pagination] P0.5: Keeping title + ${contentAfterTitle.length} items that fit (${splitCandidate.node.nodeId})`);
-            } else if (bestSplitIndex > startIndex) {
-                // No content after title fits - move title to next page (original orphan prevention)
+    // Simple orphan prevention: if the LAST fitting item is a title (keepWithNext),
+    // check if we're truly at an orphan situation (no content fits after title)
+    const lastFitCandidate = candidates[bestSplitIndex];
+    if (lastFitCandidate.keepRule === 'keepWithNext' || lastFitCandidate.isSectionTitle) {
+        // Is there content after this title that could have fit but didn't?
+        // If so, move the title to the next page
+        const nextIndex = bestSplitIndex + 1;
+        if (nextIndex < candidates.length) {
+            const nextEndY = candidates[nextIndex].endY - contentOffsetY;
+            if (nextEndY > availableHeight && bestSplitIndex > startIndex) {
+                // Next item doesn't fit, and title is at end of page = orphan
+                // Move title to next page
                 bestSplitIndex = bestSplitIndex - 1;
+                console.log(`[NEXAL2 Pagination] P0.7 Orphan prevention: moved title ${lastFitCandidate.node.nodeId} to next page`);
                 pageWarnings.push({
                     code: 'ORPHAN_TITLE',
-                    nodeId: splitCandidate.node.nodeId,
-                    nodeType: splitCandidate.node.nodeType,
-                    message: `Moved title to next page to prevent orphan: ${splitCandidate.node.nodeId}`,
+                    nodeId: lastFitCandidate.node.nodeId,
+                    nodeType: lastFitCandidate.node.nodeType,
+                    message: `Moved title to next page to prevent orphan: ${lastFitCandidate.node.nodeId}`,
                 });
-                console.log(`[NEXAL2 Pagination] Orphan prevention: moved ${splitCandidate.node.nodeId} to next page`);
             }
         }
     }
 
-    // Apply widow rule
-    const remainingItems = candidates.length - bestSplitIndex - 1;
-    if (remainingItems < opts.minWidows && bestSplitIndex > startIndex) {
-        bestSplitIndex = Math.max(startIndex, bestSplitIndex - (opts.minWidows - remainingItems));
-        console.log(`[NEXAL2 Pagination] Widow prevention: adjusted split to index ${bestSplitIndex}`);
+    // P0.8: Section item group handling - keep ENTIRE item together
+    // Applies to BOTH experience AND education items
+    // BUT only if the item can fit on a single page!
+    const lastCandidate = candidates[bestSplitIndex];
+    const nodeId = lastCandidate.node.nodeId;
+
+    // Check if this is ANY part of an experience OR education item (including tasks/details)
+    const sectionItemMatch = nodeId.match(/main\.(experience|education)\.item-(\d+)/);
+
+    if (sectionItemMatch && bestSplitIndex > startIndex) {
+        const sectionType = sectionItemMatch[1]; // 'experience' or 'education'
+        const currentItemIndex = sectionItemMatch[2];
+
+        // Check if this is a complete item (last task/detail or the container itself)
+        // It's incomplete if it's role, header, or a task that isn't the last one
+        const isRoleOrHeader = nodeId.match(/\.item-\d+\.(role|header)$/) !== null;
+        const isTask = nodeId.match(/\.item-\d+\.(task|detail)-(\d+)$/) !== null;
+
+        // Find if there are more tasks/details for this item after the split point
+        let hasMoreTasksAfterSplit = false;
+        if (isTask) {
+            for (let i = bestSplitIndex + 1; i < candidates.length; i++) {
+                const nextNodeId = candidates[i].node.nodeId;
+                // Check for more tasks in this item (experience or education)
+                if (nextNodeId.includes(`main.${sectionType}.item-${currentItemIndex}.task-`) ||
+                    nextNodeId.includes(`main.${sectionType}.item-${currentItemIndex}.detail-`)) {
+                    hasMoreTasksAfterSplit = true;
+                    break;
+                }
+                // If we hit a different item or section, stop
+                if (!nextNodeId.includes(`item-${currentItemIndex}`)) {
+                    break;
+                }
+            }
+        }
+
+        const isIncomplete = isRoleOrHeader || hasMoreTasksAfterSplit;
+
+        if (isIncomplete) {
+            // P0.8 FIX: Calculate the TOTAL height of this item
+            // Only move it if it can reasonably fit on a fresh page
+            let itemStartY = 0;
+            let itemEndY = 0;
+            for (const candidate of candidates) {
+                if (candidate.node.nodeId.includes(`main.${sectionType}.item-${currentItemIndex}`)) {
+                    if (itemStartY === 0) itemStartY = candidate.startY;
+                    itemEndY = candidate.endY;
+                }
+            }
+            const itemHeight = itemEndY - itemStartY;
+
+            // P0.8 v3: Two conditions must be met to move item:
+            // 1. Item can fit on next page (< 70% of page height)
+            // 2. Moving it won't create a huge void (> 30% of page)
+            // Increased from 15% to 30% to better keep items together
+            const canFitOnNextPage = itemHeight < availableHeight * 0.7;
+
+            // Calculate how much void moving this would create
+            // IMPORTANT: Use RELATIVE coordinates (subtract contentOffsetY for pages 2+)
+            const previousItem = candidates[bestSplitIndex - 1];
+            const previousItemEndRelative = previousItem ? (previousItem.endY - contentOffsetY) : 0;
+            const voidHeight = availableHeight - previousItemEndRelative;
+            const voidRatio = voidHeight / availableHeight;
+
+            // Only move if void is < 30% (increased from 15% to prevent orphan tasks)
+            const wouldCreateAcceptableVoid = voidRatio < 0.30;
+
+            if (canFitOnNextPage && wouldCreateAcceptableVoid) {
+                // Move back to before this item starts
+                let previousCompleteIndex = bestSplitIndex - 1;
+                while (previousCompleteIndex > startIndex) {
+                    const prevNodeId = candidates[previousCompleteIndex].node.nodeId;
+                    // Stop when we find something that's NOT part of this item
+                    if (!prevNodeId.includes(`main.${sectionType}.item-${currentItemIndex}`)) {
+                        break;
+                    }
+                    previousCompleteIndex--;
+                }
+
+                console.log(`[NEXAL2 Pagination] P0.8: ${sectionType} item-${currentItemIndex} (${itemHeight.toFixed(0)}pt) can fit on next page, void=${(voidRatio * 100).toFixed(0)}%, moving back to index ${previousCompleteIndex}`);
+                bestSplitIndex = previousCompleteIndex;
+                pageWarnings.push({
+                    code: 'ORPHAN_TITLE',
+                    nodeId: nodeId,
+                    nodeType: lastCandidate.node.nodeType,
+                    message: `P0.8: Kept ${sectionType} item-${currentItemIndex} together`,
+                });
+            } else if (!canFitOnNextPage) {
+                console.log(`[NEXAL2 Pagination] P0.8: ${sectionType} item-${currentItemIndex} (${itemHeight.toFixed(0)}pt) TOO BIG for page (${availableHeight.toFixed(0)}pt), allowing split`);
+            } else {
+                console.log(`[NEXAL2 Pagination] P0.8: ${sectionType} item-${currentItemIndex} - moving would create ${(voidRatio * 100).toFixed(0)}% void, allowing split instead`);
+            }
+        }
     }
+
+    // P0.11: Orphan prevention - include ALL items that fit
+    // Loop to include as many trailing items as possible
+    // This prevents things like "diplome 2" being alone on page 3
+    let p011Extended = false;
+    const p011StartIndex = bestSplitIndex; // Remember where we started
+    while (bestSplitIndex < candidates.length - 1) {
+        const nextItem = candidates[bestSplitIndex + 1];
+        const currentSplitY = candidates[bestSplitIndex].endY;
+        const nextItemHeight = nextItem.endY - nextItem.startY;
+        const usedSpace = currentSplitY - contentOffsetY;
+        const remainingSpace = availableHeight - usedSpace;
+
+        // Check if next item would fit in remaining space (with 5pt padding)
+        if (nextItemHeight + 5 <= remainingSpace) {
+            console.log(`[NEXAL2 Pagination] P0.11: Including ${nextItem.node.nodeId} (${nextItemHeight.toFixed(0)}pt) in remaining space (${remainingSpace.toFixed(0)}pt)`);
+            bestSplitIndex++;
+            p011Extended = true;
+        } else {
+            // Next item doesn't fit exactly - check if we can squeeze it with small overflow
+            const overflowNeeded = nextItemHeight - remainingSpace;
+            const overflowPercent = overflowNeeded / availableHeight;
+
+            // P0.11 v3: NO overflow allowed - just stop when items don't fit
+            // This prevents content from being visually clipped
+            break; // Stop trying to extend
+        }
+    }
+    
+    // P0.13: Check if P0.11 left us at a bad split point (role/header without tasks)
+    // This would create orphan titles like "Poste numéro 4 / Entreprise numéro 4" alone at page end
+    if (p011Extended) {
+        const finalNodeId = candidates[bestSplitIndex].node.nodeId;
+        const isOrphanTitle = finalNodeId.match(/\.(role|header)$/) !== null;
+        
+        if (isOrphanTitle) {
+            // Check if the next item (task-0) can also fit with aggressive overflow
+            const nextItem = candidates[bestSplitIndex + 1];
+            if (nextItem) {
+                const currentSplitY = candidates[bestSplitIndex].endY;
+                const nextItemHeight = nextItem.endY - nextItem.startY;
+                const usedSpace = currentSplitY - contentOffsetY;
+                const remainingSpace = availableHeight - usedSpace;
+                const overflowNeeded = nextItemHeight - remainingSpace;
+                const overflowPercent = overflowNeeded / availableHeight;
+                
+                // P0.13: Don't allow overflow, just rollback to avoid orphan title
+                // Task doesn't fit - rollback P0.11 extension to avoid orphan title at page end
+                console.log(`[NEXAL2 Pagination] P0.13: Rolling back to avoid orphan title at ${finalNodeId}`);
+                bestSplitIndex = p011StartIndex;
+                p011Extended = false;
+            }
+        }
+    }
+    
+    if (p011Extended) {
+        console.log(`[NEXAL2 Pagination] P0.11: Extended split to index ${bestSplitIndex}`);
+    }
+
+    console.log(`[NEXAL2 Pagination] P0.7: Split at index ${bestSplitIndex} (${candidates[bestSplitIndex]?.node.nodeId})`);
 
     return {
         endIndex: bestSplitIndex,
@@ -1142,27 +1386,61 @@ function createPageNode(
     // Clone containers from first page, replacing main's children
     const pageChildren: LayoutNode[] = [];
 
+    // P0.9: Calculate adjusted main frame for pages 2+ (no header)
+    // If there's a header on page 1 but not on continuation pages,
+    // main content should start higher on continuation pages
+    const hasHeader = frames?.header || frames?.headerLeft;
+    const headerHeight = frames?.header?.height || frames?.headerLeft?.height || 0;
+
+    // Adjusted main frame for continuation pages (header space reclaimed)
+    const continuationMainFrame = pageIndex > 0 && hasHeader
+        ? {
+            ...mainFrame,
+            y: mainFrame.y - headerHeight, // Move up by header height
+            height: mainFrame.height + headerHeight, // More space available
+        }
+        : mainFrame;
+
     for (const container of firstPage.children || []) {
         if (container.nodeId === 'main') {
             // Main container with paginated children
+            // Use adjusted frame for continuation pages
             pageChildren.push({
                 ...container,
-                frame: { ...mainFrame }, // Use original main frame position
+                frame: pageIndex === 0 ? { ...mainFrame } : { ...continuationMainFrame },
                 children: mainChildren,
             });
         } else if (container.nodeId === 'sidebar' && frames?.sidebar) {
-            // P0 FIX: Sidebar only on first page unless repeatSidebarOnAllPages is true
-            if (pageIndex === 0 || repeatSidebarOnAllPages) {
-                // Deep clone sidebar to prevent shared references
+            // P1 FIX: Page 1 = full sidebar, Page 2+ = background only (no repeated content)
+            if (pageIndex === 0) {
+                // Full sidebar with content on page 1
                 pageChildren.push(deepCloneNode(container));
+            } else if (repeatSidebarOnAllPages) {
+                // Page 2+: Sidebar background only (empty children)
+                pageChildren.push({
+                    ...container,
+                    nodeId: `sidebar-page-${pageIndex + 1}`,
+                    frame: { ...container.frame },
+                    computedStyle: { ...container.computedStyle },
+                    children: [], // Empty - just the background color
+                });
             }
         } else if (container.nodeId.startsWith('header') && pageIndex === 0) {
             // Header only on first page
+            console.log(`[NEXAL2 Pagination] P0.10 DEBUG - Adding header to page 1:`, container.nodeId, 'frame:', container.frame);
             pageChildren.push(deepCloneNode(container));
         } else if (container.nodeId.startsWith('leftRail') || container.nodeId.startsWith('rightRail')) {
-            // Rails: same logic as sidebar
-            if (pageIndex === 0 || repeatSidebarOnAllPages) {
+            // Rails: same logic as sidebar - background only on page 2+
+            if (pageIndex === 0) {
                 pageChildren.push(deepCloneNode(container));
+            } else if (repeatSidebarOnAllPages) {
+                pageChildren.push({
+                    ...container,
+                    nodeId: `${container.nodeId}-page-${pageIndex + 1}`,
+                    frame: { ...container.frame },
+                    computedStyle: { ...container.computedStyle },
+                    children: [],
+                });
             }
         }
     }

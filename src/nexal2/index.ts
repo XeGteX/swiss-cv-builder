@@ -24,7 +24,7 @@ export { computeLayout, measureText, paginateLayout } from './layout';
 
 // Renderers
 export { HTMLRenderer, EditableHTMLRenderer } from './renderers/html';
-export { PDFRenderer } from './renderers/pdf';
+export { PDFRenderer, MatrixPDFRenderer } from './renderers/pdf';
 
 // Hooks
 export { useNexal2 } from './hooks';
