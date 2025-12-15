@@ -125,10 +125,32 @@ export interface DesignConfig {
 
     // Phase 8: Element variants (chips, progress bars, etc.)
     elementVariants?: {
-        skills?: 'list' | 'horizontal' | 'chips' | 'grid' | 'progress';
-        languages?: 'list' | 'horizontal' | 'dots' | 'bars' | 'flags' | 'circles';
+        skills?: 'list' | 'horizontal' | 'chips' | 'grid' | 'progress' | 'ats-text';
+        languages?: 'list' | 'horizontal' | 'dots' | 'bars' | 'flags' | 'circles' | 'text-only' | 'pills';
         contact?: 'stacked' | 'inline' | 'icons';
     };
+
+    // PR#3: Block-level customization options
+    blockOptions?: {
+        contact?: {
+            iconMode?: 'none' | 'mono';
+            iconSize?: 12 | 14 | 16;
+            showLabels?: boolean;
+            layout?: 'inline' | 'stacked';
+            iconColor?: string;
+        };
+        sectionTitle?: {
+            dividerStyle?: 'none' | 'line';
+            dividerWidth?: number;
+            dividerColor?: string;
+        };
+    };
+
+    // Premium Pack v1: Section title variants
+    sectionTitleVariant?: 'line' | 'minimal' | 'accent';
+
+    // Premium Pack v1: Content density control
+    density?: 'compact' | 'normal' | 'airy';
 }
 
 export interface NexalStudioState {
@@ -232,6 +254,14 @@ export const DEFAULT_DESIGN: DesignConfig = {
     photoScale: 2,
     // Phase 5.5: Default layout preset
     layoutPreset: 'SIDEBAR',
+    // Premium Pack v1: Defaults (preserve existing behavior)
+    sectionTitleVariant: 'line',
+    density: 'normal',
+    elementVariants: {
+        skills: 'chips',
+        languages: 'list',
+        contact: 'stacked',
+    },
 };
 
 /**

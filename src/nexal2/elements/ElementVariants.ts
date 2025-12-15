@@ -84,6 +84,13 @@ export const SKILL_VARIANTS: Record<string, ElementVariantConfig> = {
             showPercentage: { type: 'boolean', default: false },
         },
     },
+    'ats-text': {
+        id: 'ats-text',
+        name: 'ATS-Friendly',
+        description: 'Texte simple (comma-separated)',
+        elementTypes: ['skills'],
+        supports: ['html', 'pdf'],
+    },
 };
 
 // ============================================================================
@@ -138,6 +145,20 @@ export const LANGUAGE_VARIANTS: Record<string, ElementVariantConfig> = {
         options: {
             maxCircles: { type: 'number', default: 5 },
         },
+    },
+    'text-only': {
+        id: 'text-only',
+        name: 'ATS-Friendly',
+        description: 'Noms uniquement (comma-separated)',
+        elementTypes: ['languages'],
+        supports: ['html', 'pdf'],
+    },
+    pills: {
+        id: 'pills',
+        name: 'Pilules de Niveau',
+        description: 'Nom + niveau en badge (premium)',
+        elementTypes: ['languages'],
+        supports: ['html', 'pdf'],
     },
 };
 

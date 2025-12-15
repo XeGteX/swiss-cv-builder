@@ -22,8 +22,13 @@ export type SceneNodeType =
     | 'list'
     | 'listItem'
     | 'spacer'
-    | 'chip'        // Phase 8: Element variant for skills
-    | 'progressBar'; // Phase 8: Element variant for skills/languages
+    | 'chip'          // Phase 8: Element variant for skills
+    | 'progressBar'   // Phase 8: Element variant for skills/languages
+    | 'icon'          // PR#3: Vector icon for contact/UI elements
+    | 'sectionTitle'; // Premium Pack: Section title with variants
+
+/** PR#1: Zone identifier for layout debugging and contracts */
+export type LayoutZone = 'header' | 'sidebar' | 'main' | 'rail';
 
 export interface SceneStyle {
     // Typography
@@ -70,6 +75,12 @@ export interface SceneStyle {
     height?: number | 'auto';
     minHeight?: number;
     maxWidth?: number;
+    /** PR#2: Minimum width constraint (in pt) - prevents content collapse */
+    minWidth?: number;
+    /** PR#2: Maximum number of text lines (1 = no wrap) */
+    maxLines?: number;
+    /** PR#2: Fallback layout when minWidth can't be satisfied in row */
+    fallbackVariant?: 'datesBelow' | 'compact';
 }
 
 export interface SceneNode {
@@ -79,6 +90,8 @@ export interface SceneNode {
     content?: string;
     fieldPath?: string;
     style?: SceneStyle;
+    /** PR#1: Explicit zone assignment (header/sidebar/main/rail) */
+    zone?: LayoutZone;
 }
 
 export interface SceneDocument {
@@ -118,8 +131,12 @@ export interface ComputedStyle {
     borderStyle?: 'solid' | 'dashed' | 'dotted' | 'none';
     borderWidth?: number;
     borderColor?: string;
-    // Spacing
+    borderRadius?: number; // Premium Pack: for accent variant pills
+    // Spacing (all in pt)
+    paddingTop?: number;
     paddingBottom?: number;
+    paddingLeft?: number;
+    paddingRight?: number;
     marginBottom?: number;
 }
 
@@ -131,13 +148,23 @@ export interface LayoutNode {
     computedStyle: ComputedStyle;
     content?: string;
     fieldPath?: string;
+    /** Icon name for nodeType='icon' - for inspector display */
+    iconName?: IconName;
     /** P0: Split text info for pagination */
     splitInfo?: {
         partIndex: number;
         totalParts: number;
         originalNodeId: string;
     };
+    /** PR#1: Zone from SceneNode (header/sidebar/main/rail) */
+    zone?: LayoutZone;
+    /** PR#1: Overflow flags - true if content exceeds frame bounds */
+    overflowX?: boolean;
+    overflowY?: boolean;
 }
+
+/** Icon names supported by the icon nodeType */
+export type IconName = 'phone' | 'email' | 'location' | 'link' | 'linkedin' | 'github';
 
 export interface LayoutConstraints {
     paperFormat: 'A4' | 'LETTER';
@@ -149,6 +176,12 @@ export interface LayoutConstraints {
     fontScale?: number;
 }
 
+/** PR#1: Pure layout options passed to computeLayout */
+export interface LayoutOptions {
+    /** Enable debug mode - populates overflow flags and debugMeta */
+    debug?: boolean;
+}
+
 export interface LayoutTree {
     pages: LayoutNode[];
     bounds: {
@@ -158,6 +191,20 @@ export interface LayoutTree {
     constraints: LayoutConstraints;
     /** Phase 4.9: Pagination metadata */
     paginationMeta?: PaginationMeta;
+    /** PR#1: Debug metrics (populated when options.debug=true) */
+    debugMeta?: LayoutTreeDebugMeta;
+}
+
+/** PR#1: Debug metrics for layout diagnostics */
+export interface LayoutTreeDebugMeta {
+    /** Fill ratio of page 1 content (0.0-1.0) */
+    fillRatio: number;
+    /** Count of nodes with overflow flags */
+    overflowCount: number;
+    /** Count of overlapping node pairs detected */
+    overlapCount: number;
+    /** Total node count */
+    totalNodes: number;
 }
 
 /** Phase 4.9: Pagination metadata attached to LayoutTree */
@@ -231,12 +278,12 @@ export const DEFAULT_NEXAL_THEME = {
 
 /**
  * Phase 5.3: Get scaled theme based on photoScale (1|2|3).
- * Scales typography and spacing globally.
+ * PR#4: Now respects separate density for spacing/lineHeight.
  */
-export function getScaledTheme(photoScale: 1 | 2 | 3 = 2) {
-    // Scale factors: 1 = 1.0, 2 = 1.12, 3 = 1.25
-    const factors = { 1: 1.0, 2: 1.12, 3: 1.25 } as const;
-    const factor = factors[photoScale] ?? 1.12;
+export function getScaledTheme(photoScale: 1 | 2 | 3 = 2, density: 'compact' | 'normal' | 'airy' = 'normal') {
+    // PR#4: photoScale only affects photo sizing (handled elsewhere)
+    // density controls typography and spacing
+    const densityFactors = getDensityFactors(density);
 
     const base = DEFAULT_NEXAL_THEME;
 
@@ -245,19 +292,43 @@ export function getScaledTheme(photoScale: 1 | 2 | 3 = 2) {
         sidebarWidth: base.sidebarWidth,
         sidebarGap: base.sidebarGap,
         fontSize: {
-            name: Math.round(base.fontSize.name * factor),
-            title: Math.round(base.fontSize.title * factor),
-            sectionTitle: Math.round(base.fontSize.sectionTitle * factor),
-            body: Math.round(base.fontSize.body * factor),
-            small: Math.round(base.fontSize.small * factor),
+            name: Math.round(base.fontSize.name * densityFactors.fontSize),
+            title: Math.round(base.fontSize.title * densityFactors.fontSize),
+            sectionTitle: Math.round(base.fontSize.sectionTitle * densityFactors.fontSize),
+            body: Math.round(base.fontSize.body * densityFactors.fontSize),
+            small: Math.round(base.fontSize.small * densityFactors.fontSize),
         },
-        lineHeight: base.lineHeight,
+        lineHeight: base.lineHeight * densityFactors.lineHeight,
         spacing: {
-            sectionMargin: Math.round(base.spacing.sectionMargin * factor),
-            itemMargin: Math.round(base.spacing.itemMargin * factor),
-            subsectionMargin: Math.round(base.spacing.subsectionMargin * factor),
+            sectionMargin: Math.round(base.spacing.sectionMargin * densityFactors.spacing),
+            itemMargin: Math.round(base.spacing.itemMargin * densityFactors.spacing),
+            subsectionMargin: Math.round(base.spacing.subsectionMargin * densityFactors.spacing),
         },
     };
+}
+
+// ============================================================================
+// PR#4: DENSITY CONTROL
+// ============================================================================
+
+/**
+ * PR#4: Density levels for spacing/typography control.
+ * Note: Re-exported from constraints/regions.ts for consistency.
+ */
+export type { Density } from './constraints/regions';
+
+const DENSITY_FACTORS = {
+    compact: { spacing: 0.75, lineHeight: 0.90, gap: 0.7, fontSize: 0.95 },
+    normal: { spacing: 1.0, lineHeight: 1.0, gap: 1.0, fontSize: 1.0 },
+    airy: { spacing: 1.3, lineHeight: 1.15, gap: 1.3, fontSize: 1.0 },
+} as const;
+
+/**
+ * PR#4: Get density scaling factors.
+ * Used to decouple spacing/lineHeight from photoScale.
+ */
+export function getDensityFactors(density: 'compact' | 'normal' | 'airy' = 'normal') {
+    return DENSITY_FACTORS[density];
 }
 
 // ============================================================================

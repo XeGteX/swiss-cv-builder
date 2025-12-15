@@ -80,11 +80,13 @@ export const PersonalTab: React.FC = () => {
         return NATIONALITIES.filter(n => n.toLowerCase().includes(lower)).slice(0, 8);
     }, [nationalityInput]);
 
-    if (!profile || !profile.personal || !profile.metadata) {
+    if (!profile || !profile.personal) {
         return <div className="p-4 text-slate-400">{ts('common.loading')}</div>;
     }
 
-    const { personal, metadata } = profile;
+    const { personal } = profile;
+    // Default metadata if not present to avoid stuck loading
+    const metadata = profile.metadata || {};
 
     const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

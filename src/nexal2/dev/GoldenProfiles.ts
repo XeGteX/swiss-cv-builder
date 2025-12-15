@@ -465,6 +465,71 @@ export const GOLDEN_PROFILES: GoldenProfile[] = [
             languages: [{ name: 'English', level: 'Native' }],
         },
     },
+
+    // 13. GOLDEN_SENIOR - Realistic 1-page senior developer (Premium Pack target)
+    {
+        name: 'GOLDEN_SENIOR',
+        description: 'Realistic 1-page senior developer CV for premium visual testing',
+        data: {
+            id: 'golden-senior',
+            personal: {
+                firstName: 'Alexandre',
+                lastName: 'Dumont',
+                title: 'Développeur Full-Stack Senior',
+                contact: {
+                    email: 'alexandre.dumont@proton.me',
+                    phone: '+33 6 45 78 92 31',
+                    linkedin: 'linkedin.com/in/adumont',
+                },
+                address: 'Paris, France',
+                summary: 'Développeur full-stack passionné avec 8 ans d\'expérience dans la création d\'applications web performantes. Expert React et Node.js, j\'accompagne les équipes dans la mise en place d\'architectures modernes et scalables.',
+                photo: 'PLACEHOLDER_PHOTO',
+            },
+            experiences: [
+                {
+                    company: 'Doctolib',
+                    role: 'Lead Developer',
+                    startDate: '2021-03',
+                    endDate: 'Present',
+                    tasks: [
+                        'Direction technique d\'une équipe de 6 développeurs sur le module agenda',
+                        'Migration de l\'architecture monolithique vers microservices (Node.js, Kubernetes)',
+                        'Réduction du temps de chargement de 40% via l\'optimisation React et lazy loading',
+                    ],
+                },
+                {
+                    company: 'BlaBlaCar',
+                    role: 'Senior Frontend Developer',
+                    startDate: '2018-06',
+                    endDate: '2021-02',
+                    tasks: [
+                        'Développement de la nouvelle interface de réservation (React, TypeScript)',
+                        'Mise en place de tests automatisés avec Cypress et Jest (+85% couverture)',
+                        'Mentorat de 3 développeurs juniors',
+                    ],
+                },
+                {
+                    company: 'Freelance',
+                    role: 'Développeur Web',
+                    startDate: '2016-01',
+                    endDate: '2018-05',
+                    tasks: [
+                        'Création de sites e-commerce pour PME (Shopify, WooCommerce)',
+                        'Développement d\'applications sur mesure en React et Node.js',
+                    ],
+                },
+            ],
+            educations: [
+                { school: 'École 42 Paris', degree: 'Architecte Logiciel', year: '2016' },
+                { school: 'Université Paris-Saclay', degree: 'Licence Informatique', year: '2014' },
+            ],
+            skills: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Docker', 'Kubernetes', 'AWS', 'GraphQL'],
+            languages: [
+                { name: 'Français', level: 'Natif' },
+                { name: 'Anglais', level: 'Courant (C1)' },
+            ],
+        },
+    },
 ];
 
 export default GOLDEN_PROFILES;

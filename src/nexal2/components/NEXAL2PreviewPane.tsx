@@ -68,6 +68,13 @@ export const NEXAL2PreviewPane: React.FC<NEXAL2PreviewPaneProps> = ({
     const [scale, setScale] = useState(initialScale);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+    // PR#1: Debug mode from URL query param
+    const debugLayout = useMemo(() => {
+        if (typeof window === 'undefined') return false;
+        const params = new URLSearchParams(window.location.search);
+        return params.get('debugLayout') === '1';
+    }, []);
+
     // Chameleon state (region + preset)
     const [regionId, setRegionId] = useState<RegionId>('FR');
     const [presetId, setPresetId] = useState<PresetId>('SIDEBAR');
@@ -155,7 +162,8 @@ export const NEXAL2PreviewPane: React.FC<NEXAL2PreviewPaneProps> = ({
 
         // First pass: compute with default fontScale
         let currentScale = constraints.fontScale ?? 1.0;
-        let currentLayout = computeLayout(scene, { ...constraints, fontScale: currentScale } as any);
+        // PR#1: Pass debug option to computeLayout
+        let currentLayout = computeLayout(scene, { ...constraints, fontScale: currentScale } as any, { debug: debugLayout });
 
         // Check if auto-scaling could help
         const meta = currentLayout.paginationMeta;
@@ -176,7 +184,7 @@ export const NEXAL2PreviewPane: React.FC<NEXAL2PreviewPaneProps> = ({
 
             for (let i = 0; i < MAX_ITERATIONS && high - low > 0.01; i++) {
                 const mid = (low + high) / 2;
-                const testLayout = computeLayout(scene, { ...constraints, fontScale: mid } as any);
+                const testLayout = computeLayout(scene, { ...constraints, fontScale: mid } as any, { debug: debugLayout });
                 const testMeta = testLayout.paginationMeta;
                 const testFillRatio = testMeta?.page1FillRatio ?? 1.0;
 
@@ -206,7 +214,7 @@ export const NEXAL2PreviewPane: React.FC<NEXAL2PreviewPaneProps> = ({
         // (Future enhancement: check if increasing font would still fit)
 
         return currentLayout;
-    }, [scene, constraints]);
+    }, [scene, constraints, debugLayout]);
 
     // Overflow detection - P0 FIX: Only show overflow if pagination DID NOT fix it
     const overflowInfo = useMemo(() => {
@@ -659,7 +667,7 @@ export const NEXAL2PreviewPane: React.FC<NEXAL2PreviewPaneProps> = ({
                         <EditableHTMLRenderer
                             layout={layout}
                             scale={scale}
-                            debug={false}
+                            debug={debugLayout}
                             layoutSignature={layoutSignature}
                             margins={constraints.margins}
                             bulletStyle={design?.bulletStyle || 'disc'}

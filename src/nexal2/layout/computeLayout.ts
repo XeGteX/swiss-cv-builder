@@ -19,6 +19,9 @@ import type {
     LayoutFrame,
     ComputedStyle,
     TextMeasurement,
+    LayoutOptions,
+    LayoutZone,
+    LayoutTreeDebugMeta,
 } from '../types';
 import { DEFAULT_NEXAL_THEME, PAPER_DIMENSIONS as PAPER } from '../types';
 import { paginateLayout } from './paginateLayout';
@@ -48,6 +51,7 @@ const DEFAULT_TEXT_STYLE: ComputedStyle = {
  *
  * @param scene - The scene document to layout
  * @param constraints - Layout constraints (can be ChameleonConstraints with frames/tokens)
+ * @param options - Optional layout options (debug mode, etc.)
  * @returns A complete LayoutTree with absolute positions
  * 
  * IMPORTANT: constraints.paper is the source of truth when present (ChameleonConstraints).
@@ -55,7 +59,8 @@ const DEFAULT_TEXT_STYLE: ComputedStyle = {
  */
 export function computeLayout(
     scene: SceneDocument,
-    constraints: LayoutConstraints
+    constraints: LayoutConstraints,
+    options: LayoutOptions = {}
 ): LayoutTree {
     // Use constraints.paper as source of truth (ChameleonConstraints)
     // Fallback to scene.paperFormat for legacy constraints
@@ -109,7 +114,14 @@ export function computeLayout(
     };
 
     // Phase 4.5: Apply pagination if content overflows
-    return paginateLayout(singlePageLayout, constraints);
+    const paginatedLayout = paginateLayout(singlePageLayout, constraints);
+
+    // PR#1: Compute debug metadata if debug mode enabled
+    if (options.debug) {
+        paginatedLayout.debugMeta = computeDebugMeta(paginatedLayout, paper.height);
+    }
+
+    return paginatedLayout;
 }
 
 // ============================================================================
@@ -302,6 +314,115 @@ function layoutPage(
 }
 
 // ============================================================================
+// CHIP CONTAINER LAYOUT (with wrap)
+// ============================================================================
+
+/**
+ * Layout a container with chip children using deterministic wrap logic.
+ * 
+ * CRITICAL: This replaces CSS flexWrap to ensure HTML matches PDF.
+ * Chips are placed left-to-right, wrapping to new lines when exceeding innerWidth.
+ * Container height = sum of all line heights + gaps.
+ */
+function layoutChipContainer(
+    node: SceneNode,
+    availableFrame: LayoutFrame,
+    constraints: LayoutConstraints,
+    parentStyle: ComputedStyle,
+    computedStyle: ComputedStyle
+): LayoutNode {
+    const style = node.style || {};
+    const paddingTop = style.paddingTop || 0;
+    const paddingBottom = style.paddingBottom || 0;
+    const paddingLeft = style.paddingLeft || 0;
+    const paddingRight = style.paddingRight || 0;
+    const gap = style.gap || 6; // Chip gap
+
+    const innerWidth = availableFrame.width - paddingLeft - paddingRight;
+
+    // First pass: measure all chips
+    const chipMeasurements: Array<{ child: SceneNode; width: number; height: number }> = [];
+    const CHIP_PADDING_H = 10;
+    const CHIP_PADDING_V = 4;
+
+    for (const child of node.children || []) {
+        if (child.type === 'chip') {
+            const childStyle = resolveComputedStyle(child.style, computedStyle);
+            const measurement = measureText(
+                child.content || '',
+                { fontSize: childStyle.fontSize, fontFamily: 'sans', lineHeight: 1.2 },
+                innerWidth - CHIP_PADDING_H * 2
+            );
+            const chipWidth = Math.min(measurement.width + CHIP_PADDING_H * 2, innerWidth);
+            const chipHeight = childStyle.fontSize * 1.2 + CHIP_PADDING_V * 2;
+            chipMeasurements.push({ child, width: chipWidth, height: chipHeight });
+        } else {
+            // Non-chip children get measured normally
+            const childStyle = resolveComputedStyle(child.style, computedStyle);
+            const measurement = measureText(
+                child.content || '',
+                { fontSize: childStyle.fontSize, fontFamily: 'sans', lineHeight: childStyle.lineHeight },
+                innerWidth
+            );
+            chipMeasurements.push({ child, width: innerWidth, height: measurement.height });
+        }
+    }
+
+    // Second pass: place chips with wrap
+    const positionedChildren: LayoutNode[] = [];
+    let currentX = paddingLeft;
+    let currentY = paddingTop;
+    let lineHeight = 0;
+
+    for (const { child, width, height } of chipMeasurements) {
+        // Check if chip fits on current line
+        if (currentX + width > paddingLeft + innerWidth && currentX > paddingLeft) {
+            // Wrap to new line
+            currentY += lineHeight + gap;
+            currentX = paddingLeft;
+            lineHeight = 0;
+        }
+
+        // Position this chip
+        const childStyle = resolveComputedStyle(child.style, computedStyle);
+        positionedChildren.push({
+            nodeId: child.id,
+            nodeType: child.type,
+            frame: {
+                x: currentX,
+                y: currentY,
+                width: width,
+                height: height,
+            },
+            computedStyle: childStyle,
+            content: child.content,
+            fieldPath: child.fieldPath,
+        });
+
+        // Update position for next chip
+        currentX += width + gap;
+        lineHeight = Math.max(lineHeight, height);
+    }
+
+    // Calculate total container height
+    const contentHeight = currentY + lineHeight - paddingTop + paddingBottom;
+    const containerHeight = paddingTop + contentHeight;
+
+    return {
+        nodeId: node.id,
+        nodeType: node.type,
+        frame: {
+            x: availableFrame.x,
+            y: availableFrame.y,
+            width: availableFrame.width,
+            height: containerHeight,
+        },
+        children: positionedChildren,
+        computedStyle,
+    };
+}
+
+// ============================================================================
 // CONTAINER LAYOUT
 // ============================================================================
 
@@ -325,6 +446,13 @@ function layoutContainer(
     const style = node.style || {};
     const computedStyle = resolveComputedStyle(style, parentStyle);
 
+    // CHIP WRAP FIX: Detect if this is a chip container (has chip children)
+    // If so, delegate to specialized wrap layout
+    const hasChipChildren = node.children?.some(c => c.type === 'chip');
+    if (hasChipChildren) {
+        return layoutChipContainer(node, availableFrame, constraints, parentStyle, computedStyle);
+    }
+
     const paddingTop = style.paddingTop || 0;
     const paddingBottom = style.paddingBottom || 0;
     const paddingLeft = style.paddingLeft || 0;
@@ -332,7 +460,7 @@ function layoutContainer(
     const gap = style.gap || DEFAULT_NEXAL_THEME.spacing.subsectionMargin;
 
     // Phase 5.2: Flex-like properties
-    const direction = style.direction || 'column';
+    let direction = style.direction || 'column';
     const alignItems = style.alignItems || 'start';
     const justifyContent = style.justifyContent || 'start';
 
@@ -340,8 +468,36 @@ function layoutContainer(
     const innerWidth = availableFrame.width - paddingLeft - paddingRight;
     const innerHeight = availableFrame.height - paddingTop - paddingBottom;
 
+    // PR#2: Check if any child has minWidth that can't be satisfied in a row layout
+    // If so, switch to column layout (datesBelow fallback)
+    if (direction === 'row' && node.children && node.children.length > 1) {
+        const childrenWithMinWidth = node.children.filter(c => c.style?.minWidth);
+        if (childrenWithMinWidth.length > 0) {
+            // Calculate minimum required width
+            const totalMinWidth = childrenWithMinWidth.reduce((sum, c) => sum + (c.style!.minWidth || 0), 0);
+            // Estimate other children need at least 100pt for readability
+            const otherChildrenCount = node.children.length - childrenWithMinWidth.length;
+            const minLeftWidth = 100; // Minimum width for left side content (role/company)
+            const requiredWidth = totalMinWidth + (otherChildrenCount * minLeftWidth) + gap * (node.children.length - 1);
+
+            // Check if any child has fallbackVariant='datesBelow'
+            const hasFallback = childrenWithMinWidth.some(c => c.style?.fallbackVariant === 'datesBelow');
+
+            if (requiredWidth > innerWidth && hasFallback) {
+                // Switch to column layout
+                direction = 'column';
+                console.log(`[NEXAL2] PR#2 Fallback: row→column for ${node.id} (need ${requiredWidth.toFixed(0)}pt, have ${innerWidth.toFixed(0)}pt)`);
+            }
+        }
+    }
+
     // First pass: layout all children to get their natural sizes
     const childLayouts: LayoutNode[] = [];
+    // First pass: Calculate fixed-width children (icons, explicit widths) to know remaining space
+    let fixedWidthUsed = 0;
+    let flexChildCount = 0;
+    const childSpecs: Array<{ child: SceneNode; fixedWidth?: number }> = [];
+
     for (const child of node.children || []) {
         // Skip empty text/listItem nodes early
         const isTextish = child.type === 'text' || child.type === 'listItem';
@@ -350,31 +506,70 @@ function layoutContainer(
             continue;
         }
 
-        // TASK 3 FIX: For row direction, estimate intrinsic width for text children
-        // instead of defaulting to full innerWidth which causes X overlap
+        // Determine if child has fixed width
+        let fixedWidth: number | undefined = undefined;
+
+        if (child.type === 'icon') {
+            // FIX: Icons are always fixed-size based on fontSize
+            const iconSize = child.style?.fontSize || 14;
+            fixedWidth = iconSize;
+        } else if (child.style?.width && typeof child.style.width === 'number') {
+            // Explicit width specified
+            fixedWidth = child.style.width;
+        }
+
+        if (fixedWidth !== undefined) {
+            fixedWidthUsed += fixedWidth;
+            childSpecs.push({ child, fixedWidth });
+        } else {
+            flexChildCount++;
+            childSpecs.push({ child });
+        }
+    }
+
+    // Calculate remaining width for flex children in row direction
+    const gapTotal = gap * Math.max(0, childSpecs.length - 1);
+    const remainingWidth = Math.max(0, innerWidth - fixedWidthUsed - gapTotal);
+    const perFlexChildWidth = flexChildCount > 0 ? remainingWidth / flexChildCount : innerWidth;
+
+    // Second pass: Layout children with correct widths
+    for (const spec of childSpecs) {
+        const child = spec.child;
+        const isTextish = child.type === 'text' || child.type === 'listItem';
+        const rawContent = (child.content ?? '');
+
         let childWidth: number;
         if (direction === 'row') {
-            if (child.style?.width && typeof child.style.width === 'number') {
-                // Explicit width specified
-                childWidth = child.style.width;
+            if (spec.fixedWidth !== undefined) {
+                // Fixed-width child (icon, explicit width)
+                childWidth = spec.fixedWidth;
             } else if (isTextish && rawContent.length > 0) {
-                // Estimate intrinsic width for text based on content
-                // Use measureText with a large maxWidth to get natural width
-                const fontSize = child.style?.fontSize ?? computedStyle.fontSize ?? 10;
-                const textMeasure = measureText(
-                    rawContent,
-                    { fontSize, fontFamily: computedStyle.fontFamily, lineHeight: computedStyle.lineHeight },
-                    innerWidth // max width for wrapping
-                );
-                // For row items, use actual measured width (clamped to inner)
-                childWidth = Math.min(textMeasure.width, innerWidth);
+                // FIX: Text in row gets remaining width, not shrink-to-fit
+                childWidth = perFlexChildWidth;
+            } else if (child.type === 'container') {
+                // Nested container gets remaining width
+                childWidth = perFlexChildWidth;
             } else {
-                // Non-text or empty: estimate based on content type
-                childWidth = innerWidth / 2; // Default to half for flex distribution
+                // Fallback for other types
+                childWidth = perFlexChildWidth;
+            }
+
+            // PR#2: Enforce minWidth constraint
+            if (child.style?.minWidth) {
+                childWidth = Math.max(childWidth, child.style.minWidth);
             }
         } else {
-            // Column direction: full width
-            childWidth = innerWidth;
+            // FIX: Column direction - children STRETCH to full width (default)
+            if (child.type === 'icon') {
+                // Icons keep their size in column too
+                const iconSize = child.style?.fontSize || 14;
+                childWidth = iconSize;
+            } else if (child.style?.width && typeof child.style.width === 'number') {
+                childWidth = child.style.width;
+            } else {
+                // Default: stretch to full width
+                childWidth = innerWidth;
+            }
         }
 
         const childLayout = layoutNode(
@@ -685,6 +880,52 @@ function layoutNode(
             };
         }
 
+        case 'icon': {
+            // Icon nodes - square size based on fontSize
+            const iconSize = computedStyle.fontSize || 14;
+            // content is the iconName (phone, email, location, link, linkedin, github)
+            const validIconNames = ['phone', 'email', 'location', 'link', 'linkedin', 'github'];
+            const iconName = validIconNames.includes(node.content || '')
+                ? (node.content as 'phone' | 'email' | 'location' | 'link' | 'linkedin' | 'github')
+                : 'link'; // fallback
+            return {
+                nodeId: node.id,
+                nodeType: node.type,
+                frame: {
+                    x: availableFrame.x,
+                    y: availableFrame.y,
+                    width: iconSize,
+                    height: iconSize,
+                },
+                computedStyle,
+                content: node.content,
+                iconName,
+            };
+        }
+
+        case 'sectionTitle': {
+            // Premium Pack: Section title layout
+            const measurement = measureText(
+                node.content || '',
+                { fontSize: computedStyle.fontSize, fontFamily: 'sans', lineHeight: computedStyle.lineHeight },
+                availableFrame.width
+            );
+            // Add padding height for accent variant
+            const paddingH = (computedStyle.paddingTop || 0) + (computedStyle.paddingBottom || 0);
+            return {
+                nodeId: node.id,
+                nodeType: node.type,
+                frame: {
+                    x: availableFrame.x,
+                    y: availableFrame.y,
+                    width: availableFrame.width,
+                    height: measurement.height + paddingH,
+                },
+                computedStyle,
+                content: node.content,
+            };
+        }
+
         default:
             return {
                 nodeId: node.id,
@@ -728,8 +969,13 @@ function resolveComputedStyle(
         borderStyle: style.borderStyle,
         borderWidth: style.borderWidth,
         borderColor: style.borderColor,
-        // Spacing (for section separator margins)
+        borderRadius: style.borderRadius, // Premium Pack: for accent variant pills
+        // Padding (Premium Pack: for accent variant)
+        paddingTop: style.paddingTop,
         paddingBottom: style.paddingBottom,
+        paddingLeft: style.paddingLeft,
+        paddingRight: style.paddingRight,
+        // Margin
         marginBottom: style.marginBottom,
     };
 }
@@ -992,6 +1238,155 @@ function mapFontFamily(family: string): string {
         case 'mono': return 'Courier New, Courier, monospace';
         default: return family || 'Helvetica, Arial, sans-serif';
     }
+}
+// ============================================================================
+// PR#1: DEBUG METADATA COMPUTATION
+// ============================================================================
+
+/** Leaf node types for overlap detection */
+const LEAF_TYPES = new Set(['text', 'icon', 'image', 'listItem', 'chip', 'progressBar']);
+
+/** Minimum intersection area (pt²) to count as overlap */
+const OVERLAP_AREA_THRESHOLD = 4; // 2pt × 2pt minimum
+
+interface OverlapPair {
+    nodeIdA: string;
+    nodeIdB: string;
+    intersectionArea: number;
+}
+
+/**
+ * Compute debug metrics from a LayoutTree.
+ * FIX: Only counts overlaps between sibling leaf nodes with area threshold.
+ */
+function computeDebugMeta(layout: LayoutTree, pageHeight: number): LayoutTreeDebugMeta {
+    let overflowCount = 0;
+    let totalNodes = 0;
+    let overlapCount = 0;
+    let page1ContentBottom = 0;
+    const topOverlaps: OverlapPair[] = [];
+
+    /**
+     * Find sibling leaf overlaps within a container.
+     * Only compares leaf children of the same parent.
+     */
+    function findSiblingOverlaps(children: LayoutNode[] | undefined, pageOffsetY: number): void {
+        if (!children || children.length < 2) return;
+
+        // Collect leaf children with absolute Y positions
+        const leafChildren: Array<{ node: LayoutNode; absY: number }> = [];
+        for (const child of children) {
+            if (LEAF_TYPES.has(child.nodeType)) {
+                leafChildren.push({ node: child, absY: child.frame.y + pageOffsetY });
+            }
+        }
+
+        // Compare leaf siblings only
+        for (let i = 0; i < leafChildren.length; i++) {
+            for (let j = i + 1; j < leafChildren.length; j++) {
+                const a = leafChildren[i];
+                const b = leafChildren[j];
+                const area = computeIntersectionArea(a.node.frame, b.node.frame);
+                if (area > OVERLAP_AREA_THRESHOLD) {
+                    overlapCount++;
+                    topOverlaps.push({
+                        nodeIdA: a.node.nodeId,
+                        nodeIdB: b.node.nodeId,
+                        intersectionArea: area,
+                    });
+                }
+            }
+        }
+
+        // Recurse into non-leaf children (containers)
+        for (const child of children) {
+            if (!LEAF_TYPES.has(child.nodeType) && child.children) {
+                findSiblingOverlaps(child.children, pageOffsetY);
+            }
+        }
+    }
+
+    function walkNode(node: LayoutNode, isPage1: boolean, pageOffsetY: number = 0): void {
+        totalNodes++;
+
+        // Check overflow flags
+        if (node.overflowX || node.overflowY) {
+            overflowCount++;
+        }
+
+        // Track content bottom for page 1 fill ratio
+        if (isPage1 && node.nodeType !== 'page') {
+            const nodeBottom = node.frame.y + node.frame.height;
+            page1ContentBottom = Math.max(page1ContentBottom, nodeBottom);
+        }
+
+        // Find sibling overlaps within this container
+        if (node.children) {
+            findSiblingOverlaps(node.children, pageOffsetY);
+        }
+
+        // Recurse into children
+        if (node.children) {
+            for (const child of node.children) {
+                walkNode(child, isPage1, pageOffsetY);
+            }
+        }
+    }
+
+    // Walk all pages
+    layout.pages.forEach((page, pageIndex) => {
+        const isPage1 = pageIndex === 0;
+        walkNode(page, isPage1, pageIndex * pageHeight);
+    });
+
+    // Sort and keep top 10 overlaps
+    topOverlaps.sort((a, b) => b.intersectionArea - a.intersectionArea);
+    const top10 = topOverlaps.slice(0, 10);
+
+    // Log top 10 overlaps for debugging
+    if (top10.length > 0) {
+        console.log('[NEXAL2 Debug] Top overlapping pairs:');
+        top10.forEach((pair, i) => {
+            console.log(`  ${i + 1}. ${pair.nodeIdA} ↔ ${pair.nodeIdB}: ${pair.intersectionArea.toFixed(1)}pt²`);
+        });
+    }
+
+    // Compute fill ratio for page 1
+    const page1Height = layout.pages[0]?.frame.height || pageHeight;
+    const fillRatio = Math.min(1, page1ContentBottom / page1Height);
+
+    return {
+        fillRatio,
+        overflowCount,
+        overlapCount,
+        totalNodes,
+    };
+}
+
+/**
+ * Compute intersection area between two frames.
+ * Returns 0 if no overlap.
+ */
+function computeIntersectionArea(a: LayoutFrame, b: LayoutFrame): number {
+    const left = Math.max(a.x, b.x);
+    const right = Math.min(a.x + a.width, b.x + b.width);
+    const top = Math.max(a.y, b.y);
+    const bottom = Math.min(a.y + a.height, b.y + b.height);
+
+    const width = right - left;
+    const height = bottom - top;
+
+    if (width > 0 && height > 0) {
+        return width * height;
+    }
+    return 0;
+}
+
+/**
+ * Check if two frames overlap (legacy - kept for compatibility).
+ */
+function framesOverlap(a: LayoutFrame, b: LayoutFrame): boolean {
+    return computeIntersectionArea(a, b) > OVERLAP_AREA_THRESHOLD;
 }
 
 export default computeLayout;

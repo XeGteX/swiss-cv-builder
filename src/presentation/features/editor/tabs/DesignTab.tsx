@@ -24,6 +24,8 @@ import {
     PanelLeft,
     PanelRight,
     Maximize2,
+    RotateCcw,
+    UserCircle,
 } from 'lucide-react';
 
 import { useDesign, useCVStoreV2 } from '../../../../application/store/v2';
@@ -41,6 +43,10 @@ import {
 
 import { MAGIC_PRESETS, PRESET_CATEGORIES, type PresetCategory } from '../../../../application/config/studio-presets';
 import { HEADER_STYLES_REGISTRY } from '../../../../application/config/header-styles';
+
+// GOLDEN_SENIOR fixture for demo
+import GOLDEN_PROFILES from '../../../../nexal2/dev/GoldenProfiles';
+const goldenSenior = GOLDEN_PROFILES.find(p => p.name === 'GOLDEN_SENIOR');
 
 // ============================================================================
 // COLLAPSIBLE SECTION (Dark Theme)
@@ -554,12 +560,77 @@ function VisualDetailsSection() {
         { id: 'check', label: 'Check', icon: '✓' },
     ] as const;
 
+    // Premium Pack: Section Title Variants
+    const sectionTitleVariants = [
+        { id: 'line', label: 'Ligne', icon: '━', description: 'Soulignement classique' },
+        { id: 'minimal', label: 'Minimal', icon: 'Aa', description: 'Texte seul' },
+        { id: 'accent', label: 'Accent', icon: '▮', description: 'Pilule premium' },
+    ] as const;
+
+    // Premium Pack: Density Controls
+    const densityOptions = [
+        { id: 'compact', label: 'Compact', icon: '▕▎▏', description: 'Dense, plus de contenu' },
+        { id: 'normal', label: 'Normal', icon: '▕ ▏', description: 'Équilibré' },
+        { id: 'airy', label: 'Aéré', icon: '▕  ▏', description: 'Espacé, lisible' },
+    ] as const;
+
     return (
         <CollapsibleSection
             title="Détails visuels"
             icon={<Sliders className="w-4 h-4" />}
             defaultOpen={false}
+            badge="PREMIUM"
         >
+            {/* Section Title Style - Premium Pack */}
+            <div className="mb-4">
+                <div className="text-[10px] text-slate-400 mb-2 font-medium uppercase tracking-wider flex items-center gap-2">
+                    Style des titres de section
+                    <span className="px-1 py-0.5 text-[8px] bg-gradient-to-r from-purple-500 to-pink-500 rounded text-white">NEW</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                    {sectionTitleVariants.map((variant) => (
+                        <button
+                            key={variant.id}
+                            onClick={() => setDesign({ sectionTitleVariant: variant.id })}
+                            className={`p-2 rounded-lg text-center transition-all flex flex-col items-center gap-1
+                                ${(design?.sectionTitleVariant || 'line') === variant.id
+                                    ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 ring-1 ring-purple-400/50'
+                                    : 'bg-white/5 hover:bg-white/10'
+                                }`}
+                        >
+                            <span className="text-lg">{variant.icon}</span>
+                            <span className="text-[10px] font-medium text-slate-200">{variant.label}</span>
+                            <span className="text-[8px] text-slate-500">{variant.description}</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Density Control - Premium Pack */}
+            <div className="mb-4">
+                <div className="text-[10px] text-slate-400 mb-2 font-medium uppercase tracking-wider flex items-center gap-2">
+                    Densité du contenu
+                    <span className="px-1 py-0.5 text-[8px] bg-gradient-to-r from-purple-500 to-pink-500 rounded text-white">NEW</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                    {densityOptions.map((option) => (
+                        <button
+                            key={option.id}
+                            onClick={() => setDesign({ density: option.id })}
+                            className={`p-2 rounded-lg text-center transition-all flex flex-col items-center gap-1
+                                ${(design?.density || 'normal') === option.id
+                                    ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 ring-1 ring-purple-400/50'
+                                    : 'bg-white/5 hover:bg-white/10'
+                                }`}
+                        >
+                            <span className="text-lg font-mono">{option.icon}</span>
+                            <span className="text-[10px] font-medium text-slate-200">{option.label}</span>
+                            <span className="text-[8px] text-slate-500">{option.description}</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
+
             {/* Section Line Style */}
             <div className="mb-4">
                 <div className="text-[10px] text-slate-400 mb-2 font-medium uppercase tracking-wider">
@@ -582,7 +653,7 @@ function VisualDetailsSection() {
                     ))}
                 </div>
 
-                {/* Section Line Color - NEW */}
+                {/* Section Line Color */}
                 <div className="mt-3 flex items-center gap-2">
                     <span className="text-[10px] text-slate-400">Couleur:</span>
                     <button
@@ -643,11 +714,6 @@ function VisualDetailsSection() {
                         </button>
                     ))}
                 </div>
-            </div>
-
-            {/* Density Hint */}
-            <div className="text-[10px] text-slate-400 text-center py-2 opacity-60">
-                💡 Ajuste la taille de police dans "Typographie" pour modifier la densité
             </div>
         </CollapsibleSection>
     );
@@ -712,12 +778,137 @@ function ElementStylesSection() {
 }
 
 // ============================================================================
+// 🧪 DEMO TOOLS SECTION (RC Finalization)
+// ============================================================================
+
+function DemoToolsSection() {
+    const setFullProfile = useCVStoreV2(state => state.setFullProfile);
+    const setDesign = useCVStoreV2(state => state.setDesign);
+    const design = useDesign();
+
+    const loadGoldenSenior = () => {
+        if (!goldenSenior) {
+            console.error('GOLDEN_SENIOR profile not found');
+            return;
+        }
+        setFullProfile(goldenSenior.data);
+        // Also set design to match GOLDEN_SENIOR defaults
+        setDesign({
+            layoutPreset: 'SIDEBAR',
+            accentColor: '#4F46E5',
+            fontPairing: 'sans',
+            showPhoto: true,
+            targetCountry: 'FR',
+            paperFormat: 'A4',
+        });
+    };
+
+    const resetPremiumDefaults = () => {
+        setDesign({
+            sectionTitleVariant: 'line',
+            density: 'normal',
+            elementVariants: {
+                ...design.elementVariants,
+                skills: 'chips',
+                languages: 'list',
+            },
+        });
+    };
+
+    const applyPremiumLook = () => {
+        setDesign({
+            sectionTitleVariant: 'accent',
+            density: 'airy',
+            elementVariants: {
+                ...design.elementVariants,
+                skills: 'chips',
+                languages: 'pills',
+            },
+        });
+    };
+
+    const applyATSLook = () => {
+        setDesign({
+            sectionTitleVariant: 'line',
+            density: 'normal',
+            elementVariants: {
+                ...design.elementVariants,
+                skills: 'ats-text',
+                languages: 'text-only',
+            },
+        });
+    };
+
+    return (
+        <CollapsibleSection
+            title="🧪 Demo Tools"
+            icon={<UserCircle className="w-4 h-4" />}
+            defaultOpen={false}
+            badge="DEV"
+        >
+            <div className="space-y-3">
+                {/* Load GOLDEN_SENIOR */}
+                <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={loadGoldenSenior}
+                    className="w-full p-3 rounded-lg bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-400/30 flex items-center gap-2 text-left"
+                >
+                    <UserCircle className="w-5 h-5 text-indigo-400" />
+                    <div>
+                        <div className="text-sm font-medium text-slate-200">Load GOLDEN_SENIOR</div>
+                        <div className="text-[10px] text-slate-400">Senior Dev profile (1-page, FR)</div>
+                    </div>
+                </motion.button>
+
+                {/* Preset buttons */}
+                <div className="grid grid-cols-3 gap-2">
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={resetPremiumDefaults}
+                        className="p-2 rounded-lg bg-white/5 border border-white/10 hover:border-white/30 flex flex-col items-center gap-1"
+                    >
+                        <RotateCcw className="w-4 h-4 text-slate-400" />
+                        <span className="text-[10px] font-medium text-slate-300">Default</span>
+                    </motion.button>
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={applyPremiumLook}
+                        className="p-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-400/30 flex flex-col items-center gap-1"
+                    >
+                        <Sparkles className="w-4 h-4 text-purple-400" />
+                        <span className="text-[10px] font-medium text-slate-300">Premium</span>
+                    </motion.button>
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={applyATSLook}
+                        className="p-2 rounded-lg bg-green-500/10 border border-green-500/30 flex flex-col items-center gap-1"
+                    >
+                        <Check className="w-4 h-4 text-green-400" />
+                        <span className="text-[10px] font-medium text-slate-300">ATS</span>
+                    </motion.button>
+                </div>
+
+                <div className="text-[9px] text-slate-500 text-center">
+                    Default = line/normal/chips/list<br />
+                    Premium = accent/airy/chips/pills<br />
+                    ATS = line/normal/ats-text/text-only
+                </div>
+            </div>
+        </CollapsibleSection>
+    );
+}
+
+// ============================================================================
 // MAIN EXPORT: DESIGN TAB
 // ============================================================================
 
 export function DesignTab() {
     const inspector = useInspector();
-    
+
     return (
         <div className="space-y-0">
             {/* Header with Inspector Toggle */}
@@ -751,8 +942,9 @@ export function DesignTab() {
                 <HeaderSection />
                 <VisualDetailsSection />
                 <ElementStylesSection />
+                <DemoToolsSection />
             </div>
-            
+
             {/* Inspector Portal */}
             <DesignInspector isOpen={inspector.isOpen} onClose={inspector.close} />
         </div>

@@ -13,6 +13,7 @@ import type {
 } from '../types';
 import { getScaledTheme } from '../types';
 import { getLabels } from '../i18n';
+import { getBlockOptions } from '../blocks/BlockRegistry';
 
 // ============================================================================
 // SPRINT 6.1: PRESET COVERAGE MAP (Single Source of Truth)
@@ -135,25 +136,66 @@ function getHeadingFontFamily(fontPairing: string | undefined): string {
     return FONT_FAMILIES[fontPairing || 'sans']?.heading || 'Inter, system-ui, sans-serif';
 }
 
-/** Create section title style with separator line */
-function getSectionTitleStyle(design: any, theme: any): Record<string, any> {
-    const lineStyle = design.sectionLineStyle || 'solid';
+/** 
+ * Create section title style based on variant.
+ * 
+ * Variants:
+ * - 'line' (default): Classic underline with border-bottom
+ * - 'minimal': No decoration, clean uppercase text
+ * - 'accent': Background pill with accent color (premium look)
+ */
+function getSectionTitleStyle(design: any, theme: any, isMainSection: boolean = false): Record<string, any> {
+    const variant = design.sectionTitleVariant || 'line';
+    const accentColor = design.accentColor || '#4F46E5';
     const lineColor = design.sectionLineColor === 'accent'
-        ? (design.accentColor || '#4F46E5')
+        ? accentColor
         : (design.sectionLineColor || '#E5E7EB');
+    const lineStyle = design.sectionLineStyle || 'solid';
+    const lineWidth = design.sectionLineWidth || 1;
 
-    return {
+    // Base style for all variants
+    const baseStyle: Record<string, any> = {
         fontWeight: 'bold',
         textTransform: 'uppercase',
         fontSize: theme.fontSize.sectionTitle,
         fontFamily: getHeadingFontFamily(design.fontPairing),
-        // Section separator line
-        paddingBottom: lineStyle !== 'none' ? 4 : 0,
-        marginBottom: lineStyle !== 'none' ? 6 : 0,
-        borderStyle: lineStyle !== 'none' ? lineStyle : undefined,
-        borderWidth: lineStyle !== 'none' ? (design.sectionLineWidth || 1) : 0,
-        borderColor: lineStyle !== 'none' ? lineColor : undefined,
+        letterSpacing: 0.5,
     };
+
+    switch (variant) {
+        case 'minimal':
+            // Clean, no decoration
+            return {
+                ...baseStyle,
+                color: isMainSection ? '#1F2937' : '#FFFFFF',
+            };
+
+        case 'accent':
+            // Premium accent background pill
+            return {
+                ...baseStyle,
+                color: '#FFFFFF',
+                backgroundColor: accentColor,
+                paddingTop: 4,
+                paddingBottom: 4,
+                paddingLeft: 8,
+                paddingRight: 8,
+                borderRadius: 4,
+            };
+
+        case 'line':
+        default:
+            // Classic underline (original behavior)
+            return {
+                ...baseStyle,
+                color: isMainSection ? '#1F2937' : '#FFFFFF',
+                paddingBottom: lineStyle !== 'none' ? 4 : 0,
+                marginBottom: lineStyle !== 'none' ? 6 : 0,
+                borderStyle: lineStyle !== 'none' ? lineStyle : undefined,
+                borderWidth: lineStyle !== 'none' ? lineWidth : 0,
+                borderColor: lineStyle !== 'none' ? lineColor : undefined,
+            };
+    }
 }
 
 /**
@@ -259,9 +301,15 @@ function createSidebarNode(profile: CVProfile, design: DesignConfig): SceneNode 
         style: { height: theme.spacing.itemMargin },
     });
 
-    // Contact section - Phase 8: Element variants with layout engine support
+    // Contact section - Phase 8: Element variants + PR#3: Vector icons via BlockRegistry
     if (isSectionVisible(structure, 'contact')) {
-        const contactVariant = design.elementVariants?.contact || 'stacked';
+        // PR#3: Get block options for this preset
+        const blockOpts = getBlockOptions(design.layoutPreset, design.blockOptions);
+        const useVectorIcons = blockOpts.contact.iconMode === 'mono';
+        const iconSize = blockOpts.contact.iconSize;
+        const iconColor = blockOpts.contact.iconColor || '#FFFFFF';
+        // FIX: Use stacked layout for sidebar to avoid ellipsis/overflow
+        const contactLayout = blockOpts.contact.layout; // 'inline' or 'stacked'
 
         // Build contact items
         const email = profile.personal?.contact?.email;
@@ -269,44 +317,35 @@ function createSidebarNode(profile: CVProfile, design: DesignConfig): SceneNode 
         const hasContact = email || phone;
 
         if (hasContact) {
-            let contactContent: SceneNode[];
+            const contactContent: SceneNode[] = [];
 
-            if (contactVariant === 'inline') {
-                // INLINE VARIANT: single line
-                const parts = [email, phone].filter(Boolean);
-                contactContent = [{
-                    id: 'sidebar.contact.inline',
-                    type: 'text' as const,
-                    content: parts.join(' • '),
-                    style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
-                }];
-            } else if (contactVariant === 'icons') {
-                // ICONS VARIANT: with emoji icons
-                const items: SceneNode[] = [];
-                if (email) {
-                    items.push({
+            // PR#3: Build contact items - layout determines icon+text arrangement
+            if (email) {
+                if (useVectorIcons && contactLayout === 'inline') {
+                    // INLINE + ICONS: row with icon and text
+                    contactContent.push({
                         id: 'sidebar.contact.email',
-                        type: 'text' as const,
-                        content: `📧 ${email}`,
-                        fieldPath: 'personal.contact.email',
-                        style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
+                        type: 'container' as const,
+                        style: { direction: 'row', alignItems: 'center', gap: 6 },
+                        children: [
+                            { id: 'sidebar.contact.email.icon', type: 'icon' as const, content: 'email', style: { fontSize: iconSize, color: iconColor } },
+                            { id: 'sidebar.contact.email.text', type: 'text' as const, content: email, fieldPath: 'personal.contact.email', style: { color: '#FFFFFF', fontSize: theme.fontSize.small } },
+                        ],
                     });
-                }
-                if (phone) {
-                    items.push({
-                        id: 'sidebar.contact.phone',
-                        type: 'text' as const,
-                        content: `📱 ${phone}`,
-                        fieldPath: 'personal.contact.phone',
-                        style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
+                } else if (useVectorIcons && contactLayout === 'stacked') {
+                    // STACKED + ICONS: icon on left, text below or wrapped - use column for narrow sidebar
+                    contactContent.push({
+                        id: 'sidebar.contact.email',
+                        type: 'container' as const,
+                        style: { direction: 'row', alignItems: 'start', gap: 6 },
+                        children: [
+                            { id: 'sidebar.contact.email.icon', type: 'icon' as const, content: 'email', style: { fontSize: iconSize, color: iconColor } },
+                            { id: 'sidebar.contact.email.text', type: 'text' as const, content: email, fieldPath: 'personal.contact.email', style: { color: '#FFFFFF', fontSize: theme.fontSize.small } },
+                        ],
                     });
-                }
-                contactContent = items;
-            } else {
-                // DEFAULT STACKED VARIANT
-                const items: SceneNode[] = [];
-                if (email) {
-                    items.push({
+                } else {
+                    // No icons: just text
+                    contactContent.push({
                         id: 'sidebar.contact.email',
                         type: 'text' as const,
                         content: email,
@@ -314,8 +353,31 @@ function createSidebarNode(profile: CVProfile, design: DesignConfig): SceneNode 
                         style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
                     });
                 }
-                if (phone) {
-                    items.push({
+            }
+
+            if (phone) {
+                if (useVectorIcons && contactLayout === 'inline') {
+                    contactContent.push({
+                        id: 'sidebar.contact.phone',
+                        type: 'container' as const,
+                        style: { direction: 'row', alignItems: 'center', gap: 6 },
+                        children: [
+                            { id: 'sidebar.contact.phone.icon', type: 'icon' as const, content: 'phone', style: { fontSize: iconSize, color: iconColor } },
+                            { id: 'sidebar.contact.phone.text', type: 'text' as const, content: phone, fieldPath: 'personal.contact.phone', style: { color: '#FFFFFF', fontSize: theme.fontSize.small } },
+                        ],
+                    });
+                } else if (useVectorIcons && contactLayout === 'stacked') {
+                    contactContent.push({
+                        id: 'sidebar.contact.phone',
+                        type: 'container' as const,
+                        style: { direction: 'row', alignItems: 'start', gap: 6 },
+                        children: [
+                            { id: 'sidebar.contact.phone.icon', type: 'icon' as const, content: 'phone', style: { fontSize: iconSize, color: iconColor } },
+                            { id: 'sidebar.contact.phone.text', type: 'text' as const, content: phone, fieldPath: 'personal.contact.phone', style: { color: '#FFFFFF', fontSize: theme.fontSize.small } },
+                        ],
+                    });
+                } else {
+                    contactContent.push({
                         id: 'sidebar.contact.phone',
                         type: 'text' as const,
                         content: phone,
@@ -323,14 +385,14 @@ function createSidebarNode(profile: CVProfile, design: DesignConfig): SceneNode 
                         style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
                     });
                 }
-                contactContent = items;
             }
 
             children.push({
                 id: 'sidebar.contact',
                 type: 'section',
+                zone: 'sidebar' as const,
                 children: [
-                    { id: 'sidebar.contact.title', type: 'text', content: getLabels(design.locale).sections.contact, style: { fontWeight: 'bold', textTransform: 'uppercase', color: '#FFFFFF', fontSize: theme.fontSize.sectionTitle } },
+                    { id: 'sidebar.contact.title', type: 'sectionTitle' as const, content: getLabels(design.locale).sections.contact, style: getSectionTitleStyle(design, theme, false) },
                     ...contactContent,
                 ],
             });
@@ -385,7 +447,7 @@ function createSidebarNode(profile: CVProfile, design: DesignConfig): SceneNode 
                 },
             }));
         } else if (skillsVariant === 'horizontal') {
-            // HORIZONTAL VARIANT: inline comma-separated
+            // HORIZONTAL VARIANT: inline bullet-separated
             skillsContent = [{
                 id: 'sidebar.skills.inline',
                 type: 'text' as const,
@@ -394,6 +456,18 @@ function createSidebarNode(profile: CVProfile, design: DesignConfig): SceneNode 
                     color: '#FFFFFF',
                     fontSize: theme.fontSize.small,
                     lineHeight: 1.6,
+                },
+            }];
+        } else if (skillsVariant === 'ats-text') {
+            // ATS-TEXT VARIANT: comma-separated plain text (ATS-friendly, no decorations)
+            skillsContent = [{
+                id: 'sidebar.skills.ats-text',
+                type: 'text' as const,
+                content: limitedSkills.join(', '),
+                style: {
+                    color: '#FFFFFF',
+                    fontSize: theme.fontSize.small,
+                    lineHeight: 1.5,
                 },
             }];
         } else {
@@ -415,7 +489,7 @@ function createSidebarNode(profile: CVProfile, design: DesignConfig): SceneNode 
             id: 'sidebar.skills',
             type: 'section',
             children: [
-                { id: 'sidebar.skills.title', type: 'text', content: 'Compétences', style: { fontWeight: 'bold', textTransform: 'uppercase', color: '#FFFFFF', fontSize: theme.fontSize.sectionTitle } },
+                { id: 'sidebar.skills.title', type: 'sectionTitle' as const, content: 'Compétences', style: getSectionTitleStyle(design, theme, false) },
                 ...skillsContent,
             ],
         });
@@ -479,6 +553,48 @@ function createSidebarNode(profile: CVProfile, design: DesignConfig): SceneNode 
                     lineHeight: 1.6,
                 },
             }];
+        } else if (languagesVariant === 'text-only') {
+            // TEXT-ONLY VARIANT: comma-separated, ATS-friendly (no levels)
+            languagesContent = [{
+                id: 'sidebar.languages.text-only',
+                type: 'text' as const,
+                content: limitedLanguages.map(l => l.name).join(', '),
+                style: {
+                    color: '#FFFFFF',
+                    fontSize: theme.fontSize.small,
+                    lineHeight: 1.5,
+                },
+            }];
+        } else if (languagesVariant === 'pills') {
+            // PILLS VARIANT: language name with level chip (premium look)
+            languagesContent = limitedLanguages.map((lang, i) => ({
+                id: `sidebar.languages.pill-${i}`,
+                type: 'container' as const,
+                style: { direction: 'row' as const, gap: 6, alignItems: 'center' as const, marginBottom: 4 },
+                children: [
+                    {
+                        id: `sidebar.languages.pill-${i}.name`,
+                        type: 'text' as const,
+                        content: lang.name,
+                        style: { color: '#FFFFFF', fontSize: theme.fontSize.small },
+                    },
+                    {
+                        id: `sidebar.languages.pill-${i}.level`,
+                        type: 'chip' as const,
+                        content: lang.level,
+                        style: {
+                            backgroundColor: 'rgba(255,255,255,0.2)',
+                            color: '#FFFFFF',
+                            fontSize: theme.fontSize.small - 1,
+                            borderRadius: 8,
+                            paddingLeft: 6,
+                            paddingRight: 6,
+                            paddingTop: 2,
+                            paddingBottom: 2,
+                        },
+                    },
+                ],
+            }));
         } else {
             // DEFAULT LIST VARIANT
             languagesContent = limitedLanguages.map((lang, i) => ({
@@ -494,7 +610,7 @@ function createSidebarNode(profile: CVProfile, design: DesignConfig): SceneNode 
             id: 'sidebar.languages',
             type: 'section',
             children: [
-                { id: 'sidebar.languages.title', type: 'text', content: getLabels(design.locale).sections.languages, style: { fontWeight: 'bold', textTransform: 'uppercase', color: '#FFFFFF', fontSize: theme.fontSize.sectionTitle } },
+                { id: 'sidebar.languages.title', type: 'sectionTitle' as const, content: getLabels(design.locale).sections.languages, style: getSectionTitleStyle(design, theme, false) },
                 ...languagesContent,
             ],
         });
@@ -604,7 +720,7 @@ function createMainContentNode(profile: CVProfile, design: DesignConfig): SceneN
             id: 'main.summary',
             type: 'section',
             children: [
-                { id: 'main.summary.title', type: 'text', content: getLabels(design.locale).sections.profile, style: getSectionTitleStyle(design, theme) },
+                { id: 'main.summary.title', type: 'sectionTitle' as const, content: getLabels(design.locale).sections.profile, style: getSectionTitleStyle(design, theme, true) },
                 { id: 'main.summary.content', type: 'text', content: profile.summary, fieldPath: 'summary', style: { fontSize: theme.fontSize.body } },
             ],
         });
@@ -625,7 +741,7 @@ function createMainContentNode(profile: CVProfile, design: DesignConfig): SceneN
             id: 'main.skills',
             type: 'section',
             children: [
-                { id: 'main.skills.title', type: 'text', content: 'Compétences', style: getSectionTitleStyle(design, theme) },
+                { id: 'main.skills.title', type: 'sectionTitle' as const, content: 'Compétences', style: getSectionTitleStyle(design, theme, true) },
                 {
                     id: 'main.skills.list',
                     type: 'list',
@@ -649,7 +765,7 @@ function createMainContentNode(profile: CVProfile, design: DesignConfig): SceneN
             id: 'main.languages',
             type: 'section',
             children: [
-                { id: 'main.languages.title', type: 'text', content: getLabels(design.locale).sections.languages, style: getSectionTitleStyle(design, theme) },
+                { id: 'main.languages.title', type: 'sectionTitle' as const, content: getLabels(design.locale).sections.languages, style: getSectionTitleStyle(design, theme, true) },
                 ...langItems,
             ],
         });
@@ -668,14 +784,28 @@ function createMainContentNode(profile: CVProfile, design: DesignConfig): SceneN
                 children: [
                     // Role (bold, own line)
                     { id: `main.experience.item-${i}.role`, type: 'text' as const, content: exp.role || '', style: { fontWeight: 'bold', fontSize: theme.fontSize.body } },
-                    // TASK C: Compact header - company left, dates right (row spaceBetween)
+                    // TASK C + PR#2: Compact header - company left, dates right (row spaceBetween)
+                    // Dates have minWidth=92pt and maxLines=1 to prevent wrapping/clipping
                     {
                         id: `main.experience.item-${i}.header`,
                         type: 'container' as const,
                         style: { direction: 'row', justifyContent: 'spaceBetween', alignItems: 'center' },
+                        zone: 'main' as const,
                         children: [
                             { id: `main.experience.item-${i}.company`, type: 'text' as const, content: exp.company || '', style: { fontSize: theme.fontSize.body, color: '#4B5563' } },
-                            { id: `main.experience.item-${i}.dates`, type: 'text' as const, content: normalizeExperienceDates(exp), style: { fontSize: theme.fontSize.small, color: '#6B7280' } },
+                            {
+                                id: `main.experience.item-${i}.dates`,
+                                type: 'text' as const,
+                                content: normalizeExperienceDates(exp),
+                                style: {
+                                    fontSize: theme.fontSize.small,
+                                    color: '#6B7280',
+                                    textAlign: 'right',
+                                    minWidth: 92,   // PR#2: Minimum width to prevent collapse
+                                    maxLines: 1,    // PR#2: Never wrap dates
+                                    fallbackVariant: 'datesBelow' as const, // PR#2: Move under if too narrow
+                                }
+                            },
                         ],
                     },
                     ...(exp.tasks || []).slice(0, structure.limits.tasksTopN).map((task, j) => ({
@@ -692,7 +822,7 @@ function createMainContentNode(profile: CVProfile, design: DesignConfig): SceneN
             type: 'section',
             style: { gap: 6 }, // Compact spacing between experience entries
             children: [
-                { id: 'main.experience.title', type: 'text', content: 'Expérience Professionnelle', style: getSectionTitleStyle(design, theme) },
+                { id: 'main.experience.title', type: 'sectionTitle' as const, content: 'Expérience Professionnelle', style: getSectionTitleStyle(design, theme, true) },
                 ...expItems,
             ],
         });
@@ -749,7 +879,7 @@ function createMainContentNode(profile: CVProfile, design: DesignConfig): SceneN
             type: 'section',
             style: { gap: 4 }, // Compact spacing between education entries
             children: [
-                { id: 'main.education.title', type: 'text', content: getLabels(design.locale).sections.education, style: getSectionTitleStyle(design, theme) },
+                { id: 'main.education.title', type: 'sectionTitle' as const, content: getLabels(design.locale).sections.education, style: getSectionTitleStyle(design, theme, true) },
                 ...eduItems,
             ],
         });
@@ -792,6 +922,29 @@ function getPhotoScaleMetrics(design: DesignConfig) {
 }
 
 /**
+ * Format date from YYYY-MM to MM/YYYY (French format).
+ * Handles various input formats: YYYY-MM, YYYY, Present, etc.
+ */
+function formatDateFR(dateStr: string | undefined): string {
+    if (!dateStr) return '';
+    if (dateStr.toLowerCase() === 'present' || dateStr.toLowerCase() === 'présent') return 'Présent';
+
+    // Match YYYY-MM format
+    const match = dateStr.match(/^(\d{4})-(\d{2})(?:-\d{2})?$/);
+    if (match) {
+        const [, year, month] = match;
+        return `${month}/${year}`;
+    }
+
+    // Match YYYY only
+    if (/^\d{4}$/.test(dateStr)) {
+        return dateStr; // Return year as-is
+    }
+
+    return dateStr; // Return unchanged if format not recognized
+}
+
+/**
  * Phase 6: Normalize experience dates to a stable display string.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -799,7 +952,9 @@ function normalizeExperienceDates(exp: any): string {
     if (exp.dates) return exp.dates;
     if (exp.dateRange?.displayString) return exp.dateRange.displayString;
     if (exp.startDate) {
-        return exp.endDate ? `${exp.startDate} - ${exp.endDate}` : `${exp.startDate} - Present`;
+        const start = formatDateFR(exp.startDate);
+        const end = formatDateFR(exp.endDate) || 'Présent';
+        return `${start} - ${end}`;
     }
     return '';
 }
