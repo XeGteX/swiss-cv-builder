@@ -910,15 +910,42 @@ function createMainContentNode(profile: CVProfile, design: DesignConfig): SceneN
  * Phase 5.3: Photo scale metrics map.
  * Provides consistent sizing based on design.photoScale (1|2|3).
  */
+/**
+ * PR3-P0: Photo scale metrics calibrated to precise pixel targets.
+ * Compact(1)=48px, Standard(2)=64px, Large(3)=96px
+ */
 const PHOTO_SCALE_METRICS = {
-    1: { headerHeight: 96, photoSize: 64, headerPadding: 12, nameFontSize: 18, titleFontSize: 11, bodyFontSize: 10 },
-    2: { headerHeight: 112, photoSize: 80, headerPadding: 14, nameFontSize: 20, titleFontSize: 12, bodyFontSize: 10 },
-    3: { headerHeight: 128, photoSize: 96, headerPadding: 16, nameFontSize: 22, titleFontSize: 13, bodyFontSize: 11 },
+    1: { headerHeight: 72, photoSize: 48, headerPadding: 10, nameFontSize: 16, titleFontSize: 10, bodyFontSize: 9 },
+    2: { headerHeight: 88, photoSize: 64, headerPadding: 12, nameFontSize: 18, titleFontSize: 11, bodyFontSize: 10 },
+    3: { headerHeight: 120, photoSize: 96, headerPadding: 16, nameFontSize: 22, titleFontSize: 13, bodyFontSize: 11 },
 } as const;
+
+/**
+ * P0 FIX: TOP_HEADER preset needs larger photos since header has more space.
+ * Returns a multiplier to apply to the base photo size.
+ */
+const PRESET_PHOTO_MULTIPLIER: Record<string, number> = {
+    SIDEBAR: 1.0,
+    TOP_HEADER: 1.4,      // 64px → 90px, 96px → 134px (more visible)
+    SPLIT_HEADER: 1.25,   // Slightly larger
+    LEFT_RAIL: 1.0,
+    DUAL_SIDEBAR: 0.85,   // Slightly smaller
+    ATS_ONE_COLUMN: 0,    // No photo
+};
 
 function getPhotoScaleMetrics(design: DesignConfig) {
     const scale = design.photoScale ?? 2;
-    return PHOTO_SCALE_METRICS[scale] ?? PHOTO_SCALE_METRICS[2];
+    const baseMetrics = PHOTO_SCALE_METRICS[scale] ?? PHOTO_SCALE_METRICS[2];
+
+    // P0 FIX: Apply preset-specific multiplier
+    const presetId = design.layoutPreset || 'SIDEBAR';
+    const multiplier = PRESET_PHOTO_MULTIPLIER[presetId] ?? 1.0;
+
+    return {
+        ...baseMetrics,
+        photoSize: Math.round(baseMetrics.photoSize * multiplier),
+        headerHeight: Math.round(baseMetrics.headerHeight * Math.max(1, (multiplier - 1) * 0.5 + 1)), // Scale header proportionally
+    };
 }
 
 /**

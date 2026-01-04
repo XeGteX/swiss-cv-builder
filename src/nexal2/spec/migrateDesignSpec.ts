@@ -66,7 +66,7 @@ export function migrateDesignSpec(input: unknown): DesignSpec | null {
     // Apply migrations in sequence
     for (const migration of MIGRATIONS) {
         if (currentVersion === migration.from) {
-            current = migration.migrate(current);
+            current = migration.migrate(current) as object;
             currentVersion = migration.to;
         }
     }

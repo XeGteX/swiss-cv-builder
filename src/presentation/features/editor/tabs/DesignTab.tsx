@@ -44,6 +44,9 @@ import {
 import { MAGIC_PRESETS, PRESET_CATEGORIES, type PresetCategory } from '../../../../application/config/studio-presets';
 import { HEADER_STYLES_REGISTRY } from '../../../../application/config/header-styles';
 
+// PR4: Spotlight Context for contextual preview highlighting
+import { useSpotlightTrigger, type SpotlightZoneId } from '../../../../nexal2/components';
+
 // GOLDEN_SENIOR fixture for demo
 import GOLDEN_PROFILES from '../../../../nexal2/dev/GoldenProfiles';
 const goldenSenior = GOLDEN_PROFILES.find(p => p.name === 'GOLDEN_SENIOR');
@@ -103,55 +106,7 @@ function CollapsibleSection({ title, icon, children, defaultOpen = true, badge }
     );
 }
 
-// ============================================================================
-// 🧪 TEST ZONE: SIDEBAR LAYOUT SECTION
-// ============================================================================
-
-function SidebarLayoutSection() {
-    const design = useDesign();
-    const setDesign = useCVStoreV2(state => state.setDesign);
-
-    const handlePositionChange = (position: SidebarPosition) => {
-        setDesign({ sidebarPosition: position });
-    };
-
-    return (
-        <div className="p-3 border-b-2 border-yellow-500/50 bg-gradient-to-r from-yellow-500/10 to-orange-500/10">
-            <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-bold text-yellow-400 uppercase tracking-wider">
-                    🧪 TEST ZONE: DISPOSITION
-                </span>
-            </div>
-            <div className="text-[10px] text-slate-400 mb-2">Position de la barre latérale</div>
-            <div className="grid grid-cols-2 gap-2">
-                <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => handlePositionChange('left')}
-                    className={`p-3 rounded-lg border-2 text-center transition-all flex flex-col items-center gap-2 ${design.sidebarPosition === 'left'
-                        ? 'border-yellow-500 bg-yellow-500/20'
-                        : 'border-white/10 hover:border-white/30 bg-white/5'
-                        }`}
-                >
-                    <PanelLeft className="w-5 h-5 text-slate-200" />
-                    <span className="text-xs font-medium text-slate-200">Gauche</span>
-                </motion.button>
-                <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => handlePositionChange('right')}
-                    className={`p-3 rounded-lg border-2 text-center transition-all flex flex-col items-center gap-2 ${design.sidebarPosition === 'right'
-                        ? 'border-yellow-500 bg-yellow-500/20'
-                        : 'border-white/10 hover:border-white/30 bg-white/5'
-                        }`}
-                >
-                    <PanelRight className="w-5 h-5 text-slate-200" />
-                    <span className="text-xs font-medium text-slate-200">Droite</span>
-                </motion.button>
-            </div>
-        </div>
-    );
-}
+// SidebarLayoutSection removed - now in LayoutTab.tsx
 
 // ============================================================================
 // MAGIC PRESETS SECTION (24 Presets)
@@ -258,11 +213,18 @@ function ColorSection() {
         const color = e.target.value;
         setHexInput(color);
         setAccentColor(color);
+        // PR4: Trigger spotlight on color change
+        triggerSpotlight('accent-elements', 'Couleur appliquée');
     };
+
+    // PR4: Spotlight trigger
+    const { triggerSpotlight } = useSpotlightTrigger();
 
     const handlePresetClick = (color: string) => {
         setHexInput(color);
         setAccentColor(color);
+        // PR4: Trigger spotlight on preset click
+        triggerSpotlight('accent-elements', 'Couleur appliquée');
     };
 
     return (
@@ -544,6 +506,7 @@ function HeaderSection() {
 function VisualDetailsSection() {
     const design = useDesign();
     const setDesign = useCVStoreV2(state => state.setDesign);
+    const { triggerSpotlight } = useSpotlightTrigger();
 
     const lineStyles = [
         { id: 'solid', label: 'Solide', icon: '⎯' },
@@ -569,9 +532,9 @@ function VisualDetailsSection() {
 
     // Premium Pack: Density Controls
     const densityOptions = [
-        { id: 'compact', label: 'Compact', icon: '▕▎▏', description: 'Dense, plus de contenu' },
+        { id: 'compact', label: 'Compact', icon: '▕▎▏', description: "Plus d'infos / page" },
         { id: 'normal', label: 'Normal', icon: '▕ ▏', description: 'Équilibré' },
-        { id: 'airy', label: 'Aéré', icon: '▕  ▏', description: 'Espacé, lisible' },
+        { id: 'airy', label: 'Aéré', icon: '▕  ▏', description: 'Plus lisible' },
     ] as const;
 
     return (
@@ -616,7 +579,11 @@ function VisualDetailsSection() {
                     {densityOptions.map((option) => (
                         <button
                             key={option.id}
-                            onClick={() => setDesign({ density: option.id })}
+                            onClick={() => {
+                                setDesign({ density: option.id });
+                                // PR4: Trigger spotlight for page content
+                                triggerSpotlight('page-content', 'Densité modifiée');
+                            }}
                             className={`p-2 rounded-lg text-center transition-all flex flex-col items-center gap-1
                                 ${(design?.density || 'normal') === option.id
                                     ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 ring-1 ring-purple-400/50'
@@ -725,6 +692,7 @@ function VisualDetailsSection() {
 function PhotoScaleSection() {
     const design = useDesign();
     const setDesign = useCVStoreV2(state => state.setDesign);
+    const { triggerSpotlight } = useSpotlightTrigger();
 
     const scales = [
         { value: 1 as const, label: 'Compact', description: 'Photo petite' },
@@ -746,7 +714,11 @@ function PhotoScaleSection() {
                         key={value}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={() => setDesign({ photoScale: value })}
+                        onClick={() => {
+                            setDesign({ photoScale: value });
+                            // PR4: Trigger spotlight for photo zone
+                            triggerSpotlight('header-photo', 'Photo ajustée');
+                        }}
                         className={`p-2 rounded-lg border text-center transition-all ${currentScale === value
                             ? 'border-blue-500 bg-blue-500/20'
                             : 'border-white/10 hover:border-white/20 bg-white/5'
@@ -908,10 +880,27 @@ function DemoToolsSection() {
 
 export function DesignTab() {
     const inspector = useInspector();
+    const setDesign = useCVStoreV2(state => state.setDesign);
+    const [isAdvancedMode, setIsAdvancedMode] = useState(false);
+
+    // Reset to defaults
+    const handleResetDesign = () => {
+        setDesign({
+            accentColor: '#3b82f6',
+            fontPairing: 'sans',
+            fontSize: 1.0,
+            lineHeight: 1.5,
+            density: 'normal',
+            sectionLineStyle: 'solid',
+            bulletStyle: 'disc',
+            photoScale: 2,
+            sidebarPosition: 'left',
+        });
+    };
 
     return (
         <div className="space-y-0">
-            {/* Header with Inspector Toggle */}
+            {/* Header with Inspector Toggle + Reset */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
@@ -919,31 +908,88 @@ export function DesignTab() {
                     </div>
                     <div>
                         <h2 className="text-sm font-bold text-slate-200">NEXAL STUDIO</h2>
-                        <p className="text-xs text-slate-400">Design en temps réel</p>
+                        <p className="text-xs text-slate-400">Design premium en temps réel</p>
                     </div>
                 </div>
-                {/* Inspector Toggle Button */}
-                <button
-                    onClick={inspector.toggle}
-                    className="p-2 rounded-lg bg-slate-700/50 hover:bg-blue-500/50 text-slate-400 hover:text-white transition-all"
-                    title="Ouvrir l'inspecteur de design"
-                >
-                    🔍
-                </button>
+                <div className="flex items-center gap-1">
+                    {/* Reset Button */}
+                    <button
+                        onClick={handleResetDesign}
+                        className="p-2 rounded-lg bg-slate-700/50 hover:bg-orange-500/50 text-slate-400 hover:text-white transition-all"
+                        title="Réinitialiser le design"
+                    >
+                        <RotateCcw className="w-4 h-4" />
+                    </button>
+                    {/* Inspector Toggle Button */}
+                    <button
+                        onClick={inspector.toggle}
+                        className="p-2 rounded-lg bg-slate-700/50 hover:bg-blue-500/50 text-slate-400 hover:text-white transition-all"
+                        title="Ouvrir l'inspecteur de design"
+                    >
+                        🔍
+                    </button>
+                </div>
             </div>
 
-            {/* Controls */}
+            {/* Controls - Simple Mode (Default) */}
             <div className="rounded-lg border border-white/10 bg-white/5 overflow-hidden">
-                <SidebarLayoutSection />
+                {/* 1. QUICK START: Magic Presets */}
                 <MagicPresetsSection />
-                <ColorSection />
-                <TypographySection />
-                <PhotoScaleSection />
-                <HeaderSection />
+
+                {/* 2. PREMIUM FEEL: Density + Visual Details */}
                 <VisualDetailsSection />
-                <ElementStylesSection />
-                <DemoToolsSection />
+
+                {/* 3. COLORS: Palette selection */}
+                <ColorSection />
+
+                {/* 4. TYPOGRAPHY: Font pairs + sizes */}
+                <TypographySection />
+
+                {/* 5. PHOTO: Scale control */}
+                <PhotoScaleSection />
             </div>
+
+            {/* Advanced Mode Toggle */}
+            <button
+                onClick={() => setIsAdvancedMode(!isAdvancedMode)}
+                className="w-full mt-3 p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center justify-between"
+            >
+                <div className="flex items-center gap-2">
+                    <Sliders className="w-4 h-4 text-slate-400" />
+                    <span className="text-sm font-medium text-slate-300">Détails avancés</span>
+                    <span className="px-1.5 py-0.5 text-[9px] bg-slate-700 rounded text-slate-400">PRO</span>
+                </div>
+                <motion.div
+                    animate={{ rotate: isAdvancedMode ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                >
+                    <ChevronDown className="w-4 h-4 text-slate-400" />
+                </motion.div>
+            </button>
+
+            {/* Advanced Controls (Collapsed by default) */}
+            <AnimatePresence>
+                {isAdvancedMode && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25 }}
+                        className="overflow-hidden"
+                    >
+                        <div className="mt-2 rounded-lg border border-white/10 bg-white/5 overflow-hidden">
+                            {/* HEADER: Style variants */}
+                            <HeaderSection />
+
+                            {/* ELEMENTS: Skills, Languages variants */}
+                            <ElementStylesSection />
+
+                            {/* DEMO: Dev tools (hidden in prod) */}
+                            {import.meta.env.DEV && <DemoToolsSection />}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Inspector Portal */}
             <DesignInspector isOpen={inspector.isOpen} onClose={inspector.close} />

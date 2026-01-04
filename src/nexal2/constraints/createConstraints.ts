@@ -64,6 +64,8 @@ export interface CreateConstraintsOptions {
     sidebarWidth?: number;
     sidebarGap?: number;
     headerHeight?: number;
+    /** P0 FIX: Override density from UI (instead of region default) */
+    density?: Density;
     overrides?: Partial<ChameleonConstraints>;
 }
 
@@ -90,6 +92,13 @@ const DENSITY_TOKENS: Record<Density, SpacingTokens> = {
         lineHeight: 1.6,
         fontSize: { body: 11, heading: 16, subheading: 12, small: 9 },
     },
+};
+
+// P0 FIX: Margin multipliers based on density
+const DENSITY_MARGIN_SCALE: Record<Density, number> = {
+    compact: 0.7,  // Tighter margins = more content space
+    normal: 1.0,
+    airy: 1.4,     // Larger margins = more breathing room
 };
 
 // ============================================================================
@@ -122,22 +131,34 @@ export function createConstraints(options: CreateConstraintsOptions = {}): Chame
         headerHeight: options.headerHeight || 120,
     };
 
-    // 5. Compute frames from preset
+    // 5. Determine effective density (UI override or region default)
+    const effectiveDensity = options.density || region.density;
+    const marginScale = DENSITY_MARGIN_SCALE[effectiveDensity];
+
+    // 5b. Scale margins based on density
+    const scaledMargins = {
+        top: Math.round(region.margins.top * marginScale),
+        right: Math.round(region.margins.right * marginScale),
+        bottom: Math.round(region.margins.bottom * marginScale),
+        left: Math.round(region.margins.left * marginScale),
+    };
+
+    // 6. Compute frames from preset (with scaled margins)
     const presetResult = computePresetFrames(
         presetId as PresetId,
         paper,
-        region.margins,
+        scaledMargins,
         presetOptions
     );
 
-    // 6. Get tokens from density
-    const tokens = { ...DENSITY_TOKENS[region.density] };
+    // 7. Get tokens from effective density
+    const tokens = { ...DENSITY_TOKENS[effectiveDensity] };
 
-    // 7. Build final constraints
+    // 8. Build final constraints
     const constraints: ChameleonConstraints = {
         paper,
         paperFormat: region.paperFormat,
-        margins: { ...region.margins },
+        margins: scaledMargins,
         frames: presetResult.frames,
         sidebarPosition: presetOptions.sidebarPosition || 'left',
         sidebarWidth: presetOptions.sidebarWidth || 160,
@@ -145,7 +166,7 @@ export function createConstraints(options: CreateConstraintsOptions = {}): Chame
         tokens,
         regionId,
         presetId: presetId as PresetId,
-        density: region.density,
+        density: effectiveDensity,
         atsMode: region.atsDefault,
         supportsPhoto: presetResult.supportsPhoto,
     };

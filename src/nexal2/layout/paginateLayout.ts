@@ -1145,8 +1145,9 @@ function findBestPageEnd(
             const voidHeight = availableHeight - previousItemEndRelative;
             const voidRatio = voidHeight / availableHeight;
 
-            // Only move if void is < 30% (increased from 15% to prevent orphan tasks)
-            const wouldCreateAcceptableVoid = voidRatio < 0.30;
+            // P0: Only move if void is < 20% (reduced from 30% to prevent orphan headers)
+            // Lower threshold = more aggressive keep-together, less page underfill
+            const wouldCreateAcceptableVoid = voidRatio < 0.20;
 
             if (canFitOnNextPage && wouldCreateAcceptableVoid) {
                 // Move back to before this item starts
@@ -1203,13 +1204,13 @@ function findBestPageEnd(
             break; // Stop trying to extend
         }
     }
-    
+
     // P0.13: Check if P0.11 left us at a bad split point (role/header without tasks)
     // This would create orphan titles like "Poste numéro 4 / Entreprise numéro 4" alone at page end
     if (p011Extended) {
         const finalNodeId = candidates[bestSplitIndex].node.nodeId;
         const isOrphanTitle = finalNodeId.match(/\.(role|header)$/) !== null;
-        
+
         if (isOrphanTitle) {
             // Check if the next item (task-0) can also fit with aggressive overflow
             const nextItem = candidates[bestSplitIndex + 1];
@@ -1220,7 +1221,7 @@ function findBestPageEnd(
                 const remainingSpace = availableHeight - usedSpace;
                 const overflowNeeded = nextItemHeight - remainingSpace;
                 const overflowPercent = overflowNeeded / availableHeight;
-                
+
                 // P0.13: Don't allow overflow, just rollback to avoid orphan title
                 // Task doesn't fit - rollback P0.11 extension to avoid orphan title at page end
                 console.log(`[NEXAL2 Pagination] P0.13: Rolling back to avoid orphan title at ${finalNodeId}`);
@@ -1229,7 +1230,7 @@ function findBestPageEnd(
             }
         }
     }
-    
+
     if (p011Extended) {
         console.log(`[NEXAL2 Pagination] P0.11: Extended split to index ${bestSplitIndex}`);
     }

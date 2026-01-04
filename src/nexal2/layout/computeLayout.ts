@@ -987,8 +987,12 @@ function resolveComputedStyle(
 /**
  * Measure text dimensions with improved word-wrap estimation.
  * 
- * IMPROVED: Handles newlines, word wrapping, and long-word breaking.
- * Conservative estimation to prevent PDF overlap.
+ * Uses conservative character width approximation to prevent overlap.
+ * The 0.55 multiplier is calibrated to be slightly wider than average,
+ * ensuring text never overflows its calculated bounds.
+ * 
+ * Note: Canvas-based measurement was attempted but caused overlaps due to
+ * differences between browser font metrics and @react-pdf/renderer metrics.
  */
 export function measureText(
     text: string,
@@ -1000,7 +1004,7 @@ export function measureText(
     }
 
     // Approximate character width based on font size
-    // Using 0.55 (slightly wider than average) to be conservative
+    // Using 0.55 (slightly wider than average) to be conservative and prevent overlap
     const avgCharWidth = style.fontSize * 0.55;
     const maxCharsPerLine = Math.max(1, Math.floor(maxWidth / avgCharWidth));
     const lineHeightPx = style.fontSize * style.lineHeight;
@@ -1067,6 +1071,78 @@ export function measureText(
     // This prevents overlap in edge cases
     if (totalLines > 2 && text.length > maxCharsPerLine * 2) {
         totalLines += 1;
+    }
+
+    const height = totalLines * lineHeightPx;
+
+    return {
+        width: Math.min(maxLineWidth, maxWidth),
+        height,
+        lineCount: totalLines,
+    };
+}
+
+/**
+ * Fallback estimation for SSR or when canvas unavailable.
+ * Uses conservative character width approximation.
+ */
+function measureTextEstimate(
+    text: string,
+    style: { fontSize: number; fontFamily: string; lineHeight: number },
+    maxWidth: number
+): TextMeasurement {
+    // Approximate character width based on font size
+    // Using 0.52 for tighter estimate matching Helvetica metrics
+    const avgCharWidth = style.fontSize * 0.52;
+    const maxCharsPerLine = Math.max(1, Math.floor(maxWidth / avgCharWidth));
+    const lineHeightPx = style.fontSize * style.lineHeight;
+
+    const paragraphs = text.split('\n');
+    let totalLines = 0;
+    let maxLineWidth = 0;
+
+    for (const para of paragraphs) {
+        if (para.length === 0) {
+            totalLines += 1;
+            continue;
+        }
+
+        const words = para.split(/\s+/).filter(w => w.length > 0);
+        if (words.length === 0) {
+            totalLines += 1;
+            continue;
+        }
+
+        let currentLineChars = 0;
+        let lineCount = 1;
+
+        for (const word of words) {
+            const wordLen = word.length;
+
+            if (wordLen > maxCharsPerLine) {
+                if (currentLineChars > 0) {
+                    lineCount++;
+                    currentLineChars = 0;
+                }
+                const chunks = Math.ceil(wordLen / maxCharsPerLine);
+                lineCount += chunks - 1;
+                currentLineChars = wordLen % maxCharsPerLine || maxCharsPerLine;
+            } else {
+                const neededSpace = currentLineChars > 0 ? wordLen + 1 : wordLen;
+                if (currentLineChars + neededSpace > maxCharsPerLine) {
+                    lineCount++;
+                    currentLineChars = wordLen;
+                } else {
+                    currentLineChars += neededSpace;
+                }
+            }
+
+            if (currentLineChars * avgCharWidth > maxLineWidth) {
+                maxLineWidth = currentLineChars * avgCharWidth;
+            }
+        }
+
+        totalLines += lineCount;
     }
 
     const height = totalLines * lineHeightPx;

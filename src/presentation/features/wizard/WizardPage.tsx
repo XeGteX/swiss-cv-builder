@@ -62,16 +62,36 @@ export const WizardPage: React.FC = () => {
         try {
             setIsDownloading(true);
 
-            // Client-side PDF generation using React-PDF
+            // NEXAL2 Pipeline: Client-side PDF generation
             const { pdf } = await import('@react-pdf/renderer');
-            const { CVDocumentV2 } = await import('@/application/pdf-engine');
+            const { buildScene, computeLayout, createConstraints, PDFRenderer, mapAppToNexal2 } = await import('@/nexal2');
             const design = (await import('@/application/store/v2')).useCVStoreV2.getState().design;
 
+            // Get region preference
+            const regionId = (localStorage.getItem('nexal_region_preference') || 'FR') as 'FR' | 'DACH' | 'UK' | 'USA' | 'APAC' | 'MENA';
+            const presetId = 'SIDEBAR';
+
+            // Create constraints
+            const constraints = createConstraints({
+                regionId,
+                presetId,
+                sidebarPosition: design?.sidebarPosition || 'left',
+            });
+
+            // Map app data to NEXAL2 format
+            const { profile: nexal2Profile, design: nexal2Design } = mapAppToNexal2(profile, design);
+
+            // Build scene and compute layout
+            const scene = buildScene(nexal2Profile, { ...nexal2Design, paperFormat: constraints.paperFormat });
+            const layout = computeLayout(scene, constraints);
+
+            // Generate PDF
             const blob = await pdf(
-                <CVDocumentV2
-                    profile={profile}
-                    format={design?.paperFormat || 'A4'}
-                    design={design}
+                <PDFRenderer
+                    layout={layout}
+                    title="CV"
+                    margins={constraints.margins}
+                    bulletStyle={design?.bulletStyle || 'disc'}
                 />
             ).toBlob();
 

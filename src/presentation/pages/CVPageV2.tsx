@@ -30,6 +30,9 @@ import { useCompanionOrchestrator } from '../hooks/useCompanionOrchestrator';
 import { DesignTab } from '../features/editor/tabs/DesignTab';
 import { SmartCompanion } from '../features/companion/SmartCompanion';
 
+// PR4: Spotlight Context for contextual preview highlighting
+import { SpotlightProvider } from '@/nexal2/components';
+
 export const CVPageV2: React.FC = () => {
     const isMobile = useIsMobile();
     const mode = useMode();
@@ -158,317 +161,339 @@ export const CVPageV2: React.FC = () => {
     }, []);
 
     return (
-        <MainLayout>
-            <div className="h-full flex flex-col bg-transparent">
-                {/* Top Bar - Hidden in Focus Mode */}
-                {!isFocusMode && (
-                    <div className={`shrink-0 p-4 flex items-center justify-between bg-slate-900/90 backdrop-blur-xl border-b border-white/10 ${isMobile ? 'pl-16' : ''}`}>
-                        <div className="flex items-center gap-2 md:gap-4">
-                            {/* AtlasStatus - Hidden on mobile */}
-                            <div className="hidden md:block">
-                                <AtlasStatus />
-                            </div>
+        <SpotlightProvider>
+            <MainLayout>
+                <div className="h-full flex flex-col bg-transparent">
+                    {/* Top Bar - Hidden in Focus Mode */}
+                    {!isFocusMode && (
+                        <div className={`shrink-0 p-4 flex items-center justify-between bg-slate-900/90 backdrop-blur-xl border-b border-white/10 ${isMobile ? 'pl-16' : ''}`}>
+                            <div className="flex items-center gap-2 md:gap-4">
+                                {/* AtlasStatus - Hidden on mobile */}
+                                <div className="hidden md:block">
+                                    <AtlasStatus />
+                                </div>
 
-                            {/* Mode Switcher (Top Bar) */}
-                            <div className="flex bg-slate-900/50 rounded-lg p-1 border border-white/10">
+                                {/* Mode Switcher (Top Bar) */}
+                                <div className="flex bg-slate-900/50 rounded-lg p-1 border border-white/10">
+                                    <button
+                                        onClick={() => setMode('edition')}
+                                        className={`px-2 md:px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1 md:gap-2 transition-all ${mode === 'edition' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                                            }`}
+                                    >
+                                        <Edit3 size={14} />
+                                        <span className="hidden sm:inline">Édition</span>
+                                    </button>
+                                    <button
+                                        disabled
+                                        className="px-2 md:px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1 md:gap-2 text-slate-500 cursor-not-allowed opacity-60 relative"
+                                        title="Bientôt disponible"
+                                    >
+                                        <Layout size={14} />
+                                        <span className="hidden sm:inline">Structure</span>
+                                        <span className="absolute -top-1 -right-1 px-1 py-0.5 bg-amber-500/80 text-[8px] text-white rounded font-bold">SOON</span>
+                                    </button>
+                                </div>
+
+                                {/* Debug Agent Button */}
                                 <button
-                                    onClick={() => setMode('edition')}
-                                    className={`px-2 md:px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1 md:gap-2 transition-all ${mode === 'edition' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                                    onClick={() => setIsDebugAgentActive(!isDebugAgentActive)}
+                                    className={`px-2 md:px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all border ${isDebugAgentActive
+                                        ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-transparent shadow-lg shadow-indigo-500/25'
+                                        : 'bg-slate-800/50 text-slate-400 border-white/10 hover:text-white hover:border-indigo-500/50'
                                         }`}
+                                    title="Agent Debug - Analyse ton CV en temps réel"
                                 >
-                                    <Edit3 size={14} />
-                                    <span className="hidden sm:inline">Édition</span>
-                                </button>
-                                <button
-                                    disabled
-                                    className="px-2 md:px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1 md:gap-2 text-slate-500 cursor-not-allowed opacity-60 relative"
-                                    title="Bientôt disponible"
-                                >
-                                    <Layout size={14} />
-                                    <span className="hidden sm:inline">Structure</span>
-                                    <span className="absolute -top-1 -right-1 px-1 py-0.5 bg-amber-500/80 text-[8px] text-white rounded font-bold">SOON</span>
+                                    <Rocket size={14} className={isDebugAgentActive ? 'animate-bounce' : ''} />
+                                    <span className="hidden sm:inline">Debug</span>
+                                    {cvAnalysis.errors.length > 0 && (
+                                        <span className="ml-1 px-1.5 py-0.5 text-[10px] bg-red-500 text-white rounded-full">
+                                            {cvAnalysis.errors.length}
+                                        </span>
+                                    )}
                                 </button>
                             </div>
 
-                            {/* Debug Agent Button */}
-                            <button
-                                onClick={() => setIsDebugAgentActive(!isDebugAgentActive)}
-                                className={`px-2 md:px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all border ${isDebugAgentActive
-                                    ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-transparent shadow-lg shadow-indigo-500/25'
-                                    : 'bg-slate-800/50 text-slate-400 border-white/10 hover:text-white hover:border-indigo-500/50'
-                                    }`}
-                                title="Agent Debug - Analyse ton CV en temps réel"
-                            >
-                                <Rocket size={14} className={isDebugAgentActive ? 'animate-bounce' : ''} />
-                                <span className="hidden sm:inline">Debug</span>
-                                {cvAnalysis.errors.length > 0 && (
-                                    <span className="ml-1 px-1.5 py-0.5 text-[10px] bg-red-500 text-white rounded-full">
-                                        {cvAnalysis.errors.length}
-                                    </span>
-                                )}
-                            </button>
-                        </div>
+                            <div className="flex items-center gap-3">
+                                {/* Download Dropdown - Animated */}
+                                <div className="relative">
+                                    <motion.button
+                                        onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+                                        className={`p-2 rounded-lg transition-colors ${isDownloading ? 'animate-pulse bg-primary-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/10'}`}
+                                        title="Télécharger"
+                                        disabled={isDownloading}
+                                        whileTap={{ scale: 0.9, y: 2 }}
+                                        whileHover={{ scale: 1.1 }}
+                                    >
+                                        <Download size={18} />
+                                    </motion.button>
+                                    {showDownloadMenu && (
+                                        <>
+                                            {/* Backdrop to close menu on outside click */}
+                                            <div className="fixed inset-0 z-40" onClick={() => setShowDownloadMenu(false)} />
+                                            <div className="absolute right-0 top-full mt-2 w-48 bg-slate-900 border border-white/10 rounded-lg shadow-xl z-50 overflow-hidden">
+                                                <button
+                                                    onClick={async () => {
+                                                        setShowDownloadMenu(false);
+                                                        setIsDownloading(true);
+                                                        try {
+                                                            // NEXAL2 Pipeline: Client-side PDF generation
+                                                            const { pdf } = await import('@react-pdf/renderer');
+                                                            const { buildScene, computeLayout, createConstraints, PDFRenderer, mapAppToNexal2 } = await import('@/nexal2');
+                                                            const design = (await import('@/application/store/v2')).useCVStoreV2.getState().design;
 
-                        <div className="flex items-center gap-3">
-                            {/* Download Dropdown - Animated */}
-                            <div className="relative">
-                                <motion.button
-                                    onClick={() => setShowDownloadMenu(!showDownloadMenu)}
-                                    className={`p-2 rounded-lg transition-colors ${isDownloading ? 'animate-pulse bg-primary-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/10'}`}
-                                    title="Télécharger"
-                                    disabled={isDownloading}
-                                    whileTap={{ scale: 0.9, y: 2 }}
-                                    whileHover={{ scale: 1.1 }}
-                                >
-                                    <Download size={18} />
-                                </motion.button>
-                                {showDownloadMenu && (
-                                    <>
-                                        {/* Backdrop to close menu on outside click */}
-                                        <div className="fixed inset-0 z-40" onClick={() => setShowDownloadMenu(false)} />
-                                        <div className="absolute right-0 top-full mt-2 w-48 bg-slate-900 border border-white/10 rounded-lg shadow-xl z-50 overflow-hidden">
-                                            <button
-                                                onClick={async () => {
-                                                    setShowDownloadMenu(false);
-                                                    setIsDownloading(true);
-                                                    try {
-                                                        // Client-side PDF generation using React-PDF
-                                                        const { pdf } = await import('@react-pdf/renderer');
-                                                        const { CVDocumentV2 } = await import('@/application/pdf-engine');
-                                                        const design = (await import('@/application/store/v2')).useCVStoreV2.getState().design;
+                                                            // Get region preference
+                                                            const regionId = (localStorage.getItem('nexal_region_preference') || 'FR') as 'FR' | 'DACH' | 'UK' | 'USA' | 'APAC' | 'MENA';
+                                                            const presetId = 'SIDEBAR';
 
-                                                        const blob = await pdf(
-                                                            <CVDocumentV2
-                                                                profile={profile}
-                                                                format={design?.paperFormat || 'A4'}
-                                                                design={design}
-                                                            />
-                                                        ).toBlob();
+                                                            // Create constraints
+                                                            const constraints = createConstraints({
+                                                                regionId,
+                                                                presetId,
+                                                                sidebarPosition: design?.sidebarPosition || 'left',
+                                                            });
 
+                                                            // Map app data to NEXAL2 format
+                                                            const { profile: nexal2Profile, design: nexal2Design } = mapAppToNexal2(profile, design);
+
+                                                            // Build scene and compute layout
+                                                            const scene = buildScene(nexal2Profile, { ...nexal2Design, paperFormat: constraints.paperFormat });
+                                                            const layout = computeLayout(scene, constraints);
+
+                                                            // Generate PDF
+                                                            const blob = await pdf(
+                                                                <PDFRenderer
+                                                                    layout={layout}
+                                                                    title="CV"
+                                                                    margins={constraints.margins}
+                                                                    bulletStyle={design?.bulletStyle || 'disc'}
+                                                                />
+                                                            ).toBlob();
+
+                                                            const url = URL.createObjectURL(blob);
+                                                            const link = document.createElement('a');
+                                                            link.href = url;
+                                                            link.download = `cv-${profile?.personal?.lastName || 'export'}.pdf`;
+                                                            link.click();
+                                                            URL.revokeObjectURL(url);
+                                                        } catch (e) {
+                                                            console.error('PDF download failed', e);
+                                                        } finally {
+                                                            setIsDownloading(false);
+                                                        }
+                                                    }}
+                                                    className="w-full px-4 py-2.5 text-left text-sm text-slate-200 hover:bg-white/10 flex items-center gap-3"
+                                                >
+                                                    <Download size={16} className="text-primary-400" />
+                                                    Télécharger PDF
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setShowDownloadMenu(false);
+                                                        const data = JSON.stringify(profile, null, 2);
+                                                        const blob = new Blob([data], { type: 'application/json' });
                                                         const url = URL.createObjectURL(blob);
                                                         const link = document.createElement('a');
                                                         link.href = url;
-                                                        link.download = `cv-${profile?.personal?.lastName || 'export'}.pdf`;
+                                                        link.download = `cv-${profile?.personal?.lastName || 'data'}.json`;
                                                         link.click();
                                                         URL.revokeObjectURL(url);
-                                                    } catch (e) {
-                                                        console.error('PDF download failed', e);
-                                                    } finally {
-                                                        setIsDownloading(false);
-                                                    }
-                                                }}
-                                                className="w-full px-4 py-2.5 text-left text-sm text-slate-200 hover:bg-white/10 flex items-center gap-3"
-                                            >
-                                                <Download size={16} className="text-primary-400" />
-                                                Télécharger PDF
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    setShowDownloadMenu(false);
-                                                    const data = JSON.stringify(profile, null, 2);
-                                                    const blob = new Blob([data], { type: 'application/json' });
-                                                    const url = URL.createObjectURL(blob);
-                                                    const link = document.createElement('a');
-                                                    link.href = url;
-                                                    link.download = `cv-${profile?.personal?.lastName || 'data'}.json`;
-                                                    link.click();
-                                                    URL.revokeObjectURL(url);
-                                                }}
-                                                className="w-full px-4 py-2.5 text-left text-sm text-slate-200 hover:bg-white/10 flex items-center gap-3 border-t border-white/10"
-                                            >
-                                                <FileJson size={16} className="text-amber-400" />
-                                                JSON (Données)
-                                            </button>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
+                                                    }}
+                                                    className="w-full px-4 py-2.5 text-left text-sm text-slate-200 hover:bg-white/10 flex items-center gap-3 border-t border-white/10"
+                                                >
+                                                    <FileJson size={16} className="text-amber-400" />
+                                                    JSON (Données)
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
 
-                            {/* Settings Button - Juicy Spinning Gear */}
-                            <motion.button
-                                onClick={() => setIsSettingsModalOpen(true)}
-                                className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-                                title="Paramètres"
-                                whileTap={{ rotate: 360, scale: 0.85 }}
-                                whileHover={{ rotate: 90, scale: 1.1 }}
-                                transition={{ type: 'spring', stiffness: 200, damping: 10 }}
-                            >
-                                <motion.div
-                                    animate={{ rotate: 0 }}
-                                    transition={{ type: 'spring', stiffness: 100 }}
-                                >
-                                    <Settings size={18} />
-                                </motion.div>
-                            </motion.button>
-
-                            {/* SCV Preview Button - BETA - Pulsing Eye */}
-                            <motion.button
-                                onClick={() => window.location.href = '/interactive'}
-                                className="relative flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-violet-600/20 to-purple-600/20 hover:from-violet-600/30 hover:to-purple-600/30 border border-violet-500/40 rounded-lg text-violet-300 hover:text-white transition-all group overflow-hidden"
-                                title="Aperçu SCV .nex"
-                                whileTap={{ scale: 0.92 }}
-                                whileHover={{ scale: 1.05, y: -2 }}
-                                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-                            >
-                                {/* Glow effect on hover */}
-                                <motion.div
-                                    className="absolute inset-0 bg-violet-500/0 group-hover:bg-violet-500/10 transition-colors"
-                                    whileTap={{ backgroundColor: 'rgba(139, 92, 246, 0.3)' }}
-                                />
-                                <motion.span
-                                    className="relative"
-                                    whileTap={{ scale: 1.4, rotate: 15 }}
-                                    whileHover={{ scale: 1.2 }}
-                                    transition={{ type: 'spring', stiffness: 500, damping: 10 }}
-                                >
-                                    <Eye size={16} />
-                                </motion.span>
-                                <span className="hidden md:inline text-xs font-medium relative">Aperçu SCV</span>
-                            </motion.button>
-
-                            {/* Account Button / UserDropdown */}
-                            {isAuthenticated ? (
-                                <UserDropdown onOpenSettings={() => setIsSettingsModalOpen(true)} />
-                            ) : (
+                                {/* Settings Button - Juicy Spinning Gear */}
                                 <motion.button
-                                    onClick={() => setIsAuthModalOpen(true)}
+                                    onClick={() => setIsSettingsModalOpen(true)}
                                     className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-                                    title="Connexion"
-                                    whileTap={{ scale: 0.8, rotate: -10 }}
-                                    whileHover={{ scale: 1.15, y: -3 }}
-                                    transition={{ type: 'spring', stiffness: 400, damping: 12 }}
+                                    title="Paramètres"
+                                    whileTap={{ rotate: 360, scale: 0.85 }}
+                                    whileHover={{ rotate: 90, scale: 1.1 }}
+                                    transition={{ type: 'spring', stiffness: 200, damping: 10 }}
                                 >
                                     <motion.div
-                                        whileHover={{ y: -2 }}
-                                        transition={{ type: 'spring', stiffness: 300 }}
+                                        animate={{ rotate: 0 }}
+                                        transition={{ type: 'spring', stiffness: 100 }}
                                     >
-                                        <User size={18} />
+                                        <Settings size={18} />
                                     </motion.div>
                                 </motion.button>
-                            )}
 
-                            {/* Zoom Controls - Hidden on very small screens */}
-                            <div className="hidden sm:flex items-center gap-2 bg-slate-900/50 rounded-lg p-1 border border-white/10">
-                                <button onClick={handleZoomOut} className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded">
-                                    <ZoomOut size={16} />
-                                </button>
-                                <span className="text-xs font-mono text-slate-300 w-12 text-center">
-                                    {displayZoom}%
-                                </span>
-                                <button onClick={handleZoomIn} className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded">
-                                    <ZoomIn size={16} />
-                                </button>
+                                {/* SCV Preview Button - BETA - Pulsing Eye */}
+                                <motion.button
+                                    onClick={() => window.location.href = '/interactive'}
+                                    className="relative flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-violet-600/20 to-purple-600/20 hover:from-violet-600/30 hover:to-purple-600/30 border border-violet-500/40 rounded-lg text-violet-300 hover:text-white transition-all group overflow-hidden"
+                                    title="Aperçu SCV .nex"
+                                    whileTap={{ scale: 0.92 }}
+                                    whileHover={{ scale: 1.05, y: -2 }}
+                                    transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                                >
+                                    {/* Glow effect on hover */}
+                                    <motion.div
+                                        className="absolute inset-0 bg-violet-500/0 group-hover:bg-violet-500/10 transition-colors"
+                                        whileTap={{ backgroundColor: 'rgba(139, 92, 246, 0.3)' }}
+                                    />
+                                    <motion.span
+                                        className="relative"
+                                        whileTap={{ scale: 1.4, rotate: 15 }}
+                                        whileHover={{ scale: 1.2 }}
+                                        transition={{ type: 'spring', stiffness: 500, damping: 10 }}
+                                    >
+                                        <Eye size={16} />
+                                    </motion.span>
+                                    <span className="hidden md:inline text-xs font-medium relative">Aperçu SCV</span>
+                                </motion.button>
+
+                                {/* Account Button / UserDropdown */}
+                                {isAuthenticated ? (
+                                    <UserDropdown onOpenSettings={() => setIsSettingsModalOpen(true)} />
+                                ) : (
+                                    <motion.button
+                                        onClick={() => setIsAuthModalOpen(true)}
+                                        className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                                        title="Connexion"
+                                        whileTap={{ scale: 0.8, rotate: -10 }}
+                                        whileHover={{ scale: 1.15, y: -3 }}
+                                        transition={{ type: 'spring', stiffness: 400, damping: 12 }}
+                                    >
+                                        <motion.div
+                                            whileHover={{ y: -2 }}
+                                            transition={{ type: 'spring', stiffness: 300 }}
+                                        >
+                                            <User size={18} />
+                                        </motion.div>
+                                    </motion.button>
+                                )}
+
+                                {/* Zoom Controls - Hidden on very small screens */}
+                                <div className="hidden sm:flex items-center gap-2 bg-slate-900/50 rounded-lg p-1 border border-white/10">
+                                    <button onClick={handleZoomOut} className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded">
+                                        <ZoomOut size={16} />
+                                    </button>
+                                    <span className="text-xs font-mono text-slate-300 w-12 text-center">
+                                        {displayZoom}%
+                                    </span>
+                                    <button onClick={handleZoomIn} className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded">
+                                        <ZoomIn size={16} />
+                                    </button>
+                                </div>
+
+                                {/* Focus Mode Toggle (Only in Edition on Desktop) */}
+                                {mode === 'edition' && !isMobile && (
+                                    <FocusModeToggle
+                                        isFocusMode={isFocusMode}
+                                        toggleFocusMode={() => setIsFocusMode(!isFocusMode)}
+                                    />
+                                )}
                             </div>
-
-                            {/* Focus Mode Toggle (Only in Edition on Desktop) */}
-                            {mode === 'edition' && !isMobile && (
-                                <FocusModeToggle
-                                    isFocusMode={isFocusMode}
-                                    toggleFocusMode={() => setIsFocusMode(!isFocusMode)}
-                                />
-                            )}
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {/* Main Content Area - INDEPENDENT BLOCKS */}
-                <div className={`flex-1 min-h-0 ${isMobile ? 'overflow-visible' : 'overflow-hidden'}`}>
-                    <div className="h-full flex gap-4 p-2 md:p-4">
-                        {/* Editor Sidebar - Hidden on mobile and in Focus Mode */}
-                        {mode === 'edition' && !isFocusMode && !isMobile && (
-                            <div className="shrink-0 h-full overflow-hidden">
-                                <EditorSidebar />
-                            </div>
-                        )}
+                    {/* Main Content Area - INDEPENDENT BLOCKS */}
+                    <div className={`flex-1 min-h-0 ${isMobile ? 'overflow-visible' : 'overflow-hidden'}`}>
+                        <div className="h-full flex gap-4 p-2 md:p-4">
+                            {/* Editor Sidebar - Hidden on mobile and in Focus Mode */}
+                            {mode === 'edition' && !isFocusMode && !isMobile && (
+                                <div className="shrink-0 h-full overflow-hidden">
+                                    <EditorSidebar />
+                                </div>
+                            )}
 
-                        {/* CV Preview/Canvas - FULL HEIGHT to match EditorSidebar */}
-                        <div
-                            ref={previewContainerRef}
-                            className={`flex-1 min-h-0 min-w-0 h-full ${isFocusMode ? 'fixed inset-0 z-40 bg-slate-950' : ''}`}
-                        >
+                            {/* CV Preview/Canvas - FULL HEIGHT to match EditorSidebar */}
                             <div
-                                id="cv-scroll-container"
-                                tabIndex={0}
-                                className={`focus:outline-none w-full h-full ${isFocusMode ? 'flex items-center justify-center overflow-auto' : ''}`}
-                                style={!isFocusMode ? {
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    padding: isMobile ? '8px' : '8px',
-                                } : undefined}
-                                onKeyDown={(e) => {
-                                    const container = e.currentTarget;
-                                    if (e.key === 'ArrowDown') {
-                                        container.scrollBy({ top: 100, behavior: 'smooth' });
-                                    } else if (e.key === 'ArrowUp') {
-                                        container.scrollBy({ top: -100, behavior: 'smooth' });
-                                    } else if (e.key === 'Escape' && isFocusMode) {
-                                        setIsFocusMode(false);
-                                    }
-                                }}
+                                ref={previewContainerRef}
+                                className={`flex-1 min-h-0 min-w-0 h-full ${isFocusMode ? 'fixed inset-0 z-40 bg-slate-950' : ''}`}
                             >
-                                <PreviewPane
-                                    hideToolbar={true}
-                                    scale={isFocusMode ? 1 : zoom}
-                                    showErrors={isDebugAgentActive}
-                                />
+                                <div
+                                    id="cv-scroll-container"
+                                    tabIndex={0}
+                                    className={`focus:outline-none w-full h-full ${isFocusMode ? 'flex items-center justify-center overflow-auto' : ''}`}
+                                    style={!isFocusMode ? {
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        padding: isMobile ? '8px' : '8px',
+                                    } : undefined}
+                                    onKeyDown={(e) => {
+                                        const container = e.currentTarget;
+                                        if (e.key === 'ArrowDown') {
+                                            container.scrollBy({ top: 100, behavior: 'smooth' });
+                                        } else if (e.key === 'ArrowUp') {
+                                            container.scrollBy({ top: -100, behavior: 'smooth' });
+                                        } else if (e.key === 'Escape' && isFocusMode) {
+                                            setIsFocusMode(false);
+                                        }
+                                    }}
+                                >
+                                    <PreviewPane
+                                        hideToolbar={true}
+                                        scale={isFocusMode ? 1 : zoom}
+                                        showErrors={isDebugAgentActive}
+                                    />
+                                </div>
                             </div>
-                        </div>
 
-                        {/* NEXAL Studio Panel - Right side of preview */}
-                        {isDesignPanelOpen && !isMobile && mode === 'edition' && (
-                            <div className="shrink-0 w-72 h-full overflow-y-auto bg-slate-900/95 border-l border-slate-700/50">
-                                <DesignTab />
-                            </div>
-                        )}
+                            {/* NEXAL Studio Panel - Right side of preview */}
+                            {isDesignPanelOpen && !isMobile && mode === 'edition' && (
+                                <div className="shrink-0 w-72 h-full overflow-y-auto bg-slate-900/95 border-l border-slate-700/50">
+                                    <DesignTab />
+                                </div>
+                            )}
+                        </div>
                     </div>
+
+                    {/* Focus Mode Exit Button (Floating) */}
+                    {isFocusMode && (
+                        <div className="fixed top-4 right-4 z-50">
+                            <FocusModeToggle
+                                isFocusMode={isFocusMode}
+                                toggleFocusMode={() => setIsFocusMode(!isFocusMode)}
+                            />
+                        </div>
+                    )}
                 </div>
 
-                {/* Focus Mode Exit Button (Floating) */}
-                {isFocusMode && (
-                    <div className="fixed top-4 right-4 z-50">
-                        <FocusModeToggle
-                            isFocusMode={isFocusMode}
-                            toggleFocusMode={() => setIsFocusMode(!isFocusMode)}
-                        />
-                    </div>
-                )}
-            </div>
+                {/* Auth Modal */}
+                <AuthModal
+                    isOpen={isAuthModalOpen}
+                    onClose={() => setIsAuthModalOpen(false)}
+                />
 
-            {/* Auth Modal */}
-            <AuthModal
-                isOpen={isAuthModalOpen}
-                onClose={() => setIsAuthModalOpen(false)}
-            />
+                {/* Settings Modal */}
+                <SettingsModal
+                    isOpen={isSettingsModalOpen}
+                    onClose={() => setIsSettingsModalOpen(false)}
+                />
 
-            {/* Settings Modal */}
-            <SettingsModal
-                isOpen={isSettingsModalOpen}
-                onClose={() => setIsSettingsModalOpen(false)}
-            />
+                {/* Smart AI Hub Modal */}
+                <SmartAIHub
+                    isOpen={isAIHubOpen}
+                    onClose={() => setIsAIHubOpen(false)}
+                />
 
-            {/* Smart AI Hub Modal */}
-            <SmartAIHub
-                isOpen={isAIHubOpen}
-                onClose={() => setIsAIHubOpen(false)}
-            />
+                {/* Debug Agent - Smart Companion Mascot */}
+                <DebugAgent
+                    isActive={isDebugAgentActive}
+                    mood={companion.mood}
+                    targetId={companion.targetId}
+                    errorCount={cvAnalysis.errors.length}
+                    currentSuggestion={companion.suggestion}
+                    onInteract={() => {
+                        setIsAIHubOpen(true);
+                        setIsDebugAgentActive(false);
+                    }}
+                    onClose={() => setIsDebugAgentActive(false)}
+                />
 
-            {/* Debug Agent - Smart Companion Mascot */}
-            <DebugAgent
-                isActive={isDebugAgentActive}
-                mood={companion.mood}
-                targetId={companion.targetId}
-                errorCount={cvAnalysis.errors.length}
-                currentSuggestion={companion.suggestion}
-                onInteract={() => {
-                    setIsAIHubOpen(true);
-                    setIsDebugAgentActive(false);
-                }}
-                onClose={() => setIsDebugAgentActive(false)}
-            />
-
-            {/* SmartCompanion - Magic Actions Mascot */}
-            <SmartCompanion />
-        </MainLayout>
+                {/* SmartCompanion - Magic Actions Mascot */}
+                <SmartCompanion />
+            </MainLayout>
+        </SpotlightProvider>
     );
 };
 

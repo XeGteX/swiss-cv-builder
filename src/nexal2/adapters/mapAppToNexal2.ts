@@ -186,6 +186,8 @@ export interface Nexal2Design {
         languages?: string;
         contact?: string;
     };
+    // Premium Pack v1: Content density
+    density?: 'compact' | 'normal' | 'airy';
 }
 
 // ============================================================================
@@ -294,6 +296,8 @@ export function mapDesignToNexal2(design: Partial<DesignConfig> | undefined): Ne
         lineHeight: design?.lineHeight || 1.5,
         locale: 'fr', // Default locale, can be extended to read from region
         elementVariants: design?.elementVariants,
+        // Premium Pack v1: Content density
+        density: design?.density || 'normal',
     };
 }
 

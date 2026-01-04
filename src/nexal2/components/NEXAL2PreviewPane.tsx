@@ -12,7 +12,7 @@
  * Phase 4.1: CV Chameleon with region/preset controls.
  */
 
-import React, { useMemo, useState, useCallback, useRef } from 'react';
+import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import { pdf } from '@react-pdf/renderer';
 import {
     Loader2, RefreshCw, Download, AlertTriangle,
@@ -42,6 +42,8 @@ import {
     type LayoutTree,
 } from '@/nexal2';
 import { StructurePanel } from './StructurePanel';
+import { SpotlightOverlay } from './SpotlightOverlay';
+import { SpotlightProvider, useSpotlight } from '../context/SpotlightContext';
 import type { LayoutNode } from '../types';
 
 // PT to PX conversion for sizing
@@ -67,6 +69,7 @@ export const NEXAL2PreviewPane: React.FC<NEXAL2PreviewPaneProps> = ({
     const [isDownloading, setIsDownloading] = useState(false);
     const [scale, setScale] = useState(initialScale);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const previewWrapperRef = useRef<HTMLDivElement>(null);
 
     // PR#1: Debug mode from URL query param
     const debugLayout = useMemo(() => {
@@ -76,23 +79,35 @@ export const NEXAL2PreviewPane: React.FC<NEXAL2PreviewPaneProps> = ({
     }, []);
 
     // Chameleon state (region + preset)
+    // P0 FIX: presetId must be derived from store, not local state!
     const [regionId, setRegionId] = useState<RegionId>('FR');
-    const [presetId, setPresetId] = useState<PresetId>('SIDEBAR');
+    const presetId = (design?.layoutPreset || 'SIDEBAR') as PresetId;
+
+    // DEV-only: Log when preset changes from store
+    useEffect(() => {
+        if (import.meta.env.DEV) {
+            console.log('[NEXAL2] Preset from store:', presetId);
+        }
+    }, [presetId]);
+
 
     // Create constraints from region + preset FIRST
+    // P0 FIX: Also pass density from store for margin scaling
     const constraints: ChameleonConstraints = useMemo(() => {
         const c = createConstraints({
             regionId,
             presetId,
             sidebarPosition: design?.sidebarPosition || 'left',
+            density: design?.density || 'normal',  // P0: Pass UI density
         });
 
         // DEBUG: Frame gap instrumentation
-        if (c.frames.sidebar) {
+        if (import.meta.env.DEV && c.frames.sidebar) {
             const sb = c.frames.sidebar;
             const delta = c.paper.width - (sb.x + sb.width);
             console.log('[NEXAL2 GAP DEBUG]', {
                 preset: presetId,
+                density: c.density,
                 sidebarPosition: c.sidebarPosition,
                 paperWidth: c.paper.width,
                 sidebarX: sb.x,
@@ -107,7 +122,7 @@ export const NEXAL2PreviewPane: React.FC<NEXAL2PreviewPaneProps> = ({
         }
 
         return c;
-    }, [regionId, presetId, design?.sidebarPosition]);
+    }, [regionId, presetId, design?.sidebarPosition, design?.density]);
 
     // Paper dimensions from constraints
     const paper = constraints.paper;
@@ -309,8 +324,9 @@ export const NEXAL2PreviewPane: React.FC<NEXAL2PreviewPaneProps> = ({
         const idx = presets.indexOf(presetId);
         const next = presets[(idx + 1) % presets.length];
         console.log(`[NEXAL2] Preset: ${presetId} → ${next}`);
-        setPresetId(next);
-    }, [presetId]);
+        // P0 FIX: Use setDesign to update store instead of local state
+        setDesign({ layoutPreset: next });
+    }, [presetId, setDesign]);
 
     // Dev: Run validation matrix
     const handleRunMatrix = useCallback(() => {
@@ -658,6 +674,8 @@ export const NEXAL2PreviewPane: React.FC<NEXAL2PreviewPaneProps> = ({
             >
                 <div className="mx-auto w-fit">
                     <div
+                        ref={previewWrapperRef}
+                        className="relative"
                         style={{
                             boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
                             borderRadius: 4,
@@ -671,6 +689,11 @@ export const NEXAL2PreviewPane: React.FC<NEXAL2PreviewPaneProps> = ({
                             layoutSignature={layoutSignature}
                             margins={constraints.margins}
                             bulletStyle={design?.bulletStyle || 'disc'}
+                        />
+                        {/* PR4: Spotlight Overlay for contextual highlighting */}
+                        <SpotlightOverlay
+                            scale={scale}
+                            containerRef={previewWrapperRef}
                         />
                     </div>
                 </div>

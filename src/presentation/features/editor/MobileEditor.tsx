@@ -16,7 +16,7 @@ import { PersonalTab } from './tabs/PersonalTab';
 import { ExperienceTab } from './tabs/ExperienceTab';
 import { EducationTab } from './tabs/EducationTab';
 import { CoverLetterTab } from './tabs/CoverLetterTab';
-import { CriticTab } from './tabs/CriticTab';
+import { AnalyzerTab } from './tabs/AnalyzerTab';
 
 export const MobileEditor: React.FC = () => {
     const { activeTab, setActiveTab } = useUIStore();
@@ -27,7 +27,7 @@ export const MobileEditor: React.FC = () => {
         { id: 'experience', label: t('editor.sidebar.tabs.experience'), icon: Briefcase },
         { id: 'education', label: t('editor.sidebar.tabs.education'), icon: GraduationCap },
         { id: 'letter', label: t('editor.sidebar.tabs.letter'), icon: FileText },
-        { id: 'critic', label: t('editor.sidebar.tabs.review'), icon: TrendingUp },
+        { id: 'analyzer', label: t('editor.sidebar.tabs.review'), icon: TrendingUp },
     ] as const;
 
     const renderTabContent = () => {
@@ -40,8 +40,8 @@ export const MobileEditor: React.FC = () => {
                 return <EducationTab />;
             case 'letter':
                 return <CoverLetterTab />;
-            case 'critic':
-                return <CriticTab />;
+            case 'analyzer':
+                return <AnalyzerTab />;
             default:
                 return <PersonalTab />;
         }
@@ -61,8 +61,8 @@ export const MobileEditor: React.FC = () => {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id as any)}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${isActive
-                                        ? 'bg-indigo-600 text-white shadow-md'
-                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    ? 'bg-indigo-600 text-white shadow-md'
+                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                     }`}
                             >
                                 <Icon size={18} />

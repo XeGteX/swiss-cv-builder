@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { LiquidTab } from '../../components/LiquidTab';
 import { MobileEditor } from '../../features/editor/MobileEditor';
 import { PreviewPane } from '../../features/preview/PreviewPane';
-import { CriticTab } from '../../features/editor/tabs/CriticTab';
+import { AnalyzerTab } from '../../features/editor/tabs/AnalyzerTab';
 import { SettingsTab } from '../../features/settings/SettingsTab';
 import { Button } from '../../design-system/atoms/Button';
 import { useCVStoreV2 as useCVStore } from '@/application/store/v2/cv-store-v2';
@@ -129,7 +129,7 @@ export const MobileLayout: React.FC = () => {
 
                     {activeTab === 'ai' && (
                         <LiquidTab id="ai" className="absolute inset-0 overflow-y-auto">
-                            <CriticTab />
+                            <AnalyzerTab />
                         </LiquidTab>
                     )}
 

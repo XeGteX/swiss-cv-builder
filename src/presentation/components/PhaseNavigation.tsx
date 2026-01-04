@@ -1,44 +1,40 @@
 /**
- * NEXAL Career OS - Phase Navigation System v2
+ * NEXAL Career OS - Phase Navigation System v3 (Premium UX)
  * 
- * REFACTORED: Hover-to-show submenus, click-to-select-and-close
- * 
- * 4-Phase Architecture:
- * 1️⃣ DATA - Personal, Experience, Education, Skills, Photo
- * 2️⃣ DESIGN - Studio, Templates
- * 3️⃣ INTELLIGENCE - Review, Match, Coach
- * 4️⃣ ACTION - Letter, Export, Share, Stats
+ * 5-Phase Premium Architecture:
+ * 1️⃣ CONTENU - Personal, Experience, Education, Skills, Photo
+ * 2️⃣ DESIGN - Appearance (palette, typo, density)
+ * 3️⃣ MISE EN PAGE - Layout presets, margins, sections
+ * 4️⃣ SCORE IA - Match analysis, Coach
+ * 5️⃣ EXPORT - PDF, Preflight, Share
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Database,
+    FileText as ContentIcon,
     Palette,
-    Brain,
-    Rocket,
+    LayoutGrid,
+    Sparkles,
+    Download,
     User,
     Briefcase,
     GraduationCap,
     Wrench,
     Camera,
-    Store,
-    TrendingUp,
     Target,
     MessageSquare,
-    FileText,
-    Download,
-    Users2,
-    BarChart3,
+    FileCheck,
+    Share2,
     ChevronDown,
     type LucideIcon
 } from 'lucide-react';
 
 // ============================================================================
-// PHASE DEFINITIONS
+// PHASE DEFINITIONS (V3 - Premium UX)
 // ============================================================================
 
-export type PhaseId = 'data' | 'design' | 'intelligence' | 'action';
+export type PhaseId = 'content' | 'design' | 'layout' | 'score' | 'export';
 
 export interface PhaseTab {
     id: string;
@@ -57,14 +53,14 @@ export interface Phase {
 
 export const PHASES: Phase[] = [
     {
-        id: 'data',
-        name: 'Data',
-        tagline: 'Je remplis',
-        icon: Database,
+        id: 'content',
+        name: 'Contenu',
+        tagline: 'Vos informations',
+        icon: ContentIcon,
         color: 'from-blue-500 to-cyan-500',
         tabs: [
-            { id: 'personal', label: 'Infos', icon: User },
-            { id: 'experience', label: 'Expérience', icon: Briefcase },
+            { id: 'personal', label: 'Profil', icon: User },
+            { id: 'experience', label: 'Expériences', icon: Briefcase },
             { id: 'education', label: 'Formation', icon: GraduationCap },
             { id: 'skills', label: 'Compétences', icon: Wrench },
             { id: 'photo', label: 'Photo', icon: Camera },
@@ -73,37 +69,44 @@ export const PHASES: Phase[] = [
     {
         id: 'design',
         name: 'Design',
-        tagline: 'Je rends beau',
+        tagline: 'Apparence & style',
         icon: Palette,
         color: 'from-purple-500 to-pink-500',
         tabs: [
-            { id: 'design', label: 'Studio', icon: Palette },
-            { id: 'marketplace', label: 'Templates', icon: Store },
+            { id: 'design', label: 'Apparence', icon: Palette },
         ]
     },
     {
-        id: 'intelligence',
-        name: 'Intelligence',
-        tagline: "J'optimise",
-        icon: Brain,
+        id: 'layout',
+        name: 'Mise en page',
+        tagline: 'Structure & sections',
+        icon: LayoutGrid,
+        color: 'from-indigo-500 to-violet-500',
+        tabs: [
+            { id: 'layout', label: 'Disposition', icon: LayoutGrid },
+        ]
+    },
+    {
+        id: 'score',
+        name: 'Score IA',
+        tagline: 'Optimisation intelligente',
+        icon: Sparkles,
         color: 'from-amber-500 to-orange-500',
         tabs: [
-            { id: 'critic', label: 'Revue', icon: TrendingUp },
-            { id: 'analyzer', label: 'Match', icon: Target },
+            { id: 'analyzer', label: 'Analyse', icon: Target },
             { id: 'coach', label: 'Coach', icon: MessageSquare },
         ]
     },
     {
-        id: 'action',
-        name: 'Action',
-        tagline: 'Je postule',
-        icon: Rocket,
+        id: 'export',
+        name: 'Export',
+        tagline: 'Télécharger & partager',
+        icon: Download,
         color: 'from-emerald-500 to-teal-500',
         tabs: [
-            { id: 'letter', label: 'Lettre', icon: FileText },
-            { id: 'export', label: 'Export', icon: Download },
-            { id: 'collab', label: 'Partage', icon: Users2 },
-            { id: 'analytics', label: 'Stats', icon: BarChart3 },
+            { id: 'export', label: 'PDF', icon: Download },
+            { id: 'preflight', label: 'Vérification', icon: FileCheck },
+            { id: 'share', label: 'Partager', icon: Share2 },
         ]
     }
 ];
@@ -134,11 +137,18 @@ export const PhaseBar: React.FC<PhaseBarProps> = ({
     const showDropdown = isHovering && selectedPhase !== null;
 
     // CLICK to select phase (remember it)
+    // V3.1: Also auto-switch to the first tab of the phase
     const handlePhaseClick = useCallback((e: React.MouseEvent, phaseId: PhaseId) => {
         e.stopPropagation();
         setSelectedPhase(phaseId);
         onPhaseChange(phaseId);
-    }, [onPhaseChange]);
+
+        // Auto-select the first tab of the phase (enables single-click navigation for Design, Layout)
+        const phase = PHASES.find(p => p.id === phaseId);
+        if (phase && phase.tabs.length > 0) {
+            onTabChange(phase.tabs[0].id);
+        }
+    }, [onPhaseChange, onTabChange]);
 
     const handleTabClick = useCallback((e: React.MouseEvent, phaseId: PhaseId, tabId: string) => {
         e.stopPropagation();

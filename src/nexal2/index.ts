@@ -38,3 +38,19 @@ export { NEXAL2PreviewPane } from './components';
 // Dev tools (validation, matrix runner)
 export * from './dev';
 
+// Performance utilities
+export {
+    createLayoutCacheKey,
+    getCachedLayout,
+    setCachedLayout,
+    clearLayoutCache,
+    getCacheStats
+} from './layout/layoutCache';
+export {
+    debounce,
+    throttle,
+    useThrottledCallback,
+    useDebouncedCallback,
+    useDebouncedValue,
+} from './performance';
+

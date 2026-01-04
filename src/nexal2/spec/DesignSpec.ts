@@ -57,6 +57,8 @@ export const LayoutPolicySchema = z.object({
     sidebarPosition: z.enum(['left', 'right']),
     showPhoto: z.boolean(),
     photoScale: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional(),
+    // Premium Pack v1: Content density control
+    density: z.enum(['compact', 'normal', 'airy']).optional(),
 });
 
 export type LayoutPolicy = z.infer<typeof LayoutPolicySchema>;
@@ -158,6 +160,7 @@ export const DEFAULT_DESIGN_SPEC: DesignSpec = {
         sidebarPosition: 'left',
         showPhoto: true,
         photoScale: 2,
+        density: 'normal',
     },
     locale: {
         locale: 'fr',

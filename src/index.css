@@ -579,6 +579,34 @@ body.omega-serious-mode .omega-agent-rocket {
 }
 
 /* ============================================
+   PR4 PREVIEW SPOTLIGHT ANIMATIONS
+   Contextual highlighting when controls change
+   ============================================ */
+
+@keyframes spotlight-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px var(--spotlight-color, rgba(99, 102, 241, 0.4)),
+      0 0 20px var(--spotlight-color, rgba(99, 102, 241, 0.4));
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px var(--spotlight-color, rgba(99, 102, 241, 0)),
+      0 0 40px var(--spotlight-color, rgba(99, 102, 241, 0.2));
+  }
+}
+
+.spotlight-highlight {
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.spotlight-overlay {
+  pointer-events: none;
+}
+
+/* ============================================
    PRINT / PDF RENDERING STYLES
    Critical for multi-page PDF generation
    ============================================ */

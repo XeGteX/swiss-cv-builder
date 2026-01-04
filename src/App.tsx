@@ -42,6 +42,9 @@ import { DebugBar } from './presentation/features/debug';
 // NEXAL2 Test Page (dev-only, feature flag VITE_NEXAL2)
 import { Nexal2TestPage } from './nexal2/test';
 
+// Hardware Acceleration Alert (PR5)
+import { HardwareAlert } from './presentation/components/HardwareAlert';
+
 function App() {
   const { checkAuth } = useAuthStore();
 
@@ -103,6 +106,8 @@ function App() {
           </Routes>
           {/* DebugBar - Global floating component */}
           <DebugBar />
+          {/* Hardware Acceleration Warning (PR5) */}
+          <HardwareAlert />
         </BrowserRouter>
       </RegionProvider>
     </ErrorBoundary>

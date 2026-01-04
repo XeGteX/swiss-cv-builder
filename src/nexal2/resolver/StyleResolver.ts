@@ -45,6 +45,7 @@ export interface ComputedDesign {
         sidebarPosition: 'left' | 'right';
         showPhoto: boolean;
         photoScale: 1 | 2 | 3;
+        density: 'compact' | 'normal' | 'airy';
     };
 
     // Locale
@@ -133,14 +134,15 @@ export function resolveDesign(
             sidebarPosition: spec.layout.sidebarPosition,
             showPhoto: spec.layout.showPhoto,
             photoScale: spec.layout.photoScale || 2,
+            density: spec.layout.density || 'normal',
         },
         locale: {
             locale: spec.locale.locale,
             paperFormat: spec.locale.paperFormat,
             targetCountry: spec.locale.targetCountry,
         },
-        sectionOverrides: spec.overrides?.perSection || {},
-        elementVariants: spec.overrides?.perElement || {},
+        sectionOverrides: (spec.overrides?.perSection || {}) as Record<string, Partial<DesignTokens>>,
+        elementVariants: (spec.overrides?.perElement || {}) as Record<string, { variant: string; options?: Record<string, unknown> }>,
     };
 }
 

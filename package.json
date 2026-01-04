@@ -18,6 +18,9 @@
     "verify:enterprise": "npx tsc --noEmit && npm run test:pagination && npx vitest run && npx vitest run tests/qa-enterprise.test.ts",
     "test:visual": "vitest run tests/visual-regression.test.ts",
     "test:visual:update": "cross-env UPDATE_GOLDENS=true vitest run tests/visual-regression.test.ts",
+    "test:matrix": "vitest run tests/matrix-test.test.ts",
+    "test:matrix:update": "cross-env UPDATE_GOLDENS=true vitest run tests/matrix-test.test.ts",
+    "test:matrix:smoke": "cross-env MATRIX_SMOKE=true vitest run tests/matrix-test.test.ts",
     "sentinel": "tsx scripts/sentinel.ts"
   },
   "dependencies": {

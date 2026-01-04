@@ -24,8 +24,8 @@ import { ExperienceTab } from './tabs/ExperienceTab';
 import { EducationTab } from './tabs/EducationTab';
 import { SkillsTab } from './tabs/SkillsTab';
 import { CoverLetterTab } from './tabs/CoverLetterTab';
-import { CriticTab } from './tabs/CriticTab';
 import { DesignTab } from './tabs/DesignTab';
+import { LayoutTab } from './tabs/LayoutTab';
 import { CoachTab } from './tabs/CoachTab';
 import { AnalyzerTab } from './tabs/AnalyzerTab';
 import { ExportTab } from './tabs/ExportTab';
@@ -41,20 +41,28 @@ import { GlassStyles } from '../../design-system/tokens';
 
 const TabContent: React.FC<{ tabId: string }> = React.memo(({ tabId }) => {
     switch (tabId) {
+        // Content phase
         case 'personal': return <PersonalTab />;
         case 'experience': return <ExperienceTab />;
         case 'education': return <EducationTab />;
         case 'skills': return <SkillsTab />;
-        case 'letter': return <CoverLetterTab />;
-        case 'critic': return <CriticTab />;
+        case 'photo': return <ProfileImageTab />;
+        // Design phase
         case 'design': return <DesignTab />;
+        // Layout phase (NEW: dedicated LayoutTab)
+        case 'layout': return <LayoutTab />;
+        // Score IA phase
         case 'analyzer': return <AnalyzerTab />;
+        case 'coach': return <CoachTab />;
+        // Export phase
         case 'export': return <ExportTab />;
+        case 'preflight': return <ExportTab />; // TODO: PreflightTab in PR3
+        case 'share': return <CollaborationTab />;
+        // Legacy fallback
+        case 'letter': return <CoverLetterTab />;
         case 'analytics': return <AnalyticsTab />;
         case 'collab': return <CollaborationTab />;
         case 'marketplace': return <MarketplaceTab />;
-        case 'coach': return <CoachTab />;
-        case 'photo': return <ProfileImageTab />;
         default: return <PersonalTab />;
     }
 });
@@ -71,7 +79,7 @@ export const EditorSidebar: React.FC = React.memo(() => {
     // Derive active phase from active tab
     const currentPhase = getPhaseForTab(activeTab);
     const [activePhaseId, setActivePhaseId] = useState<PhaseId>(
-        currentPhase?.id ?? 'data'
+        currentPhase?.id ?? 'content'  // V3: default to 'content' instead of 'data'
     );
 
     // Handle phase change
